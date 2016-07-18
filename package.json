@@ -1,0 +1,33 @@
+{
+  "name": "cadets-demo",
+  "version": "0.0.0",
+  "description": "OPUS console that allows interactive provenance queries on process and file histories",
+  "main": "lib/opus-console/index.js",
+  "scripts": {
+    "test": "echo \"Error: no tests specified\" && exit 1",
+    "build:www": "webpack --config lib/config/webpack.conf.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lc525/cadets-demo"
+  },
+  "keywords": [
+    "provenance",
+    "gui",
+    "console",
+    "opus"
+  ],
+  "author": "Lucian Carata <lc525@cam.ac.uk>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "phosphor-commandpalette": "^0.2.0",
+    "phosphor-dockpanel": "^0.9.7",
+    "phosphor-keymap": "^0.8.0",
+    "phosphor-menus": "^1.0.0-rc.1"
+  },
+  "devDependencies": {
+    "css-loader": "^0.23.1",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.13.1"
+  }
+}
