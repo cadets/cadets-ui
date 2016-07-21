@@ -1,0 +1,991 @@
+{
+    "nodes": [
+        {
+            "type": "proc", 
+            "id": 1, 
+            "name": "sshd"
+        }, 
+        {
+            "type": "proc", 
+            "id": 2, 
+            "name": "/usr/sbin/sshd"
+        }, 
+        {
+            "type": "file", 
+            "id": 3, 
+            "name": "/usr/lib/libasn1.so.11"
+        }, 
+        {
+            "type": "file", 
+            "id": 4, 
+            "name": "/usr/lib/libbsm.so.3"
+        }, 
+        {
+            "type": "file", 
+            "id": 5, 
+            "name": "/usr/lib/libcom_err.so.5"
+        }, 
+        {
+            "type": "file", 
+            "id": 6, 
+            "name": "/usr/lib/libgssapi.so.10"
+        }, 
+        {
+            "type": "file", 
+            "id": 7, 
+            "name": "/usr/lib/libgssapi_krb5.so.10"
+        }, 
+        {
+            "type": "file", 
+            "id": 8, 
+            "name": "/usr/lib/libgssapi_spnego.so.10"
+        }, 
+        {
+            "type": "file", 
+            "id": 9, 
+            "name": "/usr/lib/libheimbase.so.11"
+        }, 
+        {
+            "type": "file", 
+            "id": 10, 
+            "name": "/usr/lib/libhx509.so.11"
+        }, 
+        {
+            "type": "file", 
+            "id": 11, 
+            "name": "/usr/lib/libkrb5.so.11"
+        }, 
+        {
+            "type": "file", 
+            "id": 12, 
+            "name": "/usr/lib/libopie.so.8"
+        }, 
+        {
+            "type": "file", 
+            "id": 13, 
+            "name": "/usr/lib/libpam.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 14, 
+            "name": "/usr/lib/libprivateheimipcc.so.11"
+        }, 
+        {
+            "type": "file", 
+            "id": 15, 
+            "name": "/usr/lib/libprivateldns.so.5"
+        }, 
+        {
+            "type": "file", 
+            "id": 16, 
+            "name": "/usr/lib/libprivatessh.so.5"
+        }, 
+        {
+            "type": "file", 
+            "id": 17, 
+            "name": "/usr/lib/libroken.so.11"
+        }, 
+        {
+            "type": "file", 
+            "id": 18, 
+            "name": "/usr/lib/libwind.so.11"
+        }, 
+        {
+            "type": "file", 
+            "id": 19, 
+            "name": "/usr/lib/libwrap.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 20, 
+            "name": "/usr/lib/libypclnt.so.4"
+        }, 
+        {
+            "type": "file", 
+            "id": 21, 
+            "name": "/usr/lib/pam_login_access.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 22, 
+            "name": "/usr/lib/pam_nologin.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 23, 
+            "name": "/usr/lib/pam_opie.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 24, 
+            "name": "/usr/lib/pam_opieaccess.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 25, 
+            "name": "/usr/lib/pam_permit.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 26, 
+            "name": "/usr/lib/pam_unix.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 27, 
+            "name": "/usr/share/zoneinfo/UTC"
+        }, 
+        {
+            "type": "file", 
+            "id": 28, 
+            "name": "/usr/share/zoneinfo/posixrules"
+        }, 
+        {
+            "type": "proc", 
+            "id": 29, 
+            "name": "/usr/local/bin/bash"
+        }, 
+        {
+            "type": "file", 
+            "id": 30, 
+            "name": "/home/bob/.bash_history"
+        }, 
+        {
+            "type": "file", 
+            "id": 31, 
+            "name": "/home/bob/.profile"
+        }, 
+        {
+            "type": "file", 
+            "id": 32, 
+            "name": "/usr/lib/pam_unix.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 33, 
+            "name": "/usr/local/lib/libintl.so.8"
+        }, 
+        {
+            "type": "file", 
+            "id": 34, 
+            "name": "/usr/share/misc/termcap.db"
+        }, 
+        {
+            "type": "proc", 
+            "id": 35, 
+            "name": "/usr/bin/vi"
+        }, 
+        {
+            "type": "file", 
+            "id": 36, 
+            "name": "/home/bob/.bash_history"
+        }, 
+        {
+            "type": "file", 
+            "id": 37, 
+            "name": "/tmp/vi.J6uYVPEHhv"
+        }, 
+        {
+            "type": "file", 
+            "id": 38, 
+            "name": "/usr/home/bob/hello.c"
+        }, 
+        {
+            "type": "file", 
+            "id": 39, 
+            "name": "/usr/lib/i18n"
+        }, 
+        {
+            "type": "file", 
+            "id": 40, 
+            "name": "/usr/lib/i18n/libUTF1632.so.4"
+        }, 
+        {
+            "type": "file", 
+            "id": 41, 
+            "name": "/usr/lib/i18n/libiconv_std.so.4"
+        }, 
+        {
+            "type": "file", 
+            "id": 42, 
+            "name": "/usr/lib/i18n/libmapper_646.so.4"
+        }, 
+        {
+            "type": "file", 
+            "id": 43, 
+            "name": "/usr/lib/pam_unix.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 44, 
+            "name": "/usr/share/i18n/csmapper/ISO646/ISO646-US%UCS.646"
+        }, 
+        {
+            "type": "file", 
+            "id": 45, 
+            "name": "/usr/share/i18n/csmapper/mapper.dir"
+        }, 
+        {
+            "type": "file", 
+            "id": 46, 
+            "name": "/usr/share/i18n/esdb/ISO646/ISO646-US.esdb"
+        }, 
+        {
+            "type": "file", 
+            "id": 47, 
+            "name": "/usr/share/i18n/esdb/UTF/UTF-16BE.esdb"
+        }, 
+        {
+            "type": "file", 
+            "id": 48, 
+            "name": "/usr/share/i18n/esdb/esdb.alias.db"
+        }, 
+        {
+            "type": "file", 
+            "id": 49, 
+            "name": "/usr/share/i18n/esdb/esdb.dir.db"
+        }, 
+        {
+            "type": "file", 
+            "id": 50, 
+            "name": "/usr/share/misc/termcap.db"
+        }, 
+        {
+            "type": "file", 
+            "id": 51, 
+            "name": "/usr/share/vi/catalog/C"
+        }, 
+        {
+            "type": "file", 
+            "id": 52, 
+            "name": "/usr/share/zoneinfo/UTC"
+        }, 
+        {
+            "type": "file", 
+            "id": 53, 
+            "name": "/tmp/bt.2717XIDtTg"
+        }, 
+        {
+            "type": "file", 
+            "id": 54, 
+            "name": "/tmp/bt.BOzTjd3Ylc"
+        }, 
+        {
+            "type": "file", 
+            "id": 55, 
+            "name": "/tmp/vi.J6uYVPEHhv"
+        }, 
+        {
+            "type": "file", 
+            "id": 56, 
+            "name": "/usr/home/bob/hello.c"
+        }, 
+        {
+            "type": "file", 
+            "id": 57, 
+            "name": "/tmp/bt.2717XIDtTg"
+        }, 
+        {
+            "type": "file", 
+            "id": 58, 
+            "name": "/tmp/bt.BOzTjd3Ylc"
+        }, 
+        {
+            "type": "file", 
+            "id": 59, 
+            "name": "/tmp/vi.J6uYVPEHhv"
+        }, 
+        {
+            "type": "file", 
+            "id": 60, 
+            "name": "/usr/lib/i18n"
+        }, 
+        {
+            "type": "file", 
+            "id": 61, 
+            "name": "/usr/share/zoneinfo/posixrules"
+        }, 
+        {
+            "type": "proc", 
+            "id": 62, 
+            "name": "/usr/bin/cc"
+        }, 
+        {
+            "type": "file", 
+            "id": 63, 
+            "name": "/home/bob/.bash_history"
+        }, 
+        {
+            "type": "file", 
+            "id": 64, 
+            "name": "/usr/lib/pam_unix.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 65, 
+            "name": "/usr/share/misc/termcap.db"
+        }, 
+        {
+            "type": "file", 
+            "id": 66, 
+            "name": "/tmp/hello-ae3f84.o"
+        }, 
+        {
+            "type": "proc", 
+            "id": 67, 
+            "name": "/usr/bin/cc"
+        }, 
+        {
+            "type": "file", 
+            "id": 68, 
+            "name": "/home/bob/.bash_history"
+        }, 
+        {
+            "type": "file", 
+            "id": 69, 
+            "name": "/usr/home/bob/hello.c"
+        }, 
+        {
+            "type": "file", 
+            "id": 70, 
+            "name": "/usr/include/machine/_limits.h"
+        }, 
+        {
+            "type": "file", 
+            "id": 71, 
+            "name": "/usr/include/machine/_types.h"
+        }, 
+        {
+            "type": "file", 
+            "id": 72, 
+            "name": "/usr/include/stdio.h"
+        }, 
+        {
+            "type": "file", 
+            "id": 73, 
+            "name": "/usr/include/stdlib.h"
+        }, 
+        {
+            "type": "file", 
+            "id": 74, 
+            "name": "/usr/include/sys/_null.h"
+        }, 
+        {
+            "type": "file", 
+            "id": 75, 
+            "name": "/usr/include/sys/_types.h"
+        }, 
+        {
+            "type": "file", 
+            "id": 76, 
+            "name": "/usr/include/sys/cdefs.h"
+        }, 
+        {
+            "type": "file", 
+            "id": 77, 
+            "name": "/usr/include/x86/_limits.h"
+        }, 
+        {
+            "type": "file", 
+            "id": 78, 
+            "name": "/usr/include/x86/_types.h"
+        }, 
+        {
+            "type": "file", 
+            "id": 79, 
+            "name": "/usr/lib/pam_unix.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 80, 
+            "name": "/usr/share/misc/termcap.db"
+        }, 
+        {
+            "type": "file", 
+            "id": 81, 
+            "name": "/tmp/hello-ae3f84.o-fa18554a"
+        }, 
+        {
+            "type": "file", 
+            "id": 82, 
+            "name": "/tmp/hello-ae3f84.o-fa18554a"
+        }, 
+        {
+            "type": "proc", 
+            "id": 83, 
+            "name": "/usr/bin/ld"
+        }, 
+        {
+            "type": "file", 
+            "id": 84, 
+            "name": "/home/bob/.bash_history"
+        }, 
+        {
+            "type": "file", 
+            "id": 85, 
+            "name": "/tmp/hello-ae3f84.o"
+        }, 
+        {
+            "type": "file", 
+            "id": 86, 
+            "name": "/usr/lib/crt1.o"
+        }, 
+        {
+            "type": "file", 
+            "id": 87, 
+            "name": "/usr/lib/crtbegin.o"
+        }, 
+        {
+            "type": "file", 
+            "id": 88, 
+            "name": "/usr/lib/crtend.o"
+        }, 
+        {
+            "type": "file", 
+            "id": 89, 
+            "name": "/usr/lib/crti.o"
+        }, 
+        {
+            "type": "file", 
+            "id": 90, 
+            "name": "/usr/lib/crtn.o"
+        }, 
+        {
+            "type": "file", 
+            "id": 91, 
+            "name": "/usr/lib/libc.so"
+        }, 
+        {
+            "type": "file", 
+            "id": 92, 
+            "name": "/usr/lib/libc_nonshared.a"
+        }, 
+        {
+            "type": "file", 
+            "id": 93, 
+            "name": "/usr/lib/libgcc.a"
+        }, 
+        {
+            "type": "file", 
+            "id": 94, 
+            "name": "/usr/lib/libgcc_s.so"
+        }, 
+        {
+            "type": "file", 
+            "id": 95, 
+            "name": "/usr/lib/libssp_nonshared.a"
+        }, 
+        {
+            "type": "file", 
+            "id": 96, 
+            "name": "/usr/lib/pam_unix.so.6"
+        }, 
+        {
+            "type": "file", 
+            "id": 97, 
+            "name": "/usr/share/misc/termcap.db"
+        }, 
+        {
+            "type": "file", 
+            "id": 98, 
+            "name": "/usr/home/bob/hello"
+        }, 
+        {
+            "type": "file", 
+            "id": 99, 
+            "name": "/usr/home/bob/hello"
+        }
+    ], 
+    "edges": [
+        {
+            "dest": 2, 
+            "src": 1, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 3, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 4, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 5, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 6, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 7, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 8, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 9, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 10, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 11, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 12, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 13, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 15, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 16, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 17, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 18, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 19, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 20, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 21, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 22, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 23, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 24, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 25, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 26, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 27, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 28, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 29, 
+            "src": 2, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 30, 
+            "src": 29, 
+            "type": "r"
+        }, 
+        {
+            "dest": 31, 
+            "src": 29, 
+            "type": "r"
+        }, 
+        {
+            "dest": 32, 
+            "src": 29, 
+            "type": "r"
+        }, 
+        {
+            "dest": 33, 
+            "src": 29, 
+            "type": "r"
+        }, 
+        {
+            "dest": 34, 
+            "src": 29, 
+            "type": "r"
+        }, 
+        {
+            "dest": 35, 
+            "src": 29, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 36, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 37, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 38, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 39, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 40, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 41, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 42, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 43, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 44, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 45, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 46, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 47, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 48, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 49, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 50, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 51, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 52, 
+            "src": 35, 
+            "type": "r"
+        }, 
+        {
+            "dest": 53, 
+            "src": 35, 
+            "type": "w"
+        }, 
+        {
+            "dest": 54, 
+            "src": 35, 
+            "type": "w"
+        }, 
+        {
+            "dest": 55, 
+            "src": 35, 
+            "type": "w"
+        }, 
+        {
+            "dest": 56, 
+            "src": 35, 
+            "type": "w"
+        }, 
+        {
+            "dest": 57, 
+            "src": 35, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 58, 
+            "src": 35, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 59, 
+            "src": 35, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 60, 
+            "src": 35, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 61, 
+            "src": 35, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 62, 
+            "src": 29, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 63, 
+            "src": 62, 
+            "type": "r"
+        }, 
+        {
+            "dest": 64, 
+            "src": 62, 
+            "type": "r"
+        }, 
+        {
+            "dest": 65, 
+            "src": 62, 
+            "type": "r"
+        }, 
+        {
+            "dest": 66, 
+            "src": 62, 
+            "type": "w"
+        }, 
+        {
+            "dest": 67, 
+            "src": 62, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 68, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 69, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 70, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 71, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 72, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 73, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 74, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 75, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 76, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 77, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 78, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 79, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 80, 
+            "src": 67, 
+            "type": "r"
+        }, 
+        {
+            "dest": 81, 
+            "src": 67, 
+            "type": "w"
+        }, 
+        {
+            "dest": 82, 
+            "src": 67, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 83, 
+            "src": 62, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 84, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 85, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 86, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 87, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 88, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 89, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 90, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 91, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 92, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 93, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 94, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 95, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 96, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 97, 
+            "src": 83, 
+            "type": "r"
+        }, 
+        {
+            "dest": 98, 
+            "src": 83, 
+            "type": "w"
+        }, 
+        {
+            "dest": 99, 
+            "src": 83, 
+            "type": "rw"
+        }
+    ]
+}
