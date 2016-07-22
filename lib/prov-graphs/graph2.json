@@ -1,0 +1,14 @@
+{
+    "root": 4,
+    "nodes":[
+        { "id": 1, "type": "proc", "name": "/bin/bash" },
+        { "id": 2, "type": "file", "name": "foo.txt" },
+        { "id": 3, "type": "file", "name": "baz.txt" },
+        { "id": 4, "type": "proc", "name": "/bin/vim" }
+    ],
+    "edges":[
+        { "src": 1, "dest": 2, "type": "w" },
+        { "src": 3, "dest": 1, "type": "r" },
+        { "src": 2, "dest": 4, "type": "r" }
+    ]
+}
