@@ -11,94 +11,192 @@
             "name": "/usr/sbin/sshd"
         }, 
         {
-            "type": "file", 
-            "id": 3, 
-            "name": "192.168.1.1"
-        }, 
-        {
             "type": "proc", 
-            "id": 4, 
+            "id": 3, 
             "name": "/usr/local/bin/bash"
         }, 
         {
             "type": "proc", 
-            "id": 5, 
-            "name": "/usr/bin/cc"
+            "id": 4, 
+            "name": "/usr/bin/vi"
         }, 
         {
+            "gnode_id": 2736, 
+            "type": "file", 
+            "id": 5, 
+            "name": "/usr/lib/i18n/libiconv_std.so.4"
+        }, 
+        {
+            "gnode_id": 2824, 
             "type": "file", 
             "id": 6, 
-            "name": "/usr/home/alice/hello_test.c"
+            "name": "/usr/home/bob/hello.c"
         }, 
         {
+            "gnode_id": 2974, 
             "type": "file", 
             "id": 7, 
-            "name": "/tmp/hello_test-4db358.o-78b1e4c7"
+            "name": "/tmp/vi.J6uYVPEHhv"
+        }, 
+        {
+            "gnode_id": 2775, 
+            "type": "file", 
+            "id": 8, 
+            "name": "/usr/share/i18n/esdb/UTF/UTF-16BE.esdb"
+        }, 
+        {
+            "gnode_id": 2796, 
+            "type": "file", 
+            "id": 9, 
+            "name": "/usr/share/i18n/csmapper/mapper.dir"
+        }, 
+        {
+            "gnode_id": 2745, 
+            "type": "file", 
+            "id": 10, 
+            "name": "/usr/share/i18n/esdb/esdb.dir.db"
+        }, 
+        {
+            "gnode_id": 2808, 
+            "type": "file", 
+            "id": 11, 
+            "name": "/usr/share/i18n/csmapper/ISO646/ISO646-US%UCS.646"
+        }, 
+        {
+            "gnode_id": 2754, 
+            "type": "file", 
+            "id": 12, 
+            "name": "/usr/share/i18n/esdb/ISO646/ISO646-US.esdb"
+        }, 
+        {
+            "gnode_id": 2733, 
+            "type": "file", 
+            "id": 13, 
+            "name": "/usr/lib/i18n"
+        }, 
+        {
+            "gnode_id": 2811, 
+            "type": "file", 
+            "id": 14, 
+            "name": "/usr/share/vi/catalog/C"
+        }, 
+        {
+            "gnode_id": 2802, 
+            "type": "file", 
+            "id": 15, 
+            "name": "/usr/lib/i18n/libmapper_646.so.4"
+        }, 
+        {
+            "gnode_id": 2748, 
+            "type": "file", 
+            "id": 16, 
+            "name": "/usr/share/i18n/esdb/esdb.alias.db"
+        }, 
+        {
+            "gnode_id": 2784, 
+            "type": "file", 
+            "id": 17, 
+            "name": "/usr/lib/i18n/libUTF1632.so.4"
+        }, 
+        {
+            "gnode_id": 2837, 
+            "type": "file", 
+            "id": 18, 
+            "name": "/tmp/bt.2717XIDtTg"
+        }, 
+        {
+            "gnode_id": 2986, 
+            "type": "file", 
+            "id": 19, 
+            "name": "/tmp/bt.BOzTjd3Ylc"
         }, 
         {
             "type": "proc", 
-            "id": 8, 
+            "id": 20, 
+            "name": "/usr/bin/cc"
+        }, 
+        {
+            "gnode_id": 4432, 
+            "type": "file", 
+            "id": 21, 
+            "name": "/tmp/hello-ae3f84.o-fa18554a"
+        }, 
+        {
+            "type": "proc", 
+            "id": 22, 
             "name": "/usr/bin/ld"
         }, 
         {
+            "gnode_id": 5116, 
             "type": "file", 
-            "id": 9, 
-            "name": "/tmp/hello_test-4db358.o"
-        }, 
-        {
-            "type": "file", 
-            "id": 10, 
-            "name": "/usr/lib/crt1.o"
-        }, 
-        {
-            "type": "file", 
-            "id": 11, 
-            "name": "/usr/lib/crtbegin.o"
-        }, 
-        {
-            "type": "file", 
-            "id": 12, 
-            "name": "/usr/lib/crtend.o"
-        }, 
-        {
-            "type": "file", 
-            "id": 13, 
-            "name": "/usr/lib/crti.o"
-        }, 
-        {
-            "type": "file", 
-            "id": 14, 
-            "name": "/usr/lib/crtn.o"
-        }, 
-        {
-            "type": "file", 
-            "id": 15, 
+            "id": 23, 
             "name": "/usr/lib/libc.so"
         }, 
         {
+            "gnode_id": 5088, 
             "type": "file", 
-            "id": 16, 
-            "name": "/usr/lib/libc_nonshared.a"
-        }, 
-        {
-            "type": "file", 
-            "id": 17, 
+            "id": 24, 
             "name": "/usr/lib/libgcc.a"
         }, 
         {
+            "gnode_id": 5213, 
             "type": "file", 
-            "id": 18, 
-            "name": "/usr/lib/libgcc_s.so"
+            "id": 25, 
+            "name": "/usr/lib/libc_nonshared.a"
         }, 
         {
+            "gnode_id": 5081, 
             "type": "file", 
-            "id": 19, 
+            "id": 26, 
+            "name": "/usr/lib/crtbegin.o"
+        }, 
+        {
+            "gnode_id": 5267, 
+            "type": "file", 
+            "id": 27, 
+            "name": "/usr/lib/crtn.o"
+        }, 
+        {
+            "gnode_id": 5092, 
+            "type": "file", 
+            "id": 28, 
+            "name": "/tmp/hello-ae3f84.o"
+        }, 
+        {
+            "gnode_id": 5219, 
+            "type": "file", 
+            "id": 29, 
             "name": "/usr/lib/libssp_nonshared.a"
         }, 
         {
+            "gnode_id": 5101, 
             "type": "file", 
-            "id": 20, 
-            "name": "/usr/home/alice/hello_test"
+            "id": 30, 
+            "name": "/usr/lib/libgcc_s.so"
+        }, 
+        {
+            "gnode_id": 5074, 
+            "type": "file", 
+            "id": 31, 
+            "name": "/usr/lib/crti.o"
+        }, 
+        {
+            "gnode_id": 5271, 
+            "type": "file", 
+            "id": 32, 
+            "name": "/usr/lib/crtend.o"
+        }, 
+        {
+            "gnode_id": 5070, 
+            "type": "file", 
+            "id": 33, 
+            "name": "/usr/lib/crt1.o"
+        }, 
+        {
+            "gnode_id": 5056, 
+            "type": "file", 
+            "id": 34, 
+            "name": "/usr/home/bob/hello"
         }
     ], 
     "edges": [
@@ -110,126 +208,211 @@
         {
             "dest": 3, 
             "src": 2, 
-            "type": "rw"
+            "type": "parent"
         }, 
         {
             "dest": 4, 
-            "src": 2, 
+            "src": 3, 
             "type": "parent"
         }, 
         {
-            "dest": 3, 
-            "src": 4, 
-            "type": "rw"
-        }, 
-        {
-            "dest": 5, 
-            "src": 4, 
-            "type": "parent"
-        }, 
-        {
-            "dest": 3, 
+            "dest": 4, 
             "src": 5, 
-            "type": "rw"
+            "type": "r"
         }, 
         {
-            "dest": 5, 
-            "src": 5, 
-            "type": "parent"
-        }, 
-        {
-            "dest": 5, 
+            "dest": 4, 
             "src": 6, 
             "type": "r"
         }, 
         {
-            "dest": 7, 
-            "src": 5, 
-            "type": "w"
+            "dest": 4, 
+            "src": 7, 
+            "type": "r"
         }, 
         {
-            "dest": 7, 
-            "src": 5, 
-            "type": "rw"
+            "dest": 4, 
+            "src": 8, 
+            "type": "r"
         }, 
         {
-            "dest": 3, 
-            "src": 5, 
-            "type": "rw"
-        }, 
-        {
-            "dest": 8, 
-            "src": 5, 
-            "type": "parent"
-        }, 
-        {
-            "dest": 8, 
+            "dest": 4, 
             "src": 9, 
             "type": "r"
         }, 
         {
-            "dest": 8, 
+            "dest": 4, 
             "src": 10, 
             "type": "r"
         }, 
         {
-            "dest": 8, 
+            "dest": 4, 
             "src": 11, 
             "type": "r"
         }, 
         {
-            "dest": 8, 
+            "dest": 4, 
             "src": 12, 
             "type": "r"
         }, 
         {
-            "dest": 8, 
+            "dest": 4, 
             "src": 13, 
             "type": "r"
         }, 
         {
-            "dest": 8, 
+            "dest": 4, 
             "src": 14, 
             "type": "r"
         }, 
         {
-            "dest": 8, 
+            "dest": 4, 
             "src": 15, 
             "type": "r"
         }, 
         {
-            "dest": 8, 
+            "dest": 4, 
             "src": 16, 
             "type": "r"
         }, 
         {
-            "dest": 8, 
+            "dest": 4, 
             "src": 17, 
             "type": "r"
         }, 
         {
-            "dest": 8, 
-            "src": 18, 
-            "type": "r"
-        }, 
-        {
-            "dest": 8, 
-            "src": 19, 
-            "type": "r"
-        }, 
-        {
-            "dest": 20, 
-            "src": 8, 
+            "dest": 6, 
+            "src": 4, 
             "type": "w"
         }, 
         {
-            "dest": 20, 
-            "src": 8, 
+            "dest": 7, 
+            "src": 4, 
+            "type": "w"
+        }, 
+        {
+            "dest": 18, 
+            "src": 4, 
+            "type": "w"
+        }, 
+        {
+            "dest": 19, 
+            "src": 4, 
+            "type": "w"
+        }, 
+        {
+            "dest": 7, 
+            "src": 4, 
             "type": "rw"
         }, 
         {
-            "dest": 3, 
-            "src": 8, 
+            "dest": 13, 
+            "src": 4, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 18, 
+            "src": 4, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 19, 
+            "src": 4, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 20, 
+            "src": 3, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 20, 
+            "src": 20, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 20, 
+            "src": 6, 
+            "type": "r"
+        }, 
+        {
+            "dest": 21, 
+            "src": 20, 
+            "type": "w"
+        }, 
+        {
+            "dest": 21, 
+            "src": 20, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 22, 
+            "src": 20, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 22, 
+            "src": 23, 
+            "type": "r"
+        }, 
+        {
+            "dest": 22, 
+            "src": 24, 
+            "type": "r"
+        }, 
+        {
+            "dest": 22, 
+            "src": 25, 
+            "type": "r"
+        }, 
+        {
+            "dest": 22, 
+            "src": 26, 
+            "type": "r"
+        }, 
+        {
+            "dest": 22, 
+            "src": 27, 
+            "type": "r"
+        }, 
+        {
+            "dest": 22, 
+            "src": 28, 
+            "type": "r"
+        }, 
+        {
+            "dest": 22, 
+            "src": 29, 
+            "type": "r"
+        }, 
+        {
+            "dest": 22, 
+            "src": 30, 
+            "type": "r"
+        }, 
+        {
+            "dest": 22, 
+            "src": 31, 
+            "type": "r"
+        }, 
+        {
+            "dest": 22, 
+            "src": 32, 
+            "type": "r"
+        }, 
+        {
+            "dest": 22, 
+            "src": 33, 
+            "type": "r"
+        }, 
+        {
+            "dest": 34, 
+            "src": 22, 
+            "type": "w"
+        }, 
+        {
+            "dest": 34, 
+            "src": 22, 
             "type": "rw"
         }
     ]

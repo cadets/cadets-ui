@@ -149,7 +149,7 @@ def descend_down_proc_tree(db_iface, proc_node, proc_tree_map, end_nid):
 def add_file(glob_node, lineage_list, file_list):
     lineage_list.append(glob_node)
     if glob_node.has_key('name') and glob_node['name'][0] not in file_list:
-        file_list.append(glob_node['name'][0])
+        file_list.append((glob_node['name'][0], glob_node.id))
 
 
 def find_files_read_and_written_by_process(db_iface, proc_node, proc_tree_map, end_nid):
@@ -367,6 +367,7 @@ def get_global_versions(db_iface, file_name, end_nid):
         id_list.append(glob_node.id)
 
     return id_list[-2]
+
 
 def main():
     file_name = sys.argv[1]
