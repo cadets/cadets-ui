@@ -1,5 +1,6 @@
 import json
 import sys
+from pprint import pprint
 
 
 def graph(g):
@@ -67,6 +68,7 @@ def diff(ga, gb):
                         p_o['rid'] = p_b['id']
                         p_o['chg'] = 'none'
                         o_n_b[p_b['id']] = p_o
+                        queue.append((p_a, p_b, p_o))
                 elif p_b['id'] in o_n_b:
                     p_o = o_n_b[p_b['id']]
 
@@ -74,13 +76,14 @@ def diff(ga, gb):
                         p_o['lid'] = p_a['id']
                         p_o['chg'] = 'none'
                         o_n_a[p_a['id']] = p_o
+                        queue.append((p_a, p_b, p_o))
                 else:
                     p_o = {'parents': [], 'chg': 'none'}
                     o_n_a[p_a['id']] = p_o
                     o_n_b[p_b['id']] = p_o
                     queue.append((p_a, p_b, p_o))
-
-                cur_o['parents'].append(p_o)
+                if p_o not in cur_o['parents']:
+                    cur_o['parents'].append(p_o)
             else:
                 if p_a['id'] in o_n_a:
                     p_o = o_n_a[p_a['id']]
@@ -88,7 +91,8 @@ def diff(ga, gb):
                     p_o = {'parents': [], 'chg': 'del'}
                     o_n_a[p_a['id']] = p_o
                     queue.append((p_a, None, p_o))
-                cur_o['parents'].append(p_o)
+                if p_o not in cur_o['parents']:
+                    cur_o['parents'].append(p_o)
 
         for p_b in par_b:
             if p_b['id'] in o_n_b:
@@ -97,7 +101,10 @@ def diff(ga, gb):
                 p_o = {'parents': [], 'chg': 'add'}
                 o_n_b[p_b['id']] = p_o
                 queue.append((None, p_b, p_o))
-            cur_o['parents'].append(p_o)
+            if p_o not in cur_o['parents']:
+                cur_o['parents'].append(p_o)
+
+    pprint(o_r)
 
     out_nodes = []
     out_nodes_l = {}
@@ -118,6 +125,8 @@ def diff(ga, gb):
             out_nodes_r[node['rid']] = out_node
         out_node['id'] = nid
         out_nodes.append(out_node)
+
+    pprint(out_nodes)
 
     out_e = []
     for edge in ga['edges']:
