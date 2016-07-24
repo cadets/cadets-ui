@@ -25,8 +25,23 @@ class HelloWorld(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def provgraph(self, gnode_id):
-        print("PROVGRAPH!")
         with open('static/query-cache/'+cgi.escape(gnode_id)+'.json') as graph_file:
+            return graph_file.read()
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def fwdgraph(self, gnode_id):
+        with open('static/query-cache/fwd-'+cgi.escape(gnode_id)+'.json') as graph_file:
+            return graph_file.read()
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def diffgraph(self, gnode_id1, gnode_id2):
+        r1 = int(cgi.escape(gnode_id1));
+        r2 = int(cgi.escape(gnode_id2));
+        if r2 < r1:
+            r1, r2 = r2, r1
+        with open('static/query-cache/diff-'+str(r1)+'-'+str(r2)+'.json') as graph_file:
             return graph_file.read()
 
 if __name__ == '__main__':

@@ -33843,6 +33843,7 @@
 	var cytoscape = __webpack_require__(70);
 	var ph_sp = __webpack_require__(32);
 	var pw = __webpack_require__(20);
+	var menu = __webpack_require__(180).headerExtension
 	var cd_app = {};
 
 	exports.provGraphExtension = {
@@ -33852,6 +33853,7 @@
 	    aboutpanel: {},
 	    opened: {}
 	};
+
 	function activateProvGraph(app) {
 	    cd_app = app;
 
@@ -33886,48 +33888,6 @@
 	        }));
 	}
 
-	function cyto_canvas(elm_id, graph, options){
-	    var cnt = document.getElementById(elm_id);
-	    console.log(cnt.style.width);
-	    var elem = to_cytoscape(graph);
-	    var cy =  cytoscape({
-	        container: cnt,
-	        elements: elem,
-
-	        style: [ // the stylesheet for the graph
-	            {
-	                selector: 'node[type = "file"]',
-	                style: {
-	                    'background-color': '#00ff00',
-	                    'label': 'data(name)'
-	                }
-	            },
-	            {
-	                selector: 'node[type = "proc"]',
-	                style: {
-	                    'background-color': '#ff0000',
-	                    'label': 'data(name)'
-	                }
-	            },
-	            {
-	                selector: 'edge',
-	                style: {
-	                    'width': 3,
-	                    'curve-style': 'bezier',
-	                    'line-color': '#ccc',
-	                    'target-arrow-color': '#ccc',
-	                    'target-arrow-shape': 'triangle'
-	                }
-	            }
-	        ],
-	        autoungrabify: true,
-	        autolock: false,
-	        layout: options
-	    });
-
-	    return cy;
-	}
-
 	function addProvGraph(node) {
 	  $.ajax({url: "../provgraph?gnode_id="+node.original.gnode_id,
 	          type: "GET",
@@ -33958,18 +33918,48 @@
 	              var bin = node.original.binary.split('/').reverse()[0]
 	              graph.title.text = "["+ node.original.pid +"] "+bin
 	              graph.title.closable = true;
+	              menu.diffAdd(node.original.gnode_id);
 	              cd_app.shell.addToMainArea(graph)
 	          }});
 	}
 
 	var GraphWidget = (function (_super) {
 	  __extends(GraphWidget, _super);
-	  function GraphWidget(graph, cylayout, id) {
+	  function GraphWidget(graph, cylayout, id, style) {
 	    _super.call(this);
 	    this.addClass('provgraph');
 	    this._cylayout = cylayout;
 	    this._cyid = id;
 	    this._graph = to_cytoscape(graph);
+	    if(style === undefined) {
+	      style = [ // the stylesheet for the graph
+	            {
+	                selector: 'node[type = "file"]',
+	                style: {
+	                    'background-color': '#00ff00',
+	                    'label': 'data(name)'
+	                }
+	            },
+	            {
+	                selector: 'node[type = "proc"]',
+	                style: {
+	                    'background-color': '#ff0000',
+	                    'label': 'data(name)'
+	                }
+	            },
+	            {
+	                selector: 'edge',
+	                style: {
+	                    'width': 3,
+	                    'curve-style': 'bezier',
+	                    'line-color': '#ccc',
+	                    'target-arrow-color': '#ccc',
+	                    'target-arrow-shape': 'triangle'
+	                }
+	            }
+	        ];
+	    }
+	    this._style = style;
 	    this._cy = {};
 	  }
 
@@ -33996,44 +33986,60 @@
 	    this._cy =  cytoscape({
 	        container: cont,
 	        elements: this._graph,
-
-	        style: [ // the stylesheet for the graph
-	            {
-	                selector: 'node[type = "file"]',
-	                style: {
-	                    'background-color': '#00ff00',
-	                    'label': 'data(name)'
-	                }
-	            },
-	            {
-	                selector: 'node[type = "proc"]',
-	                style: {
-	                    'background-color': '#ff0000',
-	                    'label': 'data(name)'
-	                }
-	            },
-	            {
-	                selector: 'edge',
-	                style: {
-	                    'width': 3,
-	                    'curve-style': 'bezier',
-	                    'line-color': '#ccc',
-	                    'target-arrow-color': '#ccc',
-	                    'target-arrow-shape': 'triangle'
-	                }
-	            }
-	        ],
+	        style: this._style,
 	        autoungrabify: false,
 	        autolock: false,
 	        layout: this._cylayout
 	    });
-	  };
+	    this._cy.on('tap', 'node', function(evt){
+	      var node = evt.cyTarget;
+	      var gnode_id = node._private.data.gnode_id;
+	      console.log("Clicked on: " + gnode_id);
+	      $.ajax({url: "../fwdgraph?gnode_id="+gnode_id,
+	              type: "GET",
+	              async: true,
+	              success: function(data){
+	                  data = $.parseJSON(data)
+	                  var options = {
+	                    name: 'breadthfirst',
+
+	                    fit: true, // whether to fit the viewport to the graph
+	                    directed: false, // whether the tree is directed downwards (or edges can point in any direction if false)
+	                    padding: 30, // padding on fit
+	                    circle: false, // put depths in concentric circles if true, put depths top down if false
+	                    spacingFactor: 1.5, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
+	                    boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+	                    avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+	                    maximalAdjustments: 0, // how many times to try to position the nodes in a maximal way (i.e. no backtracking)
+	                    animate: true, // whether to transition the node positions
+	                    animationDuration: 500, // duration of animation in ms if enabled
+	                    animationEasing: undefined, // easing of animation if enabled
+	                    ready: undefined, // callback on layoutready
+	                    stop: undefined // callback on layoutstop
+	                  };
+	                  var id = 'gnf-'+gnode_id
+	                  var graph = new GraphWidget(data, options, id);
+	                  graph.id = id;
+	                  var bin = node._private.data.name.split('/').reverse()[0]
+	                  graph.title.text = "[fwd:] " + bin;
+	                  graph.title.closable = true;
+	                  cd_app.shell.addToMainArea(graph)
+	            }});
+	    //console.log("GraphWidget attach");
+	    });
+	  }
 
 	  GraphWidget.prototype.onResize = function(msg) {
 	    this._cy.layout(this.cylayout);
+	    //console.log("GraphWidget resize");
+	  };
+	  GraphWidget.prototype.onAfterShow = function(msg) {
+	    this._cy.layout(this.cylayout);
+	    //console.log("GraphWidget show");
 	  };
 	  return GraphWidget;
 	}(pw.Widget));
+	exports.GraphWidget = GraphWidget;
 
 	function createAboutPanel() {
 	    var widget = new pw.Widget();
@@ -61746,7 +61752,7 @@
 /* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*-----------------------------------------------------------------------------
+	/* WEBPACK VAR INJECTION */(function($) {/*-----------------------------------------------------------------------------
 	| Copyright (c) 2014-2016, PhosphorJS Contributors
 	|
 	| Distributed under the terms of the BSD 3-Clause License.
@@ -61756,11 +61762,16 @@
 	'use strict';
 	var pw = __webpack_require__(20);
 	var ph_m = __webpack_require__(181);
+	var gr = __webpack_require__(69);
 
+	var cd_app = {};
+	var node_list = [];
 
 	exports.headerExtension = {
 	    id: 'cadets.topbar.header',
-	    activate: activateHeader
+	    activate: activateHeader,
+	    diffAdd: addToDiffList,
+	    diffClear: clearDiff
 	};
 	function createCommandItem(id, message) {
 	    return { id: id, handler: function () { console.log("COMMAND: " + message); } };
@@ -61768,6 +61779,108 @@
 
 	var logHandler = function(item) {
 	  console.log(item.text);
+	}
+
+	var diff_handler = function(item) {
+	  if(node_list.length<2) return;
+	  var r1 = node_list[0];
+	  var r2 = node_list[1];
+	  node_list = [];
+
+	  var style= [ // the stylesheet for the graph
+	      {
+	          selector: 'node',
+	          style: {
+	              'background-color': '#666666',
+	              'label': 'data(name)',
+	              'background-opacity': '0.3'
+	          }
+	      },
+	      {
+	          selector: 'node[chg = "del"]',
+	          style: {
+	              'background-color': '#ff0000',
+	              'label': 'data(name)',
+	              'background-opacity': '1.0'
+	          }
+	      },
+	      {
+	          selector: 'node[chg = "add"]',
+	          style: {
+	              'background-color': '#00ff00',
+	              'label': 'data(name)',
+	              'background-opacity': '1.0'
+	          }
+	      },
+	      {
+	          selector: 'edge',
+	          style: {
+	              'width': 3,
+	              'curve-style': 'bezier',
+	              'line-color': '#e6e6e6',
+	              'target-arrow-color': '#e6e6e6',
+	              'target-arrow-shape': 'triangle'
+	          }
+	      },
+	      {
+	          selector: 'edge[chg = "add"]',
+	          style: {
+	              'width': 3,
+	              'curve-style': 'bezier',
+	              'line-color': '#00ff00',
+	              'target-arrow-color': '#0f0',
+	              'target-arrow-shape': 'triangle'
+	          }
+	      },
+	      {
+	          selector: 'edge[chg = "del"]',
+	          style: {
+	              'width': 3,
+	              'curve-style': 'bezier',
+	              'line-color': '#ff0000',
+	              'target-arrow-color': '#f00',
+	              'target-arrow-shape': 'triangle'
+	          }
+	      }
+	  ];
+	  $.ajax({url: "../diffgraph?gnode_id1="+r1+"&gnode_id2="+r2,
+	          type: "GET",
+	          async: true,
+	          success: function(data){
+	              data = $.parseJSON(data)
+	              var options = {
+	                  name: 'breadthfirst',
+
+	                  fit: true, // whether to fit the viewport to the graph
+	                  directed: false, // whether the tree is directed downwards (or edges can point in any direction if false)
+	                  padding: 30, // padding on fit
+	                  circle: false, // put depths in concentric circles if true, put depths top down if false
+	                  spacingFactor: 0.7, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
+	                  boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+	                  avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+	                  roots: [data.root], // the roots of the trees
+	                  maximalAdjustments: 0, // how many times to try to position the nodes in a maximal way (i.e. no backtracking)
+	                  animate: true, // whether to transition the node positions
+	                  animationDuration: 500, // duration of animation in ms if enabled
+	                  animationEasing: undefined, // easing of animation if enabled
+	                  ready: undefined, // callback on layoutready
+	                  stop: undefined // callback on layoutstop
+	              };
+	              var id = 'gdiff-'+r1+'-'+r2;
+	              var graph = new gr.GraphWidget(data, options, id, style);
+	              graph.id = id;
+	              graph.title.text = "diff";
+	              graph.title.closable = true;
+	              cd_app.shell.addToMainArea(graph)
+	          }});
+	}
+
+	function addToDiffList(gnode_id){
+	  node_list.push(gnode_id);
+	}
+
+	function clearDiff() {
+	  node_list = [];
 	}
 
 	function createFileMenu() {
@@ -61782,16 +61895,16 @@
 	        type: ph_m.MenuItem.Separator
 	      }),
 	      new ph_m.MenuItem({
-	        text: 'Exit',
-	        shortcut: 'Ctrl+X',
-	        handler: logHandler,
+	        text: 'Graph Diff',
+	        shortcut: 'Ctrl+D',
+	        handler: diff_handler,
 	      }),
 	  ]);
 	  return root;
 	}
 
 	function activateHeader(app) {
-
+	    cd_app = app;
 
 	    var f_menu = createFileMenu();
 
@@ -61808,6 +61921,7 @@
 	    return Promise.resolve();
 	}
 
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(67)))
 
 /***/ },
 /* 181 */
