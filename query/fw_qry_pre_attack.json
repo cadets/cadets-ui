@@ -1,0 +1,55 @@
+{
+    "nodes": [
+        {
+            "gnode_id": 210, 
+            "type": "file", 
+            "id": 1, 
+            "name": "/usr/lib/crt1.o"
+        }, 
+        {
+            "type": "proc", 
+            "id": 2, 
+            "name": "/usr/bin/ld"
+        }, 
+        {
+            "gnode_id": 202, 
+            "type": "file", 
+            "id": 3, 
+            "name": "/usr/home/bob/hello"
+        }, 
+        {
+            "gnode_id": 13772, 
+            "type": "file", 
+            "id": 4, 
+            "name": "/usr/home/alice/hello_test"
+        }, 
+        {
+            "gnode_id": 30005, 
+            "type": "file", 
+            "id": 5, 
+            "name": "/usr/home/eve/hello_2"
+        }
+    ], 
+    "edges": [
+        {
+            "dest": 2, 
+            "src": 1, 
+            "type": "r"
+        }, 
+        {
+            "dest": 3, 
+            "src": 2, 
+            "type": "w"
+        }, 
+        {
+            "dest": 4, 
+            "src": 2, 
+            "type": "w"
+        }, 
+        {
+            "dest": 5, 
+            "src": 2, 
+            "type": "w"
+        }
+    ]
+}
