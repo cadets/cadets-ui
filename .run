@@ -1,0 +1,3 @@
+cd srv
+./opus-console-srv.py
+
