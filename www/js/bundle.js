@@ -45,32 +45,31 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-
-	var __extends = undefined && undefined.__extends || function (d, b) {
-	  for (var p in b) {
-	    if (b.hasOwnProperty(p)) d[p] = b[p];
-	  }function __() {
-	    this.constructor = d;
-	  }
-	  d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 
-	var phosphide = __webpack_require__(1);
-	var tree = __webpack_require__(66).procTreeExtension;
-	var graph = __webpack_require__(69).provGraphExtension;
-	var menu = __webpack_require__(180).headerExtension;
+	var phosphide = __webpack_require__(1)
+	var tree = __webpack_require__(66).procTreeExtension
+	var graph = __webpack_require__(69).provGraphExtension
+	var menu = __webpack_require__(180).headerExtension
 
-	var components = [tree, graph, menu];
+	var components = [tree, graph, menu]
 
-	var app = new phosphide.Application({ extensions: components });
+
+	var app = new phosphide.Application({extensions: components});
+
+
 
 	var ui = {
-	  dp: __webpack_require__(30),
-	  w: __webpack_require__(20),
-	  sp: __webpack_require__(32),
-	  bp: __webpack_require__(4),
-	  m: __webpack_require__(181),
-	  sd: __webpack_require__(188)
+	  dp : __webpack_require__(30),
+	  w  : __webpack_require__(20),
+	  sp : __webpack_require__(32),
+	  bp : __webpack_require__(4),
+	  m : __webpack_require__(181),
+	  sd : __webpack_require__(188)
 	};
 
 	function defineCommands() {
@@ -78,49 +77,56 @@
 	    label: 'About',
 	    mnemonic: 1,
 	    icon: 'fa fa-about',
-	    execute: function execute() {
+	    execute: function () {
 	      console.log('About');
 	    }
 	  });
 	}
 
-	var logHandler = function logHandler(item) {
+	var logHandler = function(item) {
 	  console.log(item.text);
-	};
+	}
 
 	function createFileMenu() {
-	  var root = new ui.m.Menu([new ui.m.MenuItem({
-	    text: 'About',
-	    shortcut: 'Ctrl+A',
-	    icon: 'fa fa-info-circle',
-	    handler: logHandler
-	  }), new ui.m.MenuItem({
-	    type: ui.m.MenuItem.Separator
-	  }), new ui.m.MenuItem({
-	    text: 'Exit',
-	    shortcut: 'Ctrl+X',
-	    handler: logHandler
-	  })]);
+	  var root = new ui.m.Menu([
+	      new ui.m.MenuItem({
+	        text: 'About',
+	        shortcut: 'Ctrl+A',
+	        icon: 'fa fa-info-circle',
+	        handler: logHandler,
+	      }),
+	      new ui.m.MenuItem({
+	        type: ui.m.MenuItem.Separator
+	      }),
+	      new ui.m.MenuItem({
+	        text: 'Exit',
+	        shortcut: 'Ctrl+X',
+	        handler: logHandler,
+	      }),
+	  ]);
 	  return root;
 	}
 
 	function main() {
-	  /*
-	   *  var f_menu = createFileMenu();
-	   *
-	   *  var bar = new ui.m.MenuBar([
-	   *    new ui.m.MenuItem({
-	   *      text: 'File',
-	   *      submenu: f_menu
-	   *    })
-	   *  ]);
-	   *  bar.attach(document.getElementById('menubar-host'));
-	   */
+	/*
+	 *  var f_menu = createFileMenu();
+	 *
+	 *  var bar = new ui.m.MenuBar([
+	 *    new ui.m.MenuItem({
+	 *      text: 'File',
+	 *      submenu: f_menu
+	 *    })
+	 *  ]);
+	 *  bar.attach(document.getElementById('menubar-host'));
+	 */
 
-	  app.run().then(function () {});
+	  app.run().then(function() {
+	  });
+
 	}
 
 	window.onload = main;
+
 
 /***/ },
 /* 1 */
@@ -15489,75 +15495,77 @@
 	| The full license is in the file LICENSE, distributed with this software.
 	|----------------------------------------------------------------------------*/
 	'use strict';
-
 	var phosphor_widget_1 = __webpack_require__(20);
 	//var $ = require('jquery');
 	var jstree = __webpack_require__(68);
-	var graph = __webpack_require__(69).provGraphExtension;
+	var graph = __webpack_require__(69).provGraphExtension
 	var my_app;
 
 	exports.procTreeExtension = {
-	  id: 'cadets.sidebar.proctree',
-	  activate: activateprocTree
+	    id: 'cadets.sidebar.proctree',
+	    activate: activateprocTree
 	};
 	function createCommandItem(id, message) {
-	  return { id: id, handler: function handler() {
-	      console.log("COMMAND: " + message);
-	    } };
+	    return { id: id, handler: function () { console.log("COMMAND: " + message); } };
 	}
 
 	function convert_to_jstree(node_array) {
-	  if (node_array.length == 0) return;
-	  var arr = [];
-	  for (var i in node_array) {
+	  if(node_array.length==0) return;
+	  var arr = []
+	  for(var i in node_array) {
 	    var node = node_array[i];
 	    arr.push({ id: node.id,
-	      text: node.exe + " [" + node.pid + "]",
-	      binary: node.exe,
-	      icon: "fa fa-cube",
-	      pid: node.pid,
-	      gnode_id: node.gnode_id,
-	      state: { opened: true },
-	      children: convert_to_jstree(node.children)
-	    });
+	               text: node.exe+" ["+node.pid+"]",
+	               binary: node.exe,
+	               icon: "fa fa-cube",
+	               pid: node.pid,
+	               gnode_id: node.gnode_id,
+	               state: { opened: true },
+	               children: convert_to_jstree(node.children)
+	             });
 	  }
 	  return arr;
 	}
 
 	function load_proctree(dom_node) {
-	  $.ajax({ url: "../proctree",
-	    type: "GET",
-	    async: true,
-	    success: function success(data) {
-	      var jdata = convert_to_jstree($.parseJSON(data));
-	      $("#" + dom_node.id).on('activate_node.jstree', function (ev, node) {
-	        graph.addGraph(node.node);
-	      }).jstree({
-	        'core': {
-	          'themes': {},
-	          'data': jdata
-	        },
-	        'plugins': ['wholerow', 'search']
-	      });
-	    }
-	  });
+	 $.ajax({url: "../proctree",
+	         type: "GET",
+	         async: true,
+	         success: function(data) {
+	           var jdata = convert_to_jstree($.parseJSON(data))
+	           $("#"+dom_node.id)
+	           .on('activate_node.jstree', function(ev, node) {
+	              graph.addGraph(node.node);
+	           })
+	           .jstree({
+	           'core': {
+	             'themes' : { },
+	             'data': jdata
+	           },
+	           'plugins':['wholerow', 'search']
+	           });
+	          }
+	        }
+	      );
+
 	}
 
 	function activateprocTree(app) {
-	  var widget = new phosphor_widget_1.Widget();
-	  widget.id = 'proctree';
-	  widget.title.text = 'Sessions';
-	  widget.addClass('proctree-content');
-	  app.shell.addToLeftArea(widget, { rank: 10 });
+	    var widget = new phosphor_widget_1.Widget();
+	    widget.id = 'proctree';
+	    widget.title.text = 'Sessions';
+	    widget.addClass('proctree-content');
+	    app.shell.addToLeftArea(widget, { rank: 10 });
 
-	  /* TODO(lc525) add search */
+	    /* TODO(lc525) add search */
 
-	  var div = document.createElement('div');
-	  div.id = 'proctree_host';
-	  widget.node.appendChild(div);
-	  load_proctree(div);
-	  return Promise.resolve();
+	    let div = document.createElement('div');
+	    div.id = 'proctree_host';
+	    widget.node.appendChild(div);
+	    load_proctree(div);
+	    return Promise.resolve();
 	}
+
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(67)))
 
 /***/ },
@@ -33826,17 +33834,13 @@
 	| The full license is in the file LICENSE, distributed with this software.
 	|----------------------------------------------------------------------------*/
 	'use strict';
-
-	var __extends = undefined && undefined.__extends || function (d, b) {
-	    for (var p in b) {
-	        if (b.hasOwnProperty(p)) d[p] = b[p];
-	    }function __() {
-	        this.constructor = d;
-	    }
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 
-	var cs = __webpack_require__(70);
+	var cytoscape = __webpack_require__(70);
 	var ph_sp = __webpack_require__(32);
 	var pw = __webpack_require__(20);
 	var cd_app = {};
@@ -33861,7 +33865,7 @@
 	    logo.addClass('cadets-logo');
 
 	    var graph = createAboutPanel();
-	    exports.provGraphExtension.aboutpanel = graph;
+	    exports.provGraphExtension.aboutpanel = graph
 
 	    panel.addChild(logo);
 	    panel.addChild(graph);
@@ -33870,94 +33874,166 @@
 	    return Promise.resolve();
 	}
 
-	function to_cytoscape(graph) {
-	    return graph.nodes.map(function (node) {
-	        return { data: node };
-	    }).concat(graph.edges.map(function (edge) {
-	        return { data: { id: edge.src + "-" + edge.dest,
-	                source: edge.src,
-	                target: edge.dest,
-	                type: edge.type,
-	                chg: edge.chg } };
-	    }));
+	function to_cytoscape(graph){
+	    return graph.nodes.map(function(node){
+	            return {group: 'nodes', data: node};
+	        }).concat(graph.edges.map(function(edge){
+	            return {group: 'edges', data: {id: edge.src+"-"+edge.dest,
+	                           source: edge.src,
+	                           target: edge.dest,
+	                           type: edge.type,
+	                           chg: edge.chg}};
+	        }));
 	}
 
-	function cyto_canvas(elm_id, graph, options) {
-	    cy = cs.cytoscape({
-	        container: document.getElementById(elm_id),
-	        elements: to_cytoscape(graph),
+	function cyto_canvas(elm_id, graph, options){
+	    var cnt = document.getElementById(elm_id);
+	    console.log(cnt.style.width);
+	    var elem = to_cytoscape(graph);
+	    var cy =  cytoscape({
+	        container: cnt,
+	        elements: elem,
 
-	        style: [// the stylesheet for the graph
-	        {
-	            selector: 'node[type = "file"]',
-	            style: {
-	                'background-color': '#00ff00',
-	                'label': 'data(name)'
+	        style: [ // the stylesheet for the graph
+	            {
+	                selector: 'node[type = "file"]',
+	                style: {
+	                    'background-color': '#00ff00',
+	                    'label': 'data(name)'
+	                }
+	            },
+	            {
+	                selector: 'node[type = "proc"]',
+	                style: {
+	                    'background-color': '#ff0000',
+	                    'label': 'data(name)'
+	                }
+	            },
+	            {
+	                selector: 'edge',
+	                style: {
+	                    'width': 3,
+	                    'curve-style': 'bezier',
+	                    'line-color': '#ccc',
+	                    'target-arrow-color': '#ccc',
+	                    'target-arrow-shape': 'triangle'
+	                }
 	            }
-	        }, {
-	            selector: 'node[type = "proc"]',
-	            style: {
-	                'background-color': '#ff0000',
-	                'label': 'data(name)'
-	            }
-	        }, {
-	            selector: 'edge',
-	            style: {
-	                'width': 3,
-	                'curve-style': 'bezier',
-	                'line-color': '#ccc',
-	                'target-arrow-color': '#ccc',
-	                'target-arrow-shape': 'triangle'
-	            }
-	        }],
+	        ],
 	        autoungrabify: true,
-	        autolock: false
+	        autolock: false,
+	        layout: options
 	    });
-	    cy.layout(options);
+
 	    return cy;
 	}
 
 	function addProvGraph(node) {
-	    var graph = new pw.Widget();
-	    graph.id = 'graph-' + node.original.gnode_id;
-	    var bin = node.original.binary.split('/').reverse()[0];
-	    graph.title.text = "[" + node.original.pid + "] " + bin;
-	    graph.title.closable = true;
-	    graph.addClass("p-graph-container");
+	  $.ajax({url: "../provgraph?gnode_id="+node.original.gnode_id,
+	          type: "GET",
+	          async: true,
+	          success: function(data){
+	              data = $.parseJSON(data)
+	              var options = {
+	                  name: 'breadthfirst',
 
-	    var div = document.createElement('div');
-	    div.className += "provgraph";
-	    div.id = 'g-' + node.original.gnode_id;
-	    graph.node.appendChild(div);
-
-	    $.ajax({ url: "../provgraph?gnode_id=" + node.original.gnode_id,
-	        type: "GET",
-	        async: true,
-	        success: function success(data) {
-	            data = $.parseJSON(data);
-	            var options = {
-	                name: 'breadthfirst',
-
-	                fit: false, // whether to fit the viewport to the graph
-	                directed: false, // whether the tree is directed downwards (or edges can point in any direction if false)
-	                padding: 30, // padding on fit
-	                circle: false, // put depths in concentric circles if true, put depths top down if false
-	                spacingFactor: 0.7, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
-	                boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
-	                avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
-	                roots: [data.root], // the roots of the trees
-	                maximalAdjustments: 0, // how many times to try to position the nodes in a maximal way (i.e. no backtracking)
-	                animate: true, // whether to transition the node positions
-	                animationDuration: 500, // duration of animation in ms if enabled
-	                animationEasing: undefined, // easing of animation if enabled
-	                ready: undefined, // callback on layoutready
-	                stop: undefined // callback on layoutstop
-	            };
-	            cyto_canvas('g-' + node.original.gnode_id, data, options);
-	        } });
-
-	    cd_app.shell.addToMainArea(graph);
+	                  fit: true, // whether to fit the viewport to the graph
+	                  directed: false, // whether the tree is directed downwards (or edges can point in any direction if false)
+	                  padding: 30, // padding on fit
+	                  circle: false, // put depths in concentric circles if true, put depths top down if false
+	                  spacingFactor: 0.7, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
+	                  boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+	                  avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+	                  roots: [data.root], // the roots of the trees
+	                  maximalAdjustments: 0, // how many times to try to position the nodes in a maximal way (i.e. no backtracking)
+	                  animate: true, // whether to transition the node positions
+	                  animationDuration: 500, // duration of animation in ms if enabled
+	                  animationEasing: undefined, // easing of animation if enabled
+	                  ready: undefined, // callback on layoutready
+	                  stop: undefined // callback on layoutstop
+	              };
+	              var id = 'gr-'+node.original.gnode_id
+	              var graph = new GraphWidget(data, options, id);
+	              graph.id = id;
+	              var bin = node.original.binary.split('/').reverse()[0]
+	              graph.title.text = "["+ node.original.pid +"] "+bin
+	              graph.title.closable = true;
+	              cd_app.shell.addToMainArea(graph)
+	          }});
 	}
+
+	var GraphWidget = (function (_super) {
+	  __extends(GraphWidget, _super);
+	  function GraphWidget(graph, cylayout, id) {
+	    _super.call(this);
+	    this.addClass('provgraph');
+	    this._cylayout = cylayout;
+	    this._cyid = id;
+	    this._graph = to_cytoscape(graph);
+	    this._cy = {};
+	  }
+
+	  Object.defineProperty(GraphWidget.prototype, "cylayout", {
+	    get: function () {
+	      return this._cylayout;
+	    },
+	    set: function(cylayout) {
+	      this._cylayout = cylayout;
+	    },
+	    enumerable: true,
+	    configurable: true
+	  });
+	  Object.defineProperty(GraphWidget.prototype, "graph", {
+	    get: function () {
+	      return this._cy;
+	    },
+	    enumerable: true,
+	    configurable: true
+	  });
+
+	  GraphWidget.prototype.onAfterAttach = function (msg) {
+	    var cont = document.getElementById(this._cyid);
+	    this._cy =  cytoscape({
+	        container: cont,
+	        elements: this._graph,
+
+	        style: [ // the stylesheet for the graph
+	            {
+	                selector: 'node[type = "file"]',
+	                style: {
+	                    'background-color': '#00ff00',
+	                    'label': 'data(name)'
+	                }
+	            },
+	            {
+	                selector: 'node[type = "proc"]',
+	                style: {
+	                    'background-color': '#ff0000',
+	                    'label': 'data(name)'
+	                }
+	            },
+	            {
+	                selector: 'edge',
+	                style: {
+	                    'width': 3,
+	                    'curve-style': 'bezier',
+	                    'line-color': '#ccc',
+	                    'target-arrow-color': '#ccc',
+	                    'target-arrow-shape': 'triangle'
+	                }
+	            }
+	        ],
+	        autoungrabify: false,
+	        autolock: false,
+	        layout: this._cylayout
+	    });
+	  };
+
+	  GraphWidget.prototype.onResize = function(msg) {
+	    this._cy.layout(this.cylayout);
+	  };
+	  return GraphWidget;
+	}(pw.Widget));
 
 	function createAboutPanel() {
 	    var widget = new pw.Widget();
@@ -33967,6 +34043,7 @@
 	    widget.addClass('no-content');
 	    return widget;
 	}
+
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(67)))
 
 /***/ },
@@ -61677,53 +61754,60 @@
 	| The full license is in the file LICENSE, distributed with this software.
 	|----------------------------------------------------------------------------*/
 	'use strict';
-
 	var pw = __webpack_require__(20);
 	var ph_m = __webpack_require__(181);
 
+
 	exports.headerExtension = {
-	  id: 'cadets.topbar.header',
-	  activate: activateHeader
+	    id: 'cadets.topbar.header',
+	    activate: activateHeader
 	};
 	function createCommandItem(id, message) {
-	  return { id: id, handler: function handler() {
-	      console.log("COMMAND: " + message);
-	    } };
+	    return { id: id, handler: function () { console.log("COMMAND: " + message); } };
 	}
 
-	var logHandler = function logHandler(item) {
+	var logHandler = function(item) {
 	  console.log(item.text);
-	};
+	}
 
 	function createFileMenu() {
-	  var root = new ph_m.Menu([new ph_m.MenuItem({
-	    text: 'About',
-	    shortcut: 'Ctrl+A',
-	    icon: 'fa fa-info-circle',
-	    handler: logHandler
-	  }), new ph_m.MenuItem({
-	    type: ph_m.MenuItem.Separator
-	  }), new ph_m.MenuItem({
-	    text: 'Exit',
-	    shortcut: 'Ctrl+X',
-	    handler: logHandler
-	  })]);
+	  var root = new ph_m.Menu([
+	      new ph_m.MenuItem({
+	        text: 'About',
+	        shortcut: 'Ctrl+A',
+	        icon: 'fa fa-info-circle',
+	        handler: logHandler,
+	      }),
+	      new ph_m.MenuItem({
+	        type: ph_m.MenuItem.Separator
+	      }),
+	      new ph_m.MenuItem({
+	        text: 'Exit',
+	        shortcut: 'Ctrl+X',
+	        handler: logHandler,
+	      }),
+	  ]);
 	  return root;
 	}
 
 	function activateHeader(app) {
 
-	  var f_menu = createFileMenu();
 
-	  var bar = new ph_m.MenuBar([new ph_m.MenuItem({
-	    text: 'File',
-	    submenu: f_menu
-	  })]);
-	  bar.id = 'opus-menu';
+	    var f_menu = createFileMenu();
 
-	  app.shell.addToTopArea(bar, { rank: 10 });
-	  return Promise.resolve();
+	    var bar = new ph_m.MenuBar([
+	      new ph_m.MenuItem({
+	        text: 'File',
+	        submenu: f_menu
+	      })
+	    ]);
+	    bar.id = 'opus-menu';
+
+
+	    app.shell.addToTopArea(bar, { rank: 10 });
+	    return Promise.resolve();
 	}
+
 
 /***/ },
 /* 181 */
@@ -63961,13 +64045,9 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-
-	var __extends = undefined && undefined.__extends || function (d, b) {
-	    for (var p in b) {
-	        if (b.hasOwnProperty(p)) d[p] = b[p];
-	    }function __() {
-	        this.constructor = d;
-	    }
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	/*-----------------------------------------------------------------------------
@@ -64010,7 +64090,7 @@
 	/**
 	 * A widget which displays titles as a row of exclusive buttons.
 	 */
-	var SideBar = function (_super) {
+	var SideBar = (function (_super) {
 	    __extends(SideBar, _super);
 	    /**
 	     * Construct a new side bar.
@@ -64042,7 +64122,7 @@
 	        /**
 	         * A signal emitted when the current side bar title is changed.
 	         */
-	        get: function get() {
+	        get: function () {
 	            return SideBarPrivate.currentChangedSignal.bind(this);
 	        },
 	        enumerable: true,
@@ -64052,13 +64132,13 @@
 	        /**
 	         * Get the currently selected side bar title.
 	         */
-	        get: function get() {
+	        get: function () {
 	            return SideBarPrivate.currentTitleProperty.get(this);
 	        },
 	        /**
 	         * Set the currently selected side bar title.
 	         */
-	        set: function set(value) {
+	        set: function (value) {
 	            SideBarPrivate.currentTitleProperty.set(this, value);
 	        },
 	        enumerable: true,
@@ -64073,7 +64153,7 @@
 	         *
 	         * This is a read-only property.
 	         */
-	        get: function get() {
+	        get: function () {
 	            return this.node.getElementsByClassName(CONTENT_CLASS)[0];
 	        },
 	        enumerable: true,
@@ -64133,10 +64213,13 @@
 	        var i = this.titleIndex(title);
 	        var j = Math.max(0, Math.min(index | 0, n));
 	        if (i !== -1) {
-	            if (j === n) j--;
-	            if (i === j) return;
+	            if (j === n)
+	                j--;
+	            if (i === j)
+	                return;
 	            arrays.move(this._titles, i, j);
-	        } else {
+	        }
+	        else {
 	            arrays.insert(this._titles, j, title);
 	            title.changed.connect(this._onTitleChanged, this);
 	        }
@@ -64157,7 +64240,8 @@
 	            return;
 	        }
 	        title.changed.disconnect(this._onTitleChanged, this);
-	        if (this.currentTitle === title) this.currentTitle = null;
+	        if (this.currentTitle === title)
+	            this.currentTitle = null;
 	        this._dirty = true;
 	        this.update();
 	    };
@@ -64195,7 +64279,8 @@
 	        if (this._dirty) {
 	            this._dirty = false;
 	            SideBarPrivate.updateButtons(this);
-	        } else {
+	        }
+	        else {
 	            SideBarPrivate.updateCurrent(this);
 	        }
 	    };
@@ -64219,7 +64304,8 @@
 	        var title = this._titles[i];
 	        if (title !== this.currentTitle) {
 	            this.currentTitle = title;
-	        } else {
+	        }
+	        else {
 	            this.currentTitle = null;
 	        }
 	    };
@@ -64231,7 +64317,7 @@
 	        this.update();
 	    };
 	    return SideBar;
-	}(phosphor_widget_1.Widget);
+	}(phosphor_widget_1.Widget));
 	exports.SideBar = SideBar;
 	/**
 	 * The namespace for the `SideBar` class private data.
@@ -64250,7 +64336,7 @@
 	        value: null,
 	        coerce: coerceCurrentTitle,
 	        changed: onCurrentTitleChanged,
-	        notify: SideBarPrivate.currentChangedSignal
+	        notify: SideBarPrivate.currentChangedSignal,
 	    });
 	    /**
 	     * Update the side bar buttons to match the current titles.
@@ -64289,7 +64375,8 @@
 	            var node = children[i];
 	            if (owner.titleAt(i) === current) {
 	                node.classList.add(CURRENT_CLASS);
-	            } else {
+	            }
+	            else {
 	                node.classList.remove(CURRENT_CLASS);
 	            }
 	        }
@@ -64301,7 +64388,8 @@
 	    function hitTestButtons(owner, x, y) {
 	        var nodes = owner.contentNode.children;
 	        for (var i = 0, n = nodes.length; i < n; ++i) {
-	            if (phosphor_domutil_1.hitTest(nodes[i], x, y)) return i;
+	            if (phosphor_domutil_1.hitTest(nodes[i], x, y))
+	                return i;
 	        }
 	        return -1;
 	    }
@@ -64310,7 +64398,7 @@
 	     * The coerce handler for the `currentTitle` property.
 	     */
 	    function coerceCurrentTitle(owner, value) {
-	        return value && owner.titleIndex(value) !== -1 ? value : null;
+	        return (value && owner.titleIndex(value) !== -1) ? value : null;
 	    }
 	    /**
 	     * The change handler for the `currentTitle` property.
@@ -64338,17 +64426,20 @@
 	        var text = node.lastChild;
 	        if (title.className) {
 	            node.className = BUTTON_CLASS + ' ' + title.className;
-	        } else {
+	        }
+	        else {
 	            node.className = BUTTON_CLASS;
 	        }
 	        if (title.icon) {
 	            icon.className = ICON_CLASS + ' ' + title.icon;
-	        } else {
+	        }
+	        else {
 	            icon.className = ICON_CLASS;
 	        }
 	        text.textContent = title.text;
 	    }
 	})(SideBarPrivate || (SideBarPrivate = {}));
+
 
 /***/ },
 /* 189 */
