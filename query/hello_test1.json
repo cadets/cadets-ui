@@ -1,4 +1,5 @@
 {
+    "root": 20,
     "nodes": [
         {
             "type": "proc", 
@@ -11,7 +12,7 @@
             "name": "/usr/sbin/sshd"
         }, 
         {
-            "gnode_id": 15972, 
+            "gnode_id": 6415, 
             "type": "file", 
             "id": 3, 
             "name": "192.168.1.1"
@@ -22,104 +23,98 @@
             "name": "/usr/local/bin/bash"
         }, 
         {
-            "gnode_id": 19968, 
-            "type": "file", 
-            "id": 5, 
-            "name": "/home/eve/.login_conf"
-        }, 
-        {
             "type": "proc", 
-            "id": 6, 
+            "id": 5, 
             "name": "/usr/bin/cc"
         }, 
         {
-            "gnode_id": 27775, 
+            "gnode_id": 12452, 
             "type": "file", 
-            "id": 7, 
-            "name": "/usr/home/eve/hello_2.c"
+            "id": 6, 
+            "name": "/usr/home/alice/hello_test.c"
         }, 
         {
-            "gnode_id": 27880, 
+            "gnode_id": 12549, 
             "type": "file", 
-            "id": 8, 
-            "name": "/tmp/hello_2-8ee216.o-d71fd4e4"
+            "id": 7, 
+            "name": "/tmp/hello_test-4db358.o-78b1e4c7"
         }, 
         {
             "type": "proc", 
-            "id": 9, 
+            "id": 8, 
             "name": "/usr/bin/ld"
         }, 
         {
-            "gnode_id": 30044, 
+            "gnode_id": 13837, 
+            "type": "file", 
+            "id": 9, 
+            "name": "/usr/lib/libc.so"
+        }, 
+        {
+            "gnode_id": 13813, 
             "type": "file", 
             "id": 10, 
             "name": "/usr/lib/libgcc.a"
         }, 
         {
-            "gnode_id": 30218, 
+            "gnode_id": 13988, 
             "type": "file", 
             "id": 11, 
             "name": "/usr/lib/libc_nonshared.a"
         }, 
         {
-            "gnode_id": 30034, 
+            "gnode_id": 13796, 
             "type": "file", 
             "id": 12, 
             "name": "/usr/lib/crtbegin.o"
         }, 
         {
-            "gnode_id": 30075, 
+            "gnode_id": 14055, 
             "type": "file", 
             "id": 13, 
-            "name": "/usr/lib/libc.so"
+            "name": "/usr/lib/crtn.o"
         }, 
         {
-            "gnode_id": 30221, 
+            "gnode_id": 13994, 
             "type": "file", 
             "id": 14, 
             "name": "/usr/lib/libssp_nonshared.a"
         }, 
         {
-            "gnode_id": 30013, 
+            "gnode_id": 13805, 
             "type": "file", 
             "id": 15, 
+            "name": "/tmp/hello_test-4db358.o"
+        }, 
+        {
+            "gnode_id": 13780, 
+            "type": "file", 
+            "id": 16, 
             "name": "/usr/lib/crt1.o"
         }, 
         {
-            "gnode_id": 30025, 
+            "gnode_id": 13791, 
             "type": "file", 
-            "id": 16, 
+            "id": 17, 
             "name": "/usr/lib/crti.o"
         }, 
         {
-            "gnode_id": 30050, 
-            "type": "file", 
-            "id": 17, 
-            "name": "/tmp/hello_2-8ee216.o"
-        }, 
-        {
-            "gnode_id": 30275, 
+            "gnode_id": 14042, 
             "type": "file", 
             "id": 18, 
             "name": "/usr/lib/crtend.o"
         }, 
         {
-            "gnode_id": 30057, 
+            "gnode_id": 13822, 
             "type": "file", 
             "id": 19, 
             "name": "/usr/lib/libgcc_s.so"
         }, 
         {
-            "gnode_id": 30290, 
+            "gnode_id": 13772, 
             "type": "file", 
             "id": 20, 
-            "name": "/usr/lib/crtn.o"
-        }, 
-        {
-            "gnode_id": 30005, 
-            "type": "file", 
-            "id": 21, 
-            "name": "/usr/home/eve/hello_2"
+            "name": "/usr/home/alice/hello_test"
         }
     ], 
     "edges": [
@@ -139,138 +134,118 @@
             "type": "parent"
         }, 
         {
-            "dest": 4, 
-            "src": 5, 
-            "type": "r"
-        }, 
-        {
             "dest": 3, 
             "src": 4, 
             "type": "rw"
         }, 
         {
-            "dest": 6, 
+            "dest": 5, 
             "src": 4, 
             "type": "parent"
         }, 
         {
-            "dest": 6, 
-            "src": 5, 
-            "type": "r"
-        }, 
-        {
             "dest": 3, 
-            "src": 6, 
+            "src": 5, 
             "type": "rw"
         }, 
         {
-            "dest": 6, 
-            "src": 6, 
+            "dest": 5, 
+            "src": 5, 
             "type": "parent"
         }, 
         {
-            "dest": 6, 
-            "src": 7, 
-            "type": "r"
-        }, 
-        {
-            "dest": 6, 
-            "src": 5, 
-            "type": "r"
-        }, 
-        {
-            "dest": 8, 
+            "dest": 5, 
             "src": 6, 
+            "type": "r"
+        }, 
+        {
+            "dest": 7, 
+            "src": 5, 
             "type": "w"
         }, 
         {
-            "dest": 8, 
-            "src": 6, 
-            "type": "rw"
-        }, 
-        {
             "dest": 3, 
-            "src": 6, 
+            "src": 5, 
             "type": "rw"
         }, 
         {
-            "dest": 9, 
-            "src": 6, 
+            "dest": 7, 
+            "src": 5, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 8, 
+            "src": 5, 
             "type": "parent"
         }, 
         {
-            "dest": 9, 
+            "dest": 8, 
+            "src": 9, 
+            "type": "r"
+        }, 
+        {
+            "dest": 8, 
             "src": 10, 
             "type": "r"
         }, 
         {
-            "dest": 9, 
+            "dest": 8, 
             "src": 11, 
             "type": "r"
         }, 
         {
-            "dest": 9, 
+            "dest": 8, 
             "src": 12, 
             "type": "r"
         }, 
         {
-            "dest": 9, 
+            "dest": 8, 
             "src": 13, 
             "type": "r"
         }, 
         {
-            "dest": 9, 
+            "dest": 8, 
             "src": 14, 
             "type": "r"
         }, 
         {
-            "dest": 9, 
-            "src": 5, 
-            "type": "r"
-        }, 
-        {
-            "dest": 9, 
+            "dest": 8, 
             "src": 15, 
             "type": "r"
         }, 
         {
-            "dest": 9, 
+            "dest": 8, 
             "src": 16, 
             "type": "r"
         }, 
         {
-            "dest": 9, 
+            "dest": 8, 
             "src": 17, 
             "type": "r"
         }, 
         {
-            "dest": 9, 
+            "dest": 8, 
             "src": 18, 
             "type": "r"
         }, 
         {
-            "dest": 9, 
+            "dest": 8, 
             "src": 19, 
             "type": "r"
         }, 
         {
-            "dest": 9, 
-            "src": 20, 
-            "type": "r"
-        }, 
-        {
-            "dest": 21, 
-            "src": 9, 
+            "dest": 20, 
+            "src": 8, 
             "type": "w"
         }, 
         {
-            "dest": 21, 
-            "src": 9, 
+            "dest": 20, 
+            "src": 8, 
             "type": "rw"
         }, 
         {
             "dest": 3, 
-            "src": 9, 
+            "src": 8, 
             "type": "rw"
         }
     ]
