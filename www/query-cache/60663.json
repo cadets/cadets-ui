@@ -1,0 +1,112 @@
+{
+    "root": 1,
+    "nodes": [
+        {
+            "type": "proc", 
+            "id": 1, 
+            "name": "/bin/cp"
+        }, 
+        {
+            "type": "file", 
+            "id": 2, 
+            "name": "/etc/group"
+        }, 
+        {
+            "type": "file", 
+            "id": 3, 
+            "name": "/etc/libmap.conf"
+        }, 
+        {
+            "type": "file", 
+            "id": 4, 
+            "name": "/etc/login.conf.db"
+        }, 
+        {
+            "type": "file", 
+            "id": 5, 
+            "name": "/etc/security/audit_control"
+        }, 
+        {
+            "type": "file", 
+            "id": 6, 
+            "name": "/etc/security/audit_event"
+        }, 
+        {
+            "type": "file", 
+            "id": 7, 
+            "name": "/lib/libc.so.7"
+        }, 
+        {
+            "type": "file", 
+            "id": 8, 
+            "name": "/usr/home/bob/crt1.o"
+        }, 
+        {
+            "type": "file", 
+            "id": 9, 
+            "name": "/usr/local/etc/sudoers"
+        }, 
+        {
+            "type": "file", 
+            "id": 10, 
+            "name": "/var/run/ld-elf.so.hints"
+        }, 
+        {
+            "type": "file", 
+            "id": 11, 
+            "name": "/usr/lib/crt1.o"
+        }
+    ], 
+    "edges": [
+        {
+            "dest": 1, 
+            "src": 2, 
+            "type": "r"
+        }, 
+        {
+            "dest": 1, 
+            "src": 3, 
+            "type": "r"
+        }, 
+        {
+            "dest": 1, 
+            "src": 4, 
+            "type": "r"
+        }, 
+        {
+            "dest": 1, 
+            "src": 5, 
+            "type": "r"
+        }, 
+        {
+            "dest": 1, 
+            "src": 6, 
+            "type": "r"
+        }, 
+        {
+            "dest": 1, 
+            "src": 7, 
+            "type": "r"
+        }, 
+        {
+            "dest": 1, 
+            "src": 8, 
+            "type": "r"
+        }, 
+        {
+            "dest": 1, 
+            "src": 9, 
+            "type": "r"
+        }, 
+        {
+            "dest": 1, 
+            "src": 10, 
+            "type": "r"
+        }, 
+        {
+            "dest": 11, 
+            "src": 1, 
+            "type": "w"
+        }
+    ]
+}
