@@ -15514,15 +15514,26 @@
 	  var arr = []
 	  for(var i in node_array) {
 	    var node = node_array[i];
-	    arr.push({ id: node.id,
-	               text: node.exe+" ["+node.pid+"]",
-	               binary: node.exe,
-	               icon: "fa fa-cube",
-	               pid: node.pid,
-	               gnode_id: node.gnode_id,
-	               state: { opened: false },
-	               children: convert_to_jstree(node.children)
-	             });
+	    var tree_node = { id: node.id,
+	                      binary: node.exe,
+	                      icon: "fa fa-cube",
+	                      pid: node.pid,
+	                      gnode_id: node.gnode_id,
+	                      state: { opened: false },
+	                      children: convert_to_jstree(node.children)
+	                     };
+	    if('user' in node){
+	        tree_node.user = node.user;
+	        if('ip' in node){
+	            tree_node.ip = node.ip;
+	            tree_node.text = `${node.exe} [${node.user}@${node.ip} - ${node.pid}]`;
+	        } else {
+	            tree_node.text = `${node.exe} [${node.user} - ${node.pid}]`;
+	        }
+	    } else {
+	        tree_node.text = `${node.exe} [${node.pid}]`;
+	    }
+	    arr.push(tree_node);
 	  }
 	  return arr;
 	}
