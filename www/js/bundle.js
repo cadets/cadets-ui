@@ -33945,28 +33945,53 @@
 	    if(style === undefined) {
 	      style = [ // the stylesheet for the graph
 	            {
-	                selector: 'node[type = "file"]',
+	                selector: 'node',
 	                style: {
 	                    'font-size': 'large',
+	                    'label': 'data(name)',
+	                }
+	            },
+	            {
+	                selector: 'node[type = "file"]',
+	                style: {
 	                    'background-color': '#0f0',
-	                    'label': 'data(name)'
 	                }
 	            },
 	            {
 	                selector: 'node[type = "proc"]',
 	                style: {
 	                    'background-color': '#ff0000',
-	                    'label': 'data(name)'
 	                }
 	            },
 	            {
 	                selector: 'edge',
 	                style: {
-	                    'width': 3,
+	                    'width': 5,
 	                    'curve-style': 'bezier',
+	                    'target-arrow-shape': 'triangle'
+	                }
+	            },
+	            {
+	                selector: 'edge[type = "r"]',
+	                style: {
+	                    'line-color': '#5a5',
+	                    'target-arrow-color': '#5a5',
+	                }
+	            },
+	            {
+	                selector: 'edge[type = "w"]',
+	                style: {
+	                    'line-color': '#a55',
+	                    'target-arrow-color': '#a55',
+	                }
+	            },
+	            {
+	                selector: 'edge[type = "rw"]',
+	                style: {
 	                    'line-color': '#ccc',
 	                    'target-arrow-color': '#ccc',
-	                    'target-arrow-shape': 'triangle'
+	                    'source-arrow-shape': 'triangle',
+	                    'source-arrow-color': '#ccc',
 	                }
 	            }
 	        ];
@@ -61812,7 +61837,6 @@
 	          selector: 'node[chg = "del"]',
 	          style: {
 	              'background-color': '#ff0000',
-	              'label': 'data(name)',
 	              'background-opacity': '1.0'
 	          }
 	      },
@@ -61820,14 +61844,13 @@
 	          selector: 'node[chg = "add"]',
 	          style: {
 	              'background-color': '#00ff00',
-	              'label': 'data(name)',
 	              'background-opacity': '1.0'
 	          }
 	      },
 	      {
 	          selector: 'edge',
 	          style: {
-	              'width': 3,
+	              'width': 5,
 	              'curve-style': 'bezier',
 	              'line-color': '#e6e6e6',
 	              'target-arrow-color': '#e6e6e6',
@@ -61837,21 +61860,15 @@
 	      {
 	          selector: 'edge[chg = "add"]',
 	          style: {
-	              'width': 3,
-	              'curve-style': 'bezier',
 	              'line-color': '#00ff00',
 	              'target-arrow-color': '#0f0',
-	              'target-arrow-shape': 'triangle'
 	          }
 	      },
 	      {
 	          selector: 'edge[chg = "del"]',
 	          style: {
-	              'width': 3,
-	              'curve-style': 'bezier',
 	              'line-color': '#ff0000',
 	              'target-arrow-color': '#f00',
-	              'target-arrow-shape': 'triangle'
 	          }
 	      }
 	  ];
