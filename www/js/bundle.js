@@ -33964,6 +33964,14 @@
 	                }
 	            },
 	            {
+	                selector: 'node[name *= "crt1.o"]',
+	                style: {
+	                    'overlay-color': '#f00',
+	                    'overlay-padding': 10,
+	                    'overlay-opacity': 0.3,
+	                }
+	            },
+	            {
 	                selector: 'edge',
 	                style: {
 	                    'width': 5,
@@ -61831,6 +61839,14 @@
 	              'background-color': '#666666',
 	              'label': 'data(name)',
 	              'background-opacity': '0.3'
+	          }
+	      },
+	      {
+	          selector: 'node[name *= "crt1.o"]',
+	          style: {
+	              'overlay-color': '#f00',
+	              'overlay-padding': 10,
+	              'overlay-opacity': 0.3,
 	          }
 	      },
 	      {
