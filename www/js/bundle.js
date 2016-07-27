@@ -33954,13 +33954,21 @@
 	            {
 	                selector: 'node[type = "file"]',
 	                style: {
-	                    'background-color': '#0f0',
+	                    'background-image': '/static/img/file.png',
+	                    'background-fit': 'cover',
+	                    'background-height': '100%',
+	                    'background-width': '100%',
+	                    'background-opacity': 0,
 	                }
 	            },
 	            {
 	                selector: 'node[type = "proc"]',
 	                style: {
-	                    'background-color': '#ff0000',
+	                    'background-image': '/static/img/proc.png',
+	                    'background-fit': 'cover',
+	                    'background-height': '100%',
+	                    'background-width': '100%',
+	                    'background-opacity': 0,
 	                }
 	            },
 	            {
@@ -33982,15 +33990,15 @@
 	            {
 	                selector: 'edge[type = "r"]',
 	                style: {
-	                    'line-color': '#5a5',
-	                    'target-arrow-color': '#5a5',
+	                    'line-color': '#0049FF',
+	                    'target-arrow-color': '#0049FF',
 	                }
 	            },
 	            {
 	                selector: 'edge[type = "w"]',
 	                style: {
-	                    'line-color': '#a55',
-	                    'target-arrow-color': '#a55',
+	                    'line-color': '#890083',
+	                    'target-arrow-color': '#890083',
 	                }
 	            },
 	            {
