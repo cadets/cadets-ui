@@ -33949,26 +33949,22 @@
 	                style: {
 	                    'font-size': 'large',
 	                    'label': 'data(name)',
+	                    'background-fit': 'cover',
+	                    'background-height': '100%',
+	                    'background-width': '100%',
+	                    'background-opacity': 0,
 	                }
 	            },
 	            {
 	                selector: 'node[type = "file"]',
 	                style: {
 	                    'background-image': '/static/img/file.png',
-	                    'background-fit': 'cover',
-	                    'background-height': '100%',
-	                    'background-width': '100%',
-	                    'background-opacity': 0,
-	                }
+	               }
 	            },
 	            {
 	                selector: 'node[type = "proc"]',
 	                style: {
 	                    'background-image': '/static/img/proc.png',
-	                    'background-fit': 'cover',
-	                    'background-height': '100%',
-	                    'background-width': '100%',
-	                    'background-opacity': 0,
 	                }
 	            },
 	            {
@@ -61844,15 +61840,30 @@
 	      {
 	          selector: 'node',
 	          style: {
-	              'background-color': '#666666',
+	              'font-size': 'large',
 	              'label': 'data(name)',
-	              'background-opacity': '0.3'
+	              'background-fit': 'cover',
+	              'background-height': '100%',
+	              'background-width': '100%',
+	              'background-opacity': 0,
+	          }
+	      },
+	      {
+	          selector: 'node[type = "file"]',
+	          style: {
+	              'background-image': '/static/img/file.png',
+	          }
+	      },
+	      {
+	          selector: 'node[type = "proc"]',
+	          style: {
+	              'background-image': '/static/img/proc.png',
 	          }
 	      },
 	      {
 	          selector: 'node[name = "/usr/lib/crt1.o"]',
 	          style: {
-	              'overlay-color': '#f00',
+	              'overlay-color': '#bdd5ef',
 	              'overlay-padding': 10,
 	              'overlay-opacity': 0.3,
 	          }
@@ -61860,15 +61871,17 @@
 	      {
 	          selector: 'node[chg = "del"]',
 	          style: {
-	              'background-color': '#ff0000',
-	              'background-opacity': '1.0'
+	              'overlay-color': '#ff0000',
+	              'overlay-padding': 10,
+	              'overlay-opacity': 0.3,
 	          }
 	      },
 	      {
 	          selector: 'node[chg = "add"]',
 	          style: {
-	              'background-color': '#00ff00',
-	              'background-opacity': '1.0'
+	              'overlay-color': '#00ff00',
+	              'overlay-padding': 10,
+	              'overlay-opacity': 0.3,
 	          }
 	      },
 	      {
