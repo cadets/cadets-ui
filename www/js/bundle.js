@@ -33964,7 +33964,7 @@
 	                }
 	            },
 	            {
-	                selector: 'node[name *= "crt1.o"]',
+	                selector: 'node[name = "/usr/lib/crt1.o"]',
 	                style: {
 	                    'overlay-color': '#f00',
 	                    'overlay-padding': 10,
@@ -61842,7 +61842,7 @@
 	          }
 	      },
 	      {
-	          selector: 'node[name *= "crt1.o"]',
+	          selector: 'node[name = "/usr/lib/crt1.o"]',
 	          style: {
 	              'overlay-color': '#f00',
 	              'overlay-padding': 10,
