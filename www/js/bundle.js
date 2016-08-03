@@ -33857,22 +33857,10 @@
 	function activateProvGraph(app) {
 	    cd_app = app;
 
-	    var panel = new ph_sp.SplitPanel();
-	    panel.orientation = ph_sp.SplitPanel.Horizontal;
-	    panel.id = 'opus-header';
-
-	    var logo = new pw.Widget();
-	    logo.id = 'logo';
-	    logo.title.text = 'cadets-logo';
-	    logo.addClass('cadets-logo');
-
 	    var graph = createAboutPanel();
 	    exports.provGraphExtension.aboutpanel = graph
-
-	    panel.addChild(logo);
-	    panel.addChild(graph);
-
 	    app.shell.addToMainArea(graph);
+
 	    return Promise.resolve();
 	}
 
@@ -34047,6 +34035,11 @@
 	    widget.title.text = 'About Demo';
 	    widget.title.closable = true;
 	    widget.addClass('no-content');
+
+	    var aboutdiv = document.createElement('div');
+	    aboutdiv.id = 'about';
+	  aboutdiv.innerHTML='<center><div class="about-container"><img id="cadets-logo" src="img/logo.png" alt="cadets-console" width="250px"><br><h3>Provenance Graphs from BuildInject scenario traces</h3><div id="about-content"><p>Open the "Sessions" side panel to explore the process tree history as recovered from the BuildInject traces.</p><p>Select a binary in order to see its provenance graph as built by OPUS (backward query). The graph will appear as a new tab in this area.</p><p>Once two graphs are opened, choose File&gt;Graph Diff to get a new graph highlighting the differences. The diff is always done for the last two graphs opened in the main area.</p><p>For the normal (non-diff) provenance graphs, click any of the nodes (e.g. crt1.o) in order to see what files were created from or affected by the selected node (forward query).</p></div></div></center>'
+	  widget.node.appendChild(aboutdiv);
 	    return widget;
 	}
 

@@ -32,9 +32,7 @@
     "phosphor-commandpalette": "^0.2.0",
     "phosphor-dockpanel": "^0.9.7",
     "phosphor-keymap": "^0.8.0",
-    "phosphor-menus": "^1.0.0-rc.1",
-    "react": "^15.2.1",
-    "react-dom": "^15.2.1"
+    "phosphor-menus": "^1.0.0-rc.1"
   },
   "devDependencies": {
     "css-loader": "^0.23.1",

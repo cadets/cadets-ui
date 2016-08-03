@@ -4,6 +4,28 @@
   overflow: auto;
 }
 
+#about {
+  width: 100%;
+  overflow: auto;
+}
+
+.about-container {
+  width: 60%;
+  min-width: 540px;
+  border: 1px solid #aaa;
+  padding: 20px;
+  margin-top: 50px;
+  background: #f7f7f7;
+}
+
+#cadets-logo {
+  padding-top: 40px;
+}
+
+#about-content {
+  text-align: left;
+}
+
 /* MenuBar */
 .p-MenuBar {
   padding-left: 5px;
