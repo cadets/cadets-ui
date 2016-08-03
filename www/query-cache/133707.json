@@ -1,0 +1,344 @@
+{
+    "root": 25,
+    "nodes": [
+        {
+            "type": "proc", 
+            "id": 1, 
+            "name": "sshd"
+        }, 
+        {
+            "type": "proc", 
+            "id": 2, 
+            "name": "/usr/sbin/sshd"
+        }, 
+        {
+            "type": "proc", 
+            "id": 3, 
+            "name": "/usr/local/bin/bash"
+        }, 
+        {
+            "type": "proc", 
+            "id": 4, 
+            "name": "/usr/bin/scp"
+        }, 
+        {
+            "gnode_id": 41268, 
+            "type": "file", 
+            "id": 5, 
+            "name": "/usr/home/bob/crt1.o"
+        }, 
+        {
+            "gnode_id": 42695, 
+            "type": "file", 
+            "id": 6, 
+            "name": "192.168.1.1"
+        }, 
+        {
+            "type": "proc", 
+            "id": 7, 
+            "name": "/usr/local/bin/sudo"
+        }, 
+        {
+            "type": "proc", 
+            "id": 8, 
+            "name": "/bin/cp"
+        }, 
+        {
+            "gnode_id": 61937, 
+            "type": "file", 
+            "id": 9, 
+            "name": "/usr/lib/crt1.o"
+        }, 
+        {
+            "gnode_id": 108292, 
+            "type": "file", 
+            "id": 10, 
+            "name": "/home/alice/.login_conf"
+        }, 
+        {
+            "type": "proc", 
+            "id": 11, 
+            "name": "/usr/bin/cc"
+        }, 
+        {
+            "gnode_id": 125852, 
+            "type": "file", 
+            "id": 12, 
+            "name": "/usr/home/alice/hello_test.c"
+        }, 
+        {
+            "gnode_id": 125962, 
+            "type": "file", 
+            "id": 13, 
+            "name": "/tmp/hello_test-ca4fc4.o-2e94bc02"
+        }, 
+        {
+            "type": "proc", 
+            "id": 14, 
+            "name": "/usr/bin/ld"
+        }, 
+        {
+            "gnode_id": 130790, 
+            "type": "file", 
+            "id": 15, 
+            "name": "/usr/lib/libc.so"
+        }, 
+        {
+            "gnode_id": 130760, 
+            "type": "file", 
+            "id": 16, 
+            "name": "/usr/lib/libgcc.a"
+        }, 
+        {
+            "gnode_id": 130935, 
+            "type": "file", 
+            "id": 17, 
+            "name": "/usr/lib/libc_nonshared.a"
+        }, 
+        {
+            "gnode_id": 130743, 
+            "type": "file", 
+            "id": 18, 
+            "name": "/usr/lib/crtbegin.o"
+        }, 
+        {
+            "gnode_id": 131023, 
+            "type": "file", 
+            "id": 19, 
+            "name": "/usr/lib/crtn.o"
+        }, 
+        {
+            "gnode_id": 130951, 
+            "type": "file", 
+            "id": 20, 
+            "name": "/usr/lib/libssp_nonshared.a"
+        }, 
+        {
+            "gnode_id": 130732, 
+            "type": "file", 
+            "id": 21, 
+            "name": "/usr/lib/crti.o"
+        }, 
+        {
+            "gnode_id": 130754, 
+            "type": "file", 
+            "id": 22, 
+            "name": "/tmp/hello_test-ca4fc4.o"
+        }, 
+        {
+            "gnode_id": 131003, 
+            "type": "file", 
+            "id": 23, 
+            "name": "/usr/lib/crtend.o"
+        }, 
+        {
+            "gnode_id": 130778, 
+            "type": "file", 
+            "id": 24, 
+            "name": "/usr/lib/libgcc_s.so"
+        }, 
+        {
+            "gnode_id": 130709, 
+            "type": "file", 
+            "id": 25, 
+            "name": "/usr/home/alice/hello_test"
+        }
+    ], 
+    "edges": [
+        {
+            "dest": 2, 
+            "src": 1, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 3, 
+            "src": 2, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 4, 
+            "src": 2, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 5, 
+            "src": 4, 
+            "type": "w"
+        }, 
+        {
+            "dest": 2, 
+            "src": 1, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 6, 
+            "src": 2, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 3, 
+            "src": 2, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 6, 
+            "src": 3, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 7, 
+            "src": 3, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 6, 
+            "src": 7, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 8, 
+            "src": 7, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 8, 
+            "src": 5, 
+            "type": "r"
+        }, 
+        {
+            "dest": 9, 
+            "src": 8, 
+            "type": "w"
+        }, 
+        {
+            "dest": 6, 
+            "src": 8, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 2, 
+            "src": 1, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 3, 
+            "src": 2, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 3, 
+            "src": 10, 
+            "type": "r"
+        }, 
+        {
+            "dest": 11, 
+            "src": 3, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 11, 
+            "src": 10, 
+            "type": "r"
+        }, 
+        {
+            "dest": 11, 
+            "src": 11, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 11, 
+            "src": 12, 
+            "type": "r"
+        }, 
+        {
+            "dest": 11, 
+            "src": 10, 
+            "type": "r"
+        }, 
+        {
+            "dest": 13, 
+            "src": 11, 
+            "type": "w"
+        }, 
+        {
+            "dest": 13, 
+            "src": 11, 
+            "type": "rw"
+        }, 
+        {
+            "dest": 14, 
+            "src": 11, 
+            "type": "parent"
+        }, 
+        {
+            "dest": 14, 
+            "src": 15, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 16, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 17, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 18, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 19, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 20, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 10, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 9, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 21, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 22, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 23, 
+            "type": "r"
+        }, 
+        {
+            "dest": 14, 
+            "src": 24, 
+            "type": "r"
+        }, 
+        {
+            "dest": 25, 
+            "src": 14, 
+            "type": "w"
+        }, 
+        {
+            "dest": 25, 
+            "src": 14, 
+            "type": "rw"
+        }
+    ]
+}
