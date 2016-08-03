@@ -1,6 +1,7 @@
 # Vim temp files
 *.swp
 *.swo
+*.old
 
 # Logs
 logs
