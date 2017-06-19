@@ -1,3 +1,6 @@
+=======
+User interface for CADETS/OPUS
+
 ### Dependencies:
 * Node
 * npm
