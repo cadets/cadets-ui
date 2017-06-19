@@ -1,14 +1,8 @@
 #!/usr/bin/python
 
-from cherrypy.process import plugins
 import cherrypy
-import threading
 import re
-import os
-import json
 import random as rdm
-from subprocess import *
-from numpy import *
 import cgi
 
 
