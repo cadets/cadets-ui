@@ -1,21 +1,30 @@
-=======
-User interface for CADETS/OPUS
+# User interface for CADETS/OPUS
 
 ### Dependencies:
 * Node
 * npm
+* python3.5
+* virtualenv
 
 ### Build from source
-To build the web application, do
+To build and run the application run
 ```
-make npm
-```
-This is needed the first time to install all node package dependencies.
-After modifying any source files, simply running `make` or `make all` is enough.
-
-After the build, start the web server by running
-```
-./run
+make
 ```
 and visit the website in your browser (in the default config,
 http://localhost:8080)
+
+To just execute a build of the application without launching the server immediately afterwards run
+```
+make build
+```
+
+To run the server from stored output rather than live queries run
+```
+make synth
+```
+
+To record a new set of stored queries in the server run
+```
+make rec
+```

@@ -43,8 +43,8 @@ jspm_packages
 .node_repl_history
 
 # Python
-*.pyc
 srv/__pycache__
+srv/venv
 
 # OS cruft
 .DS_Store

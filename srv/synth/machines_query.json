@@ -1,0 +1,34 @@
+{"Content-Type": "application/json"}
+{
+  "edges": [
+    {
+      "dest": 14820, 
+      "src": 14828, 
+      "type": "conn"
+    }
+  ], 
+  "nodes": [
+    {
+      "first_seen": 1497500664212225326, 
+      "id": 14820, 
+      "name": "bc6220d0-06e3-4030-ae63-356c43760c6d", 
+      "type": "machine", 
+      "uuid": "bc6220d0-06e3-4030-ae63-356c43760c6d"
+    }, 
+    {
+      "first_seen": 1497500700009997922, 
+      "id": 14828, 
+      "name": "a7092d61-7c7a-4288-ab57-c3de0152a3ca", 
+      "type": "machine", 
+      "uuid": "a7092d61-7c7a-4288-ab57-c3de0152a3ca"
+    }, 
+    {
+      "first_seen": 1497604734252843215, 
+      "id": 15270, 
+      "name": "cb40f8bf-120a-4a48-989b-f53351e507f1", 
+      "type": "machine", 
+      "uuid": "cb40f8bf-120a-4a48-989b-f53351e507f1"
+    }
+  ], 
+  "root": 14820
+}

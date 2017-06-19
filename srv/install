@@ -1,4 +1,4 @@
 #! /bin/bash
 cd srv
 source venv/bin/activate
-./opus-console-srv.py "$@"
+pip install -r requirements.txt

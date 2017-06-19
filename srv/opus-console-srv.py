@@ -1,64 +1,160 @@
 #! /usr/bin/env python
 
-import cherrypy
-import re
-import random as rdm
-import cgi
+import argparse
+import errno
+import functools
+import html
+import json
+import os
+
+from flask import Flask, g, jsonify, redirect, request, make_response, url_for
+from neo4j.v1 import GraphDatabase, basic_auth
+
+app = Flask(__name__)
 
 
-pinglat_rexp = re.compile("time=([ 0-9.]*)")
-jdata = {}
+def synth_route(route, **kwargs):
+    def dec(func):
+        @functools.wraps(func)
+        def wrap(*wargs, **wkwargs):
+            if app.config['synth'] is not None:
+                fname = "_".join([func.__name__] + [v for k, v in sorted(wkwargs.items())]) + '.json'
+                path = os.path.join(app.config['synth'], fname)
+                if app.config['rec']:
+                    ret = func(*wargs, **wkwargs)
+                    with open(path, "w", encoding="UTF-8") as f:
+                        f.write(json.dumps(dict(ret.headers.items())))
+                        f.write("\n")
+                        f.write(ret.data.decode("UTF-8"))
+                    return ret
+                else:
+                    try:
+                        with open(path, encoding="UTF-8") as f:
+                            headers = json.loads(f.readline().rstrip())
+                            body = f.read()
+                        return make_response((body, headers))
+                    except IOError:
+                        return '', 500
+            else:
+                return func(*wargs, **wkwargs)
+        return app.route(route, **kwargs)(wrap)
+    return dec
 
-class OpusDemoSrv(object):
-    @cherrypy.expose
-    def default(self, *args, **kwargs):
-        raise cherrypy.HTTPRedirect("/static/index.html")
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def proctree(self):
-        with open('static/query-cache/proc_tree.json') as proctree_file:
-            return proctree_file.read()
+@synth_route('/machines')
+def machines_query():
+    res = g.db.run("MATCH (m:Machine) RETURN m").data()
+    nodes = [{'uuid': m['m']['uuid'],
+              'first_seen': m['m']['timestamp'],
+              'type': 'machine',
+              'name': m['m']['uuid'],
+              'id': m['m'].id}
+             for m in res]
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def provgraph(self, gnode_id):
-        with open('static/query-cache/'+cgi.escape(gnode_id)+'.json') as graph_file:
-            return graph_file.read()
+    res = g.db.run("MATCH (m1:Machine)-->(m2:Machine) RETURN DISTINCT m1, m2").data()
+    edges = [{'src': row['m1'].id,
+              'dest': row['m2'].id,
+              'type': 'conn'}
+             for row in res]
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def provdetail(self, gnode_id):
-        with open('static/query-cache/'+cgi.escape(gnode_id)+'_files.json') as graph_file:
-            return graph_file.read()
+    root = nodes[0]['id'] if len(nodes) else 0
+    return jsonify({'root': root, 'nodes': nodes, 'edges': edges})
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def filegraph(self, gnode_id):
-        try:
-            with open('static/query-cache/'+cgi.escape(gnode_id)+'.json') as graph_file:
-                return graph_file.read()
-        except:
-            return "{}"
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def fwdgraph(self, gnode_id):
-        with open('static/query-cache/fwd-'+cgi.escape(gnode_id)+'.json') as graph_file:
-            return graph_file.read()
+@app.route('/')
+def root_redirect():
+    return redirect(url_for("static", filename="index.html"))
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def diffgraph(self, gnode_id1, gnode_id2):
-        r1 = int(cgi.escape(gnode_id1));
-        r2 = int(cgi.escape(gnode_id2));
-        if r2 < r1:
-            r1, r2 = r2, r1
-        with open('static/query-cache/diff-'+str(r1)+'-'+str(r2)+'.json') as graph_file:
-            return graph_file.read()
 
-if __name__ == '__main__':
-    cherrypy.config.update("srv.conf")
-    rdm.seed()
-    import os_dir
-    cherrypy.quickstart(OpusDemoSrv(), '/', 'site.conf')
+@app.route("/old/proctree")
+def old_proctree():
+    return app.send_static_file("query-cache/proc_tree.json")
+
+
+@app.route("/old/provgraph")
+def old_provgraph():
+    gnode_id = html.escape(request.args.get("gnode_id"))
+    return app.send_static_file("query-cache/{}.json".format(gnode_id))
+
+
+@app.route("/old/provdetail")
+def old_provdetail():
+    gnode_id = html.escape(request.args.get("gnode_id"))
+    return app.send_static_file("query-cache/{}_files.json".format(gnode_id))
+
+
+@app.route("/old/filegraph")
+def old_filegraph():
+    gnode_id = html.escape(request.args.get("gnode_id"))
+    if os.path.exists("static/query-cache/{}.json".format(gnode_id)):
+        return app.send_static_file("query-cache/{}.json".format(gnode_id))
+    else:
+        return jsonify({})
+
+
+@app.route("/old/fwdgraph")
+def old_fwdgraph():
+    gnode_id = html.escape(request.args.get("gnode_id"))
+    return app.send_static_file("query-cache/fwd-{}.json".format(gnode_id))
+
+
+@app.route("/old/diffgraph")
+def old_diffgraph():
+    gnode_id1 = int(html.escape(request.args.get("gnode_id1")))
+    gnode_id2 = int(html.escape(request.args.get("gnode_id2")))
+    if gnode_id1 > gnode_id2:
+        gnode_id1, gnode_id2 = gnode_id2, gnode_id1
+    return app.send_static_file("query-cache/diff-{}-{}.json".format(gnode_id1, gnode_id2))
+
+
+@app.before_request
+def before_request():
+    if 'db' in app.config:
+        g.db = app.config['db'].session()
+
+
+@app.teardown_request
+def teardown_request(_):
+    db = getattr(g, 'db', None)
+    if db is not None:
+        db.close()
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=8080)
+    parser.add_argument("--synth", default=None)
+    parser.add_argument("--rec", action="store_true")
+    parser.add_argument("--db-url", default="bolt://localhost")
+    parser.add_argument("--db-user", default="neo4j")
+    parser.add_argument("--db-pass", default="opus")
+    return parser.parse_args()
+
+
+def run(args):
+    if args.rec or args.synth is None:
+        app.config['db'] = GraphDatabase.driver(args.db_url,
+                                                auth=basic_auth(args.db_user,
+                                                                args.db_pass))
+    if args.rec:
+        if args.synth is None:
+            print("Error: If recording you must specify a path for --synth")
+            return
+        else:
+            if not os.path.exists(args.synth):
+                try:
+                    os.makedirs(args.synth)
+                except OSError as exc:
+                    if exc.errno == errno.EEXIST:
+                        pass
+                    else:
+                        print("Error: --synth path invalid.")
+                        return
+    app.config['synth'] = args.synth
+    app.config['rec'] = args.rec
+    app.run(host=args.host,
+            port=args.port)
+
+if __name__ == "__main__":
+    run(parse_args())
