@@ -1,0 +1,21 @@
+{
+    "read": [
+        "/var/tmp/nginx/client_body_temp/0047055740", 
+        "/lib/libncursesw.so.8", 
+        "/lib/libm.so.5", 
+        "/lib/libthr.so.3", 
+        "/etc/libmap.conf", 
+        "/.", 
+        "/lib/libc.so.7", 
+        "/lib/libedit.so.7", 
+        "/usr/lib/libc++.so.1", 
+        "/lib/libgcc_s.so.1", 
+        "/var/run/ld-elf.so.hints", 
+        "/var/tmp/nginx/client_body_temp/0047055739", 
+        "/var/tmp/nginx/client_body_temp/0047055738", 
+        "/lib/libcxxrt.so.1"
+    ], 
+    "written": [
+        "/var/tmp/nginx/client_body_temp/dropper"
+    ]
+}

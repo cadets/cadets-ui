@@ -1,0 +1,36 @@
+{
+    "read": [
+        "/lib/libncursesw.so.8", 
+        "/usr/lib/libmemstat.so.3", 
+        "/usr/lib/libnetgraph.so.4", 
+        "/lib/libedit.so.7", 
+        "/etc/hosts", 
+        "/lib/libgcc_s.so.1", 
+        "/lib/libm.so.5", 
+        "/lib/libthr.so.3", 
+        "/lib/libxo.so.0", 
+        "/tmp/netrecon.log", 
+        "/var/tmp/nginx/client_body_temp/0047055738", 
+        "/lib/libcxxrt.so.1", 
+        "/lib/lib80211.so.1", 
+        "/lib/libjail.so.1", 
+        "/lib/libutil.so.9", 
+        "/lib/libsbuf.so.6", 
+        "/lib/libkvm.so.7", 
+        "/lib/libbsdxml.so.4", 
+        "/var/run/ld-elf.so.hints", 
+        "/lib/libelf.so.2", 
+        "/lib/libc.so.7", 
+        "/usr/lib/libc++.so.1", 
+        "/etc/mac.conf", 
+        "/etc/pwd.db", 
+        "/etc/nsswitch.conf", 
+        "/etc/libmap.conf"
+    ], 
+    "written": [
+        "/var/tmp/nginx/client_body_temp/0047055738", 
+        "/tmp/netrecon.log", 
+        "/tmp/netrecon", 
+        "/var/tmp/nginx/client_body_temp/dropper"
+    ]
+}

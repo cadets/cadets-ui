@@ -4,6 +4,62 @@
   overflow: auto;
 }
 
+#search_bar {
+  width: 100%;
+  display: flex;
+}
+
+#tree_search {
+  padding-right: 3px;
+  flex: 2;
+}
+
+#tree_search, label {
+  margin: 5px;
+  padding-top: 5px;
+}
+
+.tree_ctrls {
+  padding-left: 14px;
+}
+
+.tree_ctrls a {
+    background: #363f7d;
+    color: #fff;
+    font-size: 11px;
+    line-height: 18px;
+    border-radius: 4px;
+    padding: 0 5px;
+    text-decoration: none;
+    margin-left: 2px;
+}
+
+.tree_ctrls a:hover {
+  background: #d83c3c;
+}
+
+.red {
+  color: red;
+}
+
+.green {
+  color: green;
+}
+
+.blue {
+  color: blue;
+}
+
+.yellow {
+  color: #cea41a;
+}
+
+#search_bar {
+  font-size: small;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
 #about {
   width: 100%;
   overflow: auto;

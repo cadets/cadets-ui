@@ -19,7 +19,7 @@ class HelloWorld(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def proctree(self):
-        with open('static/query-cache/proctree.json') as proctree_file:
+        with open('static/query-cache/proc_tree.json') as proctree_file:
             return proctree_file.read()
 
     @cherrypy.expose
@@ -27,6 +27,21 @@ class HelloWorld(object):
     def provgraph(self, gnode_id):
         with open('static/query-cache/'+cgi.escape(gnode_id)+'.json') as graph_file:
             return graph_file.read()
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def provdetail(self, gnode_id):
+        with open('static/query-cache/'+cgi.escape(gnode_id)+'_files.json') as graph_file:
+            return graph_file.read()
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def filegraph(self, gnode_id):
+        try:
+            with open('static/query-cache/'+cgi.escape(gnode_id)+'.json') as graph_file:
+                return graph_file.read()
+        except:
+            return "{}"
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
