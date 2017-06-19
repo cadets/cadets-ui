@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 INSTALL=0
 
 while getopts ":i" opt; do
