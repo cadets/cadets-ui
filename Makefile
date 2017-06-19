@@ -17,7 +17,7 @@ www/js/bundle.js:
 	./build -i
 
 srv/venv:
-	virtualenv -p python3.5 srv/venv
+	virtualenv -p python3 srv/venv
 	./srv/install
 
 %:
