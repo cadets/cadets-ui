@@ -1,0 +1,27 @@
+#!/bin/bash
+INSTALL=0
+
+while getopts ":i" opt; do
+  case $opt in
+    i)
+      INSTALL=1
+      ;;
+    \?)
+      echo "Invalid option -$OPTARG" >&2
+      print_usage
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument"
+      print_usage
+      exit 1
+      ;;
+  esac
+done
+
+if [ $INSTALL -eq 1 ]
+then
+  npm install
+fi
+
+npm run build:www

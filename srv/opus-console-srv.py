@@ -15,7 +15,11 @@ import cgi
 pinglat_rexp = re.compile("time=([ 0-9.]*)")
 jdata = {}
 
-class HelloWorld(object):
+class OpusDemoSrv(object):
+    @cherrypy.expose
+    def default(self, *args, **kwargs):
+        raise cherrypy.HTTPRedirect("/static/index.html")
+
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def proctree(self):
@@ -63,4 +67,4 @@ if __name__ == '__main__':
     cherrypy.config.update("srv.conf")
     rdm.seed()
     import os_dir
-    cherrypy.quickstart(HelloWorld(), '', 'site.conf')
+    cherrypy.quickstart(OpusDemoSrv(), '/', 'site.conf')
