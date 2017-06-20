@@ -29,10 +29,7 @@ def index():
 
 def node(n):
     return {
-        'data': {
-            'id': '%s' % n['id'],
-            'label': n['label'],
-        },
+        'data': dict([ (k,str(v)) for (k,v) in n.items() ]),
         'classes': n['type'],
     }
 
@@ -62,6 +59,18 @@ def get_all():
         [ node(n) for n in nodes ]
         + [ edge(e) for e in events ]
     )
+
+@frontend.route('/nodes')
+def get_nodes():
+    if flask.current_app.debug:
+        import mock_data
+
+        nodes = mock_data.all_nodes
+
+    else:
+        raise ValueError, 'not hooked up to real data yet'
+
+    return json.dumps([ node(n) for n in nodes ])
 
 @frontend.route('/onehop/<string:name>')
 def get_element(name):

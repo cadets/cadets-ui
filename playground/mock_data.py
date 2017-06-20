@@ -11,6 +11,7 @@ def node(ty):
 def process(execname):
     n = node('process')
     n.update({
+        'icon': 'settings_applications',
         'label': execname,
         'execname': execname,
     })
@@ -20,6 +21,7 @@ def vnode():
     n = node('vnode')
     u = n['id']
     n.update({
+        'icon': 'description',
         'label': u.hex[:7],
     })
     return n
