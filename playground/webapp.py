@@ -35,12 +35,7 @@ def node(n):
 
 def edge(e):
     return {
-        'data': {
-            'id': '%s' % e['id'],
-            'label': e['label'],
-            'source': '%s' % e['source'],
-            'target': '%s' % e['target'],
-        },
+        'data': dict([ (k,str(v)) for (k,v) in e.items() ]),
         'classes': e['type'],
     }
 
@@ -59,6 +54,18 @@ def get_all():
         [ node(n) for n in nodes ]
         + [ edge(e) for e in events ]
     )
+
+@frontend.route('/edges')
+def get_edges():
+    if flask.current_app.debug:
+        import mock_data
+
+        events = mock_data.all_events
+
+    else:
+        raise ValueError, 'not hooked up to real data yet'
+
+    return json.dumps([ edge(e) for e in events ])
 
 @frontend.route('/nodes')
 def get_nodes():

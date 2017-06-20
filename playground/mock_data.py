@@ -35,6 +35,7 @@ def run(parent, child):
     return {
         'id': u,
         'label': '',
+        'icon': 'exit_to_app',
         'type': 'exec',
         'source': parent['id'],
         'target': child['id'],
@@ -49,6 +50,7 @@ def syscall(name, source, dest):
     return {
         'id': u,
         'label': name,
+        'icon': 'get_app',
         'type': 'syscall',
         'source': source['id'],
         'target': dest['id'],
