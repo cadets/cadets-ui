@@ -1,0 +1,81 @@
+{%- extends "base.html" -%}
+
+{% import "bootstrap/utils.html" as utils %}
+
+{% block content %}
+<div class="container">
+  {{ super() }}
+
+  <div id="sidebar">
+    <img class="logo" src="/static/images/logo.png"/>
+
+    <label for="layout-picker" class="control-label">Auto-layout</label>
+    <select id="layout-picker" onchange="layout(worksheet, this.value)">
+      <option value="dagre">dagre</option>
+      <option value="cose">CoSE</option>
+      <option value="cose-bilkent">CoSE (Bilkent)</option>
+    </select>
+  </div>
+
+  <div id="worksheet"></div>
+  <div id="aux-info"></div>
+</div>
+
+{% endblock %}
+
+{% block scripts -%}
+  {{ super() }}
+
+  <script type="text/javascript">
+var worksheet = cytoscape({
+  container: document.getElementById('worksheet'),
+  boxSelectionEnabled: true,
+});
+
+var aux = cytoscape({
+  container: document.getElementById('aux-info'),
+  boxSelectionEnabled: true,
+});
+
+var layout = function(graph, algorithm) {
+  graph.layout({
+    name: algorithm,
+    rankDir: 'LR',
+    animate: false,
+  })
+  .run();
+};
+
+$.ajax('/static/style/cytoscape.css', {
+  dataType: 'text',
+  mimeType: 'text/css',
+  success: function(result) {
+    worksheet.style(result);
+    aux.style(result);
+  }
+});
+
+var aux_node = function(id) {
+  $.getJSON('/onehop/' + id, function(result) {
+    aux.remove('node');
+    aux.add(result);
+
+    aux.$('node').on('tap', function(ev) {
+      alert(ev.target.id());
+    });
+
+    layout(aux, 'dagre');
+  });
+};
+
+$.getJSON('/everything', function(result) {
+  worksheet.add(result);
+
+  worksheet.$('node,edge').on('tap', function(ev) {
+    aux_node(ev.target.id());
+  });
+
+  layout(worksheet, 'dagre');
+});
+  </script>
+{% endblock %}

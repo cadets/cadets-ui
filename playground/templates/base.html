@@ -1,0 +1,41 @@
+{%- extends "bootstrap/base.html" %}
+
+{% block title %}OPUS{% endblock %}
+
+{% import "bootstrap/fixes.html" as fixes %}
+
+{% block head %}
+{{super()}}
+{{fixes.ie8()}}
+{%- endblock %}
+
+{% block scripts -%}
+  {{ super() }}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.1.2/cytoscape.min.js"></script>
+  <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-cose-bilkent/1.6.5/cytoscape-cose-bilkent.js"></script>
+  <script src="https://cdn.rawgit.com/cpettitt/dagre/v0.7.4/dist/dagre.min.js"></script>
+  <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-dagre/1.5.0/cytoscape-dagre.js"></script>
+  <script type="text/javascript" src="/static/js/material.min.js"></script>
+  <script type="text/javascript" src="/static/js/ripples.min.js"></script>
+  <script type="text/javascript">$.material.init()</script>
+{%- endblock %}
+
+{% block styles -%}
+    {{super()}}
+
+    <!-- Material Design fonts -->
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- Bootstrap Material Design -->
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-material-design.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/ripples.min.css">
+
+    <!-- Local style -->
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='style/opus.css')}}">
+{% endblock %}
+
+{% block navbar %}
+{{nav.frontend_top.render()}}
+{% endblock %}
