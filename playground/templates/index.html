@@ -6,9 +6,9 @@
 <div class="container">
   {{ super() }}
 
-  <div id="sidebar">
-    <img class="logo" src="/static/images/logo.png"/>
+  <img id="logo" src="/static/images/logo.png"/>
 
+  <div id="sidebar">
     <h3>Worksheet</h3>
 
     <div class="panel panel-info">
@@ -33,8 +33,10 @@
     </select>
   </div>
 
-  <div id="worksheet"></div>
-  <div id="aux-info"></div>
+  <div id="content">
+    <div class="graph well" id="worksheet"></div>
+    <div class="graph well" id="aux-info"></div>
+  </div>
 </div>
 
 {% endblock %}
@@ -43,6 +45,18 @@
   {{ super() }}
 
   <script type="text/javascript">
+$(document).ready(function() {
+  $(window).resize(function() {
+    // The height of the #content area (in ems) should be the height of the
+    // window minus that of the navbar, minus some margin and padding.
+    var fontSize = parseFloat($("html").css("font-size"));
+    var height = ($(this).height() - $("nav.navbar").height()) / fontSize - 13;
+
+    $("#worksheet").height(fontSize * (height - 20));
+    $("#aux-info").height(fontSize * 20);
+  }).resize();
+});
+
 var worksheet = cytoscape({
   container: document.getElementById('worksheet'),
   boxSelectionEnabled: true,

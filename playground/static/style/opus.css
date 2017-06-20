@@ -1,10 +1,24 @@
 html {
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif; }
 
+#logo {
+  position: fixed;
+  bottom: 0.5em;
+  right: 0.5em;
+  width: 15%; }
+
 nav.navbar, nav.navbar.navbar-default {
   background-color: black;
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif;
   font-weight: bold; }
+
+nav.navbar {
+  position: fixed;
+  width: 100%;
+  z-index: 99; }
+
+.graph {
+  width: 100%; }
 
 .navbar-brand {
   font-size: 24pt; }
@@ -17,26 +31,13 @@ nav.navbar, nav.navbar.navbar-default {
   position: absolute;
   top: 0;
   left: 0; }
-  #sidebar .logo {
-    position: absolute;
-    bottom: 0.5em;
-    width: 90%; }
 
-#worksheet {
-  width: 80%;
-  height: 60%;
-  position: absolute;
+#content {
+  position: fixed;
+  left: 20em;
   top: 60px;
-  left: 20%;
-  border: 3px solid black; }
-
-#aux-info {
-  width: 80%;
-  height: 30%;
-  position: absolute;
-  left: 20%;
-  bottom: 0;
-  border: 3px solid black; }
+  padding: 1em;
+  width: 80%; }
 
 .button-bar {
   position: absolute;
