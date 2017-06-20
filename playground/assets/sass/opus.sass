@@ -1,19 +1,28 @@
 @import _colour
 
-$top-margin: 15%
+$top-margin: 60px
 
 html
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif
 
+nav.navbar, nav.navbar.navbar-default
+  background-color: $navbar-color
+  font-family: Avenir, Helvetica Neue, Helvetica, sans-serif
+  font-weight: bold
+
+.navbar-brand
+  font-size: 24pt
+
 #sidebar
-  height: 85%
+  height: 100%
   width: 20%
 
-  position: absolute
-  top: $top-margin
-  left: 0
+  padding: 1em
+  padding-top: $top-margin
 
-  padding: 0.5em
+  position: absolute
+  top: 0
+  left: 0
 
   .logo
     position: absolute
@@ -32,7 +41,7 @@ html
 
 #aux-info
   width: 80%
-  height: 25%
+  height: 30%
   position: absolute
   left: 20%
   bottom: 0

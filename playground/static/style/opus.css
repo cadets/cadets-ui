@@ -1,6 +1,14 @@
 html {
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif; }
 
+nav.navbar, nav.navbar.navbar-default {
+  background-color: black;
+  font-family: Avenir, Helvetica Neue, Helvetica, sans-serif;
+  font-weight: bold; }
+
+.navbar-brand {
+  font-size: 24pt; }
+
 #sidebar {
   height: 100%;
   width: 20%;

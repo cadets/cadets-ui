@@ -1,5 +1,5 @@
 core {
-  active-bg-color: #366; }
+  active-bg-color: #999; }
 
 edge {
   content: data(label);
@@ -35,12 +35,12 @@ node {
 node.process {
   height: 4em;
   width: 4em;
-  background-color: #366;
+  background-color: #999;
   background-image: url(/static/images/proc.png);
   background-fit: contain;
   border-width: 1;
   border-style: solid;
-  border-color: #366;
+  border-color: #999;
   text-halign: center;
   text-valign: center;
   text-outline-width: 2;
