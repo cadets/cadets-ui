@@ -111,6 +111,7 @@ $.getJSON('/nodes', function(result) {
     nodelist.append(`
       <tr>
         <td><i class="material-icons">${node.data.icon}</i></td>
+        <td>${node.data.type}</td>
         <td>${node.data.label}</td>
         <td>
           <a onclick="aux_node('${node.data.id}')">
