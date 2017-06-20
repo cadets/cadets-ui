@@ -54,6 +54,9 @@ nav.navbar {
     #inspector > * .panel .panel-body {
       height: 90%; }
 
+.scrollable {
+  overflow-y: scroll; }
+
 .button-bar {
   position: absolute;
   bottom: 0;
