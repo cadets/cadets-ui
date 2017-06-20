@@ -65,6 +65,29 @@ def get_all():
         + [ edge(e) for e in events ]
     )
 
+@frontend.route('/detail/<string:name>')
+def get_detail(name):
+    if flask.current_app.debug:
+        import mock_data
+
+        node_map = mock_data.nodes
+        event_map = mock_data.events
+
+    else:
+        raise ValueError, 'not hooked up to real data yet'
+
+    u = uuid.UUID(name)
+
+    if u in node_map.keys():
+        return json.dumps(node(node_map[u]))
+
+    elif u in event_map.keys():
+        return json.dumps(edge(event_map[u]))
+
+    else:
+        raise ValueError, '%s not a valid node or event ID' % u
+
+
 @frontend.route('/edges')
 def get_edges():
     if flask.current_app.debug:

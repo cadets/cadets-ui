@@ -46,6 +46,13 @@ nav.navbar {
   padding: 1em;
   width: 80%; }
 
+#inspector > * {
+  height: 100%; }
+  #inspector > * .panel {
+    height: 100%; }
+    #inspector > * .panel .panel-body {
+      height: 90%; }
+
 .button-bar {
   position: absolute;
   bottom: 0;

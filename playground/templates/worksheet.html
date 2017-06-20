@@ -33,7 +33,23 @@
 
   <div id="content">
     <div class="graph well" id="worksheet"></div>
-    <div class="graph well" id="aux-info"></div>
+
+    <div class="row" id="inspector">
+      <div class="col-md-8">
+        <div class="panel panel-info">
+          <div class="panel-heading">Inspector</div>
+          <div class="graph panel-body" id="inspector-graph"></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-info">
+          <div class="panel-heading">Details</div>
+          <div class="panel-body">
+            <table id="inspector-detail" class="table table-striped"></table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -48,10 +64,10 @@ $(document).ready(function() {
     // The height of the #content area (in ems) should be the height of the
     // window minus that of the navbar, minus some margin and padding.
     var fontSize = parseFloat($("html").css("font-size"));
-    var height = ($(this).height() - $("nav.navbar").height()) / fontSize - 13;
+    var height = ($(this).height() - $("nav.navbar").height()) / fontSize - 10;
 
     $("#worksheet").height(fontSize * (height - 20));
-    $("#aux-info").height(fontSize * 20);
+    $("#inspector").height(fontSize * 20);
   }).resize();
 });
 
@@ -60,10 +76,13 @@ var worksheet = cytoscape({
   boxSelectionEnabled: true,
 });
 
-var aux = cytoscape({
-  container: document.getElementById('aux-info'),
-  boxSelectionEnabled: true,
-});
+var inspector = {
+  detail: $('#inspector-detail'),
+  graph: cytoscape({
+    container: document.getElementById('inspector-graph'),
+    boxSelectionEnabled: true,
+  }),
+};
 
 var layout = function(graph, algorithm) {
   graph.layout({
@@ -79,26 +98,37 @@ $.ajax('/static/style/cytoscape.css', {
   mimeType: 'text/css',
   success: function(result) {
     worksheet.style(result);
-    aux.style(result);
+    inspector.graph.style(result);
   }
 });
 
-var aux_node = function(id) {
-  $.getJSON('/onehop/' + id, function(result) {
-    aux.remove('node');
-    aux.add(result);
+var inspect = function(id) {
+  $.getJSON(`/detail/${id}`, function(result) {
+    inspector.detail.empty();
+    for (var property in result.data) {
+      inspector.detail.append(`
+        <tr>
+          <th>${property}</th>
+          <td>${result.data[property]}</td>
+        </tr>
+      `)
+    }
+  });
 
-    aux.$('node').on('tap', function(ev) {
+  $.getJSON('/onehop/' + id, function(result) {
+    inspector.graph.remove('node');
+    inspector.graph.add(result);
+
+    inspector.graph.$('node').on('tap', function(ev) {
       alert(ev.target.id());
     });
 
-    layout(aux, 'dagre');
+    layout(inspector.graph, 'dagre');
   });
 };
 
 $.getJSON('/edges', function(result) {
   var edgelist = $('#edgelist');
-  edgelist.empty();
 
   for (let node of result) {
     edgelist.append(`
@@ -107,7 +137,7 @@ $.getJSON('/edges', function(result) {
         <td>${node.data.type}</td>
         <td>${node.data.label}</td>
         <td>
-          <a onclick="aux_node('${node.data.id}')">
+          <a onclick="inspect('${node.data.id}')">
             ${node.data.id.substring(0, 8)}
           </a>
         </td>
@@ -117,7 +147,6 @@ $.getJSON('/edges', function(result) {
 
 $.getJSON('/nodes', function(result) {
   var nodelist = $('#nodelist');
-  nodelist.empty();
 
   for (let node of result) {
     nodelist.append(`
@@ -126,7 +155,7 @@ $.getJSON('/nodes', function(result) {
         <td>${node.data.type}</td>
         <td>${node.data.label}</td>
         <td>
-          <a onclick="aux_node('${node.data.id}')">
+          <a onclick="inspect('${node.data.id}')">
             ${node.data.id.substring(0, 8)}
           </a>
         </td>
