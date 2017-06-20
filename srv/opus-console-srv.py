@@ -3,12 +3,21 @@
 import argparse
 import errno
 import functools
-import html
 import json
 import os
+import sys
 
 from flask import Flask, g, jsonify, redirect, request, make_response, url_for
 from neo4j.v1 import GraphDatabase, basic_auth
+
+if sys.version_info < (3,):
+    import cgi
+    def escape(str):
+        return cgi.escape(str)
+else:
+    import html
+    def escape(str):
+        return html.escape(str)
 
 app = Flask(__name__)
 
@@ -73,19 +82,19 @@ def old_proctree():
 
 @app.route("/old/provgraph")
 def old_provgraph():
-    gnode_id = html.escape(request.args.get("gnode_id"))
+    gnode_id = escape(request.args.get("gnode_id"))
     return app.send_static_file("query-cache/{}.json".format(gnode_id))
 
 
 @app.route("/old/provdetail")
 def old_provdetail():
-    gnode_id = html.escape(request.args.get("gnode_id"))
+    gnode_id = escape(request.args.get("gnode_id"))
     return app.send_static_file("query-cache/{}_files.json".format(gnode_id))
 
 
 @app.route("/old/filegraph")
 def old_filegraph():
-    gnode_id = html.escape(request.args.get("gnode_id"))
+    gnode_id = escape(request.args.get("gnode_id"))
     if os.path.exists("static/query-cache/{}.json".format(gnode_id)):
         return app.send_static_file("query-cache/{}.json".format(gnode_id))
     else:
@@ -94,14 +103,14 @@ def old_filegraph():
 
 @app.route("/old/fwdgraph")
 def old_fwdgraph():
-    gnode_id = html.escape(request.args.get("gnode_id"))
+    gnode_id = escape(request.args.get("gnode_id"))
     return app.send_static_file("query-cache/fwd-{}.json".format(gnode_id))
 
 
 @app.route("/old/diffgraph")
 def old_diffgraph():
-    gnode_id1 = int(html.escape(request.args.get("gnode_id1")))
-    gnode_id2 = int(html.escape(request.args.get("gnode_id2")))
+    gnode_id1 = int(escape(request.args.get("gnode_id1")))
+    gnode_id2 = int(escape(request.args.get("gnode_id2")))
     if gnode_id1 > gnode_id2:
         gnode_id1, gnode_id2 = gnode_id2, gnode_id1
     return app.send_static_file("query-cache/diff-{}-{}.json".format(gnode_id1, gnode_id2))
