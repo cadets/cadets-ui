@@ -110,8 +110,17 @@ def get_element(name):
             nodes.append(node_map[ev['target']])
             events.append(ev)
 
+    elif u in event_map.keys():
+        ev = event_map[u]
+
+        nodes = [
+            node_map[ev['source']],
+            node_map[ev['target']]
+        ]
+        events = [ ev ]
+
     else:
-        raise ValueError, '%s not in %s' % (u, node_map.keys())
+        raise ValueError, '%s not a valid node or event ID' % u
 
     return json.dumps(
         [ node(n) for n in nodes ]
