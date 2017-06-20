@@ -56,12 +56,3 @@ nav.navbar {
 
 .scrollable {
   overflow-y: scroll; }
-
-.button-bar {
-  position: absolute;
-  bottom: 0;
-  padding: .25em;
-  text-align: right;
-  width: 100%;
-  background-color: #333;
-  color: white; }
