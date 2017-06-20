@@ -1,11 +1,18 @@
 html {
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif; }
 
+body > .container {
+  padding-top: 92px; }
+
 #logo {
   position: fixed;
-  bottom: 0.5em;
-  right: 0.5em;
-  width: 15%; }
+  bottom: 0;
+  right: 0;
+  padding: .5em;
+  width: 15%;
+  z-index: 99;
+  background-color: white;
+  border: 2px solid black; }
 
 nav.navbar, nav.navbar.navbar-default {
   background-color: black;

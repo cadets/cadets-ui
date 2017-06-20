@@ -1,0 +1,53 @@
+{%- extends "base.html" -%}
+
+{% import "bootstrap/utils.html" as utils %}
+
+{% block content %}
+<div class="container">
+  {{ super() }}
+
+  <div class="full graph well" id="global-view"></div>
+</div>
+
+{% endblock %}
+
+{% block scripts -%}
+  {{ super() }}
+
+  <script type="text/javascript">
+$(document).ready(function() {
+  $(window).resize(function() {
+    // The height of the #content area (in ems) should be the height of the
+    // window minus that of the navbar, minus some margin and padding.
+    var fontSize = parseFloat($("html").css("font-size"));
+    var height = ($(this).height() - $("nav.navbar").height()) / fontSize - 13;
+
+    $("#global-view").height(fontSize * height);
+  }).resize();
+});
+
+var view = cytoscape({
+  container: document.getElementById('global-view'),
+  boxSelectionEnabled: true,
+});
+
+
+$.ajax('/static/style/cytoscape.css', {
+  dataType: 'text',
+  mimeType: 'text/css',
+  success: function(result) {
+    view.style(result);
+  }
+});
+
+$.getJSON('/everything', function(result) {
+  view.add(result);
+
+  view.layout({
+    name: 'dagre',
+    rankDir: 'LR',
+    animate: false,
+  }).run();
+});
+  </script>
+{% endblock %}

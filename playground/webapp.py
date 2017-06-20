@@ -27,6 +27,16 @@ def index():
     return flask.render_template('index.html')
 
 
+@frontend.route('/global')
+def global_view():
+    return flask.render_template('global-view.html')
+
+
+@frontend.route('/worksheet')
+def worksheet():
+    return flask.render_template('worksheet.html')
+
+
 def node(n):
     return {
         'data': dict([ (k,str(v)) for (k,v) in n.items() ]),
@@ -131,6 +141,8 @@ def get_element(name):
 nav.nav.register_element('frontend_top',
     nav.Navbar(
         nav.View('OPUS', '.index'),
+        nav.View('Global', '.global_view'),
+        nav.View('Worksheets', '.worksheet'),
     )
 )
 

@@ -9,6 +9,11 @@
 {{fixes.ie8()}}
 {%- endblock %}
 
+{% block content -%}
+  {{ super() }}
+  <img id="logo" src="/static/images/logo.png"/>
+{%- endblock %}
+
 {% block scripts -%}
   {{ super() }}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.1.2/cytoscape.min.js"></script>
