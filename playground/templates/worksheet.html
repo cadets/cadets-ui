@@ -102,6 +102,10 @@ $.ajax('/static/style/cytoscape.css', {
   }
 });
 
+// The node currently showing a context menu. These menus are madal and
+// therefore provide implicit synchronization.
+var contextNode = null;
+
 var inspect = function(id) {
   $.getJSON(`/detail/${id}`, function(result) {
     inspector.detail.empty();
@@ -120,12 +124,48 @@ var inspect = function(id) {
     inspector.graph.add(result);
 
     inspector.graph.$('node').on('tap', function(ev) {
-      alert(ev.target.id());
+      contextNode = this;
+
+      var pos = ev.renderedPosition;
+      let offset = $('#inspector-graph').offset();
+      pos.x += offset.left;
+      pos.y += offset.top;
+
+      $('#inspector-graph').contextMenu(pos);
     });
 
     layout(inspector.graph, 'dagre');
   });
 };
+
+$.contextMenu({
+  selector: '#inspector-graph',
+  trigger: 'none',
+  callback: function(action, options) {
+    var node = contextNode.data();
+
+    if (action == 'import') {
+      $.getJSON(`/detail/${node.id}`, function(result) {
+        worksheet.add(result);
+      });
+    } else if (action == 'inspect') {
+      inspect(node.id);
+    }
+  },
+  items: {
+    "import": {
+      name: "Import to workspace",
+      icon: "fa-upload",
+      accesskey: "m"
+    },
+    "inspect": {
+      name: "Inspect",
+      icon: "fa-search",
+      accesskey: "n"
+    },
+  }
+});
+
 
 $.getJSON('/edges', function(result) {
   var edgelist = $('#edgelist');
