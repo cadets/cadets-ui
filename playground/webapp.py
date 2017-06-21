@@ -186,7 +186,4 @@ def create_app():
         app.config['TEMPLATES_AUTO_RELOAD'] = True
         app.jinja_env.auto_reload = True
 
-        from flaskext.sass import sass
-        sass(app, input_dir = 'assets/sass', output_dir = 'static/style')
-
     return app
