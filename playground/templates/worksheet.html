@@ -65,9 +65,11 @@ $(document).ready(function() {
     // window minus that of the navbar, minus some margin and padding.
     var fontSize = parseFloat($("html").css("font-size"));
     var height = ($(this).height() - $("nav.navbar").height()) / fontSize - 10;
+    var width = $(this).width() / fontSize - 31;
 
     $("#worksheet").height(fontSize * (height - 20));
     $("#inspector").height(fontSize * 20);
+    $("#content").width(fontSize * width);
   }).resize();
 });
 
