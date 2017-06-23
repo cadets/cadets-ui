@@ -72,3 +72,79 @@ same as `File`, though name is either an IP+port in "0.0.0.0`:0" form or a path 
 This is how the UI expects data returned from OPUS to be represented.
 We use JSON as the default serialization mechanism since that's easy to convert
 to JavaScript objects.
+
+### Nodes
+
+The JSON representation of nodes should be very similar to OPUS' native Neo4j representation.
+
+
+#### Common fields
+
+All node objects should have:
+
+| Name          | Type           | Description                              |
+|---------------|----------------|------------------------------------------|
+| `id`          | `int`          | Opaque database ID (unique among nodes **and edges**)  |
+| `type`        | `string`       | `machine`, `process`, `file-version`, `socket-version`, `connection` |
+
+
+#### Machines
+
+In addition to the common fields, a machine (`type = 'machine'`) should have the following fields:
+
+| Name          | Type           | Description                              |
+|---------------|----------------|------------------------------------------|
+| `uuid`        | `string`       | UUIDv4
+| `ips`         | `list[string]` | All known and previously-known IP addresses
+| `names`       | `list[string]` | Names the machine been known by
+| `first_seen`  | `int`          | UNIX timestamp
+| `external`    | `bool`         | We have no traces from this machine
+
+
+#### Process versions
+
+| Name          | Type           | Description                              |
+|---------------|----------------|------------------------------------------|
+| `uuid`        | `string`       | UUID-ish string (may actually be host:uuid)
+| `host`        | `string`       | UUID of host
+| `pid`         | `int`          | UNIX pid
+| `username`    | `string`       | Login for `uid`, if available (or `null`)
+| `cmdline`     | `string`       | Invocation, if available (or `null`)
+| `[er][ug]id`  | `int`          | UNIX [effective/real] [user/group] ID
+| `last_update` | `int`          | UNIX timestamp of last `[er][ug]id` update
+| `saw_creation`| `bool`         | We saw this **process's** (not just version's) creation
+
+
+#### File versions
+
+| Name          | Type           | Description                              |
+|---------------|----------------|------------------------------------------|
+| uuid          | `string`       | UUIDv4 (**or might it be UUID-ish?**)
+| `host`        | `string`       | UUID of host
+| `names`       | `list[string]` | Names the file has ever been referred to by
+| `saw_creation`| `bool`         | We saw this **file's** opening
+
+**Socket versions:**
+
+
+#### Connections
+
+TODO
+
+
+### Edges
+
+| Name          | Type           | Description                              |
+|---------------|----------------|------------------------------------------|
+| `id`          | `int`          | Opaque database ID (unique among nodes **and edges**)  |
+| `type`        | `string`       | (see below)
+| `source`      | `int`          | Origin node
+| `target`      | `int`          | Destination node
+
+Edge types may be:
+* `parent`: process–process, roughly `fork(2)` + `exec(2)`
+* `io`: process–file, e.g., `read(2)`, `write(2)`, `mmap(2)`
+* `proc-metadata`: new process metadata
+* `proc-change`: new process version
+* `file-change`: new file (or socket) version
+* `comm`: TODO
