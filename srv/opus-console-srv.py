@@ -3,6 +3,7 @@
 import argparse
 import errno
 import functools
+import inspect
 import json
 import os
 import sys
@@ -95,12 +96,21 @@ class OPUSJSONEncoder(json.JSONEncoder):
 app.json_encoder = OPUSJSONEncoder
 
 
+def params_as_args(func):
+    @functools.wraps(func)
+    def wrap(*args, **kwargs):
+        kwargs.update(request.args.to_dict())
+        return func(*args, **kwargs)
+    return wrap
+
+
 def synth_route(route, **kwargs):
     def dec(func):
         @functools.wraps(func)
         def wrap(*wargs, **wkwargs):
             if app.config['synth'] is not None:
-                fname = "_".join([func.__name__] + [v for k, v in sorted(wkwargs.items())]) + '.json'
+                arg_map = inspect.getcallargs(func, *wargs, **wkwargs)
+                fname = "_".join([func.__name__] + [v for k, v in sorted(arg_map.items())]) + '.json'
                 path = os.path.join(app.config['synth'], fname)
                 if app.config['rec']:
                     ret = func(*wargs, **wkwargs)
@@ -119,7 +129,7 @@ def synth_route(route, **kwargs):
                         return '', 500
             else:
                 return func(*wargs, **wkwargs)
-        return app.route(route, **kwargs)(wrap)
+        return app.route(route, **kwargs)(params_as_args(wrap))
     return dec
 
 
@@ -149,8 +159,8 @@ def neighbours_query(uuid):
 
 
 @synth_route('/successors/<uuid>')
-def successors_query(uuid):
-    max_depth = 4
+def successors_query(uuid, max_depth='4'):
+    max_depth = int(max_depth)
     source = g.db.run("""MATCH (n)
                          WHERE exists(n.uuid) AND n.uuid={uuid}
                          RETURN n""",
