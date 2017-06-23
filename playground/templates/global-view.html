@@ -31,14 +31,7 @@ var view = cytoscape({
   boxSelectionEnabled: true,
 });
 
-
-$.ajax('/static/style/cytoscape.css', {
-  dataType: 'text',
-  mimeType: 'text/css',
-  success: function(result) {
-    view.style(result);
-  }
-});
+load_graph_style([ view ]);
 
 $.getJSON('/everything', function(result) {
   for (let r of result) {

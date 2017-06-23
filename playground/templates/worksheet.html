@@ -17,7 +17,7 @@
     </div>
 
     <label for="layout-picker" class="control-label">Auto-layout</label>
-    <select id="layout-picker" onchange="layout(worksheet, this.value)">
+    <select id="layout-picker" onchange="layout_graph(worksheet, this.value)">
       <option value="dagre">dagre</option>
       <option value="cose">CoSE</option>
       <option value="cose-bilkent">CoSE (Bilkent)</option>
@@ -52,20 +52,9 @@
   {{ super() }}
 
   <script type="text/javascript">
-$(document).ready(function() {
-  $(window).resize(function() {
-    // The height of the #content area (in ems) should be the height of the
-    // window minus that of the navbar, minus some margin and padding.
-    var fontSize = parseFloat($("html").css("font-size"));
-    var height = ($(this).height() - $("nav.navbar").height()) / fontSize - 10;
-    var width = $(this).width() / fontSize - 31;
-
-    $("#worksheet").height(fontSize * (height - 20));
-    $("#inspector").height(fontSize * 20);
-    $("#content").width(fontSize * width);
-  }).resize();
-});
-
+//
+// Create worksheet and inspector views.
+//
 var worksheet = cytoscape({
   container: document.getElementById('worksheet'),
   boxSelectionEnabled: true,
@@ -79,57 +68,30 @@ var inspector = {
   }),
 };
 
-var layout = function(graph, algorithm) {
-  graph.layout({
-    name: algorithm,
-    rankDir: 'LR',
-    animate: false,
-  })
-  .run();
-};
+load_graph_style([ worksheet, inspector.graph ]);
 
-$.ajax('/static/style/cytoscape.css', {
-  dataType: 'text',
-  mimeType: 'text/css',
-  success: function(result) {
-    worksheet.style(result);
-    inspector.graph.style(result);
+//
+// Populate node list.
+//
+$.getJSON('/nodes', function(result) {
+  var nodelist = $('#nodelist');
+
+  for (let node of result) {
+    meta = node_metadata(node);
+
+    nodelist.append(`
+      <tr>
+        <td><i class="fa fa-${meta.icon}" aria-hidden="true"></i></td>
+        <td><a onclick="inspect(${node.id})">${meta.label}</a></td>
+      </tr>`);
   }
 });
 
-function node_metadata(node) {
-  switch (node.type) {
-    case 'machine':
-      return {
-        icon: 'desktop',
-        label: node.names.join(' / '),
-      };
-
-    case 'process':
-      return {
-        icon: 'terminal',
-        label: node.cmdline,
-      };
-
-    case 'file-version':
-      return {
-        icon: 'file-o',
-        label: node.names.join(' / '),
-      };
-
-  default:
-    return {
-      icon: 'question',
-      label: 'unknown',
-    };
-  }
-}
-
-// The node currently showing a context menu. These menus are madal and
-// therefore provide implicit synchronization.
-var contextNode = null;
-
+//
+// Define what it means to "inspect" a node.
+//
 function inspect(id) {
+  // Display the node's details in the inspector "Details" panel.
   $.getJSON(`/detail/${id}`, function(result) {
     inspector.detail.empty();
     for (var property in result) {
@@ -142,6 +104,7 @@ function inspect(id) {
     }
   });
 
+  // Display the node's immediate connections in the inspector "Graph" panel.
   $.getJSON('/onehop/' + id, function(result) {
     inspector.graph.remove('node');
 
@@ -158,66 +121,55 @@ function inspect(id) {
       inspector.graph.add(edge);
     }
 
-    inspector.graph.$('node').on('tap', function(ev) {
-      contextNode = this;
+    layout_graph(inspector.graph, 'dagre');
 
-      var pos = ev.renderedPosition;
-      let offset = $('#inspector-graph').offset();
-      pos.x += offset.left;
-      pos.y += offset.top;
+    // Create a context menu for the inspector graph that allows nodes to be
+    // imported into the worksheet or inspected themselves.
+    attach_context_menu(inspector.graph, '#inspector-graph', {
+      "import": {
+        name: "Import to workspace",
+        icon: "fa-upload",
+        accesskey: "m",
+        action: function(node) {
+          console.log('item callback');
+          $.getJSON(`/detail/${node.id}`, function(result) {
+            var n = { data: result };
+            n.data.label = node_metadata(result).label;
+            n.classes = result.type;
 
-      $('#inspector-graph').contextMenu(pos);
+            worksheet.add(n);
+          });
+        }
+      },
+      "inspect": {
+        name: "Inspect",
+        icon: "fa-search",
+        accesskey: "n",
+        action: function(node) {
+          inspect(node.id);
+        }
+      }
     });
-
-    layout(inspector.graph, 'dagre');
   });
 };
 
-$.contextMenu({
-  selector: '#inspector-graph',
-  trigger: 'none',
-  callback: function(action, options) {
-    var node = contextNode.data();
+//
+// Resize worksheet and inspector when the window size changes.
+//
+// Unfortunately this seems difficult to do via CSS.
+//
+$(document).ready(function() {
+  $(window).resize(function() {
+    // The height of the #content area (in ems) should be the height of the
+    // window minus that of the navbar, minus some margin and padding.
+    var fontSize = parseFloat($("html").css("font-size"));
+    var height = ($(this).height() - $("nav.navbar").height()) / fontSize - 10;
+    var width = $(this).width() / fontSize - 31;
 
-    if (action == 'import') {
-      $.getJSON(`/detail/${node.id}`, function(result) {
-        var n = { data: result };
-        n.data.label = node_metadata(result).label;
-        n.classes = result.type;
-
-        worksheet.add(n);
-      });
-    } else if (action == 'inspect') {
-      inspect(node.id);
-    }
-  },
-  items: {
-    "import": {
-      name: "Import to workspace",
-      icon: "fa-upload",
-      accesskey: "m"
-    },
-    "inspect": {
-      name: "Inspect",
-      icon: "fa-search",
-      accesskey: "n"
-    },
-  }
-});
-
-
-$.getJSON('/nodes', function(result) {
-  var nodelist = $('#nodelist');
-
-  for (let node of result) {
-    meta = node_metadata(node);
-
-    nodelist.append(`
-      <tr>
-        <td><i class="fa fa-${meta.icon}" aria-hidden="true"></i></td>
-        <td><a onclick="inspect(${node.id})">${meta.label}</a></td>
-      </tr>`);
-  }
+    $("#worksheet").height(fontSize * (height - 20));
+    $("#inspector").height(fontSize * 20);
+    $("#content").width(fontSize * width);
+  }).resize();
 });
   </script>
 {% endblock %}
