@@ -131,7 +131,6 @@ function inspect(id) {
         icon: "fa-upload",
         accesskey: "m",
         action: function(node) {
-          console.log('item callback');
           $.getJSON(`/detail/${node.id}`, function(result) {
             var n = { data: result };
             n.data.label = node_metadata(result).label;
