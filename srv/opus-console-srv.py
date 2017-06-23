@@ -9,6 +9,7 @@ import sys
 
 from flask import Flask, g, jsonify, redirect, request, make_response, url_for
 from neo4j.v1 import GraphDatabase, basic_auth
+import neo4j.v1
 
 if sys.version_info < (3,):
     import cgi
@@ -20,6 +21,46 @@ else:
         return html.escape(str)
 
 app = Flask(__name__)
+
+
+class OPUSJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, neo4j.v1.Node):
+            if 'Socket' in o.labels:
+                ntype = "socket"
+                dname = ", ".join(o['name'])
+            elif 'Process' in o.labels:
+                ntype = "process"
+                dname = o['cmdline']
+            elif 'Machine' in o.labels:
+                ntype = "machine"
+                if len(o['name']):
+                    dname = ", ".join(o['name'])
+                else:
+                    dname = ", ".join(o['ips'])
+            elif 'Meta' in o.labels:
+                ntype = 'process-meta'
+                dname = "meta"
+            elif 'Conn' in o.labels:
+                ntype = 'conn'
+                dname = "conn"
+            else:
+                ntype = 'file-version'
+                dname = ", ".join(o['name'])
+            return dict({'id': o.id,
+                         'type': ntype,
+                         'display_name': dname},
+                        **o.properties)
+        elif isinstance(o, neo4j.v1.Relationship):
+            return dict({'src': o.start,
+                         'dest': o.end,
+                         'id': o.id,
+                         'type': o.type},
+                        **o.properties)
+        else:
+            return super(OPUSJSONEncoder, self).default(o)
+
+app.json_encoder = OPUSJSONEncoder
 
 
 def synth_route(route, **kwargs):
