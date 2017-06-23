@@ -108,6 +108,17 @@ def machines_query():
                               for row in g.db.run("MATCH (:Machine)-[e]->(:Machine) RETURN DISTINCT e").data()]})
 
 
+@synth_route('/neighbours/<uuid>')
+def neighbours_query(uuid):
+    res = g.db.run("""MATCH (s)-[e]-(d)
+                      WHERE exists(s.uuid) AND s.uuid={uuid}
+                      RETURN e, d""",
+                   {'uuid': uuid}).data()
+    return jsonify([{'node': row['d'],
+                     'edge': row['e']}
+                    for row in res])
+
+
 @app.route('/')
 def root_redirect():
     return redirect(url_for("static", filename="index.html"))
