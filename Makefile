@@ -1,6 +1,6 @@
 #Just a stub, jumpstarts other build processes
 
-.PHONY: all build rec synth userjs
+.PHONY: all rec synth build
 
 all: build
 	./run
@@ -11,13 +11,13 @@ rec: build
 synth: build
 	./run --synth=synth
 
-build: srv/venv www/js/bundle.js node_modules/.bin
+build: srv/venv www/js/bundle.js
+
+www/js/bundle.js: node_modules/.bin $(shell find lib -name "*.js")
+	npm run build:www
 
 node_modules/.bin:
-	./build -i
-
-www/js/bundle.js: $(shell find lib -name "*.js")
-	./build
+	npm install
 
 srv/venv:
 	virtualenv -p python2 srv/venv
