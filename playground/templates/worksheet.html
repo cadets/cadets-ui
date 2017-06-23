@@ -16,13 +16,6 @@
       </div>
     </div>
 
-    <div class="panel panel-info">
-      <div class="panel-heading">Available edges:</div>
-      <div class="panel-body">
-        <table id="edgelist" class="table table-striped"></table>
-      </div>
-    </div>
-
     <label for="layout-picker" class="control-label">Auto-layout</label>
     <select id="layout-picker" onchange="layout(worksheet, this.value)">
       <option value="dagre">dagre</option>
@@ -104,18 +97,46 @@ $.ajax('/static/style/cytoscape.css', {
   }
 });
 
+function node_metadata(node) {
+  switch (node.type) {
+    case 'machine':
+      return {
+        icon: 'desktop',
+        label: node.names.join(' / '),
+      };
+
+    case 'process':
+      return {
+        icon: 'terminal',
+        label: node.cmdline,
+      };
+
+    case 'file-version':
+      return {
+        icon: 'file-o',
+        label: node.names.join(' / '),
+      };
+
+  default:
+    return {
+      icon: 'question',
+      label: 'unknown',
+    };
+  }
+}
+
 // The node currently showing a context menu. These menus are madal and
 // therefore provide implicit synchronization.
 var contextNode = null;
 
-var inspect = function(id) {
+function inspect(id) {
   $.getJSON(`/detail/${id}`, function(result) {
     inspector.detail.empty();
-    for (var property in result.data) {
+    for (var property in result) {
       inspector.detail.append(`
         <tr>
           <th>${property}</th>
-          <td>${result.data[property]}</td>
+          <td>${result[property]}</td>
         </tr>
       `)
     }
@@ -123,7 +144,19 @@ var inspect = function(id) {
 
   $.getJSON('/onehop/' + id, function(result) {
     inspector.graph.remove('node');
-    inspector.graph.add(result);
+
+    for (let n of result.nodes) {
+      var node = { data: n };
+      node.classes = n.type;
+      node.data.label = node_metadata(n).label;
+      inspector.graph.add(node);
+    }
+
+    for (let e of result.edges) {
+      var edge = { data: e };
+      edge.classes = e.type;
+      inspector.graph.add(edge);
+    }
 
     inspector.graph.$('node').on('tap', function(ev) {
       contextNode = this;
@@ -148,7 +181,11 @@ $.contextMenu({
 
     if (action == 'import') {
       $.getJSON(`/detail/${node.id}`, function(result) {
-        worksheet.add(result);
+        var n = { data: result };
+        n.data.label = node_metadata(result).label;
+        n.classes = result.type;
+
+        worksheet.add(n);
       });
     } else if (action == 'inspect') {
       inspect(node.id);
@@ -169,38 +206,16 @@ $.contextMenu({
 });
 
 
-$.getJSON('/edges', function(result) {
-  var edgelist = $('#edgelist');
-
-  for (let node of result) {
-    edgelist.append(`
-      <tr>
-        <td><i class="material-icons">${node.data.icon}</i></td>
-        <td>${node.data.type}</td>
-        <td>${node.data.label}</td>
-        <td>
-          <a onclick="inspect('${node.data.id}')">
-            ${node.data.id.substring(0, 8)}
-          </a>
-        </td>
-      </tr>`);
-  }
-});
-
 $.getJSON('/nodes', function(result) {
   var nodelist = $('#nodelist');
 
   for (let node of result) {
+    meta = node_metadata(node);
+
     nodelist.append(`
       <tr>
-        <td><i class="material-icons">${node.data.icon}</i></td>
-        <td>${node.data.type}</td>
-        <td>${node.data.label}</td>
-        <td>
-          <a onclick="inspect('${node.data.id}')">
-            ${node.data.id.substring(0, 8)}
-          </a>
-        </td>
+        <td><i class="fa fa-${meta.icon}" aria-hidden="true"></i></td>
+        <td><a onclick="inspect(${node.id})">${meta.label}</a></td>
       </tr>`);
   }
 });

@@ -37,52 +37,35 @@ def worksheet():
     return flask.render_template('worksheet.html')
 
 
-def node(n):
-    return {
-        'data': dict([ (k,str(v)) for (k,v) in n.items() ]),
-        'classes': n['type'],
-    }
-
-def edge(e):
-    return {
-        'data': dict([ (k,str(v)) for (k,v) in e.items() ]),
-        'classes': e['type'],
-    }
-
 @frontend.route('/everything')
 def get_all():
     if flask.current_app.debug:
         import mock_data
 
-        nodes = mock_data.all_nodes
-        events = mock_data.all_events
+        nodes = mock_data.nodes
+        edges = mock_data.edges
 
     else:
         raise ValueError, 'not hooked up to real data yet'
 
-    return json.dumps(
-        [ node(n) for n in nodes ]
-        + [ edge(e) for e in events ]
-    )
+    return json.dumps(nodes.values() + edges.values())
 
-@frontend.route('/detail/<string:name>')
-def get_detail(name):
+@frontend.route('/detail/<int:identifier>')
+def get_detail(identifier):
     if flask.current_app.debug:
         import mock_data
 
         node_map = mock_data.nodes
-        event_map = mock_data.events
+        edge_map = mock_data.edges
 
     else:
         raise ValueError, 'not hooked up to real data yet'
 
-    u = uuid.UUID(name)
+    if identifier in node_map.keys():
+        return json.dumps(node_map[identifier])
 
-    if u in node_map.keys():
-        return json.dumps(node(node_map[u]))
-
-    elif u in event_map.keys():
-        return json.dumps(edge(event_map[u]))
+    elif identifier in edge_map.keys():
+        return json.dumps(edge_map[identifier])
 
     else:
         raise ValueError, '%s not a valid node or event ID' % u
@@ -93,72 +76,38 @@ def get_edges():
     if flask.current_app.debug:
         import mock_data
 
-        events = mock_data.all_events
+        edges = mock_data.edges
 
     else:
         raise ValueError, 'not hooked up to real data yet'
 
-    return json.dumps([ edge(e) for e in events ])
+    return json.dumps(edges.values())
 
 @frontend.route('/nodes')
 def get_nodes():
     if flask.current_app.debug:
         import mock_data
 
-        nodes = mock_data.all_nodes
+        nodes = mock_data.nodes
 
     else:
         raise ValueError, 'not hooked up to real data yet'
 
-    return json.dumps([ node(n) for n in nodes ])
+    return json.dumps(nodes.values())
 
-@frontend.route('/onehop/<string:name>')
-def get_element(name):
+@frontend.route('/onehop/<int:identifier>')
+def get_element(identifier):
     if flask.current_app.debug:
         import mock_data
 
         node_map = mock_data.nodes
-        event_map = mock_data.events
+        edge_map = mock_data.edges
+        get_connections = mock_data.get_connections
 
     else:
         raise ValueError, 'not hooked up to real data yet'
 
-    u = uuid.UUID(name)
-
-    nodes = []
-    events = []
-
-    if u in node_map.keys():
-        n = node_map[u]
-
-        nodes = [ n ]
-
-        for e in n['in']:
-            ev = event_map[e]
-            nodes.append(node_map[ev['source']])
-            events.append(ev)
-
-        for e in n['out']:
-            ev = event_map[e]
-            nodes.append(node_map[ev['target']])
-            events.append(ev)
-
-    elif u in event_map.keys():
-        ev = event_map[u]
-
-        nodes = [
-            node_map[ev['source']],
-            node_map[ev['target']]
-        ]
-        events = [ ev ]
-
-    else:
-        raise ValueError, '%s not a valid node or event ID' % u
-
-    return json.dumps(
-        [ node(n) for n in nodes ]
-        + [ edge(e) for e in events ]
-    )
+    return json.dumps(get_connections(identifier))
 
 
 nav.nav.register_element('frontend_top',

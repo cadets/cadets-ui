@@ -4,13 +4,13 @@ core
   active-bg-color: $primary-color
 
 edge
-  content: data(label)
+  content: data(type)
   curve-style: bezier
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif
   target-arrow-shape: triangle
   width: 4
 
-edge.exec
+edge.parent
   line-style: dotted
   width: 8
 
@@ -23,7 +23,7 @@ edge.exec
   text-outline-color: $exec-color
   color: white
 
-edge.syscall
+edge.io
   target-arrow-color: $syscall-color
   line-color: $syscall-color
 
@@ -38,39 +38,55 @@ node
   content: data(label)
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif
 
-node.process
-  height: 4em
-  width: 4em
-
-  background-color: $primary-color
-  background-image: url(/static/images/proc.png)
-  background-fit: contain
-
-  border-width: 1
   border-style: solid
-  border-color: $primary-color
+  border-width: 2
 
   text-halign: center
   text-valign: center
   text-outline-width: 2
-  text-outline-color: black
+  text-wrap: wrap
+  text-max-width: 10em
   color: white
 
-node.vnode
-  shape: rectangle
   height: 4em
   width: 4em
+
+  background-fit: contain
+  background-position-x: 0
+  background-position-y: 0
+
+node.process
+  background-color: $primary-color
+  background-image: url(/static/images/proc.png)
+  text-outline-color: black
+
+  border-color: $primary-color
+
+node.file-version
+  shape: rectangle
 
   background-image: url(/static/images/file.png)
   background-fit: contain
 
-  border-width: 2
-  border-style: solid
   border-color: black
+  text-outline-color: black
+
+node.machine
+  font-size: 24pt
 
   text-halign: center
-  text-valign: center
-  text-rotation: .78539815
-  text-outline-width: 2
-  text-outline-color: black
-  color: white
+  text-valign: top
+  text-margin-y: 0.25em
+
+  shape: rectangle
+  padding: 1em
+
+  min-width: 160px
+  min-height: 160px
+
+  background-color: #eee;
+  background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Gnome-computer.svg/128px-Gnome-computer.svg.png)
+  background-image-opacity: 0.25
+  background-fit: none
+  background-position-x: 20px
+  background-position-y: 20px

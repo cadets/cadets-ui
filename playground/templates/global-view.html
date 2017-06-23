@@ -41,7 +41,18 @@ $.ajax('/static/style/cytoscape.css', {
 });
 
 $.getJSON('/everything', function(result) {
-  view.add(result);
+  for (let r of result) {
+    if (r.type == 'process') {
+      r.label = r.cmdline;
+    } else if (r.type == 'file-version') {
+      r.label = r.names.join(' / ');
+    }
+
+    node = { data: r };
+    node.classes = r.type;
+
+    view.add(node);
+  }
 
   view.layout({
     name: 'dagre',
