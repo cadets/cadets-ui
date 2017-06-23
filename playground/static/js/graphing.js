@@ -45,7 +45,7 @@ function attach_context_menu(graph, selector, items) {
 
       for (let key in items) {
         if (action == key) {
-          items[key].action(node);
+          items[key].action(node.id);
         }
       }
     }
