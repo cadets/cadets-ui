@@ -91,6 +91,12 @@ def synth_route(route, **kwargs):
     return dec
 
 
+@synth_route('/all')
+def all_query():
+    return jsonify({'nodes': [row['n'] for row in g.db.run("MATCH (n) RETURN n").data()],
+                    'edges': [row['e'] for row in g.db.run("MATCH ()-[e]->() RETURN DISTINCT e").data()]})
+
+
 @synth_route('/machines')
 def machines_query():
     res = g.db.run("MATCH (m:Machine) RETURN m").data()
