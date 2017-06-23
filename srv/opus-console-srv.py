@@ -160,9 +160,10 @@ def successors_query(uuid):
 
     source = source['n']
     process = [(max_depth, source)]
-    nodes = [source]
+    nodes = []
     while len(process):
         cur_depth, cur = process.pop()
+        nodes.append(cur)
         neighbours = None
         if 'Global' in cur.labels:
             neighbours = g.db.run("""MATCH (cur:Global)-[e]->(n:Process)
@@ -198,7 +199,6 @@ def successors_query(uuid):
                 continue
             if cur_depth > 0:
                 process.append((cur_depth - 1, row['n']))
-            nodes.append(row['n'])
 
     edata = g.db.run("""MATCH (a)-[e]-(b)
                         WHERE id(a) IN {ids} AND id(b) IN {ids}
