@@ -102,22 +102,10 @@ def all_query():
 
 @synth_route('/machines')
 def machines_query():
-    res = g.db.run("MATCH (m:Machine) RETURN m").data()
-    nodes = [{'uuid': m['m']['uuid'],
-              'first_seen': m['m']['timestamp'],
-              'type': 'machine',
-              'name': m['m']['uuid'],
-              'id': m['m'].id}
-             for m in res]
-
-    res = g.db.run("MATCH (m1:Machine)-->(m2:Machine) RETURN DISTINCT m1, m2").data()
-    edges = [{'src': row['m1'].id,
-              'dest': row['m2'].id,
-              'type': 'conn'}
-             for row in res]
-
-    root = nodes[0]['id'] if len(nodes) else 0
-    return jsonify({'root': root, 'nodes': nodes, 'edges': edges})
+    return jsonify({'nodes': [row['m']
+                              for row in g.db.run("MATCH (m:Machine) RETURN m").data()],
+                    'edges': [row['e']
+                              for row in g.db.run("MATCH (:Machine)-[e]->(:Machine) RETURN DISTINCT e").data()]})
 
 
 @app.route('/')
