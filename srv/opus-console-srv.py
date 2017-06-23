@@ -7,7 +7,7 @@ import json
 import os
 import sys
 
-from flask import Flask, g, jsonify, redirect, request, make_response, url_for
+from flask import abort, Flask, g, json, jsonify, redirect, request, make_response, url_for
 from neo4j.v1 import GraphDatabase, basic_auth
 import neo4j.v1
 
@@ -117,6 +117,70 @@ def neighbours_query(uuid):
     return jsonify([{'node': row['d'],
                      'edge': row['e']}
                     for row in res])
+
+
+@synth_route('/successors/<uuid>')
+def successors_query(uuid):
+    max_depth = 4
+    source = g.db.run("""MATCH (n)
+                         WHERE exists(n.uuid) AND n.uuid={uuid}
+                         RETURN n""",
+                      {'uuid': uuid}).single()
+    if source is None:
+        abort(404)
+
+    source = source['n']
+    process = [(max_depth, source)]
+    nodes = [source]
+    while len(process):
+        cur_depth, cur = process.pop()
+        neighbours = None
+        if 'Global' in cur.labels:
+            neighbours = g.db.run("""MATCH (cur:Global)-[e]->(n:Process)
+                                     WHERE id(cur)={curid} AND e.state in ['BIN', 'READ', 'RaW', 'CLIENT', 'SERVER']
+                                     RETURN n, e
+                                     UNION
+                                     MATCH (cur:Global)<-[e]-(n:Global)
+                                     WHERE id(cur)={curid}
+                                     RETURN n, e
+                                     UNION
+                                     MATCH (cur:Global)-[e]->(n:Conn)
+                                     WHERE id(cur)={curid}
+                                     RETURN n, e""",
+                                  {'curid': cur.id}).data()
+        elif 'Process' in cur.labels:
+            neighbours = g.db.run("""MATCH (cur:Process)<-[e]-(n:Global)
+                                     WHERE id(cur)={curid} AND e.state in ['WRITE', 'RaW', 'CLIENT', 'SERVER']
+                                     RETURN n, e
+                                     UNION
+                                     MATCH (cur:Process)<-[e]-(n:Process)
+                                     WHERE id(cur)={curid}
+                                     RETURN n, e""",
+                                  {'curid': cur.id}).data()
+        elif 'Conn' in cur.labels:
+            neighbours = g.db.run("""MATCH (cur:Conn)<-[e]-(n:Global)
+                                     WHERE id(cur)={curid}
+                                     RETURN n, e""",
+                                  {'curid': cur.id}).data()
+        if neighbours is None:
+            continue
+        for row in neighbours:
+            if row['n'] in nodes:
+                continue
+            if cur_depth > 0:
+                process.append((cur_depth - 1, row['n']))
+            nodes.append(row['n'])
+
+    edata = g.db.run("""MATCH (a)-[e]-(b)
+                        WHERE id(a) IN {ids} AND id(b) IN {ids}
+                        RETURN DISTINCT e""",
+                     {'ids': [n.id for n in nodes]}).data()
+
+    edges = [row['e'] for row in edata]
+
+    return jsonify({'root': source.id,
+                    'nodes': nodes,
+                    'edges': edges})
 
 
 @app.route('/')
