@@ -29,37 +29,66 @@ app = Flask(__name__)
 class OPUSJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, neo4j.v1.Node):
+            data = {'id': o.id}
             if 'Socket' in o.labels:
-                ntype = "socket"
-                dname = ", ".join(o['name'])
+                data.update({'type': "socket-version"})
+                data.update(o.properties)
             elif 'Process' in o.labels:
-                ntype = "process"
-                dname = o['cmdline']
+                data.update({'type': "process",
+                             'uuid': o['uuid'],
+                             'host': o['host'],
+                             'pid': o['pid'],
+                             'username': o['meta_login'] if 'meta_login' in o else None,
+                             'cmdline': o['cmdline'] if o['cmdline'] else None,
+                             'last_update': o['meta_ts'],
+                             'saw_creation': not o['anomalous']})
+                data.update({k: o['meta_%s' % k] if ('meta_%s' % k) in o else None
+                             for k in ['uid', 'euid', 'ruid', 'suid',
+                                       'gid', 'egid', 'rgid', 'sgid']})
             elif 'Machine' in o.labels:
-                ntype = "machine"
-                if len(o['name']):
-                    dname = ", ".join(o['name'])
-                else:
-                    dname = ", ".join(o['ips'])
+                data.update({'type': "machine",
+                             'uuid': o['uuid'],
+                             'ips': o['ips'],
+                             'names': o['name'],
+                             'first_seen': o['timestamp'],
+                             'external': o['external']})
             elif 'Meta' in o.labels:
-                ntype = 'process-meta'
-                dname = "meta"
+                data.update({'type': "process-meta"})
+                data.update(o.properties)
             elif 'Conn' in o.labels:
-                ntype = 'conn'
-                dname = "conn"
+                data.update({'type': "connection"})
+                data.update(o.properties)
             else:
-                ntype = 'file-version'
-                dname = ", ".join(o['name'])
-            return dict({'id': o.id,
-                         'type': ntype,
-                         'display_name': dname},
-                        **o.properties)
+                data.update({'type': "file-version",
+                             'uuid': o['uuid'],
+                             'host': o['host'],
+                             'names': o['name'],
+                             'saw_creation': not o['anomalous']})
+            return data
         elif isinstance(o, neo4j.v1.Relationship):
+            type_map = {'PROC_PARENT': 'parent',
+                        'PROC_OBJ': 'io',
+                        'META_PREV': 'proc-metadata',
+                        'PROC_OBJ_PREV': 'proc-change',
+                        'GLOB_OBJ_PREV': 'file-change',
+                        'COMM': 'comm'}
+            state = o['state'] if 'state' in o else None
+            if state is not None:
+                if state == "NONE":
+                    state = None
+                elif state == "RaW":
+                    state = ['READ', 'WRITE']
+                elif state in ['CLIENT', 'SERVER']:
+                    state = [state, 'READ', 'WRITE']
+                elif state == "BIN":
+                    state = [state, 'READ']
+                else:
+                    state = [state]
             return dict({'src': o.start,
                          'dest': o.end,
                          'id': o.id,
-                         'type': o.type},
-                        **o.properties)
+                         'type': type_map[o.type],
+                         'state': state})
         else:
             return super(OPUSJSONEncoder, self).default(o)
 
