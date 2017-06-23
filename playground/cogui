@@ -18,13 +18,14 @@
 cogui: CADETS/OPUS graphical user interface
 
 Usage:
-    cogui serve [--port=PORT]
+    cogui serve [--port=PORT] [--synthetic-data=FILE]
 
 Commands:
     serve         Expose data through a local Web server
 
 Options:
-    -p,--port=PORT   TCP port to serve content on [default: 5000]
+    -p,--port=PORT            TCP port to serve content on [default: 5000]
+    -s,--synthetic-data=FILE  JSON file of synthetic graph data
 """
 
 import docopt
@@ -39,5 +40,15 @@ if arguments['serve']:
         sys.stderr.write("Invalid port number: '%s'\n" % arguments['--port'])
         sys.exit(1)
 
-    app = webapp.create_app()
+    filename = arguments['--synthetic-data']
+    if filename:
+        import synth_data
+        graph_data, query_connections = synth_data.load(open(filename, 'r'))
+
+    else:
+        import mock_data
+        graph_data = (mock_data.nodes, mock_data.edges)
+        query_connections = mock_data.get_connections
+
+    app = webapp.create_app(graph_data, query_connections)
     app.run(port = port, debug = True)

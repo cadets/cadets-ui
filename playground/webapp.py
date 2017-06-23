@@ -19,6 +19,8 @@ import json
 import nav
 import uuid
 
+from flask import current_app
+
 frontend = flask.Blueprint('frontend', __name__)
 
 
@@ -39,33 +41,18 @@ def worksheet():
 
 @frontend.route('/everything')
 def get_all():
-    if flask.current_app.debug:
-        import mock_data
-
-        nodes = mock_data.nodes
-        edges = mock_data.edges
-
-    else:
-        raise ValueError, 'not hooked up to real data yet'
-
+    (nodes, edges) = current_app.graph_data
     return json.dumps(nodes.values() + edges.values())
 
 @frontend.route('/detail/<int:identifier>')
 def get_detail(identifier):
-    if flask.current_app.debug:
-        import mock_data
+    (nodes, edges) = current_app.graph_data
 
-        node_map = mock_data.nodes
-        edge_map = mock_data.edges
+    if identifier in nodes.keys():
+        return json.dumps(nodes[identifier])
 
-    else:
-        raise ValueError, 'not hooked up to real data yet'
-
-    if identifier in node_map.keys():
-        return json.dumps(node_map[identifier])
-
-    elif identifier in edge_map.keys():
-        return json.dumps(edge_map[identifier])
+    elif identifier in edges.keys():
+        return json.dumps(edges[identifier])
 
     else:
         raise ValueError, '%s not a valid node or event ID' % u
@@ -73,39 +60,18 @@ def get_detail(identifier):
 
 @frontend.route('/edges')
 def get_edges():
-    if flask.current_app.debug:
-        import mock_data
-
-        edges = mock_data.edges
-
-    else:
-        raise ValueError, 'not hooked up to real data yet'
-
+    (nodes, edges) = current_app.graph_data
     return json.dumps(edges.values())
 
 @frontend.route('/nodes')
 def get_nodes():
-    if flask.current_app.debug:
-        import mock_data
-
-        nodes = mock_data.nodes
-
-    else:
-        raise ValueError, 'not hooked up to real data yet'
-
+    (nodes, edges) = current_app.graph_data
     return json.dumps(nodes.values())
 
 @frontend.route('/onehop/<int:identifier>')
 def get_element(identifier):
-    if flask.current_app.debug:
-        import mock_data
-
-        node_map = mock_data.nodes
-        edge_map = mock_data.edges
-        get_connections = mock_data.get_connections
-
-    else:
-        raise ValueError, 'not hooked up to real data yet'
+    (nodes, edges) = current_app.graph_data
+    get_connections = current_app.query_connections
 
     return json.dumps(get_connections(identifier))
 
@@ -119,9 +85,13 @@ nav.nav.register_element('frontend_top',
 )
 
 
-def create_app():
+def create_app(graph_data, query_connections):
     # See http://flask.pocoo.org/docs/patterns/appfactories
     app = flask.Flask(__name__)
+
+    with app.app_context():
+        current_app.graph_data = graph_data
+        current_app.query_connections = query_connections
 
     nav.nav.init_app(app)
     flask_dotenv.DotEnv().init_app(app, verbose_mode = True)
