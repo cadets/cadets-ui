@@ -13,12 +13,15 @@ import neo4j.v1
 
 if sys.version_info < (3,):
     import cgi
+
     def escape(str):
         return cgi.escape(str)
 else:
     import html
+
     def escape(str):
         return html.escape(str)
+
 
 app = Flask(__name__)
 
