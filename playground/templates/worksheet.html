@@ -103,6 +103,17 @@ function import_into_worksheet(id) {
     node.classes = result.type;
 
     worksheet.add(node);
+
+    // Define context menu for worksheet nodes.
+    attach_context_menu(worksheet, '#worksheet', {
+      "inspect": {
+        name: "Inspect",
+        icon: "fa-search",
+        accesskey: "n",
+        action: inspect,
+      }
+    });
+
   }).then(function() {
     $.getJSON(`/onehop/${id}`, function(result) {
       let elements = worksheet.elements();
