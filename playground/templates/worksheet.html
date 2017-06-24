@@ -73,7 +73,7 @@ load_graph_style([ worksheet, inspector.graph ]);
 //
 // Populate node list.
 //
-$.getJSON('/nodes', function(result) {
+$.getJSON('../nodes', function(result) {
   var nodelist = $('#nodelist');
 
   for (let node of result) {
@@ -97,7 +97,7 @@ function import_into_worksheet(id) {
     return;
   }
 
-  $.getJSON(`/detail/${id}`, function(result) {
+  $.getJSON(`../detail/${id}`, function(result) {
     var node = { data: result };
     node.data.label = node_metadata(result).label;
     node.classes = result.type;
@@ -121,7 +121,7 @@ function import_into_worksheet(id) {
     });
 
   }).then(function() {
-    $.getJSON(`/onehop/${id}`, function(result) {
+    $.getJSON(`../onehop/${id}`, function(result) {
       let elements = worksheet.elements();
       let node = worksheet.$id(id);
 
@@ -153,7 +153,7 @@ function remove_from_worksheet(id) {
 //
 function inspect(id) {
   // Display the node's details in the inspector "Details" panel.
-  $.getJSON(`/detail/${id}`, function(result) {
+  $.getJSON(`../detail/${id}`, function(result) {
     inspector.detail.empty();
     for (var property in result) {
       inspector.detail.append(`
@@ -166,7 +166,7 @@ function inspect(id) {
   });
 
   // Display the node's immediate connections in the inspector "Graph" panel.
-  $.getJSON(`/onehop/${id}`, function(result) {
+  $.getJSON(`../onehop/${id}`, function(result) {
     inspector.graph.remove('node');
 
     for (let n of result.nodes) {

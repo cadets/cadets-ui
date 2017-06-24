@@ -33,7 +33,7 @@ var view = cytoscape({
 
 load_graph_style([ view ]);
 
-$.getJSON('/everything', function(result) {
+$.getJSON('../everything', function(result) {
   for (let r of result) {
     if (r.type == 'process') {
       r.label = r.cmdline;
