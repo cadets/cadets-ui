@@ -40,7 +40,6 @@ function attach_context_menu(graph, selector, items) {
     trigger: 'none',
     items: items,
     callback: function(action, options) {
-      console.log('central callback');
       let node = graph.contextMenuNode.data();
 
       for (let key in items) {
