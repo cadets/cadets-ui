@@ -48,6 +48,9 @@ function attach_context_menu(graph, selector, items) {
           items[key].action(node.id);
         }
       }
+
+      graph.contextMenuNode.unselect();
+      graph.contextMenuNode = null;
     }
   });
 
