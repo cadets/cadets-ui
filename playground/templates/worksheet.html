@@ -98,26 +98,26 @@ function import_into_worksheet(id) {
     node.classes = result.type;
 
     worksheet.add(node);
-  });
+  }).then(function() {
+    $.getJSON(`/onehop/${id}`, function(result) {
+      let elements = worksheet.elements();
+      let node = worksheet.$id(id);
 
-  $.getJSON(`/onehop/${id}`, function(result) {
-    let elements = worksheet.elements();
-    let node = worksheet.$id(id);
+      for (let edge of result.edges) {
+        let other = null;
+        if (edge.source == id) {
+          other = elements.nodes(`#${edge.target}`);
+        } else if (edge.target == id) {
+          other = elements.nodes(`#${edge.source}`);
+        }
 
-    for (let edge of result.edges) {
-      let other = null;
-      if (edge.source == id) {
-        other = elements.nodes(`#${edge.target}`);
-      } else if (edge.target == id) {
-        other = elements.nodes(`#${edge.source}`);
+        if (!other.empty()) {
+          let e = { data: edge };
+          e.classes = edge.type;
+          worksheet.add(e);
+        }
       }
-
-      if (!other.empty()) {
-        let e = { data: edge };
-        e.classes = edge.type;
-        worksheet.add(e);
-      }
-    }
+    });
   });
 }
 
