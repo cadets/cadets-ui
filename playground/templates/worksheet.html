@@ -92,6 +92,11 @@ $.getJSON('/nodes', function(result) {
 // How to import a node into the worksheet
 //
 function import_into_worksheet(id) {
+  // Have we already imported this node?
+  if (!worksheet.getElementById(id).empty()) {
+    return;
+  }
+
   $.getJSON(`/detail/${id}`, function(result) {
     var node = { data: result };
     node.data.label = node_metadata(result).label;
