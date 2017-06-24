@@ -4,7 +4,7 @@
 // Unfortunately this is hard to do statically.
 //
 function load_graph_style(graphs) {
-  $.ajax('../static/style/cytoscape.css', {
+  $.ajax('static/style/cytoscape.css', {
     dataType: 'text',
     mimeType: 'text/css',
     success: function(result) {
