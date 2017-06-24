@@ -17,7 +17,7 @@
     </div>
 
     <label for="layout-picker" class="control-label">Auto-layout</label>
-    <select id="layout-picker" onchange="layout_graph(worksheet, this.value)">
+    <select id="layout-picker" onchange="layout(worksheet, this.value)">
       <option value="dagre">dagre</option>
       <option value="cose">CoSE</option>
       <option value="cose-bilkent">CoSE (Bilkent)</option>
@@ -156,7 +156,7 @@ function inspect(id) {
       inspector.graph.add(edge);
     }
 
-    layout_graph(inspector.graph, 'dagre');
+    layout(inspector.graph, 'dagre');
 
     // Create a context menu for the inspector graph that allows nodes to be
     // imported into the worksheet or inspected themselves.

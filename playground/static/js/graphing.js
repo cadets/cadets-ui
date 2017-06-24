@@ -18,7 +18,7 @@ function load_graph_style(graphs) {
 //
 // Apply a named graph layout algorithm to a graph.
 //
-function layout_graph(graph, algorithm) {
+function layout(graph, algorithm) {
   graph.layout({
     name: algorithm,
     rankDir: 'LR',
