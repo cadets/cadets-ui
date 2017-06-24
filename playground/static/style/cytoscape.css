@@ -45,7 +45,13 @@ node {
   background-position-x: 0;
   background-position-y: 0; }
 
+node:selected {
+  overlay-color: #333;
+  overlay-padding: 10;
+  overlay-opacity: 0.5; }
+
 node.process {
+  shape: circle;
   background-color: #333;
   background-image: url(/static/images/proc.png);
   text-outline-color: black;
