@@ -111,6 +111,12 @@ function import_into_worksheet(id) {
         icon: "fa-search",
         accesskey: "n",
         action: inspect,
+      },
+      "remove": {
+        name: "Remove",
+        icon: "fa-times",
+        accesskey: "r",
+        action: remove_from_worksheet,
       }
     });
 
@@ -135,6 +141,10 @@ function import_into_worksheet(id) {
       }
     });
   });
+}
+
+function remove_from_worksheet(id) {
+  worksheet.remove(`node#${id}`);
 }
 
 
