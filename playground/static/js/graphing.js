@@ -82,19 +82,19 @@ function node_metadata(node) {
     case 'process':
       return {
         icon: 'terminal',
-        label: node.cmdline,
+        label: node.hostname + ':' + node.cmdline,
       };
 
     case 'file-version':
       return {
         icon: 'file-o',
-        label: node.names.join(' / '),
+        label: node.hostname + ':' + node.names.join(' / '),
       };
 
     case 'socket-version':
       return {
         icon: 'plug',
-        label: node.names.join(' / '),
+        label: node.hostname + ':' + node.names.join(' / '),
       };
 
   default:
