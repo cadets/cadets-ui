@@ -91,6 +91,12 @@ function node_metadata(node) {
         label: node.names.join(' / '),
       };
 
+    case 'socket-version':
+      return {
+        icon: 'plug',
+        label: node.names.join(' / '),
+      };
+
   default:
     return {
       icon: 'question',
