@@ -8,12 +8,12 @@
 
   <div id="sidebar">
     <label for="layout-buttons" class="control-label">Layout:</label>
-    <span id="layout-buttons">
+    <div id="layout-buttons" class="btn-group">
       <a class="btn btn-raised btn-default"
          onclick="layout(worksheet, 'dagre')">dagre</a>
       <a class="btn btn-raised btn-default"
          onclick="layout(worksheet, 'cose-bilkent')">CoSE</a>
-    </span>
+    </div>
 
     <div class="panel panel-info">
       <div class="panel-heading">Available nodes:</div>
@@ -50,9 +50,9 @@
         <div class="panel panel-info">
           <div class="panel-heading">
             Inspector
-            <a class="btn btn-raised btn-default pull-right"
+            <a class="btn btn-default btn-fab pull-right"
                onclick="import_all_from_inspector()">
-              Import all
+              <i class="material-icons">file_upload</i>
             </a>
           </div>
           <div class="graph panel-body" id="inspector-graph"></div>
