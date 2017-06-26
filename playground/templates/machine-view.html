@@ -6,7 +6,7 @@
 <div class="container">
   {{ super() }}
 
-  <div class="full graph well" id="global-view"></div>
+  <div class="full graph well" id="machine-view"></div>
 </div>
 
 {% endblock %}
@@ -22,29 +22,37 @@ $(document).ready(function() {
     var fontSize = parseFloat($("html").css("font-size"));
     var height = ($(this).height() - $("nav.navbar").height()) / fontSize - 13;
 
-    $("#global-view").height(fontSize * height);
+    $("#machine-view").height(fontSize * height);
   }).resize();
 });
 
 var view = cytoscape({
-  container: document.getElementById('global-view'),
+  container: document.getElementById('machine-view'),
   boxSelectionEnabled: true,
 });
 
 load_graph_style([ view ]);
 
-$.getJSON('everything', function(result) {
-  for (let r of result) {
-    if (r.type == 'process') {
-      r.label = r.cmdline;
-    } else if (r.type == 'file-version') {
-      r.label = r.names.join(' / ');
-    }
-
-    node = { data: r };
-    node.classes = r.type;
+$.getJSON('machines', function(result) {
+  console.log('Received machines');
+  for (let machine of result.nodes) {
+    let node = {
+      classes: machine.type,
+      data: machine,
+    };
+    node.data.label = node_metadata(machine).label;
 
     view.add(node);
+  }
+
+  for (let e of result.edges) {
+    let edge = {
+      classes: e.type,
+      data: e,
+    };
+
+    view.add(edge);
+    console.log(edge);
   }
 
   view.layout({
@@ -52,6 +60,8 @@ $.getJSON('everything', function(result) {
     rankDir: 'LR',
     animate: false,
   }).run();
+
+  view.fit();
 });
   </script>
 {% endblock %}
