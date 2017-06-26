@@ -83,7 +83,7 @@ def get_neighbours_id(dbid):
                                 WHERE id(s)={id}
                                 RETURN s, e, d""",
                              {'id': dbid}).data()
-    root = {res[0]['s']} if len(res) else {}
+    root = {res[0]['s']} if len(res) else set()
     return flask.jsonify({'nodes': {row['d'] for row in res} | root,
                           'edges': {row['e'] for row in res}})
 
@@ -94,7 +94,7 @@ def get_neighbours_uuid(uuid):
                                 WHERE exists(s.uuid) AND s.uuid={uuid}
                                 RETURN s, e, d""",
                              {'uuid': uuid}).data()
-    root = {res[0]['s']} if len(res) else {}
+    root = {res[0]['s']} if len(res) else set()
     return flask.jsonify({'nodes': {row['d'] for row in res} | root,
                           'edges': {row['e'] for row in res}})
 
