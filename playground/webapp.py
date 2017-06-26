@@ -12,29 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+
 import flask
 import flask_bootstrap
 import flask_dotenv
-import json
 import opus
 import nav
-import neo4j.v1
 
 from flask import current_app
 
 frontend = flask.Blueprint('frontend', __name__)
 
 
+def params_as_args(func):
+    @functools.wraps(func)
+    def wrap(*args, **kwargs):
+        kwargs.update(flask.request.args.to_dict())
+        return func(*args, **kwargs)
+    return wrap
+
+
 @frontend.before_request
 def before_request():
     current_app.db = current_app.db_driver.session()
 
+
 @frontend.teardown_request
 def teardown_request(_):
     current_app.db.close()
-
-def opus_json(data):
-    return json.dumps(data, cls = opus.OPUSJSONEncoder)
 
 
 @frontend.route('/')
@@ -54,49 +60,51 @@ def worksheet():
 
 @frontend.route('/detail/<int:identifier>')
 def get_detail(identifier):
-    query = current_app.db.run('MATCH (n) WHERE ID(n)=%d RETURN n' % identifier)
-    return opus_json(*query.single().values())
+    query = current_app.db.run('MATCH (n) WHERE id(n)={id} RETURN n',
+                               {'id': identifier}).single()
+    if query is None:
+        flask.abort(404)
+    return flask.jsonify(query['n'])
 
 
 @frontend.route('/machines')
 def get_machines():
     db = current_app.db
-    nodes = [ row['m'] for row in db.run("MATCH (m:Machine) RETURN m").data() ]
-    edges = [ row['e'] for row in db.run(
-        "MATCH (:Machine)-[e]->(:Machine) RETURN DISTINCT e").data() ]
+    nodes = [row['m'] for row in db.run("MATCH (m:Machine) RETURN m").data()]
+    edges = [row['e'] for row in db.run(
+        "MATCH (:Machine)-[e]->(:Machine) RETURN DISTINCT e").data()]
 
-    return opus_json({ 'nodes': nodes, 'edges': edges })
+    return flask.jsonify({'nodes': nodes, 'edges': edges})
 
 
-@frontend.route('/neighbours/<int:identifier>')
-def get_neighbours(identifier):
-    query = current_app.db.run(
-        '''
-            MATCH (s)-[e]-(d)
-            WHERE ID(s)={id} OR ID(d)={id}
-            RETURN s, e, d
-        ''',
-        { 'id': identifier }
-    )
+@frontend.route('/neighbours/<int:dbid>')
+def get_neighbours_id(dbid):
+    res = current_app.db.run("""MATCH (s)-[e]-(d)
+                                WHERE id(s)={id}
+                                RETURN s, e, d""",
+                             {'id': dbid}).data()
+    root = {res[0]['s']} if len(res) else {}
+    return flask.jsonify({'nodes': {row['d'] for row in res} | root,
+                          'edges': {row['e'] for row in res}})
 
-    nodes = set()
-    edges = set()
 
-    for row in query.data():
-        nodes.add(row['d'])
-        edges.add(row['e'])
-
-    return opus_json({ 'nodes': list(nodes), 'edges': list(edges) })
+@frontend.route('/neighbours/<string:uuid>')
+def get_neighbours_uuid(uuid):
+    res = current_app.db.run("""MATCH (s)-[e]-(d)
+                                WHERE exists(s.uuid) AND s.uuid={uuid}
+                                RETURN s, e, d""",
+                             {'uuid': uuid}).data()
+    root = {res[0]['s']} if len(res) else {}
+    return flask.jsonify({'nodes': {row['d'] for row in res} | root,
+                          'edges': {row['e'] for row in res}})
 
 
 @frontend.route('/nodes')
-def get_nodes():
-    limit = flask.request.args.get('limit')
-    limit = int(limit) if limit else 100
-
-    query = current_app.db.run("MATCH (n) RETURN n LIMIT %d" % limit)
-
-    return opus_json([ row['n'] for row in query.data() ])
+@params_as_args
+def get_nodes(limit='100'):
+    query = current_app.db.run("MATCH (n) RETURN n LIMIT {lmt}",
+                               {'lmt': int(limit)})
+    return flask.jsonify([row['n'] for row in query.data()])
 
 
 nav.nav.register_element('frontend_top',
@@ -111,6 +119,7 @@ nav.nav.register_element('frontend_top',
 def create_app(db_driver):
     # See http://flask.pocoo.org/docs/patterns/appfactories
     app = flask.Flask(__name__)
+    app.json_encoder = opus.OPUSJSONEncoder
 
     with app.app_context():
         current_app.db_driver = db_driver
@@ -130,7 +139,7 @@ def create_app(db_driver):
         db.close()
 
     nav.nav.init_app(app)
-    flask_dotenv.DotEnv().init_app(app, verbose_mode = True)
+    flask_dotenv.DotEnv().init_app(app, verbose_mode=True)
 
     flask_bootstrap.Bootstrap(app)
     app.register_blueprint(frontend)

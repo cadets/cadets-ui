@@ -1,6 +1,7 @@
 import json
 import neo4j.v1
 
+
 class OPUSJSONEncoder(json.JSONEncoder):
     machines = {}
 
@@ -11,8 +12,8 @@ class OPUSJSONEncoder(json.JSONEncoder):
         if isinstance(o, neo4j.v1.Node):
             data = {'id': o.id}
             if 'Socket' in o.labels:
-                data.update({'type': "socket-version"})
-                data.update({'names': o['name']})
+                data.update({'type': "socket-version",
+                             'names': o['name']})
                 data.update(o.properties)
             elif 'Process' in o.labels:
                 data.update({'type': "process",
@@ -48,7 +49,7 @@ class OPUSJSONEncoder(json.JSONEncoder):
 
             if 'host' in o:
                 (i, name) = self.machines[o['host']]
-                data.update({ 'hostname': name, 'parent': i })
+                data.update({'hostname': name, 'parent': i})
 
             return data
         elif isinstance(o, neo4j.v1.Relationship):
@@ -75,6 +76,7 @@ class OPUSJSONEncoder(json.JSONEncoder):
                          'id': int(o.id),
                          'type': type_map[o.type],
                          'state': state})
+        elif isinstance(o, set):
+            return list(o)
         else:
             return super(OPUSJSONEncoder, self).default(o)
-
