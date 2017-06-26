@@ -68,8 +68,8 @@ def get_machines():
     return opus_json({ 'nodes': nodes, 'edges': edges })
 
 
-@frontend.route('/onehop/<int:identifier>')
-def get_onehop(identifier):
+@frontend.route('/neighbours/<int:identifier>')
+def get_neighbours(identifier):
     query = current_app.db.run(
         '''
             MATCH (s)-[e]-(d)
