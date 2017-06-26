@@ -16,12 +16,25 @@ import flask
 import flask_bootstrap
 import flask_dotenv
 import json
+import opus
 import nav
-import uuid
+import neo4j.v1
 
 from flask import current_app
 
 frontend = flask.Blueprint('frontend', __name__)
+
+
+@frontend.before_request
+def before_request():
+    current_app.db = current_app.db_driver.session()
+
+@frontend.teardown_request
+def teardown_request(_):
+    current_app.db.close()
+
+def opus_json(data):
+    return json.dumps(data, cls = opus.OPUSJSONEncoder)
 
 
 @frontend.route('/')
@@ -39,41 +52,51 @@ def worksheet():
     return flask.render_template('worksheet.html')
 
 
-@frontend.route('/everything')
-def get_all():
-    (nodes, edges) = current_app.graph_data
-    return json.dumps(nodes.values() + edges.values())
-
 @frontend.route('/detail/<int:identifier>')
 def get_detail(identifier):
-    (nodes, edges) = current_app.graph_data
-
-    if identifier in nodes.keys():
-        return json.dumps(nodes[identifier])
-
-    elif identifier in edges.keys():
-        return json.dumps(edges[identifier])
-
-    else:
-        raise ValueError, '%s not a valid node or event ID' % u
+    query = current_app.db.run('MATCH (n) WHERE ID(n)=%d RETURN n' % identifier)
+    return opus_json(*query.single().values())
 
 
-@frontend.route('/edges')
-def get_edges():
-    (nodes, edges) = current_app.graph_data
-    return json.dumps(edges.values())
+@frontend.route('/machines')
+def get_machines():
+    db = current_app.db
+    nodes = [ row['m'] for row in db.run("MATCH (m:Machine) RETURN m").data() ]
+    edges = [ row['e'] for row in db.run(
+        "MATCH (:Machine)-[e]->(:Machine) RETURN DISTINCT e").data() ]
+
+    return opus_json({ 'nodes': nodes, 'edges': edges })
+
+
+@frontend.route('/onehop/<int:identifier>')
+def get_onehop(identifier):
+    query = current_app.db.run(
+        '''
+            MATCH (s)-[e]-(d)
+            WHERE ID(s)={id} OR ID(d)={id}
+            RETURN s, e, d
+        ''',
+        { 'id': identifier }
+    )
+
+    nodes = set()
+    edges = set()
+
+    for row in query.data():
+        nodes.add(row['d'])
+        edges.add(row['e'])
+
+    return opus_json({ 'nodes': list(nodes), 'edges': list(edges) })
+
 
 @frontend.route('/nodes')
 def get_nodes():
-    (nodes, edges) = current_app.graph_data
-    return json.dumps(nodes.values())
+    limit = flask.request.args.get('limit')
+    limit = int(limit) if limit else 100
 
-@frontend.route('/onehop/<int:identifier>')
-def get_element(identifier):
-    (nodes, edges) = current_app.graph_data
-    get_connections = current_app.query_connections
+    query = current_app.db.run("MATCH (n) RETURN n LIMIT %d" % limit)
 
-    return json.dumps(get_connections(identifier))
+    return opus_json([ row['n'] for row in query.data() ])
 
 
 nav.nav.register_element('frontend_top',
@@ -85,13 +108,12 @@ nav.nav.register_element('frontend_top',
 )
 
 
-def create_app(graph_data, query_connections):
+def create_app(db_driver):
     # See http://flask.pocoo.org/docs/patterns/appfactories
     app = flask.Flask(__name__)
 
     with app.app_context():
-        current_app.graph_data = graph_data
-        current_app.query_connections = query_connections
+        current_app.db_driver = db_driver
 
     nav.nav.init_app(app)
     flask_dotenv.DotEnv().init_app(app, verbose_mode = True)

@@ -18,17 +18,21 @@
 cogui: CADETS/OPUS graphical user interface
 
 Usage:
-    cogui serve [--port=PORT] [--synthetic-data=FILE]
+    cogui serve [--port=PORT] [options]
 
 Commands:
     serve         Expose data through a local Web server
 
 Options:
     -p,--port=PORT            TCP port to serve content on [default: 5000]
-    -s,--synthetic-data=FILE  JSON file of synthetic graph data
+
+    --db-url=URL              Neo4j URL [default: bolt://localhost]
+    --db-username=USERNAME    Neo4j username [default: neo4j]
+    --db-password=PASSWORD    Neo4j password [default: opus]
 """
 
 import docopt
+import neo4j.v1
 import sys
 
 arguments = docopt.docopt(__doc__)
@@ -40,15 +44,11 @@ if arguments['serve']:
         sys.stderr.write("Invalid port number: '%s'\n" % arguments['--port'])
         sys.exit(1)
 
-    filename = arguments['--synthetic-data']
-    if filename:
-        import synth_data
-        graph_data, query_connections = synth_data.load(open(filename, 'r'))
+    db_driver = neo4j.v1.GraphDatabase.driver(
+        arguments['--db-url'],
+        auth = neo4j.v1.basic_auth(arguments['--db-username'],
+                                   arguments['--db-password']),
+    )
 
-    else:
-        import mock_data
-        graph_data = (mock_data.nodes, mock_data.edges)
-        query_connections = mock_data.get_connections
-
-    app = webapp.create_app(graph_data, query_connections)
+    app = webapp.create_app(db_driver)
     app.run(port = port, debug = True)
