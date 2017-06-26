@@ -10,6 +10,7 @@ class OPUSJSONEncoder(json.JSONEncoder):
             data = {'id': o.id}
             if 'Socket' in o.labels:
                 data.update({'type': "socket-version"})
+                data.update({'names': o['name']})
                 data.update(o.properties)
             elif 'Process' in o.labels:
                 data.update({'type': "process",
