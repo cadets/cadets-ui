@@ -29,6 +29,12 @@ edge.io {
   line-color: #633;
   text-outline-color: #633; }
 
+edge.comm {
+  line-style: dashed;
+  target-arrow-color: #633;
+  line-color: #633;
+  text-outline-color: #633; }
+
 edge.proc-change {
   line-style: dashed;
   target-arrow-color: #366;
