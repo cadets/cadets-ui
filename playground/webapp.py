@@ -99,6 +99,72 @@ def get_neighbours_uuid(uuid):
                           'edges': {row['e'] for row in res}})
 
 
+@frontend.route('/successors/<int:dbid>')
+@params_as_args
+def successors_query(dbid, max_depth='4'):
+    max_depth = int(max_depth)
+    source = current_app.db.run("""MATCH (n)
+                                   WHERE id(n)={dbid}
+                                   RETURN n""",
+                                {'dbid': dbid}).single()
+    if source is None:
+        flask.abort(404)
+
+    source = source['n']
+    process = [(max_depth, source)]
+    nodes = []
+    while len(process):
+        cur_depth, cur = process.pop(0)
+        nodes.append(cur)
+        neighbours = None
+        if 'Global' in cur.labels:
+            neighbours = current_app.db.run("""MATCH (cur:Global)-[e]->(n:Process)
+                                               WHERE id(cur)={curid} AND
+                                                     e.state in ['BIN', 'READ', 'RaW', 'CLIENT', 'SERVER']
+                                               RETURN n, e
+                                               UNION
+                                               MATCH (cur:Global)<-[e]-(n:Global)
+                                               WHERE id(cur)={curid}
+                                               RETURN n, e
+                                               UNION
+                                               MATCH (cur:Global)-[e]-(n:Conn)
+                                               WHERE id(cur)={curid}
+                                               RETURN n, e""",
+                                            {'curid': cur.id}).data()
+        elif 'Process' in cur.labels:
+            neighbours = current_app.db.run("""MATCH (cur:Process)<-[e]-(n:Global)
+                                               WHERE id(cur)={curid} AND
+                                                     e.state in ['WRITE', 'RaW', 'CLIENT', 'SERVER']
+                                               RETURN n, e
+                                               UNION
+                                               MATCH (cur:Process)<-[e]-(n:Process)
+                                               WHERE id(cur)={curid}
+                                               RETURN n, e""",
+                                            {'curid': cur.id}).data()
+        elif 'Conn' in cur.labels:
+            neighbours = current_app.db.run("""MATCH (cur:Conn)-[e]-(n:Global)
+                                               WHERE id(cur)={curid}
+                                               RETURN n, e""",
+                                            {'curid': cur.id}).data()
+        if neighbours is None:
+            continue
+        for row in neighbours:
+            if row['n'] in nodes or row['n'] in [n for d, n in process if d < (cur_depth - 1)]:
+                continue
+            if cur_depth > 0:
+                process.append((cur_depth - 1, row['n']))
+
+    edata = current_app.db.run("""MATCH (a)-[e]-(b)
+                                  WHERE id(a) IN {ids} AND id(b) IN {ids}
+                                  RETURN DISTINCT e""",
+                               {'ids': [n.id for n in nodes]}).data()
+
+    edges = [row['e'] for row in edata]
+
+    return flask.jsonify({'nodes': nodes,
+                          'edges': edges})
+
+
 @frontend.route('/nodes')
 @params_as_args
 def get_nodes(nodeType = None, limit='100'):
