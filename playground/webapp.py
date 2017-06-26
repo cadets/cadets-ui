@@ -101,8 +101,10 @@ def get_neighbours_uuid(uuid):
 
 @frontend.route('/nodes')
 @params_as_args
-def get_nodes(limit='100'):
-    query = current_app.db.run("MATCH (n) RETURN n LIMIT {lmt}",
+def get_nodes(nodeType = None, limit='100'):
+    labels = opus.nodeLabels
+    match = '(n)' if len(nodeType) == 0 else '(n:%s)' % labels[nodeType]
+    query = current_app.db.run("MATCH %s RETURN n LIMIT {lmt}" % match,
                                {'lmt': int(limit)})
     return flask.jsonify([row['n'] for row in query.data()])
 

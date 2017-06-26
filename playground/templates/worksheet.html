@@ -18,6 +18,25 @@
     <div class="panel panel-info">
       <div class="panel-heading">Available nodes:</div>
       <div class="panel-body">
+        <form class="form-horizontal">
+          <legend>Filters</legend>
+          <div class="form-group">
+            <label for="nodeType" class="col-md-2 control-label">Type</label>
+            <div class="col-md-10">
+              <select id="nodeType" class="form-control"
+                      onchange="update_nodelist()">
+                <option></option>
+                <option>connection</option>
+                <option>file-version</option>
+                <option>process</option>
+                <option>process-meta</option>
+                <option>socket-version</option>
+                <option>machine</option>
+              </select>
+            </div>
+          </div>
+        </form>
+
         <table id="nodelist" class="table table-striped"></table>
       </div>
     </div>
@@ -72,20 +91,29 @@ load_graph_style([ worksheet, inspector.graph ]);
 //
 // Populate node list.
 //
-$.getJSON('nodes', function(result) {
-  var nodelist = $('#nodelist');
+function update_nodelist() {
+  let query = {
+    nodeType: $('#nodeType').val(),
+  };
 
-  for (let node of result) {
-    meta = node_metadata(node);
 
-    nodelist.append(`
-      <tr>
-        <th><a onclick="inspect(${node.id})">${node.id}</a></th>
-        <td><i class="fa fa-${meta.icon}" aria-hidden="true"></i></td>
-        <td><a onclick="inspect(${node.id})">${meta.label}</a></td>
-      </tr>`);
-  }
-});
+  $.getJSON('nodes', query, function(result) {
+    var nodelist = $('#nodelist');
+    nodelist.empty();
+
+    for (let node of result) {
+      meta = node_metadata(node);
+
+      nodelist.append(`
+        <tr>
+          <th><a onclick="inspect(${node.id})">${node.id}</a></th>
+          <td><i class="fa fa-${meta.icon}" aria-hidden="true"></i></td>
+          <td><a onclick="inspect(${node.id})">${meta.label}</a></td>
+        </tr>`);
+    }
+  });
+}
+update_nodelist();
 
 //
 // How to import a node into the worksheet

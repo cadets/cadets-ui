@@ -1,6 +1,14 @@
 import flask
 import neo4j.v1
 
+nodeLabels = {
+    'socket-version': 'Socket',
+    'process': 'Process',
+    'machine': 'Machine',
+    'process-meta': 'Meta',
+    'connection': 'Conn',
+    'file-version': 'Global',
+}
 
 class OPUSJSONEncoder(flask.json.JSONEncoder):
     machines = {}
