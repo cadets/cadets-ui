@@ -85,6 +85,7 @@ var inspector = {
     boxSelectionEnabled: true,
   }),
 };
+inspector.graph.inspectee = null;
 
 load_graph_style([ worksheet, inspector.graph ]);
 
@@ -216,10 +217,12 @@ function inspect(id) {
       inspector.graph.add(edge);
     }
 
+    inspector.graph.inspectee = inspector.graph.elements().nodes(`#${id}`);
+
     layout(inspector.graph, 'dagre');
     inspector.graph.zoom({
       level: 1.0,
-      position: inspector.graph.elements().nodes(`#${id}`).position(),
+      position: inspector.graph.inspectee.position(),
     });
 
     // Create a context menu for the inspector graph that allows nodes to be
