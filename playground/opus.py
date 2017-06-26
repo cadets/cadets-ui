@@ -71,8 +71,19 @@ class OPUSJSONEncoder(flask.json.JSONEncoder):
                     state = [state, 'READ']
                 else:
                     state = [state]
-            return dict({'source': o.start,
-                         'target': o.end,
+
+            if state is not None and 'WRITE' not in state:
+                src = o.start
+                dst = o.end
+            elif o.type == 'COMM':
+                src = o.start
+                dst = o.end
+            else:
+                src = o.end
+                dst = o.start
+
+            return dict({'source': src,
+                         'target': dst,
                          'id': int(o.id),
                          'type': type_map[o.type],
                          'state': state})
