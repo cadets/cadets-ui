@@ -48,7 +48,13 @@
     <div class="row" id="inspector">
       <div class="col-md-8">
         <div class="panel panel-info">
-          <div class="panel-heading">Inspector</div>
+          <div class="panel-heading">
+            Inspector
+            <a class="btn btn-raised btn-default pull-right"
+               onclick="import_all_from_inspector()">
+              Import all
+            </a>
+          </div>
           <div class="graph panel-body" id="inspector-graph"></div>
         </div>
       </div>
@@ -175,6 +181,19 @@ function import_into_worksheet(id) {
         }
       }
     });
+  });
+}
+
+function import_all_from_inspector() {
+  let node = inspector.graph.inspectee;
+  if (node == null) {
+    return;
+  }
+
+  let promise = import_into_worksheet(node.data().id);
+
+  inspector.graph.nodes().forEach(function (node) {
+    promise.then(function() { import_into_worksheet(node.data().id); });
   });
 }
 
