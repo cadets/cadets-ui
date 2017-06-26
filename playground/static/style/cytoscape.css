@@ -5,27 +5,22 @@ edge {
   curve-style: bezier;
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif;
   target-arrow-shape: triangle;
-  width: 4; }
+  width: 4;
+  text-halign: center;
+  text-valign: center;
+  text-outline-width: 2;
+  color: white; }
 
 edge.parent {
   line-style: dotted;
   width: 8;
   target-arrow-color: #366;
   line-color: #366;
-  text-halign: center;
-  text-valign: center;
-  text-outline-width: 2;
-  text-outline-color: #366;
-  color: white; }
+  text-outline-color: #366; }
 
 edge.io {
   target-arrow-color: #633;
   line-color: #633;
-  text-halign: center;
-  text-valign: center;
-  text-outline-width: 2;
-  text-outline-color: #633;
-  color: white; }
 
 node {
   content: data(label);
