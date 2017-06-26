@@ -82,22 +82,30 @@ function node_metadata(node) {
     case 'process':
       return {
         icon: 'terminal',
-        label: node.hostname + ':' + node.cmdline,
+        label: node.hostname + ': ' + node.cmdline,
       };
 
     case 'file-version':
       return {
         icon: 'file-o',
-        label: node.hostname + ':' + node.names.join(' / '),
+        label: node.hostname + ': ' + node.names.join(' / '),
+      };
+
+    case 'process-meta':
+      return {
+        icon: 'terminal',
+        label: 'metadata change',
       };
 
     case 'socket-version':
       return {
         icon: 'plug',
-        label: node.hostname + ':' + node.names.join(' / '),
+        label: node.hostname + ': ' + node.names.join(' / '),
       };
 
   default:
+    console.log('unknown node type: ' + node.type);
+    console.log(node);
     return {
       icon: 'question',
       label: 'unknown',

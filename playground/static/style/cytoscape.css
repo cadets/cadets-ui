@@ -18,9 +18,28 @@ edge.parent {
   line-color: #366;
   text-outline-color: #366; }
 
+edge.file-change {
+  line-style: dotted;
+  target-arrow-color: #633;
+  line-color: #633;
+  text-outline-color: #633; }
+
 edge.io {
   target-arrow-color: #633;
   line-color: #633;
+  text-outline-color: #633; }
+
+edge.proc-change {
+  line-style: dashed;
+  target-arrow-color: #366;
+  line-color: #366;
+  text-outline-color: #366; }
+
+edge.proc-metadata {
+  line-style: dotted;
+  target-arrow-color: #366;
+  line-color: #366;
+  text-outline-color: #366; }
 
 node {
   content: data(label);
@@ -73,3 +92,10 @@ node.machine {
   background-fit: none;
   background-position-x: 20px;
   background-position-y: 20px; }
+
+node.socket-version {
+  shape: rectangle;
+  background-image: url(static/images/network.png);
+  background-fit: contain;
+  border-color: white;
+  text-outline-color: black; }
