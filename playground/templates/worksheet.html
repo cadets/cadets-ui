@@ -96,6 +96,21 @@ inspector.graph.inspectee = null;
 load_graph_style([ worksheet, inspector.graph ]);
 
 //
+// How to add a node to a graph
+//
+function add_node(data, graph, renderedPosition = null) {
+  let node = {
+    data: data,
+    renderedPosition: renderedPosition,
+  };
+
+  node.classes = data.type;
+  node.data.label = node_metadata(data).label;
+  graph.add(node);
+}
+
+
+//
 // Populate node list.
 //
 function update_nodelist() {
@@ -131,19 +146,13 @@ function import_into_worksheet(id) {
     return $.when(null);
   }
 
-  return $.getJSON(`detail/${id}`, function(result) {
-    let current_pan = worksheet.pan();
-    let node = {
-      data: result,
-      renderedPosition: {
-        x: worksheet.width() / 2,
-        y: worksheet.height() / 2,
-      },
-    };
-    node.data.label = node_metadata(result).label;
-    node.classes = result.type;
+  let position = {
+    x: worksheet.width() / 2,
+    y: worksheet.height() / 2,
+  };
 
-    worksheet.add(node);
+  return $.getJSON(`detail/${id}`, function(result) {
+    add_node(result, worksheet, position);
 
     // Define context menu for worksheet nodes.
     attach_context_menu(worksheet, '#worksheet', {
@@ -234,10 +243,7 @@ function inspect(id) {
     inspector.graph.remove('node');
 
     for (let n of result.nodes) {
-      let node = { data: n };
-      node.classes = n.type;
-      node.data.label = node_metadata(n).label;
-      inspector.graph.add(node);
+      add_node(n, inspector.graph);
     }
 
     for (let e of result.edges) {
