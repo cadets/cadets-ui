@@ -54,6 +54,7 @@ node {
   border-width: 2;
   text-halign: center;
   text-valign: center;
+  text-outline-color: black;
   text-outline-width: 2;
   text-wrap: wrap;
   text-max-width: 10em;
@@ -77,15 +78,13 @@ node.process {
   shape: ellipse;
   background-color: #333;
   background-image: url(static/images/proc.png);
-  text-outline-color: black;
   border-color: #333; }
 
 node.file-version {
   shape: rectangle;
   background-image: url(static/images/file.png);
   background-fit: contain;
-  border-color: black;
-  text-outline-color: black; }
+  border-color: black; }
 
 node.machine {
   font-size: 24pt;
@@ -107,5 +106,4 @@ node.socket-version {
   shape: rectangle;
   background-image: url(static/images/network.png);
   background-fit: contain;
-  border-color: white;
-  text-outline-color: black; }
+  border-color: white; }
