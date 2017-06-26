@@ -7,7 +7,13 @@
   {{ super() }}
 
   <div id="sidebar">
-    <h3>Worksheet</h3>
+    <label for="layout-buttons" class="control-label">Layout:</label>
+    <span id="layout-buttons">
+      <a class="btn btn-raised btn-default"
+         onclick="layout(worksheet, 'dagre')">dagre</a>
+      <a class="btn btn-raised btn-default"
+         onclick="layout(worksheet, 'cose-bilkent')">CoSE</a>
+    </span>
 
     <div class="panel panel-info">
       <div class="panel-heading">Available nodes:</div>
@@ -15,13 +21,6 @@
         <table id="nodelist" class="table table-striped"></table>
       </div>
     </div>
-
-    <label for="layout-picker" class="control-label">Auto-layout</label>
-    <select id="layout-picker" onchange="layout(worksheet, this.value)">
-      <option value="dagre">dagre</option>
-      <option value="cose">CoSE</option>
-      <option value="cose-bilkent">CoSE (Bilkent)</option>
-    </select>
   </div>
 
   <div id="content">
