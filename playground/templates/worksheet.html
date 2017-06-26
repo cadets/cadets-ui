@@ -158,7 +158,13 @@ function import_into_worksheet(id) {
         icon: "fa-times",
         accesskey: "r",
         action: remove_from_worksheet,
-      }
+      },
+      "remove_connected": {
+        name: "Remove connected",
+        icon: "fa-times",
+        accesskey: "c",
+        action: remove_connected_from_worksheet,
+      },
     });
 
   }).then(function() {
@@ -199,6 +205,10 @@ function import_all_from_inspector() {
 
 function remove_from_worksheet(id) {
   worksheet.remove(`node#${id}`);
+}
+
+function remove_connected_from_worksheet(id) {
+  worksheet.nodes(`#${id}`).connectedEdges().connectedNodes().remove();
 }
 
 
