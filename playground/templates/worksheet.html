@@ -217,6 +217,10 @@ function inspect(id) {
     }
 
     layout(inspector.graph, 'dagre');
+    inspector.graph.zoom({
+      level: 1.0,
+      position: inspector.graph.elements().nodes(`#${id}`).position(),
+    });
 
     // Create a context menu for the inspector graph that allows nodes to be
     // imported into the worksheet or inspected themselves.
