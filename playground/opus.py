@@ -1,8 +1,8 @@
-import json
+import flask
 import neo4j.v1
 
 
-class OPUSJSONEncoder(json.JSONEncoder):
+class OPUSJSONEncoder(flask.json.JSONEncoder):
     machines = {}
 
     def __init__(self, *args, **kwargs):
