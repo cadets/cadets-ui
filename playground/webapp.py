@@ -115,6 +115,20 @@ def create_app(db_driver):
     with app.app_context():
         current_app.db_driver = db_driver
 
+        # Initialize UUID->machine_name mapping
+        db = db_driver.session()
+        query = db.run('''
+            MATCH (m:Machine)
+            WHERE exists(m.uuid)
+            RETURN ID(m), m.uuid, m.name
+        ''')
+        current_app.machine_names = {}
+        for row in query.data():
+            opus.OPUSJSONEncoder.machines[row['m.uuid']] = (
+                row['ID(m)'], row['m.name']
+            )
+        db.close()
+
     nav.nav.init_app(app)
     flask_dotenv.DotEnv().init_app(app, verbose_mode = True)
 

@@ -2,6 +2,8 @@ import json
 import neo4j.v1
 
 class OPUSJSONEncoder(json.JSONEncoder):
+    machines = {}
+
     def __init__(self, *args, **kwargs):
         super(OPUSJSONEncoder, self).__init__(*args, **kwargs)
 
@@ -43,6 +45,11 @@ class OPUSJSONEncoder(json.JSONEncoder):
                              'host': o['host'],
                              'names': o['name'],
                              'saw_creation': not o['anomalous']})
+
+            if 'host' in o:
+                (i, name) = self.machines[o['host']]
+                data.update({ 'hostname': name, 'parent': i })
+
             return data
         elif isinstance(o, neo4j.v1.Relationship):
             type_map = {'PROC_PARENT': 'parent',
