@@ -168,10 +168,14 @@ def successors_query(dbid, max_depth='4'):
 @frontend.route('/nodes')
 @params_as_args
 def get_nodes(nodeType = None, limit='100'):
-    labels = opus.nodeLabels
-    match = '(n)' if len(nodeType) == 0 else '(n:%s)' % labels[nodeType]
-    query = current_app.db.run("MATCH %s RETURN n LIMIT {lmt}" % match,
-                               {'lmt': int(limit)})
+    label_mapping = opus.nodeLabels
+    if nodeType is None or nodeType == "":
+        lab = None
+    else:
+        lab = label_mapping[nodeType]
+    query = current_app.db.run("MATCH (n) WHERE {lab} is Null OR {lab} in labels(n) RETURN n LIMIT {lmt}",
+                               {'lab': lab,
+                                'lmt': int(limit)})
     return flask.jsonify([row['n'] for row in query.data()])
 
 
