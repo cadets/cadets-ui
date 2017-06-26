@@ -162,6 +162,12 @@ function import_into_worksheet(id) {
         accesskey: "n",
         action: inspect,
       },
+      "add-connected": {
+        name: "Add connected",
+        icon: "fa-plus",
+        accesskey: "a",
+        action: add_connected_to_worksheet,
+      },
       "remove": {
         name: "Remove",
         icon: "fa-times",
@@ -209,6 +215,29 @@ function import_all_from_inspector() {
 
   inspector.graph.nodes().forEach(function (node) {
     promise.then(function() { import_into_worksheet(node.data().id); });
+  });
+}
+
+//
+// Add all nodes connected to a particular node to the worksheet.
+//
+function add_connected_to_worksheet(id) {
+  // Get all of the node's neighbours:
+  $.getJSON(`neighbours/${id}`, function(result) {
+    let position = {
+      x: worksheet.width() / 2,
+      y: worksheet.height() / 2,
+    };
+
+    for (let n of result.nodes) {
+      add_node(n, worksheet, position);
+    }
+
+    for (let e of result.edges) {
+      let edge = { data: e };
+      edge.classes = e.type;
+      worksheet.add(edge);
+    }
   });
 }
 
@@ -268,6 +297,12 @@ function inspect(id) {
         icon: "fa-upload",
         accesskey: "m",
         action: import_into_worksheet,
+      },
+      "add-connected": {
+        name: "Add connected",
+        icon: "fa-plus",
+        accesskey: "a",
+        action: add_connected_to_worksheet,
       },
       "inspect": {
         name: "Inspect",
