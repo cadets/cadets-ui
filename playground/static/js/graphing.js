@@ -73,6 +73,13 @@ function attach_context_menu(graph, selector, items) {
 //
 function node_metadata(node) {
   switch (node.type) {
+    case 'connection':
+      return {
+        icon: 'connectdevelop',
+        label: node.client_ip + ':' + node.client_port +
+               ' – ' + node.server_ip + ':' + node.server_port,
+      };
+
     case 'machine':
       return {
         icon: 'desktop',
