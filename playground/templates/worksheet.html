@@ -98,7 +98,7 @@ function update_nodelist() {
 
 
   $.getJSON('nodes', query, function(result) {
-    var nodelist = $('#nodelist');
+    let nodelist = $('#nodelist');
     nodelist.empty();
 
     for (let node of result) {
@@ -189,7 +189,7 @@ function inspect(id) {
   // Display the node's details in the inspector "Details" panel.
   $.getJSON(`detail/${id}`, function(result) {
     inspector.detail.empty();
-    for (var property in result) {
+    for (let property in result) {
       inspector.detail.append(`
         <tr>
           <th>${property}</th>
@@ -204,14 +204,14 @@ function inspect(id) {
     inspector.graph.remove('node');
 
     for (let n of result.nodes) {
-      var node = { data: n };
+      let node = { data: n };
       node.classes = n.type;
       node.data.label = node_metadata(n).label;
       inspector.graph.add(node);
     }
 
     for (let e of result.edges) {
-      var edge = { data: e };
+      let edge = { data: e };
       edge.classes = e.type;
       inspector.graph.add(edge);
     }
@@ -250,9 +250,9 @@ $(document).ready(function() {
   $(window).resize(function() {
     // The height of the #content area (in ems) should be the height of the
     // window minus that of the navbar, minus some margin and padding.
-    var fontSize = parseFloat($("html").css("font-size"));
-    var height = ($(this).height() - $("nav.navbar").height()) / fontSize - 10;
-    var width = $(this).width() / fontSize - 31;
+    let fontSize = parseFloat($("html").css("font-size"));
+    let height = ($(this).height() - $("nav.navbar").height()) / fontSize - 10;
+    let width = $(this).width() / fontSize - 31;
 
     $("#worksheet").height(fontSize * (height - 20));
     $("#inspector").height(fontSize * 20);

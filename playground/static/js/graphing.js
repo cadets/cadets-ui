@@ -58,7 +58,7 @@ function attach_context_menu(graph, selector, items) {
     // therefore provide implicit synchronization.
     graph.contextMenuNode = this;
 
-    var pos = ev.renderedPosition;
+    let pos = ev.renderedPosition;
     let offset = $(selector).offset();
     pos.x += offset.left;
     pos.y += offset.top;
