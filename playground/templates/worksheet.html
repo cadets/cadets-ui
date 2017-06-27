@@ -146,8 +146,6 @@ function add_node(data, graph, renderedPosition = null) {
   node.classes = data.type;
   node.data.label = node_metadata(data).label;
   graph.add(node);
-
-  attach_context_menu(worksheet, '#worksheet', worksheet_context_items);
 }
 
 //
@@ -228,6 +226,8 @@ function import_into_worksheet(id) {
         }
       }
     });
+  }).then(function(){
+    attach_context_menu(worksheet, '#worksheet', worksheet_context_items);
   });
 }
 
@@ -262,6 +262,8 @@ function add_connected_to_worksheet(id) {
     for (let e of result.edges) {
       add_edge(e, worksheet);
     }
+
+    attach_context_menu(worksheet, '#worksheet', worksheet_context_items);
   });
 }
 
