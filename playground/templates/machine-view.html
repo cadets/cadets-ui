@@ -61,6 +61,16 @@ $.getJSON('machines', function(result) {
     nodeDimensionsIncludeLabels: true,
     nodeRepulsion: 1000000,
   }).run();
+
+  view.$('node').on('tap', function(ev) {
+    const node = this.data();
+
+    if (node.external) {
+      // TODO
+    } else {
+      $(location).attr('href', `worksheet?host=${node.uuid}`);
+    }
+  });
 });
   </script>
 {% endblock %}
