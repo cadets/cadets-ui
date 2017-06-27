@@ -77,6 +77,13 @@
 
   <script type="text/javascript">
 //
+// Process query parameters
+//
+console.log($.url('?nodeType'));
+$('#nodeType').val($.url('?nodeType'));
+
+
+//
 // Create worksheet and inspector views.
 //
 var worksheet = cytoscape({
