@@ -34,7 +34,6 @@ var view = cytoscape({
 load_graph_style([ view ]);
 
 $.getJSON('machines', function(result) {
-  console.log('Received machines');
   for (let machine of result.nodes) {
     let node = {
       classes: machine.type,
