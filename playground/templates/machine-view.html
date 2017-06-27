@@ -52,16 +52,15 @@ $.getJSON('machines', function(result) {
     };
 
     view.add(edge);
-    console.log(edge);
   }
 
   view.layout({
-    name: 'dagre',
-    rankDir: 'LR',
+    name: 'cose-bilkent',
     animate: false,
+    fit: true,
+    nodeDimensionsIncludeLabels: true,
+    nodeRepulsion: 1000000,
   }).run();
-
-  view.fit();
 });
   </script>
 {% endblock %}
