@@ -473,5 +473,14 @@ if (nodes_to_add) {
     promise.then(import_into_worksheet(node));
   }
 }
+
+//
+// Similarly, allow `inspect=XXXX` to load the workspace page with
+// a single node pre-loaded in the inspector.
+//
+const node_to_inspect = $.url('?inspect');
+if (node_to_inspect) {
+  inspect(node_to_inspect);
+}
   </script>
 {% endblock %}
