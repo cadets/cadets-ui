@@ -54,6 +54,10 @@ function attach_context_menu(graph, selector, items) {
   });
 
   graph.$('node').on('tap', function(ev) {
+    if (ev.target != this) {
+      return;
+    }
+
     // The node currently showing a context menu. These menus are madal and
     // therefore provide implicit synchronization.
     graph.contextMenuNode = this;
