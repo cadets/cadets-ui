@@ -350,8 +350,14 @@ function inspect(id) {
 function successors(id) {
   // Display the node's details in the inspector "Details" panel.
   $.getJSON(`successors/${id}`, function(result) {
+
+    let position = {
+      x: worksheet.width() / 2,
+      y: worksheet.height() / 2,
+    };
+
     for (let n of result.nodes) {
-      add_node(n, worksheet, null);
+      add_node(n, worksheet, position);
     }
 
     let elements = worksheet.elements();
@@ -359,10 +365,7 @@ function successors(id) {
       add_edge(e, worksheet);
     }
 
-    layout(worksheet, 'dagre');
-
     attach_context_menu(worksheet, '#worksheet', worksheet_context_items);
-
   });
 
 };
