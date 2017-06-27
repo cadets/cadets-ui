@@ -16,10 +16,11 @@
     </div>
 
     <div class="panel panel-info">
-      <div class="panel-heading">Available nodes:</div>
-      <div class="panel-body">
-        <form class="form-horizontal" method="get">
-          <legend>Filters</legend>
+      <div class="panel-heading">
+        Available nodes:
+
+        <form id="nodeFilters" class="form-horizontal well" method="get">
+          <fieldset>
           <div class="form-group">
             <label for="filterNodeType" class="col-md-2 control-label">Type</label>
             <div class="col-md-10">
@@ -56,8 +57,10 @@
               R
             </div>
           </div>
+          </fieldset>
         </form>
-
+      </div>
+      <div class="panel-body">
         <table id="nodelist" class="table table-striped"></table>
       </div>
     </div>

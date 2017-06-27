@@ -39,6 +39,14 @@ nav.navbar {
   position: absolute;
   top: 1em;
   left: 0; }
+  #sidebar .panel-heading {
+    padding-left: 0.5em;
+    padding-right: 0.5em; }
+    #sidebar .panel-heading #nodeFilters {
+      margin: 0;
+      padding: 0.5em; }
+      #sidebar .panel-heading #nodeFilters .form-group {
+        margin-top: 0; }
 
 #content {
   position: fixed;
