@@ -65,7 +65,7 @@ $.getJSON('machines', function(result) {
     const node = this.data();
 
     if (node.external) {
-      // TODO
+      $(location).attr('href', `worksheet?inspect=${node.id}`);
     } else {
       $(location).attr('href', `worksheet?host=${node.uuid}`);
     }
