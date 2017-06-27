@@ -167,19 +167,40 @@ def successors_query(dbid, max_depth='4'):
 
 @frontend.route('/nodes')
 @params_as_args
-def get_nodes(node_type = None, name = None, local_ip = None, local_port = None,
-              remote_ip = None, remote_port = None, limit='100'):
+def get_nodes(node_type=None,
+              name=None,
+              local_ip=None,
+              local_port=None,
+              remote_ip=None,
+              remote_port=None,
+              limit='100'):
     label_mapping = opus.nodeLabels
     if node_type is None or node_type == "":
         lab = None
     else:
         lab = label_mapping[node_type]
 
-    # TODO: do something with the 'name' and 4-tuple parameters
+    # TODO: do something with the 4-tuple parameters
 
-    query = current_app.db.run("MATCH (n) WHERE {lab} is Null OR {lab} in labels(n) RETURN n LIMIT {lmt}",
+    query = current_app.db.run("""MATCH (n)
+                                  WHERE (
+                                             {lab} is Null
+                                             OR
+                                             {lab} in labels(n)
+                                        )
+                                        AND
+                                        (
+                                             {name} is Null
+                                             OR
+                                             any(name in n.name WHERE name CONTAINS {name})
+                                             OR
+                                             n.cmdline CONTAINS {name}
+                                        )
+                                  RETURN n
+                                  LIMIT {lmt}""",
                                {'lab': lab,
-                                'lmt': int(limit)})
+                                'lmt': int(limit),
+                                'name': name})
     return flask.jsonify([row['n'] for row in query.data()])
 
 
