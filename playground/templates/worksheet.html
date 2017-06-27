@@ -115,6 +115,12 @@ let worksheet_context_items = {
     accesskey: "a",
     action: add_connected_to_worksheet,
   },
+  "expand_forward": {
+      name: "Successors",
+      icon: "fa-plus-circle",
+      accesskey: "s",
+      action: successors,
+  },
   "remove": {
     name: "Remove",
     icon: "fa-times",
@@ -336,6 +342,29 @@ function inspect(id) {
       }
     });
   });
+};
+
+//
+// Define what it means to show "successors" to a node.
+//
+function successors(id) {
+  // Display the node's details in the inspector "Details" panel.
+  $.getJSON(`successors/${id}`, function(result) {
+    for (let n of result.nodes) {
+      add_node(n, worksheet, null);
+    }
+
+    let elements = worksheet.elements();
+    for (let e of result.edges) {
+      add_edge(e, worksheet);
+    }
+
+    layout(worksheet, 'dagre');
+
+    attach_context_menu(worksheet, '#worksheet', worksheet_context_items);
+
+  });
+
 };
 
 //
