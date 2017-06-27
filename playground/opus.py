@@ -55,7 +55,7 @@ class OPUSJSONEncoder(flask.json.JSONEncoder):
                              'names': o['name'],
                              'saw_creation': not o['anomalous']})
 
-            if 'host' in o:
+            if 'host' in o and o['host'] in self.machines:
                 (i, name) = self.machines[o['host']]
                 data.update({'hostname': name, 'parent': i})
 
