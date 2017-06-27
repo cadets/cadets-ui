@@ -21,9 +21,9 @@
         <form class="form-horizontal">
           <legend>Filters</legend>
           <div class="form-group">
-            <label for="nodeType" class="col-md-2 control-label">Type</label>
+            <label for="filterNodeType" class="col-md-2 control-label">Type</label>
             <div class="col-md-10">
-              <select id="nodeType" class="form-control"
+              <select id="filterNodeType" class="form-control"
                       onchange="update_nodelist()">
                 <option></option>
                 <option>connection</option>
@@ -80,7 +80,7 @@
 // Process query parameters
 //
 console.log($.url('?nodeType'));
-$('#nodeType').val($.url('?nodeType'));
+$('#filterNodeType').val($.url('?nodeType'));
 
 
 //
@@ -176,7 +176,7 @@ function add_edge(data, graph) {
 //
 function update_nodelist() {
   let query = {
-    nodeType: $('#nodeType').val(),
+    nodeType: $('#filterNodeType').val(),
   };
 
 
