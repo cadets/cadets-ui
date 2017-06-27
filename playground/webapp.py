@@ -201,6 +201,8 @@ def get_nodes(node_type=None,
                                         (
                                             {host} is Null
                                             OR
+                                            {host} = ''
+                                            OR
                                             (
                                                 exists(n.host)
                                                 AND
