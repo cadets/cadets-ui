@@ -169,6 +169,7 @@ def successors_query(dbid, max_depth='4'):
 @params_as_args
 def get_nodes(node_type=None,
               name=None,
+              host=None,
               local_ip=None,
               local_port=None,
               remote_ip=None,
@@ -196,11 +197,22 @@ def get_nodes(node_type=None,
                                              OR
                                              n.cmdline CONTAINS {name}
                                         )
+                                        AND
+                                        (
+                                            {host} is Null
+                                            OR
+                                            (
+                                                exists(n.host)
+                                                AND
+                                                n.host = {host}
+                                            )
+                                        )
                                   RETURN n
                                   LIMIT {lmt}""",
                                {'lab': lab,
                                 'lmt': int(limit),
-                                'name': name})
+                                'name': name,
+                                'host': host})
     return flask.jsonify([row['n'] for row in query.data()])
 
 

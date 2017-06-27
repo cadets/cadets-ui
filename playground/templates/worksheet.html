@@ -42,6 +42,12 @@
                       onchange="update_nodelist()">
             </div>
 
+            <label for="filterHost" class="col-md-2 control-label">Host</label>
+            <div class="col-md-10">
+              <input id="filterHost" class="form-control"
+                     onchange="update_nodelist()">
+            </div>
+
             <label for="filterTuple" class="col-md-2 control-label">TCP</label>
             <div id="filterTuple" class="col-md-10">
               <input id="localIp" size="15"
@@ -105,12 +111,14 @@
 //
 //   nodeType=T   where T is one of {connection,file-version,machine, ...}
 //   name=N       where N is a subset of a file path
+//   host=H       where H is the UUID of a host
 //   tcp=A:B:C:D  where A is the local IP, B is the local port,
 //                C is the remote IP and D is the remote port
 //                (any of which may be empty)
 //
 $('#filterNodeType').val($.url('?nodeType'));
 $('#filterName').val($.url('?name'));
+$('#filterHost').val($.url('?host'));
 
 const tcp_tuple = $.url('?tcp');
 if (tcp_tuple) {
@@ -225,6 +233,7 @@ function update_nodelist() {
   let query = {
     node_type: $('#filterNodeType').val(),
     name: $('#filterName').val(),
+    host: $('#filterHost').val(),
     local_ip: $('#localIp').val(),
     local_port: $('#localPort').val(),
     remote_ip: $('#remoteIp').val(),
