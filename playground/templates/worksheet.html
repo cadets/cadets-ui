@@ -299,7 +299,7 @@ function import_all_from_inspector() {
   let promise = import_into_worksheet(node.data().id);
 
   inspector.graph.nodes().forEach(function (node) {
-    promise.then(function() { import_into_worksheet(node.data().id); });
+    promise.then(import_into_worksheet(node.data().id));
   });
 }
 
