@@ -18,7 +18,7 @@
     <div class="panel panel-info">
       <div class="panel-heading">Available nodes:</div>
       <div class="panel-body">
-        <form class="form-horizontal">
+        <form class="form-horizontal" method="get">
           <legend>Filters</legend>
           <div class="form-group">
             <label for="filterNodeType" class="col-md-2 control-label">Type</label>
@@ -33,6 +33,27 @@
                 <option>socket-version</option>
                 <option>machine</option>
               </select>
+            </div>
+
+            <label for="filterName" class="col-md-2 control-label">Name</label>
+            <div class="col-md-10">
+              <input id="filterName" class="form-control"
+                      onchange="update_nodelist()">
+            </div>
+
+            <label for="filterTuple" class="col-md-2 control-label">TCP</label>
+            <div id="filterTuple" class="col-md-10">
+              <input id="localIp" size="15"
+                      onchange="update_nodelist()">
+              <input id="localPort" size="4"
+                      onchange="update_nodelist()">
+              L
+
+              <input id="remoteIp" size="15"
+                      onchange="update_nodelist()">
+              <input id="remotePort" size="4"
+                      onchange="update_nodelist()">
+              R
             </div>
           </div>
         </form>
@@ -77,10 +98,27 @@
 
   <script type="text/javascript">
 //
-// Process query parameters
+// Process query parameters:
 //
-console.log($.url('?nodeType'));
+//   nodeType=T   where T is one of {connection,file-version,machine, ...}
+//   name=N       where N is a subset of a file path
+//   tcp=A:B:C:D  where A is the local IP, B is the local port,
+//                C is the remote IP and D is the remote port
+//                (any of which may be empty)
+//
 $('#filterNodeType').val($.url('?nodeType'));
+$('#filterName').val($.url('?name'));
+
+const tcp_tuple = $.url('?tcp');
+if (tcp_tuple) {
+  const parts = tcp_tuple.split(':');
+  if (parts.length == 4) {
+    $('#localIp').val(parts[0]);
+    $('#localPort').val(parts[1]);
+    $('#remoteIp').val(parts[2]);
+    $('#remotePort').val(parts[3]);
+  }
+}
 
 
 //
@@ -176,7 +214,12 @@ function add_edge(data, graph) {
 //
 function update_nodelist() {
   let query = {
-    nodeType: $('#filterNodeType').val(),
+    node_type: $('#filterNodeType').val(),
+    name: $('#filterName').val(),
+    local_ip: $('#localIp').val(),
+    local_port: $('#localPort').val(),
+    remote_ip: $('#remoteIp').val(),
+    remote_port: $('#remotePort').val(),
   };
 
 
