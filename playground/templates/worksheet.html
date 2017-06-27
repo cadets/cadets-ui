@@ -145,6 +145,16 @@ function add_node(data, graph, renderedPosition = null) {
   attach_context_menu(worksheet, '#worksheet', worksheet_context_items);
 }
 
+//
+// How to add an edge to the worksheet
+//
+function add_edge(data, graph) {
+  graph.add({
+    classes: data.type,
+    data: data,
+  });
+}
+
 
 //
 // Populate node list.
@@ -204,9 +214,7 @@ function import_into_worksheet(id) {
         }
 
         if (!other.empty()) {
-          let e = { data: edge };
-          e.classes = edge.type;
-          worksheet.add(e);
+          add_edge(edge, worksheet);
         }
       }
     });
@@ -242,9 +250,7 @@ function add_connected_to_worksheet(id) {
     }
 
     for (let e of result.edges) {
-      let edge = { data: e };
-      edge.classes = e.type;
-      worksheet.add(edge);
+      add_edge(e, worksheet);
     }
   });
 }
@@ -284,9 +290,7 @@ function inspect(id) {
     }
 
     for (let e of result.edges) {
-      let edge = { data: e };
-      edge.classes = e.type;
-      inspector.graph.add(edge);
+      add_edge(e, inspector.graph);
     }
 
     inspector.graph.inspectee = inspector.graph.elements().nodes(`#${id}`);
