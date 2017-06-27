@@ -96,6 +96,40 @@ inspector.graph.inspectee = null;
 load_graph_style([ worksheet, inspector.graph ]);
 
 //
+// Main worksheet context menu items:
+//
+//   derived from jQuery.contextMenu, but with `action` values that take
+//   a node ID instead of a normal callback (which we provide instead from
+//   within attach_context_menu).
+//
+let worksheet_context_items = {
+  "inspect": {
+    name: "Inspect",
+    icon: "fa-search",
+    accesskey: "n",
+    action: inspect,
+  },
+  "add-connected": {
+    name: "Add connected",
+    icon: "fa-plus",
+    accesskey: "a",
+    action: add_connected_to_worksheet,
+  },
+  "remove": {
+    name: "Remove",
+    icon: "fa-times",
+    accesskey: "r",
+    action: remove_from_worksheet,
+  },
+  "remove_connected": {
+    name: "Remove connected",
+    icon: "fa-times",
+    accesskey: "c",
+    action: remove_connected_from_worksheet,
+  },
+};
+
+//
 // How to add a node to a graph
 //
 function add_node(data, graph, renderedPosition = null) {
@@ -107,6 +141,8 @@ function add_node(data, graph, renderedPosition = null) {
   node.classes = data.type;
   node.data.label = node_metadata(data).label;
   graph.add(node);
+
+  attach_context_menu(worksheet, '#worksheet', worksheet_context_items);
 }
 
 
@@ -153,34 +189,6 @@ function import_into_worksheet(id) {
 
   return $.getJSON(`detail/${id}`, function(result) {
     add_node(result, worksheet, position);
-
-    // Define context menu for worksheet nodes.
-    attach_context_menu(worksheet, '#worksheet', {
-      "inspect": {
-        name: "Inspect",
-        icon: "fa-search",
-        accesskey: "n",
-        action: inspect,
-      },
-      "add-connected": {
-        name: "Add connected",
-        icon: "fa-plus",
-        accesskey: "a",
-        action: add_connected_to_worksheet,
-      },
-      "remove": {
-        name: "Remove",
-        icon: "fa-times",
-        accesskey: "r",
-        action: remove_from_worksheet,
-      },
-      "remove_connected": {
-        name: "Remove connected",
-        icon: "fa-times",
-        accesskey: "c",
-        action: remove_connected_from_worksheet,
-      },
-    });
 
   }).then(function() {
     $.getJSON(`neighbours/${id}`, function(result) {
