@@ -441,5 +441,19 @@ $(document).ready(function() {
     $("#content").width(fontSize * width);
   }).resize();
 });
+
+//
+// Allow node addition to be partially automated for testing:
+// if the query includes `nodes=foo,bar,baz` then the nodes
+// `foo`, `bar` and `baz` will be automatically added to the worksheet.
+//
+const nodes_to_add = $.url('?nodes');
+if (nodes_to_add) {
+  let promise = $.when(null);
+
+  for (let node of nodes_to_add.split(',')) {
+    promise.then(import_into_worksheet(node));
+  }
+}
   </script>
 {% endblock %}
