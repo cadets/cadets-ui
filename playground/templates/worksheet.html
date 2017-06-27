@@ -134,7 +134,7 @@ let worksheet_context_items = {
 //
 function add_node(data, graph, renderedPosition = null) {
   // Have we already imported this node?
-  if (!worksheet.nodes(`#${data.id}`).empty()) {
+  if (!graph.nodes(`#${data.id}`).empty()) {
     return;
   }
 
