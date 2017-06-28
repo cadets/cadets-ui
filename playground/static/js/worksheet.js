@@ -287,7 +287,6 @@ function update_nodelist() {
 
       nodelist.append(`
         <tr>
-          <th><a onclick="inspect(${node.id})">${node.id}</a></th>
           <td><i class="fa fa-${meta.icon}" aria-hidden="true"></i></td>
           <td><a onclick="inspect(${node.id})">${meta.label}</a></td>
         </tr>`);
