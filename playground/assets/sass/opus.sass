@@ -62,19 +62,27 @@ nav.navbar
 
 #content
   position: fixed
-  left: 20em
+  left: 19em
   top: $top-margin
 
   padding: 1em
 
-#inspector > *
+#inspector
+  position: absolute
+  top: $top-margin
+  right: 0
+
+  padding: 0
+
+  width: 25em
   height: 100%
 
-  .panel
+  .graph-panel
     height: 100%
 
-    .panel-body
-      height: 90%
+    .graph.panel-body
+      position: relative
+      top: -1.85em
 
 .scrollable
   overflow-y: scroll

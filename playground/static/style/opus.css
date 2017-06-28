@@ -50,16 +50,22 @@ nav.navbar {
 
 #content {
   position: fixed;
-  left: 20em;
+  left: 19em;
   top: 60px;
   padding: 1em; }
 
-#inspector > * {
+#inspector {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  padding: 0;
+  width: 25em;
   height: 100%; }
-  #inspector > * .panel {
+  #inspector .graph-panel {
     height: 100%; }
-    #inspector > * .panel .panel-body {
-      height: 90%; }
+    #inspector .graph-panel .graph.panel-body {
+      position: relative;
+      top: -1.85em; }
 
 .scrollable {
   overflow-y: scroll; }

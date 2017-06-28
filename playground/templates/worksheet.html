@@ -74,30 +74,26 @@
 
   <div id="content">
     <div class="graph well" id="worksheet"></div>
+  </div>
 
-    <div class="row" id="inspector">
-      <div class="col-md-8">
-        <div class="panel panel-info">
-          <div class="panel-heading">
-            Inspector
-            <a class="btn btn-default btn-fab pull-right"
-               onclick="import_all_from_inspector()">
-              <i class="material-icons">file_upload</i>
-            </a>
-          </div>
-          <div class="graph panel-body" id="inspector-graph"></div>
+    <div id="inspector">
+      <div class="graph-panel panel panel-info">
+        <div class="panel-heading">
+          Inspector
+          <a class="btn btn-default btn-fab pull-right"
+             onclick="import_all_from_inspector()">
+            <i class="material-icons">file_upload</i>
+          </a>
         </div>
+        <div class="graph panel-body" id="inspector-graph"></div>
       </div>
-      <div class="col-md-4">
-        <div class="panel panel-info">
-          <div class="panel-heading">Details</div>
-          <div class="panel-body scrollable">
-            <table id="inspector-detail" class="table table-striped"></table>
-          </div>
+      <div class="panel panel-info">
+        <div class="panel-heading">Details</div>
+        <div class="panel-body scrollable">
+          <table id="inspector-detail" class="table table-striped"></table>
         </div>
       </div>
     </div>
-  </div>
 </div>
 
 {% endblock %}
@@ -442,11 +438,12 @@ $(document).ready(function() {
     // The height of the #content area (in ems) should be the height of the
     // window minus that of the navbar, minus some margin and padding.
     let fontSize = parseFloat($("html").css("font-size"));
-    let height = ($(this).height() - $("nav.navbar").height()) / fontSize - 10;
-    let width = $(this).width() / fontSize - 31;
+    let height = ($(this).height() - $("nav.navbar").height()) / fontSize - 8;
+    let width = $(this).width() / fontSize - 64;
 
-    $("#worksheet").height(fontSize * (height - 20));
-    $("#inspector").height(fontSize * 20);
+    $("#worksheet").height(fontSize * height);
+    $("#inspector").height(fontSize * height);
+    $("#inspector-graph").height(fontSize * (height - 4));
     $("#content").width(fontSize * width);
   }).resize();
 });
