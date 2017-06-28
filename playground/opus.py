@@ -1,7 +1,7 @@
 import flask
 import neo4j.v1
 
-nodeLabels = {
+node_labels = {
     'socket-version': 'Socket',
     'process': 'Process',
     'machine': 'Machine',
@@ -9,6 +9,7 @@ nodeLabels = {
     'connection': 'Conn',
     'file-version': 'Global',
 }
+
 
 class OPUSJSONEncoder(flask.json.JSONEncoder):
     machines = {}

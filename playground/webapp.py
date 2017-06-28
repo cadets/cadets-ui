@@ -210,11 +210,10 @@ def get_nodes(node_type=None,
               remote_ip=None,
               remote_port=None,
               limit='100'):
-    label_mapping = opus.nodeLabels
-    if node_type is None or node_type == "":
+    if node_type not in opus.node_labels:
         lab = None
     else:
-        lab = label_mapping[node_type]
+        lab = opus.node_labels[node_type]
 
     # TODO: do something with the 4-tuple parameters
 
