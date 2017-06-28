@@ -294,7 +294,9 @@ function remove_from_worksheet(id) {
 }
 
 function remove_connected_from_worksheet(id) {
-  worksheet.nodes(`#${id}`).connectedEdges().connectedNodes().remove();
+  worksheet.nodes(`#${id}`).connectedEdges().connectedNodes().filter(function( ele ){
+        return !ele.hasClass('important');
+  }).remove();
 }
 
 
