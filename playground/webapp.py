@@ -80,29 +80,26 @@ def get_machines():
 @frontend.route('/neighbours/<int:dbid>')
 @params_as_args
 def get_neighbours_id(dbid,
-                      files = True,
-                      sockets = True,
-                      process_meta = True):
+                      files=True,
+                      sockets=True,
+                      process_meta=True):
 
-    matchers = [ 'Machine', 'Process' ]
+    matchers = {'Machine', 'Process'}
     if files != 'false':
-        matchers.append('Global')
+        matchers.add('File')
     if sockets != 'false':
-        matchers.append('Socket')
+        matchers.add('Socket')
     if process_meta != 'false':
-        matchers.append('Meta')
+        matchers.add('Meta')
 
-    query_parts = [
-        '''
-            MATCH (s)-[e]-(d:%s)
-            WHERE id(s)={id}
-            RETURN s, e, d
-        ''' % m
-        for m in matchers
-    ]
-    query = current_app.db.run(' UNION '.join(query_parts), { 'id': dbid })
-
-    res = query.data()
+    res = current_app.db.run("""MATCH (s)-[e]-(d)
+                                WHERE
+                                    id(s)={id}
+                                    AND
+                                    any(lab in labels(d) WHERE lab IN {labs})
+                                RETURN s, e, d""",
+                             {'id': dbid,
+                              'labs': list(matchers)}).data()
     root = {res[0]['s']} if len(res) else set()
     return flask.jsonify({'nodes': {row['d'] for row in res} | root,
                           'edges': {row['e'] for row in res}})
@@ -111,29 +108,27 @@ def get_neighbours_id(dbid,
 @frontend.route('/neighbours/<string:uuid>')
 @params_as_args
 def get_neighbours_uuid(uuid,
-                        files = True,
-                        sockets = True,
-                        process_meta = True):
-    
-    matchers = [ 'Machine', 'Process' ]
+                        files=True,
+                        sockets=True,
+                        process_meta=True):
+    matchers = {'Machine', 'Process'}
     if files != 'false':
-        matchers.append('Global')
+        matchers.add('File')
     if sockets != 'false':
-        matchers.append('Socket')
+        matchers.add('Socket')
     if process_meta != 'false':
-        matchers.append('Meta')
+        matchers.add('Meta')
 
-    query_parts = [
-        '''
-            MATCH (s)-[e]-(d:%s)
-            WHERE exists(s.uuid) AND s.uuid={uuid}
-            RETURN s, e, d
-        ''' % m
-        for m in matchers
-    ]
-    query = current_app.db.run(' UNION '.join(query_parts), { 'uuid': uuid })
-
-    res = query.data()
+    res = current_app.db.run("""MATCH (s)-[e]-(d)
+                                WHERE
+                                    exists(s.uuid)
+                                    AND
+                                    s.uuid={uuid}
+                                    AND
+                                    any(lab in labels(d) WHERE lab IN {labs})
+                                RETURN s, e, d""",
+                             {'uuid': uuid,
+                              'labs': list(matchers)}).data()
     root = {res[0]['s']} if len(res) else set()
     return flask.jsonify({'nodes': {row['d'] for row in res} | root,
                           'edges': {row['e'] for row in res}})
