@@ -294,6 +294,3 @@ function update_nodelist() {
     }
   });
 }
-update_nodelist();
-
-

@@ -176,6 +176,8 @@ load_graph_style([ worksheet, inspector.graph ]);
 // Unfortunately this seems difficult to do via CSS.
 //
 $(document).ready(function() {
+  update_nodelist();
+
   $(window).resize(function() {
     // The height of the #content area (in ems) should be the height of the
     // window minus that of the navbar, minus some margin and padding.
