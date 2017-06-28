@@ -92,17 +92,42 @@ def get_neighbours_id(dbid,
     if process_meta != 'false':
         matchers.add('Meta')
 
-    res = current_app.db.run("""MATCH (s)-[e]-(d)
-                                WHERE
-                                    id(s)={id}
-                                    AND
-                                    any(lab in labels(d) WHERE lab IN {labs})
-                                RETURN s, e, d""",
-                             {'id': dbid,
-                              'labs': list(matchers)}).data()
-    root = {res[0]['s']} if len(res) else set()
-    return flask.jsonify({'nodes': {row['d'] for row in res} | root,
-                          'edges': {row['e'] for row in res}})
+    neighbours = current_app.db.run("""MATCH (s)-[e]-(d)
+                                       WHERE
+                                           id(s)={id}
+                                           AND
+                                           any(lab in labels(d) WHERE lab IN {labs})
+                                       RETURN s, e, d""",
+                                    {'id': dbid,
+                                     'labs': list(matchers)}).data()
+    root = {neighbours[0]['s']} if len(neighbours) else set()
+    if sockets != "false":
+        m_qry = current_app.db.run("""MATCH (skt:Socket), (mch:Machine)
+                                      WHERE
+                                          mch.external
+                                          AND
+                                          (
+                                              id(skt)={srcid}
+                                              OR
+                                              id(mch)={srcid}
+                                          )
+                                          AND
+                                          split(skt.name[0], ":")[0] in mch.ips
+                                      RETURN skt, mch""",
+                                   {'srcid': dbid}).data()
+
+        m_links = [{'id': row['skt'].id + row['mch'].id,
+                    'source': row['skt'].id,
+                    'target': row['mch'].id,
+                    'type': 'comm',
+                    'state': None}
+                   for row in m_qry]
+        m_nodes = {row['mch'] for row in m_qry} | {row['skt'] for row in m_qry}
+    else:
+        m_links = []
+        m_nodes = set()
+    return flask.jsonify({'nodes': {row['d'] for row in neighbours} | m_nodes | root,
+                          'edges': list({row['e'] for row in neighbours}) + m_links})
 
 
 @frontend.route('/successors/<int:dbid>')
