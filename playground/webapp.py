@@ -136,8 +136,22 @@ def get_neighbours_uuid(uuid,
 
 @frontend.route('/successors/<int:dbid>')
 @params_as_args
-def successors_query(dbid, max_depth='4'):
+def successors_query(dbid,
+                     max_depth='4',
+                     files=True,
+                     sockets=True,
+                     process_meta=True):
     max_depth = int(max_depth)
+    if files != 'false':
+        if sockets != 'false':
+            glab = 'Global'
+        else:
+            glab = 'File'
+    else:
+        if sockets != 'false':
+            glab = 'Socket'
+        else:
+            glab = None
     source = current_app.db.run("""MATCH (n)
                                    WHERE id(n)={dbid}
                                    RETURN n""",
@@ -154,33 +168,54 @@ def successors_query(dbid, max_depth='4'):
         neighbours = None
         if 'Global' in cur.labels:
             neighbours = current_app.db.run("""MATCH (cur:Global)-[e]->(n:Process)
-                                               WHERE id(cur)={curid} AND
-                                                     e.state in ['BIN', 'READ', 'RaW', 'CLIENT', 'SERVER']
+                                               WHERE
+                                                   id(cur)={curid}
+                                                   AND
+                                                   e.state in ['BIN', 'READ', 'RaW', 'CLIENT', 'SERVER']
                                                RETURN n, e
                                                UNION
                                                MATCH (cur:Global)<-[e]-(n:Global)
-                                               WHERE id(cur)={curid}
+                                               WHERE
+                                                   id(cur)={curid}
+                                                   AND
+                                                   NOT {glab} is Null
+                                                   AND
+                                                   {glab} IN labels(n)
                                                RETURN n, e
                                                UNION
                                                MATCH (cur:Global)-[e]-(n:Conn)
                                                WHERE id(cur)={curid}
                                                RETURN n, e""",
-                                            {'curid': cur.id}).data()
+                                            {'curid': cur.id,
+                                             'glab': glab}).data()
         elif 'Process' in cur.labels:
             neighbours = current_app.db.run("""MATCH (cur:Process)<-[e]-(n:Global)
-                                               WHERE id(cur)={curid} AND
-                                                     e.state in ['WRITE', 'RaW', 'CLIENT', 'SERVER']
+                                               WHERE
+                                                   id(cur)={curid}
+                                                   AND
+                                                   e.state in ['WRITE', 'RaW', 'CLIENT', 'SERVER']
+                                                   AND
+                                                   NOT {glab} is Null
+                                                   AND
+                                                   {glab} IN labels(n)
                                                RETURN n, e
                                                UNION
                                                MATCH (cur:Process)<-[e]-(n:Process)
                                                WHERE id(cur)={curid}
                                                RETURN n, e""",
-                                            {'curid': cur.id}).data()
+                                            {'curid': cur.id,
+                                             'glab': glab}).data()
         elif 'Conn' in cur.labels:
             neighbours = current_app.db.run("""MATCH (cur:Conn)-[e]-(n:Global)
-                                               WHERE id(cur)={curid}
+                                               WHERE
+                                                   id(cur)={curid}
+                                                   AND
+                                                   NOT {glab} is Null
+                                                   AND
+                                                   {glab} IN labels(n)
                                                RETURN n, e""",
-                                            {'curid': cur.id}).data()
+                                            {'curid': cur.id,
+                                             'glab': glab}).data()
         if neighbours is None:
             continue
         for row in neighbours:

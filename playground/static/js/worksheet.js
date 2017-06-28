@@ -86,6 +86,20 @@ function get_neighbours(id, fn) {
   return $.getJSON(`neighbours/${id}?${query}`, fn);
 }
 
+//
+// Fetch successors to a node, based on some user-specified filters.
+//
+function get_successors(id, fn) {
+  const query =
+    `files=${$('#inspectFiles').is(':checked')}` +
+    `&sockets=${$('#inspectSockets').is(':checked')}` +
+    `&process_meta=${$('#inspectProcessMeta').is(':checked')}`
+    ;
+
+  return $.getJSON(`successors/${id}?${query}`, fn);
+}
+
+
 
 //
 // How to import a node into the worksheet
@@ -233,7 +247,7 @@ function inspect(id) {
 //
 function successors(id) {
   // Display the node's details in the inspector "Details" panel.
-  $.getJSON(`successors/${id}`, function(result) {
+  get_successors(id, function(result) {
 
     let position = {
       x: worksheet.width() / 2,
