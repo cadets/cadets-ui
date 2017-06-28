@@ -78,22 +78,62 @@ def get_machines():
 
 
 @frontend.route('/neighbours/<int:dbid>')
-def get_neighbours_id(dbid):
-    res = current_app.db.run("""MATCH (s)-[e]-(d)
-                                WHERE id(s)={id}
-                                RETURN s, e, d""",
-                             {'id': dbid}).data()
+@params_as_args
+def get_neighbours_id(dbid,
+                      files = True,
+                      sockets = True,
+                      process_meta = True):
+
+    matchers = [ 'Machine', 'Process' ]
+    if files != 'false':
+        matchers.append('Global')
+    if sockets != 'false':
+        matchers.append('Socket')
+    if process_meta != 'false':
+        matchers.append('Meta')
+
+    query_parts = [
+        '''
+            MATCH (s)-[e]-(d:%s)
+            WHERE id(s)={id}
+            RETURN s, e, d
+        ''' % m
+        for m in matchers
+    ]
+    query = current_app.db.run(' UNION '.join(query_parts), { 'id': dbid })
+
+    res = query.data()
     root = {res[0]['s']} if len(res) else set()
     return flask.jsonify({'nodes': {row['d'] for row in res} | root,
                           'edges': {row['e'] for row in res}})
 
 
 @frontend.route('/neighbours/<string:uuid>')
-def get_neighbours_uuid(uuid):
-    res = current_app.db.run("""MATCH (s)-[e]-(d)
-                                WHERE exists(s.uuid) AND s.uuid={uuid}
-                                RETURN s, e, d""",
-                             {'uuid': uuid}).data()
+@params_as_args
+def get_neighbours_uuid(uuid,
+                        files = True,
+                        sockets = True,
+                        process_meta = True):
+    
+    matchers = [ 'Machine', 'Process' ]
+    if files != 'false':
+        matchers.append('Global')
+    if sockets != 'false':
+        matchers.append('Socket')
+    if process_meta != 'false':
+        matchers.append('Meta')
+
+    query_parts = [
+        '''
+            MATCH (s)-[e]-(d:%s)
+            WHERE exists(s.uuid) AND s.uuid={uuid}
+            RETURN s, e, d
+        ''' % m
+        for m in matchers
+    ]
+    query = current_app.db.run(' UNION '.join(query_parts), { 'uuid': uuid })
+
+    res = query.data()
     root = {res[0]['s']} if len(res) else set()
     return flask.jsonify({'nodes': {row['d'] for row in res} | root,
                           'edges': {row['e'] for row in res}})
