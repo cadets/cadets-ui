@@ -271,10 +271,10 @@ function update_nodelist() {
     node_type: $('#filterNodeType').val(),
     name: $('#filterName').val(),
     host: $('#filterHost').val(),
-    local_ip: $('#localIp').val(),
-    local_port: $('#localPort').val(),
-    remote_ip: $('#remoteIp').val(),
-    remote_port: $('#remotePort').val(),
+    local_ip: $('#filterLocalIp').val(),
+    local_port: $('#filterLocalPort').val(),
+    remote_ip: $('#filterRemoteIp').val(),
+    remote_port: $('#filterRemotePort').val(),
   };
 
 

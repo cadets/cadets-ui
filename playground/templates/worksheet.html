@@ -24,8 +24,7 @@
           <div class="form-group">
             <label for="filterNodeType" class="col-md-2 control-label">Type</label>
             <div class="col-md-10">
-              <select id="filterNodeType" class="form-control"
-                      onchange="update_nodelist()">
+              <select id="filterNodeType" class="form-control">
                 <option></option>
                 <option>connection</option>
                 <option>file-version</option>
@@ -38,28 +37,22 @@
 
             <label for="filterName" class="col-md-2 control-label">Name</label>
             <div class="col-md-10">
-              <input id="filterName" class="form-control"
-                      onchange="update_nodelist()">
+              <input id="filterName" class="form-control"/>
             </div>
 
             <label for="filterHost" class="col-md-2 control-label">Host</label>
             <div class="col-md-10">
-              <input id="filterHost" class="form-control"
-                     onchange="update_nodelist()">
+              <input id="filterHost" class="form-control"/>
             </div>
 
             <label for="filterTuple" class="col-md-2 control-label">TCP</label>
             <div id="filterTuple" class="col-md-10">
-              <input id="localIp" size="15"
-                      onchange="update_nodelist()">
-              <input id="localPort" size="4"
-                      onchange="update_nodelist()">
+              <input id="filterLocalIp" size="15"/>
+              <input id="filterLocalPort" size="4"/>
               L
 
-              <input id="remoteIp" size="15"
-                      onchange="update_nodelist()">
-              <input id="remotePort" size="4"
-                      onchange="update_nodelist()">
+              <input id="filterRemoteIp" size="15"/>
+              <input id="filterRemotePort" size="4"/>
               R
             </div>
           </div>
@@ -142,10 +135,10 @@ const tcp_tuple = $.url('?tcp');
 if (tcp_tuple) {
   const parts = tcp_tuple.split(':');
   if (parts.length == 4) {
-    $('#localIp').val(parts[0]);
-    $('#localPort').val(parts[1]);
-    $('#remoteIp').val(parts[2]);
-    $('#remotePort').val(parts[3]);
+    $('#filterLocalIp').val(parts[0]);
+    $('#filterLocalPort').val(parts[1]);
+    $('#filterRemoteIp').val(parts[2]);
+    $('#filterRemotePort').val(parts[3]);
   }
 }
 
@@ -168,6 +161,12 @@ var inspector = {
 inspector.graph.inspectee = null;
 
 load_graph_style([ worksheet, inspector.graph ]);
+
+
+//
+// Add onchange event handlers to filter elements.
+//
+$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 
 
 //
