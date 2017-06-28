@@ -327,20 +327,11 @@ function import_all_from_inspector() {
 function add_connected_to_worksheet(id) {
   // Get all of the node's neighbours:
   $.getJSON(`neighbours/${id}`, function(result) {
-    let position = {
-      x: worksheet.width() / 2,
-      y: worksheet.height() / 2,
-    };
+    let promise = $.when(null);
 
     for (let n of result.nodes) {
-      add_node(n, worksheet, position);
+      promise.then(function() { import_into_worksheet(n.id); });
     }
-
-    for (let e of result.edges) {
-      add_edge(e, worksheet);
-    }
-
-    attach_context_menu(worksheet, '#worksheet', worksheet_context_items);
   });
 }
 
