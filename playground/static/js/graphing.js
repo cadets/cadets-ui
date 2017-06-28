@@ -80,8 +80,8 @@ function node_metadata(node) {
     case 'connection':
       return {
         icon: 'connectdevelop',
-        label: node.client_ip + ':' + node.client_port +
-               ' – ' + node.server_ip + ':' + node.server_port,
+        label: node.client_ip + ':' + node.client_port + '\n' +
+               node.server_ip + ':' + node.server_port,
       };
 
     case 'machine':

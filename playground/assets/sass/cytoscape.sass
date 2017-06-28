@@ -59,13 +59,15 @@ node
   border-style: solid
   border-width: 2
 
+  color: black
+  text-background-color: $machine-color
+  text-background-opacity: 0.75
+  text-background-padding: .25em
   text-halign: center
   text-valign: bottom
-  text-outline-color: black
-  text-outline-width: 2
+  text-outline-width: 0
   text-wrap: wrap
   text-max-width: 10em
-  color: white
 
   height: 4em
   width: 4em
@@ -77,26 +79,28 @@ node
 node:selected
   overlay-color: $primary-color
   overlay-padding: 10
-  overlay-opacity: 0.5
+  overlay-opacity: 0.25
 
 node.connection
+  shape: rectangle
   background-image: url(static/images/connection.png)
   background-color: white;
+  text-background-opacity: 0
 
 node.process
   shape: ellipse
 
   background-color: $primary-color
   background-image: url(static/images/proc.png)
-
   border-color: $primary-color
+  font-family: Inconsolata, Source Code Pro, Consolas, monospace
 
 node.file-version
   shape: rectangle
 
-  background-image: url(static/images/file.png)
-  background-fit: contain
-  border-color: black
+  background-image: url(static/images/file-version.png)
+  background-opacity: 0
+  border-width: 0
 
 node.machine
   font-size: 24pt
@@ -111,16 +115,19 @@ node.machine
   min-width: 160px
   min-height: 160px
 
-  background-color: #eee;
+  background-color: $machine-color;
   background-image: url(static/images/machine.png)
   background-image-opacity: 0.75
   background-fit: none
   background-position-x: 20px
   background-position-y: 20px
 
+  text-background-opacity: 0
+
 node.socket-version
   shape: rectangle
 
-  background-image: url(static/images/network.png)
+  background-image: url(static/images/socket.png)
   background-fit: contain
-  border-color: white
+  background-opacity: 0
+  border-opacity: 0
