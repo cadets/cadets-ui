@@ -36,6 +36,12 @@ let worksheet_context_items = {
     accesskey: "v",
     action: remove_connected_from_worksheet,
   },
+  "mark": {
+    name: "Toggle Highlighting",
+    icon: "fa-thumb-tack",
+    accesskey: "h",
+    action: toggle_node_importance,
+  },
 };
 
 
@@ -271,6 +277,17 @@ function successors(id) {
   });
 };
 
+
+function toggle_node_importance(id) {
+  nodes = worksheet.nodes(`node#${id}`);
+  nodes.forEach( function(ele){
+      if (ele.hasClass('important')) {
+        ele.removeClass('important');
+      } else {
+        ele.addClass('important');
+      }
+  });
+}
 
 function remove_from_worksheet(id) {
   worksheet.remove(`node#${id}`);

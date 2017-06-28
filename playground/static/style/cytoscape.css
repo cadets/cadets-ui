@@ -67,6 +67,11 @@ node {
   background-position-x: 0;
   background-position-y: 0; }
 
+node.important {
+  overlay-color: red;
+  overlay-padding: 15;
+  overlay-opacity: 0.15; }
+
 node:selected {
   overlay-color: #333;
   overlay-padding: 10;
