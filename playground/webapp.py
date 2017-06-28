@@ -225,7 +225,7 @@ def get_nodes(node_type=None,
                                         )
                                         AND
                                         (
-                                             {name} is Null
+                                             {name} is Null OR {name} = ''
                                              OR
                                              any(name in n.name WHERE name CONTAINS {name})
                                              OR
@@ -233,9 +233,7 @@ def get_nodes(node_type=None,
                                         )
                                         AND
                                         (
-                                            {host} is Null
-                                            OR
-                                            {host} = ''
+                                            {host} is Null OR {host} = ''
                                             OR
                                             (
                                                 exists(n.host)
