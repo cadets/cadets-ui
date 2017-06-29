@@ -208,7 +208,11 @@ function inspect(id) {
       add_edge(e, inspector.graph);
     }
 
-    inspector.graph.inspectee = inspector.graph.elements().nodes(`#${id}`);
+    let n = inspector.graph.elements().nodes(`[id="${id}"]`);
+    if (n.empty()) {
+      n = inspector.graph.elements().nodes(`[uuid="${id}"]`);
+    }
+    inspector.graph.inspectee = n;
 
     layout(inspector.graph, 'dagre');
     inspector.graph.zoom({

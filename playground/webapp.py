@@ -59,9 +59,18 @@ def worksheet():
 
 
 @frontend.route('/detail/<int:identifier>')
-def get_detail(identifier):
+def get_detail_id(identifier):
     query = current_app.db.run('MATCH (n) WHERE id(n)={id} RETURN n',
                                {'id': identifier}).single()
+    if query is None:
+        flask.abort(404)
+    return flask.jsonify(query['n'])
+
+@frontend.route('/detail/<string:uuid>')
+def get_detail_uuid(**kwargs):
+    query = current_app.db.run(
+            'MATCH (n) WHERE exists(n.uuid) AND n.uuid={uuid} RETURN n',
+            kwargs).single()
     if query is None:
         flask.abort(404)
     return flask.jsonify(query['n'])
