@@ -283,22 +283,34 @@ def get_nodes(node_type=None,
         lab = None
     else:
         lab = opus.node_labels[node_type]
+    sockFilter = 'f'
+    if (local_ip != '' or
+        local_port != '' or
+        remote_ip != '' or
+        remote_port != ''):
+        sockFilter = 't'
 
     # TODO: do something with the 4-tuple parameters
-
-    query = current_app.db.run("""MATCH (n)
+    query = current_app.db.run("""MATCH (n), (m:Machine)
                                   WHERE (
-                                             {lab} is Null
-                                             OR
-                                             {lab} in labels(n)
+                                            {lab} is Null
+                                            OR
+                                            {lab} in labels(n)
                                         )
                                         AND
                                         (
-                                             {name} is Null OR {name} = ''
-                                             OR
-                                             any(name in n.name WHERE name CONTAINS {name})
-                                             OR
-                                             n.cmdline CONTAINS {name}
+                                            ({sockfil} = 'f' AND (
+                                                {name} is Null OR {name} = ''
+                                                OR
+                                                any(name in n.name WHERE name CONTAINS {name})
+                                                OR
+                                                n.cmdline CONTAINS {name}
+                                            )) OR
+                                            ({sockfil} = 't' AND (
+                                                any(name in n.name WHERE name CONTAINS ({remote_ip}+':'+{remote_port})) AND
+                                                m.uuid = n.host AND
+                                                any(l_ip in m.ips WHERE l_ip CONTAINS {local_ip})
+                                            ))
                                         )
                                         AND
                                         (
@@ -310,12 +322,17 @@ def get_nodes(node_type=None,
                                                 n.host = {host}
                                             )
                                         )
-                                  RETURN n
-                                  LIMIT {lmt}""",
-                               {'lab': lab,
-                                'lmt': int(limit),
-                                'name': name,
-                                'host': host})
+                                RETURN n
+                                LIMIT {lmt}""",
+                            {'lab': lab,
+                             'lmt': int(limit),
+                             'name': name,
+                             'host': host,
+                             'sockfil': sockFilter,
+                             'local_ip': local_ip,
+                             'local_port': local_port,
+                             'remote_ip': remote_ip,
+                             'remote_port': remote_port})
     return flask.jsonify([row['n'] for row in query.data()])
 
 
