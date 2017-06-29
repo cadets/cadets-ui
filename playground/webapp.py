@@ -159,9 +159,13 @@ def get_neighbours_uuid(uuid,
                         process_meta=True):
     matchers = {'Machine', 'Process'}
     if files != 'false':
-        matchers.add('File')
-    if sockets != 'false':
-        matchers.add('Socket')
+        if sockets != 'false':
+            matchers.add('Global')
+        else:
+            matchers.add('File')
+    else:
+        if sockets != 'false':
+            matchers.add('Socket')
     if process_meta != 'false':
         matchers.add('Meta')
 
