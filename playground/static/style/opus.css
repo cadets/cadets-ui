@@ -47,6 +47,10 @@ nav.navbar {
       padding: 0.5em; }
       #sidebar .panel-heading #nodeFilters .form-group {
         margin-top: 0; }
+      #sidebar .panel-heading #nodeFilters #filterTuple {
+        color: #bdbdbd; }
+        #sidebar .panel-heading #nodeFilters #filterTuple input {
+          color: black; }
 
 #content {
   position: fixed;
