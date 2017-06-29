@@ -41,7 +41,12 @@ $.getJSON('machines', function(result) {
     };
     node.data.label = node_metadata(machine).label;
 
-    view.add(node);
+    graph_node = view.add(node);
+    if (machine.external) {
+        graph_node.addClass('machine-external')
+    } else {
+        graph_node.addClass('machine-internal')
+    }
   }
 
   for (let e of result.edges) {

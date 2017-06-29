@@ -103,15 +103,30 @@ node.machine {
   text-margin-y: 0.25em;
   shape: rectangle;
   padding: 1em;
-  min-width: 160px;
-  min-height: 160px;
+  min-width: 180px;
+  min-height: 180px;
   background-color: #eee;
   background-image: url(static/images/machine.png);
-  background-image-opacity: 0.75;
-  background-fit: none;
-  background-position-x: 20px;
-  background-position-y: 20px;
+  background-image-opacity: 0.55;
+  background-fit: contain;
+  background-position: center;
   text-background-opacity: 0; }
+
+node.machine-internal {
+  text-valign: center;
+  background-image-opacity: 0.75; }
+
+node.machine-external {
+  text-valign: center;
+  font-size: 12pt;
+  text-margin-y: 0.25em;
+  shape: ellipse;
+  padding: 1em;
+  min-width: 120px;
+  min-height: 120px;
+  border-color: #555;
+  background-image-opacity: 0.45; }
+
 
 node.socket-version {
   shape: rectangle;
