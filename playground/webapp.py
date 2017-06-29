@@ -58,6 +58,17 @@ def worksheet():
     return flask.render_template('worksheet.html')
 
 
+@frontend.route('/alerts')
+def alerts_view():
+    return flask.render_template('alerts.html')
+
+
+@frontend.route('/alert-data')
+def alert_data():
+
+    return flask.jsonify()
+
+
 @frontend.route('/detail/<int:identifier>')
 def get_detail_id(identifier):
     query = current_app.db.run('MATCH (n) WHERE id(n)={id} RETURN n',
@@ -65,6 +76,7 @@ def get_detail_id(identifier):
     if query is None:
         flask.abort(404)
     return flask.jsonify(query['n'])
+
 
 @frontend.route('/detail/<string:uuid>')
 def get_detail_uuid(**kwargs):
@@ -283,56 +295,108 @@ def get_nodes(node_type=None,
         lab = None
     else:
         lab = opus.node_labels[node_type]
-    sockFilter = 'f'
-    if (local_ip != '' or
-        local_port != '' or
-        remote_ip != '' or
-        remote_port != ''):
-        sockFilter = 't'
+    if local_ip is None or local_ip == "":
+        local_ip = ".*?"
+    if local_port is None or local_port == "":
+        local_port = ".*?"
+    if remote_ip is None or remote_ip == "":
+        remote_ip = ".*?"
+    if remote_port is None or remote_port == "":
+        remote_port = ".*?"
 
-    # TODO: do something with the 4-tuple parameters
-    query = current_app.db.run("""MATCH (n), (m:Machine)
-                                  WHERE (
-                                            {lab} is Null
-                                            OR
-                                            {lab} in labels(n)
-                                        )
-                                        AND
-                                        (
-                                            ({sockfil} = 'f' AND (
-                                                {name} is Null OR {name} = ''
-                                                OR
-                                                any(name in n.name WHERE name CONTAINS {name})
-                                                OR
-                                                n.cmdline CONTAINS {name}
-                                            )) OR
-                                            ({sockfil} = 't' AND (
-                                                any(name in n.name WHERE name CONTAINS ({remote_ip}+':'+{remote_port})) AND
-                                                m.uuid = n.host AND
-                                                any(l_ip in m.ips WHERE l_ip CONTAINS {local_ip})
-                                            ))
-                                        )
-                                        AND
-                                        (
-                                            {host} is Null OR {host} = ''
-                                            OR
-                                            (
-                                                exists(n.host)
-                                                AND
-                                                n.host = {host}
-                                            )
-                                        )
-                                RETURN n
+    query = current_app.db.run("""MATCH (n)
+                                  WHERE 
+                                      {lab} is Null
+                                      OR
+                                      {lab} in labels(n)
+                                  WITH n
+                                  WHERE
+                                      {name} is Null
+                                      OR
+                                      {name} = ''
+                                      OR
+                                      any(name in n.name WHERE name CONTAINS {name})
+                                      OR
+                                      n.cmdline CONTAINS {name}
+                                  WITH n
+                                  WHERE
+                                      {host} is Null
+                                      OR
+                                      {host} = ''
+                                      OR
+                                      (
+                                          exists(n.host)
+                                          AND
+                                          n.host = {host}
+                                      )
+                                      OR
+                                      n.uuid = {host}
+                                  WITH n
+                                  MATCH (m:Machine)
+                                  WHERE
+                                      (
+                                          n:Conn
+                                          AND
+                                          (
+                                              n.client_ip=~{local_ip}
+                                              OR
+                                              n.server_ip=~{local_ip}
+                                          )
+                                          AND
+                                          (
+                                              n.client_port=~{local_port}
+                                              OR
+                                              n.server_port=~{local_port}
+                                          )
+                                          AND
+                                          (
+                                              n.server_ip=~{remote_ip}
+                                              OR
+                                              n.client_ip=~{remote_ip}
+                                          )
+                                          AND
+                                          (
+                                              n.server_port=~{remote_port}
+                                              OR
+                                              n.client_port=~{remote_port}
+                                          )
+                                      )
+                                      OR
+                                      (
+                                          NOT n:Conn
+                                          AND
+                                          (
+                                              NOT n:Socket
+                                              OR
+                                              (
+                                                  n:Socket
+                                                  AND
+                                                  any(name in n.name
+                                                      WHERE name =~ ({remote_ip}+':?'+{remote_port}))
+                                                  AND
+                                                  (
+                                                      {local_ip} = ".*?"
+                                                      OR
+                                                      (
+                                                          m.uuid = n.host
+                                                          AND
+                                                          any(l_ip in m.ips
+                                                              WHERE l_ip = {local_ip})                                                 
+                                                      )
+                                                  )
+                                              )
+                                          )
+                                      )
+                                RETURN DISTINCT n
                                 LIMIT {lmt}""",
-                            {'lab': lab,
-                             'lmt': int(limit),
-                             'name': name,
-                             'host': host,
-                             'sockfil': sockFilter,
-                             'local_ip': local_ip,
-                             'local_port': local_port,
-                             'remote_ip': remote_ip,
-                             'remote_port': remote_port})
+                               {'lab': lab,
+                                'lmt': int(limit),
+                                'name': name,
+                                'host': host,
+                                'local_ip': local_ip,
+                                'local_port': local_port,
+                                'remote_ip': remote_ip,
+                                'remote_port': remote_port})
     return flask.jsonify([row['n'] for row in query.data()])
 
 
