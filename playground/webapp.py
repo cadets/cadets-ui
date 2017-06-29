@@ -130,6 +130,35 @@ def get_neighbours_id(dbid,
                           'edges': list({row['e'] for row in neighbours}) + m_links})
 
 
+@frontend.route('/neighbours/<string:uuid>')
+@params_as_args
+def get_neighbours_uuid(uuid,
+                        files=True,
+                        sockets=True,
+                        process_meta=True):
+    matchers = {'Machine', 'Process'}
+    if files != 'false':
+        matchers.add('File')
+    if sockets != 'false':
+        matchers.add('Socket')
+    if process_meta != 'false':
+        matchers.add('Meta')
+
+    res = current_app.db.run("""MATCH (s)-[e]-(d)
+                                WHERE
+                                    exists(s.uuid)
+                                    AND
+                                    s.uuid={uuid}
+                                    AND
+                                    any(lab in labels(d) WHERE lab IN {labs})
+                                RETURN s, e, d""",
+                             {'uuid': uuid,
+                              'labs': list(matchers)}).data()
+    root = {res[0]['s']} if len(res) else set()
+    return flask.jsonify({'nodes': {row['d'] for row in res} | root,
+                          'edges': {row['e'] for row in res}})
+
+
 @frontend.route('/successors/<int:dbid>')
 @params_as_args
 def successors_query(dbid,
