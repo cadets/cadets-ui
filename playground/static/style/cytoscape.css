@@ -109,7 +109,6 @@ node.machine {
   background-image: url(static/images/machine.png);
   background-image-opacity: 0.75;
   background-fit: contain;
-  background-position: center;
   text-background-opacity: 0;
   text-valign: center; }
 
