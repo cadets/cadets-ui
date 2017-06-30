@@ -35,18 +35,20 @@ load_graph_style([ view ]);
 
 $.getJSON('machines', function(result) {
   for (let machine of result.nodes) {
+    let classes = machine.type;
+    if (machine.external) {
+      classes += ' machine-external';
+    } else {
+      classes += ' machine-internal';
+    }
+
     let node = {
-      classes: machine.type,
+      classes: classes,
       data: machine,
     };
     node.data.label = node_metadata(machine).label;
 
     graph_node = view.add(node);
-    if (machine.external) {
-        graph_node.addClass('machine-external')
-    } else {
-        graph_node.addClass('machine-internal')
-    }
   }
 
   for (let e of result.edges) {
