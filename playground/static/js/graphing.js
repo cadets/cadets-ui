@@ -1,4 +1,28 @@
 //
+// Add a node to a graph.
+//
+function add_node(data, graph, renderedPosition = null) {
+  // Have we already imported this node?
+  if (!graph.nodes(`#${data.id}`).empty()) {
+    return;
+  }
+
+  let node = {
+    data: data,
+    renderedPosition: renderedPosition,
+  };
+
+  node.classes = data.type;
+  if (data.external) {
+    node.classes += ' external';
+  }
+
+  node.data.label = node_metadata(data).label;
+
+  graph.add(node);
+}
+
+//
 // Load a Cytograph CSS file and apply it to a graph.
 //
 // Unfortunately this is hard to do statically.
