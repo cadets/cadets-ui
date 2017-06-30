@@ -113,14 +113,11 @@ node.machine {
   text-background-opacity: 0; }
 
 node.machine-internal {
-  text-valign: center;
   background-image-opacity: 0.75; }
 
 node.machine-external {
-  text-valign: center;
-  font-size: 12pt;
+  font-size: 18pt;
   text-margin-y: 0.25em;
-  shape: ellipse;
   padding: 1em;
   min-width: 120px;
   min-height: 120px;
