@@ -100,43 +100,51 @@ function attach_context_menu(graph, selector, items) {
 // really appropriate to serve from OPUS/Neo4j.
 //
 function node_metadata(node) {
+  let metadata = null;
+
   switch (node.type) {
     case 'connection':
-      return {
+      metadata = {
         icon: 'connectdevelop',
         label: node.client_ip + ':' + node.client_port + '\n' +
                node.server_ip + ':' + node.server_port,
       };
+      break;
 
     case 'machine':
-      return {
+      metadata = {
         icon: 'desktop',
         label: node.names.join(' / '),
       };
+      break;
 
     case 'process':
-      return {
+      metadata = {
         icon: 'terminal',
         label: node.cmdline,
       };
+      break;
 
     case 'file-version':
-      return {
+      metadata = {
         icon: 'file-o',
         label: node.names.join(' / '),
       };
+      break;
 
     case 'process-meta':
-      return {
+      metadata = {
         icon: 'terminal',
         label: 'metadata change',
       };
+      break;
 
     case 'socket-version':
-      return {
+      metadata = {
         icon: 'plug',
         label: node.names.join(' / '),
       };
+      break;
 
   default:
     console.log('unknown node type: ' + node.type);
@@ -146,4 +154,10 @@ function node_metadata(node) {
       label: 'unknown',
     };
   }
+
+  if (metadata.label == '') {
+    metadata.label = '???';
+  }
+
+  return metadata;
 }
