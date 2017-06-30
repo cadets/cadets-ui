@@ -113,6 +113,7 @@ node.machine {
   text-background-opacity: 0; }
 
 node.machine-internal {
+  background-image: url(static/images/cadets-machine.png);
   background-image-opacity: 0.75; }
 
 node.machine-external {
