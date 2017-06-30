@@ -105,7 +105,7 @@ node.machine {
   min-width: 180px;
   min-height: 180px;
   background-color: #eee;
-  background-image: url(static/images/machine.png);
+  background-image: url(static/images/cadets-machine.png);
   background-image-opacity: 0.75;
   background-fit: contain;
   color: white;
@@ -120,6 +120,7 @@ node.machine.external {
   min-width: 120px;
   min-height: 120px;
   border-width: 0;
+  background-image: url(static/images/machine.png);
   background-image-opacity: 1;
   background-opacity: 0; }
 
