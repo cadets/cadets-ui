@@ -127,7 +127,6 @@ node.machine-external {
   border-color: #555;
   background-image-opacity: 0.45; }
 
-
 node.socket-version {
   shape: rectangle;
   background-image: url(static/images/socket.png);
