@@ -76,6 +76,11 @@ node
   background-position-x: 0
   background-position-y: 0
 
+node.important
+  overlay-color: $important-color;
+  overlay-padding: 15;
+  overlay-opacity: 0.15;
+
 node:selected
   overlay-color: $primary-color
   overlay-padding: 10
@@ -118,11 +123,23 @@ node.machine
   background-color: $machine-color;
   background-image: url(static/images/machine.png)
   background-image-opacity: 0.75
-  background-fit: none
-  background-position-x: 20px
-  background-position-y: 20px
+  background-fit: contain
+  background-position: center
 
   text-background-opacity: 0
+
+node.machine-internal
+  background-image: url(static/images/cadets-machine.png);
+  background-image-opacity: 0.75;
+
+node.machine-external
+  font-size: 18pt;
+  text-margin-y: 0.25em;
+  padding: 1em;
+  min-width: 120px;
+  min-height: 120px;
+  border-color: #555;
+  background-image-opacity: 0.45;
 
 node.socket-version
   shape: rectangle
