@@ -102,27 +102,36 @@ node.machine {
   text-margin-y: 3em;
   shape: rectangle;
   padding: 1em;
-  min-width: 180px;
-  min-height: 180px;
+  width: 180px;
+  height: 180px;
   background-color: #eee;
-  background-image: url(static/images/cadets-machine.png);
-  background-image-opacity: 0.75;
+  background-image: url(static/images/cadets-machine.svg);
   background-fit: contain;
+  background-opacity: 0;
+  border-width: 0;
   color: white;
   text-background-opacity: 0;
   text-outline-color: #0A3A62;
   text-outline-width: 3; }
 
+node.machine:parent {
+  background-image-opacity: 0.25;
+  background-fit: none;
+  background-height: 128px;
+  background-width: 128px;
+  background-opacity: 1;
+  border-width: 2;
+  min-height: 128px;
+  min-width: 128px; }
+
 node.machine.external {
-  font-size: 18pt;
+  font-size: 24pt;
   text-margin-y: 0.25em;
   padding: 1em;
-  min-width: 120px;
-  min-height: 120px;
-  border-width: 0;
-  background-image: url(static/images/machine.png);
-  background-image-opacity: 1;
-  background-opacity: 0; }
+  width: 80px;
+  height: 80px;
+  background-image: url(static/images/machine.svg);
+  background-image-opacity: 1; }
 
 node.socket-version {
   shape: rectangle;
