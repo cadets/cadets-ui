@@ -137,19 +137,6 @@ function import_into_worksheet(id) {
   });
 }
 
-function import_all_from_inspector() {
-  let node = inspector.graph.inspectee;
-  if (node == null) {
-    return;
-  }
-
-  let promise = import_into_worksheet(node.data().id);
-
-  inspector.graph.nodes().forEach(function (node) {
-    promise.then(import_into_worksheet(node.data().id));
-  });
-}
-
 
 //
 // Add all nodes connected to a particular node to the worksheet.
