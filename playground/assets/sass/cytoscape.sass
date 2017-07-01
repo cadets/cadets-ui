@@ -60,7 +60,7 @@ node
   border-width: 2
 
   color: black
-  text-background-color: $machine-color
+  text-background-color: $machine-bg
   text-background-opacity: 0.75
   text-background-padding: .25em
   text-halign: center
@@ -108,11 +108,10 @@ node.file-version
   border-width: 0
 
 node.machine
-  font-size: 24pt
+  font-size: 32pt
 
-  text-halign: center
   text-valign: top
-  text-margin-y: 0.25em
+  text-margin-y: 3em
 
   shape: rectangle
   padding: 1em
@@ -120,23 +119,26 @@ node.machine
   min-width: 180px
   min-height: 180px
 
-  background-color: $machine-color;
+  background-color: $machine-bg;
   background-image: url(static/images/machine.png)
   background-image-opacity: 0.75
   background-fit: contain
 
+  color: white
   text-background-opacity: 0
-  text-valign: center
+  text-outline-color: $machine-color
+  text-outline-width: 3
 
 node.machine.external
-  font-size: 12pt
+  font-size: 18pt
   text-margin-y: 0.25em
-  shape: ellipse
   padding: 1em
   min-width: 120px
   min-height: 120px
-  border-color: #555
-  background-image-opacity: 0.45
+
+  border-width: 0
+  background-image-opacity: 1
+  background-opacity: 0
 
 node.socket-version
   shape: rectangle

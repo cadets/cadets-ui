@@ -97,10 +97,9 @@ node.file-version {
   border-width: 0; }
 
 node.machine {
-  font-size: 24pt;
-  text-halign: center;
+  font-size: 32pt;
   text-valign: top;
-  text-margin-y: 0.25em;
+  text-margin-y: 3em;
   shape: rectangle;
   padding: 1em;
   min-width: 180px;
@@ -109,18 +108,20 @@ node.machine {
   background-image: url(static/images/machine.png);
   background-image-opacity: 0.75;
   background-fit: contain;
+  color: white;
   text-background-opacity: 0;
-  text-valign: center; }
+  text-outline-color: #0A3A62;
+  text-outline-width: 3; }
 
 node.machine.external {
-  font-size: 12pt;
+  font-size: 18pt;
   text-margin-y: 0.25em;
-  shape: ellipse;
   padding: 1em;
   min-width: 120px;
   min-height: 120px;
-  border-color: #555;
-  background-image-opacity: 0.45; }
+  border-width: 0;
+  background-image-opacity: 1;
+  background-opacity: 0; }
 
 node.socket-version {
   shape: rectangle;
