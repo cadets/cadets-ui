@@ -120,6 +120,12 @@ def get_neighbours_id(dbid,
     neighbours = current_app.db.run("""MATCH (s)-[e]-(d)
                                        WHERE
                                            id(s)={id}
+                                           AND NOT
+                                           (
+                                               "Machine" in labels(s)
+                                               AND
+                                               "Machine" in labels(d)
+                                           )
                                            AND
                                            any(lab in labels(d) WHERE lab IN {labs})
                                        RETURN s, e, d""",
