@@ -12,11 +12,11 @@ let worksheet_context_items = {
     accesskey: "n",
     action: inspect,
   },
-  "add-connected": {
-    name: "Import connected nodes",
+  "add-neighbours": {
+    name: "Import neighbours",
     icon: "fa-plus",
     accesskey: "c",
-    action: import_connected_into_worksheet,
+    action: import_neighbours_into_worksheet,
   },
   "expand_forward": {
       name: "Import successors",
@@ -30,11 +30,11 @@ let worksheet_context_items = {
     accesskey: "r",
     action: remove_from_worksheet,
   },
-  "remove_connected": {
-    name: "Remove connected",
+  "remove_neighbours": {
+    name: "Remove neighbours",
     icon: "fa-times",
     accesskey: "v",
-    action: remove_connected_from_worksheet,
+    action: remove_neighbours_from_worksheet,
   },
   "mark": {
     name: "Toggle Highlighting",
@@ -139,9 +139,9 @@ function import_into_worksheet(id) {
 
 
 //
-// Add all nodes connected to a particular node to the worksheet.
+// Add a node and all of its neighbours to the worksheet.
 //
-function import_connected_into_worksheet(id) {
+function import_neighbours_into_worksheet(id) {
   // Get all of the node's neighbours:
   get_neighbours(id, function(result) {
     let promise = $.when(null);
@@ -203,11 +203,11 @@ function inspect(id) {
         accesskey: "m",
         action: import_into_worksheet,
       },
-      "add-connected": {
-        name: "Import connected nodes",
+      "add-neighbours": {
+        name: "Import neighbours",
         icon: "fa-plus",
         accesskey: "c",
-        action: import_connected_into_worksheet,
+        action: import_neighbours_into_worksheet,
       },
       "inspect": {
         name: "Inspect",
@@ -261,7 +261,7 @@ function remove_from_worksheet(id) {
   worksheet.remove(`node#${id}`);
 }
 
-function remove_connected_from_worksheet(id) {
+function remove_neighbours_from_worksheet(id) {
   let node = worksheet.$id(id);
 
   // First check to see if this is a compound node.
