@@ -51,6 +51,7 @@ function load(file, graphContainer) {
   reader.addEventListener('loadend', function() {
     let data = JSON.parse(reader.result);
     data.container = graphContainer.graph.container();
+    data.layout = { name: 'preset' };
     graphContainer.graph = cytoscape(data);
   });
 
