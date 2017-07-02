@@ -92,31 +92,33 @@ function get_successors(id, fn) {
 // How to import a node into the worksheet
 //
 function import_into_worksheet(id) {
+  let graph = worksheet.graph;
+
   // Have we already imported this node?
-  if (!worksheet.getElementById(id).empty()) {
+  if (!graph.getElementById(id).empty()) {
     return $.when(null);
   }
 
   let position = {
-    x: worksheet.width() / 2,
-    y: worksheet.height() / 2,
+    x: graph.width() / 2,
+    y: graph.height() / 2,
   };
 
   return $.getJSON(`detail/${id}`, function(result) {
     let promise = null;
 
-    if ('parent' in result && worksheet.nodes(`[id="${result.parent}"]`).empty()) {
+    if ('parent' in result && graph.nodes(`[id="${result.parent}"]`).empty()) {
       promise = import_into_worksheet(result.parent);
     } else {
       promise = $.when(null);
     }
 
     promise.then(function() {
-      add_node(result, worksheet, position);
+      add_node(result, graph, position);
     }).then(function() {
       get_neighbours(id, function(result) {
-        let elements = worksheet.elements();
-        let node = worksheet.nodes(`[id="${id}"]`);
+        let elements = graph.elements();
+        let node = graph.nodes(`[id="${id}"]`);
 
         for (let edge of result.edges) {
           let other = null;
@@ -127,12 +129,12 @@ function import_into_worksheet(id) {
           }
 
           if (!other.empty()) {
-            add_edge(edge, worksheet);
+            add_edge(edge, graph);
           }
         }
       });
     }).then(function(){
-      attach_context_menu(worksheet, '#worksheet', worksheet_context_items);
+      attach_context_menu(graph, '#worksheet', worksheet_context_items);
     });
   });
 }
@@ -224,30 +226,32 @@ function inspect(id) {
 // Define what it means to show "successors" to a node.
 //
 function successors(id) {
+  let graph = worksheet.graph;
+
   // Display the node's details in the inspector "Details" panel.
   get_successors(id, function(result) {
 
     let position = {
-      x: worksheet.width() / 2,
-      y: worksheet.height() / 2,
+      x: graph.width() / 2,
+      y: graph.height() / 2,
     };
 
     for (let n of result.nodes) {
-      add_node(n, worksheet, position);
+      add_node(n, graph, position);
     }
 
-    let elements = worksheet.elements();
+    let elements = graph.elements();
     for (let e of result.edges) {
-      add_edge(e, worksheet);
+      add_edge(e, graph);
     }
 
-    attach_context_menu(worksheet, '#worksheet', worksheet_context_items);
+    attach_context_menu(graph, '#worksheet', worksheet_context_items);
   });
 };
 
 
 function toggle_node_importance(id) {
-  nodes = worksheet.nodes(`node#${id}`);
+  nodes = worksheet.graph.nodes(`node#${id}`);
   nodes.forEach( function(ele){
       if (ele.hasClass('important')) {
         ele.removeClass('important');
@@ -258,16 +262,16 @@ function toggle_node_importance(id) {
 }
 
 function remove_from_worksheet(id) {
-  worksheet.remove(`node#${id}`);
+  worksheet.graph.remove(`node#${id}`);
 }
 
 function remove_neighbours_from_worksheet(id) {
-  let node = worksheet.$id(id);
+  let node = worksheet.graph.$id(id);
 
   // First check to see if this is a compound node.
   let children = node.children();
   if (!children.empty()) {
-    children.forEach(function (node) { worksheet.remove(node); });
+    children.forEach(function (node) { worksheet.graph.remove(node); });
     node.remove();
     return;
   }
