@@ -105,7 +105,7 @@ function import_into_worksheet(id) {
   return $.getJSON(`detail/${id}`, function(result) {
     let promise = null;
 
-    if ('parent' in result && worksheet.nodes(`#${result.parent}`).empty()) {
+    if ('parent' in result && worksheet.nodes(`[id="${result.parent}"]`).empty()) {
       promise = import_into_worksheet(result.parent);
     } else {
       promise = $.when(null);

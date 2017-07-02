@@ -90,8 +90,16 @@ node.process {
   border-color: #333;
   font-family: Inconsolata, Source Code Pro, Consolas, monospace; }
 
+node.file {
+  background-color: #dc9;
+  background-opacity: 0.25;
+  border-color: #633;
+  color: #633; }
+
 node.file-version {
   shape: rectangle;
+  content: '';
+  text-opacity: 0;
   background-image: url(static/images/file-version.png);
   background-opacity: 0;
   border-width: 0; }

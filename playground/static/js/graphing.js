@@ -3,8 +3,29 @@
 //
 function add_node(data, graph, renderedPosition = null) {
   // Have we already imported this node?
-  if (!graph.nodes(`#${data.id}`).empty()) {
+  if (!graph.nodes(`[id="${data.id}"]`).empty()) {
     return;
+  }
+
+  // When importing file versions, draw a compound node with the filenames
+  // to show the abstraction and to simplify the versions.
+  if (data.type == 'file-version' && data.uuid) {
+    let file = graph.nodes(`[id="${data.uuid}"]`);
+
+    if (file.empty()) {
+      add_node({
+        id: data.uuid,
+        type: 'file',
+        names: new Set(data.names),
+        'parent': data['parent'],
+      }, graph, renderedPosition);
+    } else {
+      let existing = file.data();
+      existing.names = new Set([...existing.names, ...data.names]);
+      existing.label = Array.from(existing.names).join(' ');
+    }
+
+    data['parent'] = data.uuid;
   }
 
   let node = {
@@ -122,6 +143,13 @@ function node_metadata(node) {
       metadata = {
         icon: 'terminal',
         label: node.cmdline,
+      };
+      break;
+
+    case 'file':
+      metadata = {
+        icon: 'file-o',
+        label: Array.from(node.names).join(' '),
       };
       break;
 
