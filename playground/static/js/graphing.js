@@ -189,3 +189,20 @@ function node_metadata(node) {
 
   return metadata;
 }
+
+//
+// Save the current graph in a JSON format.
+//
+function save(graph) {
+  let blob = new Blob([ JSON.stringify(graph.json()) ], { type: 'text/json' });
+
+  let a = document.createElement('a');
+
+  a.download = 'worksheet.json';
+  a.href= window.URL.createObjectURL(blob);
+  a.style.display = 'none';
+
+  document.body.appendChild(a);
+
+  a.click();
+}

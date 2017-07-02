@@ -27,6 +27,11 @@ nav.navbar {
 .graph {
   padding: 0;
   width: 100%; }
+  .graph .buttons {
+    position: absolute;
+    bottom: .5em;
+    right: .5em;
+    z-index: 99; }
 
 .navbar-brand {
   font-size: 24pt; }
