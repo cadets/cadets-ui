@@ -44,6 +44,20 @@ function add_node(data, graph, renderedPosition = null) {
 }
 
 //
+// Load a Cytograph JSON representation into an object with a 'graph' property.
+//
+function load(file, graphContainer) {
+  let reader = new FileReader();
+  reader.addEventListener('loadend', function() {
+    let data = JSON.parse(reader.result);
+    data.container = graphContainer.graph.container();
+    graphContainer.graph = cytoscape(data);
+  });
+
+  reader.readAsText(file);
+}
+
+//
 // Load a Cytograph CSS file and apply it to a graph.
 //
 // Unfortunately this is hard to do statically.

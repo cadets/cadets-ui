@@ -71,6 +71,10 @@
     <div class="graph well" id="worksheet">
       <div class="buttons">
         <a class="btn btn-raised btn-default"
+           onclick="$('#filename').click()">Load</a>
+        <input type="file" class="hidden" id="filename"
+               onchange="load(this.files[0], worksheet)"/>
+        <a class="btn btn-raised btn-default"
            onclick="save(worksheet.graph)">Save</a>
       </div>
     </div>
