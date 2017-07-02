@@ -262,8 +262,19 @@ function remove_from_worksheet(id) {
 }
 
 function remove_connected_from_worksheet(id) {
-  worksheet.nodes(`#${id}`).connectedEdges().connectedNodes().filter(function( ele ){
-        return !ele.hasClass('important');
+  let node = worksheet.$id(id);
+
+  // First check to see if this is a compound node.
+  let children = node.children();
+  if (!children.empty()) {
+    children.forEach(function (node) { worksheet.remove(node); });
+    node.remove();
+    return;
+  }
+
+  // Otherwise, remove edge-connected neighbours that aren't highlighted.
+  node.connectedEdges().connectedNodes().filter(function(ele) {
+    return !ele.hasClass('important');
   }).remove();
 }
 
