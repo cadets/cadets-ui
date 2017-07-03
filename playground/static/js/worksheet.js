@@ -160,6 +160,7 @@ function import_neighbours_into_worksheet(id) {
 //
 function inspect(id) {
   // Display the node's details in the inspector "Details" panel.
+  var inspectee;
   $.getJSON(`detail/${id}`, function(result) {
     inspector.detail.empty();
     for (let property in result) {
@@ -170,11 +171,14 @@ function inspect(id) {
         </tr>
       `)
     }
+    inspectee = result
   });
 
   // Display the node's immediate connections in the inspector "Graph" panel.
   get_neighbours(id, function(result) {
     inspector.graph.remove('node');
+
+    add_node(inspectee, inspector.graph);
 
     for (let n of result.nodes) {
       add_node(n, inspector.graph);
