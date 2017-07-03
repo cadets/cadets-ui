@@ -18,13 +18,14 @@
 cogui: CADETS/OPUS graphical user interface
 
 Usage:
-    cogui serve [--port=PORT] [options]
+    cogui serve [--port=PORT] [--host=HOST] [options]
 
 Commands:
     serve         Expose data through a local Web server
 
 Options:
     -p,--port=PORT            TCP port to serve content on [default: 5000]
+    -h,--host=HOST            Host IP of web server [default: 127.0.0.1]
 
     --db-url=URL              Neo4j URL [default: bolt://localhost]
     --db-username=USERNAME    Neo4j username [default: neo4j]
@@ -33,6 +34,7 @@ Options:
 
 import docopt
 import neo4j.v1
+import socket
 import sys
 
 arguments = docopt.docopt(__doc__)
@@ -44,6 +46,13 @@ if arguments['serve']:
         sys.stderr.write("Invalid port number: '%s'\n" % arguments['--port'])
         sys.exit(1)
 
+    try:
+        socket.inet_aton(arguments['--host'])
+        host = arguments['--host']
+    except ValueError:
+        sys.stderr.write("Invalid host: '%s'\n" % arguments['--host'])
+        sys.exit(1)
+
     db_driver = neo4j.v1.GraphDatabase.driver(
         arguments['--db-url'],
         auth = neo4j.v1.basic_auth(arguments['--db-username'],
@@ -51,4 +60,4 @@ if arguments['serve']:
     )
 
     app = webapp.create_app(db_driver)
-    app.run(port = port, debug = True)
+    app.run(host = host, port = port, debug = True)
