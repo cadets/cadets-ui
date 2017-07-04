@@ -34,7 +34,6 @@ Options:
 
 import docopt
 import neo4j.v1
-import socket
 import sys
 
 arguments = docopt.docopt(__doc__)
@@ -47,7 +46,6 @@ if arguments['serve']:
         sys.exit(1)
 
     try:
-        socket.inet_aton(arguments['--host'])
         host = arguments['--host']
     except ValueError:
         sys.stderr.write("Invalid host: '%s'\n" % arguments['--host'])
