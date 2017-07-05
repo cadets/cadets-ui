@@ -68,7 +68,7 @@
   </div>
 
   <div id="content">
-    <div class="graph well" id="worksheet">
+    <div class="well" id="worksheet-container">
       <div class="buttons">
         <a class="btn btn-raised btn-default"
            onclick="$('#filename').click()">Load</a>
@@ -77,6 +77,7 @@
         <a class="btn btn-raised btn-default"
            onclick="save(worksheet.graph)">Save</a>
       </div>
+      <div class="graph" id="worksheet"></div>
     </div>
   </div>
 
@@ -194,10 +195,10 @@ $(document).ready(function() {
     // The height of the #content area (in ems) should be the height of the
     // window minus that of the navbar, minus some margin and padding.
     let fontSize = parseFloat($("html").css("font-size"));
-    let height = ($(this).height() - $("nav.navbar").height()) / fontSize - 8;
+    let height = ($(this).height() - $("nav.navbar").height()) / fontSize - 3;
     let width = $(this).width() / fontSize - 64;
 
-    $("#worksheet").height(fontSize * height);
+    $("#worksheet-container").height(fontSize * height);
     $("#inspector").height(fontSize * height);
     $("#inspector-graph").height(fontSize * (height - 4));
     $("#content").width(fontSize * width);

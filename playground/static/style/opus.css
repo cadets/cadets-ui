@@ -2,7 +2,7 @@ html {
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif; }
 
 body > .container {
-  padding-top: 92px; }
+  padding-top: 82px; }
 
 #logo {
   position: fixed;
@@ -24,14 +24,18 @@ nav.navbar {
   width: 100%;
   z-index: 99; }
 
-.graph {
+#worksheet-container {
   padding: 0;
   width: 100%; }
-  .graph .buttons {
+  #worksheet-container .buttons {
     position: absolute;
-    bottom: .5em;
-    right: .5em;
+    bottom: 2.5em;
+    right: 1.5em;
     z-index: 99; }
+  #worksheet-container .graph {
+    padding: 0;
+    height: 100%;
+    width: 100%; }
 
 .navbar-brand {
   font-size: 24pt; }
@@ -40,7 +44,7 @@ nav.navbar {
   height: 100%;
   width: 20em;
   padding: 1em;
-  padding-top: 60px;
+  padding-top: 50px;
   position: absolute;
   top: 1em;
   left: 0; }
@@ -60,14 +64,15 @@ nav.navbar {
 #content {
   position: fixed;
   left: 19em;
-  top: 60px;
+  top: 50px;
   padding: 1em; }
 
 #inspector {
   position: absolute;
-  top: 60px;
+  top: 50px;
   right: 0;
-  padding: 0;
+  margin: 0;
+  padding: 1em;
   width: 25em;
   height: 100%; }
   #inspector .graph-panel {
