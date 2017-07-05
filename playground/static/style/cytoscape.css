@@ -138,7 +138,7 @@ node.machine.external {
   padding: 1em;
   width: 80px;
   height: 80px;
-  background-image: url(static/images/machine.svg);
+  background-image: url(static/images/machine-external.svg);
   background-image-opacity: 1; }
 
 node.socket-version {
