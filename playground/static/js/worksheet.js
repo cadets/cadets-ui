@@ -323,6 +323,7 @@ function update_nodelist() {
       nodelist.append(`
         <tr>
           <td><a onclick="inspect(${node.id})" style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
+          <td>${meta.timestamp}</td>
           <td><a onclick="inspect(${node.id})">${meta.label}</a></td>
         </tr>`);
     }

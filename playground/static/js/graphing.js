@@ -137,6 +137,7 @@ function attach_context_menu(graph, selector, items) {
 //
 function node_metadata(node) {
   let metadata = null;
+  let timestamp = null;
 
   switch (node.type) {
     case 'connection':
@@ -152,6 +153,7 @@ function node_metadata(node) {
         icon: 'desktop',
         label: node.names.join(' / '),
       };
+      timestamp = node.first_seen;
       if (metadata.label == '') {
           metadata.label = node.ips.join(' / ');
       }
@@ -162,6 +164,7 @@ function node_metadata(node) {
         icon: 'terminal',
         label: node.cmdline,
       };
+      timestamp = node.last_update;
       break;
 
     case 'file':
@@ -183,6 +186,7 @@ function node_metadata(node) {
         icon: 'terminal',
         label: 'metadata change',
       };
+      timestamp = node.meta_ts;
       break;
 
     case 'socket-version':
@@ -190,6 +194,7 @@ function node_metadata(node) {
         icon: 'plug',
         label: node.names.join(' / '),
       };
+      timestamp = node.timestamp;
       break;
 
   default:
@@ -199,6 +204,13 @@ function node_metadata(node) {
       icon: 'question',
       label: 'unknown',
     };
+  }
+
+  if (timestamp) {
+    metadata.timestamp =
+      moment.unix(timestamp / 1000000).format('HH:mm[h] D MMM');
+  } else {
+    metadata.timestamp = '';
   }
 
   if (metadata.label == '') {
