@@ -52,7 +52,7 @@ class OPUSJSONEncoder(flask.json.JSONEncoder):
                 data.update(o.properties)
             elif 'Conn' in o.labels:
                 data.update(o.properties)
-                data['ctype'] = data['type']
+                data['ctype'] = data['type'] if 'type' in data else 'TCP'
                 if data['ctype'] == 'TCP':
                     data['endpoints'] = [data['client_ip'] + ":" + data['client_port'],
                                          data['server_ip'] + ":" + data['server_port']]
