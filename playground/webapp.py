@@ -105,7 +105,7 @@ def get_neighbours_id(dbid,
                       sockets=True,
                       process_meta=True):
 
-    matchers = {'Machine', 'Process'}
+    matchers = {'Machine', 'Process', 'Conn'}
     if files != 'false':
         if sockets != 'false':
             matchers.add('Global')
@@ -171,7 +171,7 @@ def get_neighbours_uuid(uuid,
                         files=True,
                         sockets=True,
                         process_meta=True):
-    matchers = {'Machine', 'Process'}
+    matchers = {'Machine', 'Process', 'Conn'}
     if files != 'false':
         if sockets != 'false':
             matchers.add('Global')
