@@ -177,7 +177,7 @@ $('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 // When the inspector filters change, re-inspect the current node.
 $('input[id *= "inspect"]').on('change', function() {
   const node = inspector.graph.inspectee;
-  if (!node.empty()) {
+  if (node && !node.empty()) {
     inspect(node.id());
   }
 });
