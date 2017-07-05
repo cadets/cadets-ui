@@ -23,10 +23,12 @@ class OPUSJSONEncoder(flask.json.JSONEncoder):
             data = {'id': o.id}
             if 'Socket' in o.labels:
                 data.update({'type': "socket-version",
-                             'names': o['name']})
+                             'names': o['name'],
+                             'creation': o['timestamp']})
                 data.update(o.properties)
             elif 'Pipe' in o.labels:
-                data.update({'type': "pipe-endpoint"})
+                data.update({'type': "pipe-endpoint",
+                             'creation': o['timestamp']})
                 data.update(o.properties)
             elif 'Process' in o.labels:
                 data.update({'type': "process",
@@ -64,6 +66,7 @@ class OPUSJSONEncoder(flask.json.JSONEncoder):
                              'uuid': o['uuid'],
                              'host': o['host'],
                              'names': o['name'],
+                             'creation': o['timestamp'],
                              'saw_creation': not o['anomalous']})
 
             if 'host' in o and o['host'] in self.machines:
