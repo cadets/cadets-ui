@@ -194,6 +194,14 @@ $(document).ready(function() {
     let height = ($(this).height() - $("nav.navbar").height()) / fontSize - 3;
     let width = $(this).width() / fontSize - 73;
 
+    $("html").keypress(function(ev) {
+      if (ev.key == 'c') {
+        layout(worksheet.graph, 'cose-bilkent');
+      } else if (ev.key == 'd') {
+        layout(worksheet.graph, 'dagre');
+      }
+    });
+
     $("#worksheet-container").height(fontSize * height);
     $("#inspector").height(fontSize * height);
     $("#inspector-graph").height(fontSize * (height - 12));
