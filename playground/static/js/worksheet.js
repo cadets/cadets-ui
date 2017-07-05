@@ -201,7 +201,7 @@ function inspect(id) {
 
     layout(inspector.graph, 'dagre');
     inspector.graph.zoom({
-      level: 1.0,
+      level: 0.75,
       position: inspector.graph.inspectee.position(),
     });
 
