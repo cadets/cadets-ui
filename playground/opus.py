@@ -2,6 +2,7 @@ import flask
 import neo4j.v1
 
 node_labels = {
+    'pipe-endpoint': 'Pipe',
     'socket-version': 'Socket',
     'process': 'Process',
     'machine': 'Machine',
@@ -23,6 +24,9 @@ class OPUSJSONEncoder(flask.json.JSONEncoder):
             if 'Socket' in o.labels:
                 data.update({'type': "socket-version",
                              'names': o['name']})
+                data.update(o.properties)
+            elif 'Pipe' in o.labels:
+                data.update({'type': "pipe-endpoint"})
                 data.update(o.properties)
             elif 'Process' in o.labels:
                 data.update({'type': "process",
@@ -47,8 +51,14 @@ class OPUSJSONEncoder(flask.json.JSONEncoder):
                 data.update({'type': "process-meta"})
                 data.update(o.properties)
             elif 'Conn' in o.labels:
-                data.update({'type': "connection"})
                 data.update(o.properties)
+                data['ctype'] = data['type']
+                if data['ctype'] == 'TCP':
+                    data['endpoints'] = [data['client_ip'] + ":" + data['client_port'],
+                                         data['server_ip'] + ":" + data['server_port']]
+                elif data['ctype'] == 'Pipe':
+                    data['endpoints'] = ['rdpipe', 'wrpipe']
+                data.update({'type': "connection"})
             else:
                 data.update({'type': "file-version",
                              'uuid': o['uuid'],
