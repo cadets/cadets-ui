@@ -137,16 +137,20 @@ def get_neighbours_id(dbid,
                                       WHERE
                                           mch.external
                                           AND
-                                          (
-                                              id(skt)={srcid}
-                                              OR
-                                              id(mch)={srcid}
-                                          )
+                                          id(skt)={srcid}
+                                          AND
+                                          split(skt.name[0], ":")[0] in mch.ips
+                                      RETURN skt, mch
+                                      UNION
+                                      MATCH (skt:Socket), (mch:Machine)
+                                      WHERE
+                                          mch.external
+                                          AND
+                                          id(mch)={srcid}
                                           AND
                                           split(skt.name[0], ":")[0] in mch.ips
                                       RETURN skt, mch""",
                                    {'srcid': dbid}).data()
-
         m_links = [{'id': row['skt'].id + row['mch'].id,
                     'source': row['skt'].id,
                     'target': row['mch'].id,
