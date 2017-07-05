@@ -7,14 +7,6 @@
   {{ super() }}
 
   <div id="sidebar">
-    <label for="layout-buttons" class="control-label">Layout:</label>
-    <div id="layout-buttons" class="btn-group">
-      <a class="btn btn-raised btn-default"
-         onclick="layout(worksheet.graph, 'dagre')">dagre</a>
-      <a class="btn btn-raised btn-default"
-         onclick="layout(worksheet.graph, 'cose-bilkent')">CoSE</a>
-    </div>
-
     <div class="panel panel-info">
       <div class="panel-heading">
         Available nodes:
@@ -71,11 +63,15 @@
     <div class="well" id="worksheet-container">
       <div class="buttons">
         <a class="btn btn-raised btn-default"
-           onclick="$('#filename').click()">Load</a>
+            onclick="$('#filename').click()"><i class="fa fa-folder-open-o"></i></a>
         <input type="file" class="hidden" id="filename"
                onchange="load(this.files[0], worksheet)"/>
         <a class="btn btn-raised btn-default"
-           onclick="save(worksheet.graph)">Save</a>
+            onclick="save(worksheet.graph)"><i class="fa fa-floppy-o"></i></a>
+        <a class="btn btn-raised btn-default"
+           onclick="layout(worksheet.graph, 'dagre')">dagre</a>
+        <a class="btn btn-raised btn-default"
+           onclick="layout(worksheet.graph, 'cose-bilkent')">CoSE</a>
       </div>
       <div class="graph" id="worksheet"></div>
     </div>
