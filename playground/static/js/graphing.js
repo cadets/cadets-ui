@@ -195,7 +195,7 @@ function node_metadata(node) {
         icon: 'plug',
         label: node.names.join(' / '),
       };
-      timestamp = node.timestamp;
+      timestamp = node.creation;
       break;
 
   default:
