@@ -179,6 +179,7 @@ function node_metadata(node) {
         icon: 'file-o',
         label: node.names.join(' / '),
       };
+      timestamp = node.creation;
       break;
 
     case 'process-meta':
