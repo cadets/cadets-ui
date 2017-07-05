@@ -80,7 +80,8 @@ function get_successors(id, fn) {
   const query =
     `files=${$('#inspectFiles').is(':checked')}` +
     `&sockets=${$('#inspectSockets').is(':checked')}` +
-    `&process_meta=${$('#inspectProcessMeta').is(':checked')}`
+    `&process_meta=${$('#inspectProcessMeta').is(':checked')}` +
+    `&max_depth=100`
     ;
 
   return $.getJSON(`successors/${id}?${query}`, fn);
