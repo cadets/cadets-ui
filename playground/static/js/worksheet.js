@@ -140,6 +140,10 @@ function import_into_worksheet(id) {
   });
 }
 
+function inspect_and_import(id) {
+    import_into_worksheet(id);
+    inspect(id);
+}
 
 //
 // Add a node and all of its neighbours to the worksheet.
@@ -221,6 +225,12 @@ function inspect(id) {
         icon: "fa-search",
         accesskey: "n",
         action: inspect,
+      },
+      "import-and-inspect": {
+        name: "Import and Inspect",
+        icon: "fa-search-plus",
+        accesskey: "a",
+        action: inspect_and_import,
       }
     });
   });
