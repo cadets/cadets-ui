@@ -78,7 +78,7 @@ nav.navbar {
   width: 25em;
   height: 100%; }
   #inspector .graph-panel {
-    height: 100%; }
+    height: 80%; }
     #inspector .graph-panel .graph.panel-body {
       position: relative;
       top: -1.85em; }
