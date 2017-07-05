@@ -152,6 +152,9 @@ function node_metadata(node) {
         icon: 'desktop',
         label: node.names.join(' / '),
       };
+      if (metadata.label == '') {
+          metadata.label = node.ips.join(' / ');
+      }
       break;
 
     case 'process':
