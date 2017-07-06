@@ -9,13 +9,13 @@ let worksheet_context_items = {
   "inspect": {
     name: "Inspect",
     icon: "fa-search",
-    accesskey: "n",
+    accesskey: "s",
     action: inspect,
   },
   "add-neighbours": {
     name: "Import neighbours",
     icon: "fa-plus",
-    accesskey: "c",
+    accesskey: "n",
     action: import_neighbours_into_worksheet,
   },
   "expand_forward": {
@@ -37,7 +37,7 @@ let worksheet_context_items = {
     action: remove_neighbours_from_worksheet,
   },
   "mark": {
-    name: "Toggle Highlighting",
+    name: "Highlight",
     icon: "fa-thumb-tack",
     accesskey: "h",
     action: toggle_node_importance,
@@ -229,13 +229,13 @@ function inspect(id, err = console.log) {
         "add-neighbours": {
           name: "Import neighbours",
           icon: "fa-plus",
-          accesskey: "c",
+          accesskey: "n",
           action: import_neighbours_into_worksheet,
         },
         "inspect": {
           name: "Inspect",
           icon: "fa-search",
-          accesskey: "n",
+          accesskey: "s",
           action: inspect,
         },
         "import-and-inspect": {
