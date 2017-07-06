@@ -359,24 +359,48 @@ def get_nodes(node_type=None,
                                               n.client_ip=~{local_ip}
                                               OR
                                               n.server_ip=~{local_ip}
+                                              OR
+                                              (
+                                                  n.type = 'Pipe'
+                                                  AND
+                                                  {local_ip} = '.*?'
+                                              )
                                           )
                                           AND
                                           (
                                               n.client_port=~{local_port}
                                               OR
                                               n.server_port=~{local_port}
+                                              OR
+                                              (
+                                                  n.type = 'Pipe'
+                                                  AND
+                                                  {local_port} = '.*?'
+                                              )
                                           )
                                           AND
                                           (
                                               n.server_ip=~{remote_ip}
                                               OR
                                               n.client_ip=~{remote_ip}
+                                              OR
+                                              (
+                                                  n.type = 'Pipe'
+                                                  AND
+                                                  {remote_ip} = '.*?'
+                                              )
                                           )
                                           AND
                                           (
                                               n.server_port=~{remote_port}
                                               OR
                                               n.client_port=~{remote_port}
+                                              OR
+                                              (
+                                                  n.type = 'Pipe'
+                                                  AND
+                                                  {remote_port} = '.*?'
+                                              )
                                           )
                                       )
                                       OR
