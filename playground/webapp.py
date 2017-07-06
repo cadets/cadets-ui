@@ -103,17 +103,17 @@ def get_machines():
 def get_neighbours_id(dbid,
                       files=True,
                       sockets=True,
+                      pipes=True,
                       process_meta=True):
-
     matchers = {'Machine', 'Process', 'Conn'}
     if files != 'false':
-        if sockets != 'false':
-            matchers.add('Global')
-        else:
-            matchers.add('File')
-    else:
-        if sockets != 'false':
-            matchers.add('Socket')
+        matchers.add('File')
+    if sockets != 'false':
+        matchers.add('Socket')
+    if pipes != 'false':
+        matchers.add('Pipe')
+    if files != 'false' and sockets != 'false' and pipes != 'false':
+        matchers.add('Global')
     if process_meta != 'false':
         matchers.add('Meta')
 
@@ -170,16 +170,17 @@ def get_neighbours_id(dbid,
 def get_neighbours_uuid(uuid,
                         files=True,
                         sockets=True,
+                        pipes=True,
                         process_meta=True):
     matchers = {'Machine', 'Process', 'Conn'}
     if files != 'false':
-        if sockets != 'false':
-            matchers.add('Global')
-        else:
-            matchers.add('File')
-    else:
-        if sockets != 'false':
-            matchers.add('Socket')
+        matchers.add('File')
+    if sockets != 'false':
+        matchers.add('Socket')
+    if pipes != 'false':
+        matchers.add('Pipe')
+    if files != 'false' and sockets != 'false' and pipes != 'false':
+        matchers.add('Global')
     if process_meta != 'false':
         matchers.add('Meta')
 
@@ -204,18 +205,22 @@ def successors_query(dbid,
                      max_depth='4',
                      files=True,
                      sockets=True,
+                     pipes=True,
                      process_meta=True):
     max_depth = int(max_depth)
+    matchers = set()
     if files != 'false':
-        if sockets != 'false':
-            glab = 'Global'
-        else:
-            glab = 'File'
-    else:
-        if sockets != 'false':
-            glab = 'Socket'
-        else:
-            glab = None
+        matchers.add('File')
+    if sockets != 'false':
+        matchers.add('Socket')
+    if pipes != 'false':
+        matchers.add('Pipe')
+    if files != 'false' and sockets != 'false' and pipes != 'false':
+        matchers.add('Global')
+    matchers = list(matchers)
+    if files == 'false' and sockets == 'false' and pipes == 'false':
+        matchers = None
+    print(matchers)
     source = current_app.db.run("""MATCH (n)
                                    WHERE id(n)={dbid}
                                    RETURN n""",
@@ -242,16 +247,16 @@ def successors_query(dbid,
                                                WHERE
                                                    id(cur)={curid}
                                                    AND
-                                                   NOT {glab} is Null
+                                                   NOT {glabs} is Null
                                                    AND
-                                                   {glab} IN labels(n)
+                                                   any(lab in labels(n) WHERE lab IN {glabs})
                                                RETURN n, e
                                                UNION
                                                MATCH (cur:Global)-[e]-(n:Conn)
                                                WHERE id(cur)={curid}
                                                RETURN n, e""",
                                             {'curid': cur.id,
-                                             'glab': glab}).data()
+                                             'glabs': matchers}).data()
         elif 'Process' in cur.labels:
             neighbours = current_app.db.run("""MATCH (cur:Process)<-[e]-(n:Global)
                                                WHERE
@@ -259,27 +264,27 @@ def successors_query(dbid,
                                                    AND
                                                    e.state in ['WRITE', 'RaW', 'CLIENT', 'SERVER']
                                                    AND
-                                                   NOT {glab} is Null
+                                                   NOT {glabs} is Null
                                                    AND
-                                                   {glab} IN labels(n)
+                                                   any(lab in labels(n) WHERE lab IN {glabs})
                                                RETURN n, e
                                                UNION
                                                MATCH (cur:Process)<-[e]-(n:Process)
                                                WHERE id(cur)={curid}
                                                RETURN n, e""",
                                             {'curid': cur.id,
-                                             'glab': glab}).data()
+                                             'glabs': matchers}).data()
         elif 'Conn' in cur.labels:
             neighbours = current_app.db.run("""MATCH (cur:Conn)-[e]-(n:Global)
                                                WHERE
                                                    id(cur)={curid}
                                                    AND
-                                                   NOT {glab} is Null
+                                                   NOT {glabs} is Null
                                                    AND
-                                                   {glab} IN labels(n)
+                                                   any(lab in labels(n) WHERE lab IN {glabs})
                                                RETURN n, e""",
                                             {'curid': cur.id,
-                                             'glab': glab}).data()
+                                             'glabs': matchers}).data()
         if neighbours is None:
             continue
         for row in neighbours:
