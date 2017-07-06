@@ -152,6 +152,7 @@ function node_metadata(node) {
         icon: 'connectdevelop',
         label: node.endpoints.join(' '),
       };
+      timestamp = node.timestamp;
       break;
 
     case 'machine':
