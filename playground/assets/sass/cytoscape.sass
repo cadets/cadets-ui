@@ -174,24 +174,23 @@ node.machine.external
   background-image-opacity: 1
 
 node.pipe
+  content: data(label)
+
   background-color: $pipe-color
   background-opacity: 0.25
   border-color: $pipe-color
   color: $pipe-color
 
 node.pipe-endpoint
-  content: data(hash)
+  content: ''
+  font-size: 0
+  text-opacity: 0
 
   shape: rectangle
   background-image: url(static/images/pipe.png)
   background-color: white
   background-opacity: 0
   border-width: 0
-
-  color: white
-  text-background-opacity: 0
-  text-outline-color: $connection-color
-  text-outline-width: 3
 
 node.socket-version
   shape: rectangle

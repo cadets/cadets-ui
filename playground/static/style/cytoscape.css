@@ -154,22 +154,21 @@ node.machine.external {
   background-image-opacity: 1; }
 
 node.pipe {
+  content: data(label);
   background-color: #076928;
   background-opacity: 0.25;
   border-color: #076928;
   color: #076928; }
 
 node.pipe-endpoint {
-  content: data(hash);
+  content: '';
+  font-size: 0;
+  text-opacity: 0;
   shape: rectangle;
   background-image: url(static/images/pipe.png);
   background-color: white;
   background-opacity: 0;
-  border-width: 0;
-  color: white;
-  text-background-opacity: 0;
-  text-outline-color: black;
-  text-outline-width: 3; }
+  border-width: 0; }
 
 node.socket-version {
   shape: rectangle;

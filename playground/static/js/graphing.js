@@ -19,10 +19,16 @@ function add_node(data, graph, renderedPosition = null) {
       names = new Set().add(data.hash);
     }
 
+    // Add file descriptors if we have them.
+    if (data.fds) {
+      data.fds.forEach(function(fd) { names.add('FD ' + fd); });
+    }
+
     if (compound.empty()) {
       add_node({
         id: data.uuid,
         type: type,
+        label: Array.from(names).join(', '),
         names: names,
         'parent': data['parent'],
       }, graph, renderedPosition);
@@ -164,6 +170,13 @@ function node_metadata(node) {
       if (metadata.label == '') {
           metadata.label = node.ips.join(' / ');
       }
+      break;
+
+    case 'pipe':
+      metadata = {
+        icon: 'circle',
+        label: Array.from(node.names).join(', '),
+      };
       break;
 
     case 'pipe-endpoint':
