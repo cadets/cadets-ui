@@ -177,63 +177,63 @@ function inspect(id, err = console.log) {
       `)
     }
     inspectee = result
-  }).fail(err);
+  }).fail(err).then(function() {
+    // Display the node's immediate connections in the inspector "Graph" panel.
+    get_neighbours(id, function(result) {
+      inspector.graph.remove('node');
 
-  // Display the node's immediate connections in the inspector "Graph" panel.
-  get_neighbours(id, function(result) {
-    inspector.graph.remove('node');
+      add_node(inspectee, inspector.graph);
 
-    add_node(inspectee, inspector.graph);
-
-    for (let n of result.nodes) {
-      add_node(n, inspector.graph);
-    }
-
-    for (let e of result.edges) {
-      add_edge(e, inspector.graph);
-    }
-
-    let n = inspector.graph.elements().nodes(`[id="${id}"]`);
-    if (n.empty()) {
-      n = inspector.graph.elements().nodes(`[uuid="${id}"]`);
-    }
-    inspector.graph.inspectee = n;
-
-    layout(inspector.graph, 'dagre');
-    inspector.graph.zoom({
-      level: 1,
-      position: inspector.graph.inspectee.position(),
-    });
-
-    // Create a context menu for the inspector graph that allows nodes to be
-    // imported into the worksheet or inspected themselves.
-    attach_context_menu(inspector.graph, '#inspector-graph', {
-      "import": {
-        name: "Import node",
-        icon: "fa-upload",
-        accesskey: "m",
-        action: import_into_worksheet,
-      },
-      "add-neighbours": {
-        name: "Import neighbours",
-        icon: "fa-plus",
-        accesskey: "c",
-        action: import_neighbours_into_worksheet,
-      },
-      "inspect": {
-        name: "Inspect",
-        icon: "fa-search",
-        accesskey: "n",
-        action: inspect,
-      },
-      "import-and-inspect": {
-        name: "Import and Inspect",
-        icon: "fa-search-plus",
-        accesskey: "a",
-        action: inspect_and_import,
+      for (let n of result.nodes) {
+        add_node(n, inspector.graph);
       }
-    });
-  }).fail(err);
+
+      for (let e of result.edges) {
+        add_edge(e, inspector.graph);
+      }
+
+      let n = inspector.graph.elements().nodes(`[id="${id}"]`);
+      if (n.empty()) {
+        n = inspector.graph.elements().nodes(`[uuid="${id}"]`);
+      }
+      inspector.graph.inspectee = n;
+
+      layout(inspector.graph, 'dagre');
+      inspector.graph.zoom({
+        level: 1,
+        position: inspector.graph.inspectee.position(),
+      });
+
+      // Create a context menu for the inspector graph that allows nodes to be
+      // imported into the worksheet or inspected themselves.
+      attach_context_menu(inspector.graph, '#inspector-graph', {
+        "import": {
+          name: "Import node",
+          icon: "fa-upload",
+          accesskey: "m",
+          action: import_into_worksheet,
+        },
+        "add-neighbours": {
+          name: "Import neighbours",
+          icon: "fa-plus",
+          accesskey: "c",
+          action: import_neighbours_into_worksheet,
+        },
+        "inspect": {
+          name: "Inspect",
+          icon: "fa-search",
+          accesskey: "n",
+          action: inspect,
+        },
+        "import-and-inspect": {
+          name: "Import and Inspect",
+          icon: "fa-search-plus",
+          accesskey: "a",
+          action: inspect_and_import,
+        }
+      });
+    }).fail(err);
+  });
 }
 
 
