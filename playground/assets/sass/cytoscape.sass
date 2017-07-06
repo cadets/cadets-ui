@@ -6,8 +6,11 @@ core
 edge
   curve-style: bezier
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif
-  target-arrow-shape: triangle
-  width: 4
+  source-arrow-shape: none
+  source-arrow-scale: 4
+  mid-target-arrow-shape: triangle
+  mid-target-arrow-scale: 400
+  width: 8
 
   text-halign: center
   text-valign: center
@@ -19,35 +22,41 @@ edge.parent
   width: 8
 
   target-arrow-color: $exec-color
+  mid-target-arrow-color: $exec-color
   line-color: $exec-color
   text-outline-color: $exec-color
 
 edge.file-change
   line-style: dotted
   target-arrow-color: $syscall-color
+  mid-target-arrow-color: $syscall-color
   line-color: $syscall-color
   text-outline-color: $syscall-color
 
 edge.io
   target-arrow-color: $syscall-color
+  mid-target-arrow-color: $syscall-color
   line-color: $syscall-color
   text-outline-color: $syscall-color
 
 edge.comm
   line-style: dashed
   target-arrow-color: $syscall-color
+  mid-target-arrow-color: $syscall-color
   line-color: $syscall-color
   text-outline-color: $syscall-color
 
 edge.proc-change
   line-style: dashed
   target-arrow-color: $exec-color
+  mid-target-arrow-color: $exec-color
   line-color: $exec-color
   text-outline-color: $exec-color
 
 edge.proc-metadata
   line-style: dotted
   target-arrow-color: $exec-color
+  mid-target-arrow-color: $exec-color
   line-color: $exec-color
   text-outline-color: $exec-color
 
