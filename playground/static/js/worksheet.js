@@ -280,6 +280,7 @@ function toggle_sidebar() {
   $('#sidebar').toggleClass('collapsed');
   $('#content').toggleClass('col-md-12 col-md-9');
   $("#inspector-graph").width($('#inspector').width());
+  $("#worksheet").hide().show();
 }
 
 function remove_from_worksheet(id) {
