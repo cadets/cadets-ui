@@ -5,9 +5,8 @@ edge {
   curve-style: bezier;
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif;
   source-arrow-shape: none;
-  source-arrow-scale: 4;
   mid-target-arrow-shape: triangle;
-  mid-target-arrow-scale: 400;
+  arrow-scale: 2;
   width: 8;
   text-halign: center;
   text-valign: center;
