@@ -78,6 +78,7 @@ function get_neighbours(id, fn, err = console.log) {
   const query =
     `files=${$('#inspectFiles').is(':checked')}` +
     `&sockets=${$('#inspectSockets').is(':checked')}` +
+    `&pipes=${$('#inspectPipes').is(':checked')}` +
     `&process_meta=${$('#inspectProcessMeta').is(':checked')}`
     ;
 
@@ -91,6 +92,7 @@ function get_successors(id, fn, err = console.log) {
   const query =
     `files=${$('#inspectFiles').is(':checked')}` +
     `&sockets=${$('#inspectSockets').is(':checked')}` +
+    `&pipes=${$('#inspectPipes').is(':checked')}` +
     `&process_meta=${$('#inspectProcessMeta').is(':checked')}` +
     `&max_depth=100`
     ;
