@@ -159,6 +159,12 @@ var worksheet = {
   })
 };
 
+worksheet.graph.autopanOnDrag({
+  enabled: true,
+  selector: 'node',
+  speed: 0.25,
+});
+
 var inspector = {
   detail: $('#inspector-detail'),
   graph: cytoscape({
