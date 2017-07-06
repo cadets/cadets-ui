@@ -63,20 +63,20 @@ function add_edge(data, graph) {
 //
 // Fetch neighbours to a node, based on some user-specified filters.
 //
-function get_neighbours(id, fn) {
+function get_neighbours(id, fn, err = console.log) {
   const query =
     `files=${$('#inspectFiles').is(':checked')}` +
     `&sockets=${$('#inspectSockets').is(':checked')}` +
     `&process_meta=${$('#inspectProcessMeta').is(':checked')}`
     ;
 
-  return $.getJSON(`neighbours/${id}?${query}`, fn);
+  return $.getJSON(`neighbours/${id}?${query}`, fn).fail(err);
 }
 
 //
 // Fetch successors to a node, based on some user-specified filters.
 //
-function get_successors(id, fn) {
+function get_successors(id, fn, err = console.log) {
   const query =
     `files=${$('#inspectFiles').is(':checked')}` +
     `&sockets=${$('#inspectSockets').is(':checked')}` +
@@ -84,7 +84,7 @@ function get_successors(id, fn) {
     `&max_depth=100`
     ;
 
-  return $.getJSON(`successors/${id}?${query}`, fn);
+  return $.getJSON(`successors/${id}?${query}`, fn).fail(err);
 }
 
 
@@ -92,7 +92,7 @@ function get_successors(id, fn) {
 //
 // How to import a node into the worksheet
 //
-function import_into_worksheet(id) {
+function import_into_worksheet(id, err = console.log) {
   let graph = worksheet.graph;
 
   // Have we already imported this node?
@@ -134,7 +134,7 @@ function import_into_worksheet(id) {
           }
         }
       });
-    }).then(function(){
+    }).fail(err).then(function(){
       attach_context_menu(graph, '#worksheet', worksheet_context_items);
     });
   });
@@ -163,7 +163,7 @@ function import_neighbours_into_worksheet(id) {
 //
 // Define what it means to "inspect" a node.
 //
-function inspect(id) {
+function inspect(id, err = console.log) {
   // Display the node's details in the inspector "Details" panel.
   var inspectee;
   $.getJSON(`detail/${id}`, function(result) {
@@ -177,7 +177,7 @@ function inspect(id) {
       `)
     }
     inspectee = result
-  });
+  }).fail(err);
 
   // Display the node's immediate connections in the inspector "Graph" panel.
   get_neighbours(id, function(result) {
@@ -233,7 +233,7 @@ function inspect(id) {
         action: inspect_and_import,
       }
     });
-  });
+  }).fail(err);
 }
 
 
@@ -308,7 +308,7 @@ function remove_neighbours_from_worksheet(id) {
 //
 // Populate node list.
 //
-function update_nodelist() {
+function update_nodelist(err = console.log) {
   let query = {
     node_type: $('#filterNodeType').val(),
     name: $('#filterName').val(),
@@ -342,7 +342,7 @@ function update_nodelist() {
           <td><a onclick="inspect(${node.id})">${meta.label}</a></td>
         </tr>`);
     }
-  });
+  }).fail(err);
 }
 
 
