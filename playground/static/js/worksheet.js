@@ -278,7 +278,7 @@ function toggle_node_importance(id) {
 
 function toggle_sidebar() {
   $('#sidebar').toggleClass('collapsed');
-  $('#content').toggleClass('col-md-12 col-md-9');
+  $('#content').toggleClass('col-md-12 col-md-7');
   $("#inspector-graph").width($('#inspector').width());
   $("#worksheet").hide().show();
 }

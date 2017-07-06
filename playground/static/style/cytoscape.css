@@ -50,15 +50,15 @@ edge.proc-metadata {
 node {
   content: data(label);
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif;
+  font-size: 24pt;
   border-style: solid;
   border-width: 2;
   color: black;
-  text-background-color: #eee;
-  text-background-opacity: 0.75;
-  text-background-padding: .25em;
+  text-outline-color: #eee;
+  text-outline-opacity: 0.9;
+  text-outline-width: 6;
   text-halign: center;
   text-valign: bottom;
-  text-outline-width: 0;
   text-wrap: wrap;
   text-max-width: 10em;
   height: 4em;
@@ -91,7 +91,8 @@ node.process {
   background-color: #333;
   background-image: url(static/images/proc.png);
   border-color: #333;
-  font-family: Inconsolata, Source Code Pro, Consolas, monospace; }
+  font-family: Inconsolata, Source Code Pro, Consolas, monospace;
+  font-weight: bold; }
 
 node.file {
   background-color: #dc9;
@@ -108,7 +109,7 @@ node.file-version {
   border-width: 0; }
 
 node.machine {
-  font-size: 32pt;
+  font-size: 48pt;
   text-valign: top;
   text-margin-y: 3em;
   shape: rectangle;
@@ -120,9 +121,10 @@ node.machine {
   background-fit: contain;
   background-opacity: 0;
   border-width: 0;
-  color: white;
+  color: #0A3A62;
+  font-weight: bold;
   text-background-opacity: 0;
-  text-outline-color: #0A3A62;
+  text-outline-color: white;
   text-outline-width: 3; }
 
 node.machine:parent {
@@ -136,7 +138,6 @@ node.machine:parent {
   min-width: 128px; }
 
 node.machine.external {
-  font-size: 24pt;
   text-margin-y: 0.25em;
   padding: 1em;
   width: 80px;
