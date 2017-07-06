@@ -211,7 +211,14 @@ function inspect(id, err = console.log) {
       }
       inspector.graph.inspectee = n;
 
-      layout(inspector.graph, 'dagre');
+      // Only use the (somewhat expensive) dagre algorithm when the number of
+      // edges is small enough to be computationally zippy.
+      if (result.edges.length < 100) {
+        layout(inspector.graph, 'dagre');
+      } else {
+        layout(inspector.graph, 'cose');
+      }
+
       inspector.graph.zoom({
         level: 1,
         position: inspector.graph.inspectee.position(),
