@@ -276,6 +276,12 @@ function toggle_node_importance(id) {
   });
 }
 
+function toggle_sidebar() {
+  $('#sidebar').toggleClass('collapsed');
+  $('#content').toggleClass('col-md-12 col-md-9');
+  $("#inspector-graph").width($('#inspector').width());
+}
+
 function remove_from_worksheet(id) {
   worksheet.graph.remove(`node#${id}`);
 }

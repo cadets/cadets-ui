@@ -5,9 +5,7 @@ $fa-font-path: "static/fonts"
 
 html
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif
-
-body > .container
-  padding-top: $top-margin + 32px
+  overflow: hidden
 
 #logo
   position: fixed
@@ -26,40 +24,29 @@ nav.navbar, nav.navbar.navbar-default
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif
   font-weight: bold
 
-nav.navbar
-  position: fixed
-  width: 100%
-  z-index: 99
+.row-fluid
+  overflow-x: hidden
 
 #worksheet-container
   padding: 0
-  width: 100%
+  padding-right: 1em
 
   .buttons
     position: absolute
-    bottom: 2.5em
+    bottom: 0.5em
     right: 1.5em
     z-index: 99
 
   .graph
     padding: 0
     height: 100%
-    width: 100%
 
 .navbar-brand
   font-size: 24pt
 
 #sidebar
-  height: 100%
-  width: 20em
-
-  margin: 0
-  padding: 1em
-  padding-top: $top-margin
-
-  position: absolute
-  top: 1em
-  left: 0
+  overflow: scroll
+  padding: 0
 
   .panel-heading
     padding-left: 0.5em
@@ -78,31 +65,27 @@ nav.navbar
         input
           color: black
 
-#content
-  position: fixed
-  left: 19em
-  top: $top-margin
+#sidebar.collapsed
+  background-color: purple
+  display: none
 
-  margin: 0
-  padding: 1em
+#content
+  padding: 0
 
 #inspector
-  position: absolute
-  top: $top-margin
-  right: 0
-
-  margin: 0
-  padding: 1em
-
-  width: 32em
+  padding: 0
   height: 100%
+  overflow: scroll
 
   .graph-panel
+    width: 100%
     padding: 0
 
     .graph.panel-body
       margin: 0
       padding: 0
 
-.scrollable
-  overflow-y: scroll
+@media (min-width: 992px)
+  .collapsed
+    display: block
+    margin-left: -25%

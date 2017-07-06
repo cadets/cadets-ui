@@ -3,10 +3,10 @@
 {% import "bootstrap/utils.html" as utils %}
 
 {% block content %}
-<div class="container">
+<div class="container-fluid">
   {{ super() }}
 
-  <div id="sidebar">
+  <div id="sidebar" class="col-md-3">
     <div class="panel panel-info">
       <div class="panel-heading">
         Available nodes:
@@ -59,9 +59,13 @@
     </div>
   </div>
 
-  <div id="content">
-    <div class="well" id="worksheet-container">
+  <div id="content" class="col-md-9">
+    <div class="container-fluid">
+    <div class="col-md-7" id="worksheet-container">
       <div class="buttons">
+        <a class="btn btn-raised btn-default" onclick="toggle_sidebar()">
+          <i class="fa fa-caret-square-o-left"></i>
+        </a>
         <a class="btn btn-raised btn-default"
             onclick="$('#filename').click()"><i class="fa fa-folder-open-o"></i></a>
         <input type="file" class="hidden" id="filename"
@@ -73,11 +77,10 @@
         <a class="btn btn-raised btn-default"
            onclick="layout(worksheet.graph, 'cose-bilkent')">CoSE</a>
       </div>
-      <div class="graph" id="worksheet"></div>
+      <div class="well graph" id="worksheet"></div>
     </div>
-  </div>
 
-    <div id="inspector">
+    <div id="inspector" class="col-md-5">
       <div class="graph-panel panel panel-info">
         <div class="panel-heading">Inspector</div>
         <div class="graph panel-body" id="inspector-graph"></div>
@@ -107,6 +110,8 @@
         </div>
       </div>
     </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
@@ -205,7 +210,6 @@ $(document).ready(function() {
     $("#worksheet-container").height(fontSize * height);
     $("#inspector").height(fontSize * height);
     $("#inspector-graph").height(fontSize * (height - 12));
-    $("#content").width(fontSize * width);
   }).resize();
 });
 
