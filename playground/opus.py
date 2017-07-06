@@ -13,6 +13,10 @@ node_labels = {
 }
 
 
+def short_hash(val):
+    return hashlib.sha1(val).hexdigest()[:8]
+
+
 class OPUSJSONEncoder(flask.json.JSONEncoder):
     machines = {}
 
@@ -60,7 +64,8 @@ class OPUSJSONEncoder(flask.json.JSONEncoder):
                     data['endpoints'] = [data['client_ip'] + ":" + data['client_port'],
                                          data['server_ip'] + ":" + data['server_port']]
                 elif data['ctype'] == 'Pipe':
-                    data['endpoints'] = ['rdpipe', 'wrpipe']
+                    data['endpoints'] = ['wrpipe: ' + short_hash(data['wrpipe']),
+                                         'rdpipe: ' + short_hash(data['rdpipe'])]
                 data.update({'type': "connection"})
             else:
                 data.update({'type': "file-version",
@@ -77,7 +82,7 @@ class OPUSJSONEncoder(flask.json.JSONEncoder):
             # Calculate a short, easily-compared hash of something unique
             # (database ID if we don't have a UUID)
             unique = o['uuid'] if 'uuid' in o else str(o.id)
-            data['hash'] = hashlib.sha1(unique).hexdigest()[:8]
+            data['hash'] = short_hash(unique)
 
             return data
         elif isinstance(o, neo4j.v1.Relationship):

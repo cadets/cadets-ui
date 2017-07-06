@@ -150,7 +150,7 @@ function node_metadata(node) {
     case 'connection':
       metadata = {
         icon: 'connectdevelop',
-        label: node.endpoints.join(' '),
+        label: node.endpoints.join('<br/>'),
       };
       break;
 
