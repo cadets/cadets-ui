@@ -145,10 +145,10 @@ node.machine.external {
   background-image-opacity: 1; }
 
 node.pipe {
-  background-color: #079948;
+  background-color: #076928;
   background-opacity: 0.25;
-  border-color: #079948;
-  color: #079948; }
+  border-color: #076928;
+  color: #076928; }
 
 node.pipe-endpoint {
   content: data(hash);
