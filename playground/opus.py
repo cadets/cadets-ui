@@ -1,4 +1,5 @@
 import flask
+import hashlib
 import neo4j.v1
 
 node_labels = {
@@ -72,6 +73,11 @@ class OPUSJSONEncoder(flask.json.JSONEncoder):
             if 'host' in o and o['host'] in self.machines:
                 (i, name) = self.machines[o['host']]
                 data.update({'hostname': name, 'parent': i})
+
+            # Calculate a short, easily-compared hash of something unique
+            # (database ID if we don't have a UUID)
+            unique = o['uuid'] if 'uuid' in o else str(o.id)
+            data['hash'] = hashlib.sha1(unique).hexdigest()[:8]
 
             return data
         elif isinstance(o, neo4j.v1.Relationship):
