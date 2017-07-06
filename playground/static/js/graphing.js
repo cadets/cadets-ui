@@ -143,8 +143,7 @@ function node_metadata(node) {
     case 'connection':
       metadata = {
         icon: 'connectdevelop',
-        label: node.client_ip + ':' + node.client_port + '\n' +
-               node.server_ip + ':' + node.server_port,
+        label: node.endpoints.join(' '),
       };
       break;
 
