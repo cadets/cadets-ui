@@ -127,6 +127,12 @@ def get_neighbours_id(dbid,
                                                "Machine" in labels(d)
                                            )
                                            AND
+                                           (
+                                               NOT d:Pipe
+                                               OR
+                                               d.fds <> []
+                                           )
+                                           AND
                                            any(lab in labels(d) WHERE lab IN {labs})
                                        RETURN s, e, d""",
                                     {'id': dbid,
@@ -247,6 +253,12 @@ def successors_query(dbid,
                                                WHERE
                                                    id(cur)={curid}
                                                    AND
+                                                   (
+                                                       NOT n:Pipe
+                                                       OR
+                                                       n.fds <> []
+                                                   )
+                                                   AND
                                                    NOT {glabs} is Null
                                                    AND
                                                    any(lab in labels(n) WHERE lab IN {glabs})
@@ -264,6 +276,12 @@ def successors_query(dbid,
                                                    AND
                                                    e.state in ['WRITE', 'RaW', 'CLIENT', 'SERVER']
                                                    AND
+                                                   (
+                                                       NOT n:Pipe
+                                                       OR
+                                                       n.fds <> []
+                                                   )
+                                                   AND
                                                    NOT {glabs} is Null
                                                    AND
                                                    any(lab in labels(n) WHERE lab IN {glabs})
@@ -278,6 +296,12 @@ def successors_query(dbid,
             neighbours = current_app.db.run("""MATCH (cur:Conn)-[e]-(n:Global)
                                                WHERE
                                                    id(cur)={curid}
+                                                   AND
+                                                   (
+                                                       NOT n:Pipe
+                                                       OR
+                                                       n.fds <> []
+                                                   )
                                                    AND
                                                    NOT {glabs} is Null
                                                    AND
