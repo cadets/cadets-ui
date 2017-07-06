@@ -36,8 +36,7 @@ nav.navbar, nav.navbar.navbar-default {
   font-size: 24pt; }
 
 #sidebar {
-  overflow: scroll;
-  padding: 0; }
+  overflow: scroll; }
   #sidebar .panel-heading {
     padding-left: 0.5em;
     padding-right: 0.5em; }
@@ -57,11 +56,13 @@ nav.navbar, nav.navbar.navbar-default {
 
 #content {
   padding: 0; }
+  #content .container-fluid {
+    padding: 0; }
 
 #inspector {
   padding: 0;
   height: 100%;
-  overflow: scroll; }
+  overflow-y: scroll; }
   #inspector .graph-panel {
     width: 100%;
     padding: 0; }
