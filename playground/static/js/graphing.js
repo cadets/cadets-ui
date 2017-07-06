@@ -159,6 +159,13 @@ function node_metadata(node) {
       }
       break;
 
+    case 'pipe-endpoint':
+      metadata = {
+        icon: 'share',
+      };
+      timestamp = node.creation;
+      break;
+
     case 'process':
       metadata = {
         icon: 'terminal',

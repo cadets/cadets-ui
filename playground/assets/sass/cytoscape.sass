@@ -90,7 +90,11 @@ node.connection
   shape: rectangle
   background-image: url(static/images/connection.png)
   background-color: white
+
+  color: white
   text-background-opacity: 0
+  text-outline-color: $connection-color
+  text-outline-width: 3
 
 node.process
   shape: ellipse
@@ -159,6 +163,19 @@ node.machine.external
 
   background-image: url(static/images/machine-external.svg)
   background-image-opacity: 1
+
+node.pipe-endpoint
+  content: data(hash)
+
+  shape: rectangle
+  background-image: url(static/images/pipe.png)
+  background-color: white
+  border-width: 0
+
+  color: white
+  text-background-opacity: 0
+  text-outline-color: $connection-color
+  text-outline-width: 3
 
 node.socket-version
   shape: rectangle
