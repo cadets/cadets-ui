@@ -317,15 +317,33 @@ function update_nodelist() {
     let nodelist = $('#nodelist');
     nodelist.empty();
 
+    let current_uuid = null;
+    let colour = 0;
+
     for (let node of result) {
       meta = node_metadata(node);
 
+      if (node.uuid != current_uuid) {
+        colour += 1;
+        current_uuid = node.uuid;
+      }
+
       nodelist.append(`
-        <tr>
+        <tr class="${rowColour(colour)}">
           <td><a onclick="inspect(${node.id})" style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
           <td>${meta.timestamp}</td>
           <td><a onclick="inspect(${node.id})">${meta.label}</a></td>
         </tr>`);
     }
   });
+}
+
+
+function rowColour(n) {
+  switch (n % 2) {
+  case 0:
+    return '';
+  case 1:
+    return 'active';
+  }
 }
