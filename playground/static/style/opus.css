@@ -70,6 +70,11 @@ nav.navbar, nav.navbar.navbar-default {
       margin: 0;
       padding: 0; }
 
+.context-menu-icon::before,
+.context-menu-icon.context-menu-icon--fa::before,
+.context-menu-list {
+  font-size: 24pt; }
+
 @media (min-width: 992px) {
   .collapsed {
     display: block;
