@@ -167,7 +167,7 @@ function node_metadata(node) {
 
     case 'pipe-endpoint':
       metadata = {
-        icon: 'share',
+        icon: 'circle',
       };
       timestamp = node.creation;
       break;
