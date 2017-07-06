@@ -144,6 +144,12 @@ node.machine.external {
   background-image: url(static/images/machine-external.svg);
   background-image-opacity: 1; }
 
+node.pipe {
+  background-color: #079948;
+  background-opacity: 0.25;
+  border-color: #079948;
+  color: #079948; }
+
 node.pipe-endpoint {
   content: data(hash);
   shape: rectangle;

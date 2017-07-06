@@ -7,21 +7,28 @@ function add_node(data, graph, renderedPosition = null) {
     return;
   }
 
-  // When importing file versions, draw a compound node with the filenames
-  // to show the abstraction and to simplify the versions.
-  if (data.type == 'file-version' && data.uuid) {
-    let file = graph.nodes(`[id="${data.uuid}"]`);
+  // When importing things with abstract containers (e.g., file versions),
+  // draw a compound node to show the abstraction and simplify the versions.
+  if (data.uuid &&
+      ([ 'file-version', 'pipe-endpoint' ].indexOf(data.type) != -1)) {
+    let compound = graph.nodes(`[id="${data.uuid}"]`);
+    let type = data.type.substr(0, 4);
 
-    if (file.empty()) {
+    let names = data.names;
+    if (names == null) {
+      names = new Set().add(data.hash);
+    }
+
+    if (compound.empty()) {
       add_node({
         id: data.uuid,
-        type: 'file',
-        names: new Set(data.names),
+        type: type,
+        names: names,
         'parent': data['parent'],
       }, graph, renderedPosition);
     } else {
-      let existing = file.data();
-      existing.names = new Set([...existing.names, ...data.names]);
+      let existing = compound.data();
+      existing.names = new Set([...existing.names, ...names]);
       existing.label = Array.from(existing.names).join(' ');
     }
 
