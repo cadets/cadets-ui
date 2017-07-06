@@ -54,6 +54,17 @@ function add_edge(data, graph) {
     return;
   }
 
+  // If the target is explicitly marked as something we read from
+  // (e.g., the by-convention read-from pipe), reverse the edge's direction.
+  let source = graph.nodes(`[id="${data.source}"]`);
+  let target = graph.nodes(`[id="${data.target}"]`);
+
+  if (source.data().type == 'process' && target.data().end == 'R') {
+    let tmp = data.source;
+    data.source = data.target;
+    data.target = tmp;
+  }
+
   graph.add({
     classes: data.type,
     data: data,
