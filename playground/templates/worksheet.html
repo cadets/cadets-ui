@@ -250,5 +250,11 @@ const node_to_inspect = $.url('?inspect');
 if (node_to_inspect) {
   inspect(node_to_inspect);
 }
+
+// If we've explicitly specified nodes to import or inspect, close the sidebar
+// (which is really about initial exploration).
+if (nodes_to_add || node_to_inspect) {
+  toggle_sidebar();
+}
   </script>
 {% endblock %}
