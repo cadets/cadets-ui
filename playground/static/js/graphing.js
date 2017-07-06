@@ -168,6 +168,7 @@ function node_metadata(node) {
     case 'pipe-endpoint':
       metadata = {
         icon: 'circle',
+        label: node.hash,
       };
       timestamp = node.creation;
       break;
