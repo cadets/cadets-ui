@@ -120,6 +120,12 @@
             <table id="inspector-detail" class="table table-striped"></table>
           </div>
         </div>
+        <div class="panel panel-info">
+          <div class="panel-heading">Neighbours</div>
+          <div class="panel-body scrollable">
+            <table id="neighbour-detail" class="table table-striped"></table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -177,6 +183,7 @@ worksheet.graph.autopanOnDrag({
 
 var inspector = {
   detail: $('#inspector-detail'),
+  neighbours: $('#neighbour-detail'),
   graph: cytoscape({
     container: document.getElementById('inspector-graph'),
     boxSelectionEnabled: true,

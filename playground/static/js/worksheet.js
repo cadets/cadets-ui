@@ -179,8 +179,11 @@ function import_neighbours_into_worksheet(id) {
 function inspect(id, err = console.log) {
   // Display the node's details in the inspector "Details" panel.
   var inspectee;
+
+  inspector.detail.empty();
+  inspector.neighbours.empty();
+
   $.getJSON(`detail/${id}`, function(result) {
-    inspector.detail.empty();
     for (let property in result) {
       inspector.detail.append(`
         <tr>
@@ -199,6 +202,14 @@ function inspect(id, err = console.log) {
 
       for (let n of result.nodes) {
         add_node(n, inspector.graph);
+
+        let meta = node_metadata(n);
+        inspector.neighbours.append(`
+          <tr>
+            <td><a onclick="inspect(${n.id})" style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
+            <td><a onclick="inspect(${n.id})">${meta.label}</a></td>
+            </tr>
+        `);
       }
 
       for (let e of result.edges) {
@@ -211,7 +222,14 @@ function inspect(id, err = console.log) {
       }
       inspector.graph.inspectee = n;
 
-      layout(inspector.graph, 'dagre');
+      // Only use the (somewhat expensive) dagre algorithm when the number of
+      // edges is small enough to be computationally zippy.
+      if (result.edges.length < 100) {
+        layout(inspector.graph, 'dagre');
+      } else {
+        layout(inspector.graph, 'cose');
+      }
+
       inspector.graph.zoom({
         level: 1,
         position: inspector.graph.inspectee.position(),

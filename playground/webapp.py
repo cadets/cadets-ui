@@ -193,6 +193,11 @@ def get_neighbours_uuid(uuid,
     res = current_app.db.run("""MATCH (s)-[e]-(d)
                                 WHERE
                                     exists(s.uuid)
+                                    AND (
+                                       NOT d:Pipe
+                                       OR
+                                       d.fds <> []
+                                    )
                                     AND
                                     s.uuid={uuid}
                                     AND
