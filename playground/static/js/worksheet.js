@@ -42,6 +42,12 @@ let worksheet_context_items = {
     accesskey: "h",
     action: toggle_node_importance,
   },
+  "proc-cmds": {
+    name: "Process Commands",
+    icon: "fa-terminal",
+    accesskey: 'c',
+    action: show_cmds,
+  }
 };
 
 
@@ -373,6 +379,16 @@ function update_nodelist(err = console.log) {
           <td><a onclick="inspect(${node.id})">${meta.label}</a></td>
         </tr>`);
     }
+  }).fail(err);
+}
+
+
+//
+// Show Process Commands
+//
+function show_cmds(id){
+  $.getJSON(`cmds/${id}`, function(result) {
+    // make this an alert -> result.cmds.join("<br/>")
   }).fail(err);
 }
 
