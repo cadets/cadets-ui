@@ -58,6 +58,23 @@ let worksheet_context_items = {
       });
     },
   },
+  "files_read": {
+    name: "Files read",
+    icon: "fa-search",
+    accesskey: "r",
+    action: function(id) {
+      $.getJSON(`files_read/${id}`, function(result) {
+        let str = '';
+        Array.from(result.names).forEach(function(name) {
+          str += `<li>${name}</li>`;  // XXX: requires trusted UI server!
+        });
+
+        vex.dialog.alert({
+          unsafeMessage: `<h2>Files read:</h2><ul>${str}</ul>`,
+        });
+      });
+    },
+  },
 };
 
 
