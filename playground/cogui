@@ -30,7 +30,7 @@ Options:
     --db-url=URL              Neo4j URL [default: bolt://localhost]
     --db-username=USERNAME    Neo4j username [default: neo4j]
     --db-password=PASSWORD    Neo4j password [default: opus]
-    --bro-location=BRO        Locations of bro data file [default: /tmp/bro]
+    --bro-location=BRO        Bro notification file [default: /dev/null]
 """
 
 import docopt
