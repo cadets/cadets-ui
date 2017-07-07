@@ -24,6 +24,7 @@ let worksheet_context_items = {
       accesskey: "s",
       action: successors,
   },
+  "add-remove-sep": "---",
   "remove": {
     name: "Remove",
     icon: "fa-times",
@@ -36,6 +37,7 @@ let worksheet_context_items = {
     accesskey: "v",
     action: remove_neighbours_from_worksheet,
   },
+  "remove-mark-sep": "---",
   "mark": {
     name: "Highlight",
     icon: "fa-thumb-tack",
