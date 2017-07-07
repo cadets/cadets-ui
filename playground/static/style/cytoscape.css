@@ -169,9 +169,17 @@ node.pipe-endpoint {
   background-opacity: 0;
   border-width: 0; }
 
+node.sock {
+  background-color: #999;
+  background-opacity: 0.5;
+  border-color: #999;
+  border-opacity: 1; }
+
 node.socket-version {
   shape: rectangle;
   background-image: url(static/images/socket.png);
   background-fit: contain;
   background-opacity: 0;
-  border-opacity: 0; }
+  border-opacity: 0;
+  font-size: 0;
+  text-opacity: 0; }

@@ -9,8 +9,10 @@ function add_node(data, graph, renderedPosition = null) {
 
   // When importing things with abstract containers (e.g., file versions),
   // draw a compound node to show the abstraction and simplify the versions.
-  if (data.uuid &&
-      ([ 'file-version', 'pipe-endpoint' ].indexOf(data.type) != -1)) {
+  if (data.uuid && (
+      [ 'file-version', 'pipe-endpoint', 'socket-version', ].indexOf(data.type)
+        != -1
+      )) {
     let compound = graph.nodes(`[id="${data.uuid}"]`);
     let type = data.type.substr(0, 4);
 
