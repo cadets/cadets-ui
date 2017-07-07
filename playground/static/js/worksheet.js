@@ -44,6 +44,20 @@ let worksheet_context_items = {
     accesskey: "h",
     action: toggle_node_importance,
   },
+  "mark-other-sep": "---",
+  "commands": {
+    name: "Commands",
+    icon: "fa-terminal",
+    accesskey: "c",
+    action: function(id) {
+      $.getJSON(`cmds/${id}`, function(result) {
+        let str = Array.from(result.cmds).join('\n');
+        vex.dialog.alert({
+          unsafeMessage: `<h3>Commands:</h3><pre>${str}</pre>`,
+        });
+      });
+    },
+  },
 };
 
 

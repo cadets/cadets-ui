@@ -78,6 +78,9 @@ nav.navbar, nav.navbar.navbar-default {
 .context-menu-list {
   font-size: 24pt; }
 
+body.vex-open > .vex > .vex-content {
+  width: 75%; }
+
 @media (min-width: 992px) {
   .collapsed {
     display: block;
