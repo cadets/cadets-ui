@@ -378,10 +378,18 @@ function update_nodelist(err = console.log) {
 
 
 function rowColour(n) {
-  switch (n % 2) {
-  case 0:
-    return '';
+  switch (n % 6) {
   case 1:
     return 'active';
+  case 2:
+    return 'info';
+  case 3:
+    return '';
+  case 4:
+    return 'warning';
+  case 5:
+    return 'active';
+  case 0:
+    return 'success';
   }
 }
