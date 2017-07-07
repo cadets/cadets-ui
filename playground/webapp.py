@@ -355,6 +355,19 @@ def cmd_query(dbid):
     return flask.jsonify({'cmds': [row['cmd'] for row in cmds]})
 
 
+@frontend.route('/files_read/<int:dbid>')
+@params_as_args
+def file_read_query(dbid):
+    files = current_app.db.run("""MATCH (n:Process)<-[e:PROC_OBJ]-(c:File)
+                                  WHERE id(n) = {id} AND
+                                        e.state in ['BIN', 'READ', 'RaW']
+                                  RETURN c.name AS g_name""",
+                               {'id': dbid}).data()
+    if not len(files):
+        flask.abort(404)
+    return flask.jsonify({'names': sorted({name for row in files for name in row['g_name']})})
+
+
 @frontend.route('/nodes')
 @params_as_args
 def get_nodes(node_type=None,
