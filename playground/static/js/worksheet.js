@@ -51,10 +51,20 @@ let worksheet_context_items = {
     accesskey: "c",
     action: function(id) {
       $.getJSON(`cmds/${id}`, function(result) {
-        let str = Array.from(result.cmds).map(function(n){return n.cmd}).join('\n');
-        vex.dialog.alert({
-          unsafeMessage: `<h3>Commands:</h3><pre>${str}</pre>`,
-        });
+        let message = `<h2>Commands run by node ${id}:</h2>`;
+
+        if (result.cmds.length == 0) {
+          message += '<p>none</p>';
+        } else {
+          message += '<ul>';
+          for (let command of result.cmds) {
+            console.log(command);
+            message += `<li><a onclick="command_clicked(${command.dbid})">${command.cmd}</a></li>`;
+          }
+          message += '</ul>';
+        }
+
+        vex.dialog.alert({ unsafeMessage: message });
       });
     },
   },
@@ -76,6 +86,15 @@ let worksheet_context_items = {
     },
   },
 };
+
+function command_clicked(dbid) {
+  inspect_and_import(dbid);
+
+  let vexes = vex.getAll();
+  for (let i in vexes) {
+    vexes[i].close();
+  }
+}
 
 
 //
