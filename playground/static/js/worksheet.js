@@ -111,7 +111,8 @@ function add_edge(data, graph) {
   let source = graph.nodes(`[id="${data.source}"]`);
   let target = graph.nodes(`[id="${data.target}"]`);
 
-  if (source.data().type == 'process' && target.data().end == 'R') {
+  if (source.data() && source.data().type == 'process'
+      && target.data() && target.data().end == 'R') {
     let tmp = data.source;
     data.source = data.target;
     data.target = tmp;
