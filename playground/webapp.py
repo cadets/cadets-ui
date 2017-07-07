@@ -20,6 +20,8 @@ import flask_bootstrap
 import flask_dotenv
 import opus
 import nav
+import threading
+import time
 
 from flask import current_app
 
@@ -528,6 +530,23 @@ nav.nav.register_element('frontend_top',
 )
 
 
+def update_machine_map(app):
+    while True:
+        with app.app_context():
+            # Initialize UUID->machine_name mapping
+            with current_app.db_driver.session() as db:
+                query = db.run('''
+                    MATCH (m:Machine)
+                    WHERE exists(m.uuid)
+                    RETURN ID(m), m.uuid, m.name
+                ''')
+                for row in query.data():
+                    opus.OPUSJSONEncoder.machines[row['m.uuid']] = (
+                        row['ID(m)'], row['m.name']
+                    )
+        time.sleep(10)
+
+
 def create_app(db_driver, bro_location):
     # See http://flask.pocoo.org/docs/patterns/appfactories
     app = flask.Flask(__name__)
@@ -537,19 +556,9 @@ def create_app(db_driver, bro_location):
         current_app.db_driver = db_driver
         current_app.bro_location = bro_location
 
-        # Initialize UUID->machine_name mapping
-        db = db_driver.session()
-        query = db.run('''
-            MATCH (m:Machine)
-            WHERE exists(m.uuid)
-            RETURN ID(m), m.uuid, m.name
-        ''')
-        current_app.machine_names = {}
-        for row in query.data():
-            opus.OPUSJSONEncoder.machines[row['m.uuid']] = (
-                row['ID(m)'], row['m.name']
-            )
-        db.close()
+    machine_thread = threading.Thread(target=update_machine_map, args=(app,))
+    machine_thread.daemon = True
+    machine_thread.start()
 
     nav.nav.init_app(app)
     flask_dotenv.DotEnv().init_app(app, verbose_mode=True)
