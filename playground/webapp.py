@@ -349,8 +349,6 @@ def cmd_query(dbid):
                                  WHERE id(n) = {id}
                                  RETURN c.cmdline AS cmd ORDER BY c.timestamp""",
                               {'id': dbid}).data()
-    if not len(cmds):
-        flask.abort(404)
     return flask.jsonify({'cmds': [row['cmd'] for row in cmds]})
 
 
