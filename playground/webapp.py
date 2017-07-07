@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
 import functools
 
 import flask
@@ -53,6 +54,26 @@ def machine_view():
     return flask.render_template('machine-view.html')
 
 
+@frontend.route('/notifications')
+def notifications():
+    alerts = []
+
+    if current_app.bro_location:
+        with open(current_app.bro_location) as f:
+            for l in f:
+                bro_data = [p for p in l.split() if p != '']
+                alerts.append({
+                    'local_ip': bro_data[7],
+                    'local_port': bro_data[8],
+                    'remote_ip': bro_data[9],
+                    'remote_port': bro_data[10],
+                    'timestamp': datetime.fromtimestamp(int(bro_data[5])),
+                    'event': bro_data[15]
+                })
+
+    return flask.render_template('notifications.html', alerts = alerts)
+
+
 @frontend.route('/worksheet')
 def worksheet():
     return flask.render_template('worksheet.html')
@@ -61,21 +82,6 @@ def worksheet():
 @frontend.route('/alerts')
 def alerts_view():
     return flask.render_template('alerts.html')
-
-
-@frontend.route('/alert-data')
-def alert_data():
-    alerts = []
-    with open(current_app.bro_location) as f:
-        for l in f:
-            bro_data = [p for p in l.split() if p != '']
-            alerts.append({'local_ip': bro_data[7],
-                           'local_port': bro_data[8],
-                           'remote_ip': bro_data[9],
-                           'remote_port': bro_data[10],
-                           'timestamp': bro_data[5],
-                           'event': bro_data[15]})
-    return flask.jsonify({'alerts': alerts})
 
 
 @frontend.route('/detail/<int:identifier>')
@@ -512,6 +518,7 @@ nav.nav.register_element('frontend_top',
     nav.Navbar(
         nav.View('CADETS/OPUS', '.index'),
         nav.View('Machines', '.machine_view'),
+        nav.View('Notifications', '.notifications'),
         nav.View('Worksheets', '.worksheet'),
     )
 )

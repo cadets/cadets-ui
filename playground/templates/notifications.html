@@ -1,0 +1,50 @@
+{%- extends "base.html" -%}
+
+{% import "bootstrap/utils.html" as utils %}
+
+{% block content %}
+  {{ super() }}
+
+  <div class="container">
+    <h1>Alert notifications</h1>
+
+    <div class="well">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Local</th>
+            <th>Remote</th>
+            <th>Event</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alert in alerts %}
+            <tr>
+              <td>{{ alert.timestamp }}</td>
+              <td>
+                <a href="worksheet?nodeType=socket-version&tcp={{ alert.local_ip }}:{{ alert.local_port }}::">
+                  {{ alert.local_ip }}:{{ alert.local_port }}
+                </a>
+              </td>
+              <td>
+                <a href="worksheet?nodeType=socket-version&tcp=::{{ alert.remote_ip }}:{{ alert.remote_port }}">
+                  {{ alert.remote_ip }}:{{ alert.remote_port }}
+                </a>
+              </td>
+              <td>{{ alert.event }}</td>
+              <td>
+                <a href="worksheet?nodeType=socket-version&tcp={{ alert.local_ip }}:{{ alert.local_port }}:{{ alert.remote_ip }}:{{ alert.remote_port }}">
+                  lookup
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <meta http-equiv="refresh" content="2"/>
+{% endblock %}
