@@ -239,8 +239,8 @@ function inspect(id, err = console.log) {
         let meta = node_metadata(n);
         inspector.neighbours.append(`
           <tr>
-            <td><a onclick="inspect(${n.id})" style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
-            <td><a onclick="inspect(${n.id})">${meta.label}</a></td>
+            <td><a onclick="import_into_worksheet(${n.id})" style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
+            <td><a onclick="import_into_worksheet(${n.id})">${meta.label}</a></td>
             </tr>
         `);
       }
