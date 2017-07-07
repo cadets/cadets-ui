@@ -52,7 +52,7 @@ $.getJSON('machines', function(result) {
     animate: false,
     fit: true,
     nodeDimensionsIncludeLabels: true,
-    nodeRepulsion: 1000000,
+    nodeRepulsion: 10000000,
   }).run();
 
   view.$('node').on('tap', function(ev) {
