@@ -512,7 +512,7 @@ def get_nodes(node_type=None,
 
 nav.nav.register_element('frontend_top',
     nav.Navbar(
-        nav.View('OPUS', '.index'),
+        nav.View('CADETS/OPUS', '.index'),
         nav.View('Machines', '.machine_view'),
         nav.View('Worksheets', '.worksheet'),
     )
