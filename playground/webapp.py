@@ -343,6 +343,16 @@ def successors_query(dbid,
                           'edges': edges})
 
 
+@frontend.route('/cmds/<int:dbid>')
+@params_as_args
+def cmd_query(dbid):
+    cmds = current_app.db.run("""MATCH (n:Process)<-[:PROC_PARENT]-(c:Process)
+                                 WHERE id(n) = {id}
+                                 RETURN c.cmdline AS cmd ORDER BY c.timestamp""",
+                              {'id': dbid}).data()
+    return flask.jsonify({'cmds': [row['cmd'] for row in cmds]})
+
+
 @frontend.route('/nodes')
 @params_as_args
 def get_nodes(node_type=None,
