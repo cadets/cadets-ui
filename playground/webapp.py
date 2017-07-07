@@ -62,6 +62,9 @@ def notifications():
         with open(current_app.bro_location) as f:
             for l in f:
                 bro_data = [p for p in l.split() if p != '']
+                if len(bro_data) == 0:
+                    break
+
                 alerts.append({
                     'local_ip': bro_data[7],
                     'local_port': bro_data[8],
