@@ -1,13 +1,17 @@
-1. bro notification
+a. machine view description. narrow down attack -> bro
+1. bro notification 10.0.0.2, use that as starting point to see if files are exfiltrated
+b. explain worksheet view briefly (filters, etc)
 2. socket-varsion filter on destination 10.0.0.2:22 - click earliest
+c. loose search bar, have found initial point of compromise.
 3. inspector of the socket -> click on socket -> import neighbours
 4. worksheet - explain existence of 2 socket versions
 5. ws: explore actions leading to ssh execution -> inspector has gazzilon things
 6. ins: import and inspect scp -F (from the top)
 7. ins: look for private key/public key, known_hosts, highlight scp -F in worksheet
-8. moving towards initial point of compromise
-9. turn off files/sockets/pipes/proc metadata in inspector filters
-10. import exfil / sh / attack.sh / sh / vagrant-shell
+8. work back towards initial point of compromise
+9. at this point we're only interested in processes, so we turn off files/sockets/pipes/proc metadata in inspector filters
+10. import exfil / sh / attack.sh / sh / vagrant-shell / sh / sh -c / sshd - a user logging in through ssh
+d. vagrant-shell > sh -- where did the script come from?
 11. explore the pipes (no other shell script for sh)/connection wget
 12. expand pipe connection object
 13. on the other side, expand _the last_ pipe in the version group
@@ -17,12 +21,12 @@
 the same machine that was flagged by bro
 16. rwatson: "pretty suspicion behaviour". TA2 should think on how to automate
 parts of this analysis
-
 -----
 17. "forward analysis for damage assesment stage"
-18. option 1: explore commands coming from sh running attack.sh
-19. option 2: inspect start on exfil.sh, only show processes
-20. ins: explore scp/allthethings.tar from the bottom import and inpect
+19. inspect start on exfil.sh, only show processes
+** explore and add to worksheets: scp -F natasha@lair, ssh -x, socket, connection to lair
+
+20. ins: explore scp to layer /allthethings.tar from the bottom import and inpect
 22. import and inspect the .tar.gz file, and its versions (one at a time)
 23. import scp->ssh->socket->lair
 24. import last version of .tar.gz (final close), open to close versioning
@@ -33,3 +37,6 @@ parts of this analysis
 30. inspect sshd -R, turn off files, import both sshd -R workers
 31. import sh -c scp -f, scp, allthethings.tar.gz, tar
 32. see that there are files from two .git repositories that were exfiltrated
+
+Notes:
+in adding list of files below details, some network dependencies might have crept in
