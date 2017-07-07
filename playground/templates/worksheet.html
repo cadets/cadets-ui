@@ -224,11 +224,16 @@ $(document).ready(function() {
     let width = $(this).width() / fontSize - 73;
 
     $("html").keypress(function(ev) {
-      if (ev.key == 'd') {
+      console.log(ev);
+      if (ev.altKey || ev.ctrlKey || ev.metaKey || !ev.shiftKey) {
+        return;
+      }
+
+      if (ev.key == 'D') {
         layout(worksheet.graph, 'dagre');
-      } else if (ev.key == 'u') {
+      } else if (ev.key == 'U') {
         layout(worksheet.graph, 'cose-bilkent');
-      } else if (ev.key == 'h') {
+      } else if (ev.key == 'H') {
         toggle_sidebar();
       }
     });
