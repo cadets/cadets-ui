@@ -67,7 +67,7 @@ def notifications():
                     'local_port': bro_data[8],
                     'remote_ip': bro_data[9],
                     'remote_port': bro_data[10],
-                    'timestamp': datetime.fromtimestamp(int(bro_data[5])),
+                    'timestamp': datetime.fromtimestamp(int(float(bro_data[5]))),
                     'event': bro_data[15]
                 })
 
