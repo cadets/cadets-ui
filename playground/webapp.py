@@ -65,8 +65,17 @@ def alerts_view():
 
 @frontend.route('/alert-data')
 def alert_data():
-
-    return flask.jsonify()
+    alerts = []
+    with open(current_app.bro_location) as f:
+        for l in f:
+            bro_data = [p for p in l.split() if p != '']
+            alerts.append({'local_ip': bro_data[7],
+                           'local_port': bro_data[8],
+                           'remote_ip': bro_data[9],
+                           'remote_port': bro_data[10],
+                           'timestamp': bro_data[5],
+                           'event': bro_data[15]})
+    return flask.jsonify({'alerts': alerts})
 
 
 @frontend.route('/detail/<int:identifier>')
@@ -520,13 +529,14 @@ nav.nav.register_element('frontend_top',
 )
 
 
-def create_app(db_driver):
+def create_app(db_driver, bro_location):
     # See http://flask.pocoo.org/docs/patterns/appfactories
     app = flask.Flask(__name__)
     app.json_encoder = opus.OPUSJSONEncoder
 
     with app.app_context():
         current_app.db_driver = db_driver
+        current_app.bro_location = bro_location
 
         # Initialize UUID->machine_name mapping
         db = db_driver.session()

@@ -30,6 +30,7 @@ Options:
     --db-url=URL              Neo4j URL [default: bolt://localhost]
     --db-username=USERNAME    Neo4j username [default: neo4j]
     --db-password=PASSWORD    Neo4j password [default: opus]
+    --bro-location=BRO        Locations of bro data file [default: /tmp/bro]
 """
 
 import docopt
@@ -57,5 +58,5 @@ if arguments['serve']:
                                    arguments['--db-password']),
     )
 
-    app = webapp.create_app(db_driver)
+    app = webapp.create_app(db_driver, arguments['--bro-location'])
     app.run(host = host, port = port, debug = True)
