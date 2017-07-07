@@ -76,9 +76,9 @@ node {
   background-position-y: 0; }
 
 node.important {
-  overlay-color: red;
-  overlay-padding: 15;
-  overlay-opacity: 0.15; }
+  overlay-color: orange;
+  overlay-padding: 64;
+  overlay-opacity: 0.50; }
 
 node:selected {
   overlay-color: #333;
