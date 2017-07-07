@@ -167,8 +167,13 @@ def get_neighbours_id(dbid,
     else:
         m_links = []
         m_nodes = set()
-    return flask.jsonify({'nodes': {row['d'] for row in neighbours} | m_nodes | root,
-                          'edges': list({row['e'] for row in neighbours}) + m_links})
+    nodes = {row['d'] for row in neighbours} | root
+    edata = current_app.db.run("""MATCH (a)-[e]-(b)
+                                          WHERE id(a) IN {ids} AND id(b) IN {ids}
+                                          RETURN DISTINCT e""",
+                               {'ids': [n.id for n in nodes]}).data()
+    return flask.jsonify({'nodes': nodes | m_nodes,
+                          'edges': [row['e'] for row in edata] + m_links})
 
 
 @frontend.route('/neighbours/<string:uuid>')
@@ -206,8 +211,13 @@ def get_neighbours_uuid(uuid,
                              {'uuid': uuid,
                               'labs': list(matchers)}).data()
     root = {res[0]['s']} if len(res) else set()
-    return flask.jsonify({'nodes': {row['d'] for row in res} | root,
-                          'edges': {row['e'] for row in res}})
+    nodes = {row['d'] for row in res} | root
+    edata = current_app.db.run("""MATCH (a)-[e]-(b)
+                                      WHERE id(a) IN {ids} AND id(b) IN {ids}
+                                      RETURN DISTINCT e""",
+                               {'ids': [n.id for n in nodes]}).data()
+    return flask.jsonify({'nodes': nodes,
+                          'edges': [row['e'] for row in edata]})
 
 
 @frontend.route('/successors/<int:dbid>')
