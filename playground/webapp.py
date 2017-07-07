@@ -353,9 +353,10 @@ def successors_query(dbid,
 def cmd_query(dbid):
     cmds = current_app.db.run("""MATCH (n:Process)<-[:PROC_PARENT]-(c:Process)
                                  WHERE id(n) = {id}
-                                 RETURN c.cmdline AS cmd ORDER BY c.timestamp""",
+                                 RETURN c ORDER BY c.timestamp""",
                               {'id': dbid}).data()
-    return flask.jsonify({'cmds': [row['cmd'] for row in cmds]})
+    return flask.jsonify({'cmds': [{'cmd': row['c']['cmdline'],
+                                    'dbid': row['c'].id} for row in cmds]})
 
 
 @frontend.route('/files_read/<int:dbid>')
