@@ -59,4 +59,4 @@ if arguments['serve']:
     )
 
     app = webapp.create_app(db_driver, arguments['--bro-location'])
-    app.run(host = host, port = port, debug = True)
+    app.run(host = host, port = port)
