@@ -58,7 +58,6 @@ edge.proc-metadata {
 node {
   content: data(label);
   font-family: Avenir, Helvetica Neue, Helvetica, sans-serif;
-  font-size: 24pt;
   border-style: solid;
   border-width: 2;
   color: black;
@@ -99,8 +98,7 @@ node.process {
   background-color: #333;
   background-image: url(static/images/proc.png);
   border-color: #333;
-  font-family: Inconsolata, Source Code Pro, Consolas, monospace;
-  font-weight: bold; }
+  font-family: Inconsolata, Source Code Pro, Consolas, monospace; }
 
 node.file {
   background-color: #dc9;
