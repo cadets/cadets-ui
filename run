@@ -1,4 +1,0 @@
-#! /bin/bash
-cd srv
-source venv/bin/activate
-./opus-console-srv.py "$@"
