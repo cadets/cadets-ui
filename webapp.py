@@ -46,6 +46,10 @@ def teardown_request(_):
     current_app.db.close()
 
 
+@frontend.route('/dist/<path:filename>')
+def webpack_file(filename):
+    return flask.send_from_directory('dist', filename)
+
 @frontend.route('/')
 def index():
     return flask.render_template('index.html')

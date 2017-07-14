@@ -2,6 +2,12 @@
 
 {% import "bootstrap/utils.html" as utils %}
 
+
+{% block scripts -%}
+  {{ super() }}
+  <script type="text/javascript" src="/dist/worksheet.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
   {{ super() }}
@@ -131,146 +137,4 @@
   </div>
 </div>
 
-{% endblock %}
-
-{% block scripts -%}
-  {{ super() }}
-
-  <script type="text/javascript" src="static/js/worksheet.js"></script>
-
-  <script type="text/javascript">
-//
-// Process query parameters:
-//
-//   nodeType=T   where T is one of {connection,file-version,machine, ...}
-//   name=N       where N is a subset of a file path
-//   host=H       where H is the UUID of a host
-//   tcp=A:B:C:D  where A is the local IP, B is the local port,
-//                C is the remote IP and D is the remote port
-//                (any of which may be empty)
-//
-$('#filterNodeType').val($.url('?nodeType'));
-$('#filterName').val($.url('?name'));
-$('#filterHost').val($.url('?host'));
-
-const tcp_tuple = $.url('?tcp');
-if (tcp_tuple) {
-  const parts = tcp_tuple.split(':');
-  if (parts.length == 4) {
-    $('#filterLocalIp').val(parts[0]);
-    $('#filterLocalPort').val(parts[1]);
-    $('#filterRemoteIp').val(parts[2]);
-    $('#filterRemotePort').val(parts[3]);
-  }
-}
-
-
-//
-// Create worksheet and inspector views.
-//
-var worksheet = {
-  graph: cytoscape({
-    container: document.getElementById('worksheet'),
-    boxSelectionEnabled: true,
-  })
-};
-
-worksheet.graph.autopanOnDrag({
-  enabled: true,
-  selector: 'node',
-  speed: 0.25,
-});
-
-var inspector = {
-  detail: $('#inspector-detail'),
-  neighbours: $('#neighbour-detail'),
-  graph: cytoscape({
-    container: document.getElementById('inspector-graph'),
-    boxSelectionEnabled: true,
-  }),
-};
-inspector.graph.inspectee = null;
-
-load_graph_style([ worksheet.graph, inspector.graph ]);
-
-
-//
-// Add onchange event handlers to filter elements.
-//
-$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
-
-// When the inspector filters change, re-inspect the current node.
-$('input[id *= "inspect"]').on('change', function() {
-  const node = inspector.graph.inspectee;
-  if (node && !node.empty()) {
-    inspect(node.id());
-  }
-});
-
-
-//
-// Resize worksheet and inspector when the window size changes.
-//
-// Unfortunately this seems difficult to do via CSS.
-//
-$(document).ready(function() {
-  update_nodelist();
-
-  $(window).resize(function() {
-    // The height of the #content area (in ems) should be the height of the
-    // window minus that of the navbar, minus some margin and padding.
-    let fontSize = parseFloat($("html").css("font-size"));
-    let height = ($(this).height() - $("nav.navbar").height()) / fontSize - 3;
-    let width = $(this).width() / fontSize - 73;
-
-    $("html").keypress(function(ev) {
-      if (ev.altKey || ev.ctrlKey || ev.metaKey || !ev.shiftKey) {
-        return;
-      }
-
-      if (ev.key == 'D') {
-        layout(worksheet.graph, 'dagre');
-      } else if (ev.key == 'U') {
-        layout(worksheet.graph, 'cose-bilkent');
-      } else if (ev.key == 'H') {
-        toggle_sidebar();
-      }
-    });
-
-    $("#sidebar").height(fontSize * height);
-    $("#worksheet-container").height(fontSize * height);
-    $("#inspector").height(fontSize * height);
-    $("#inspector-graph").height(fontSize * (height - 12));
-  }).resize();
-});
-
-//
-// Allow node addition to be partially automated for testing:
-// if the query includes `nodes=foo,bar,baz` then the nodes
-// `foo`, `bar` and `baz` will be automatically added to the worksheet.
-//
-const nodes_to_add = $.url('?nodes');
-if (nodes_to_add) {
-  let promise = $.when(null);
-
-  for (let node of nodes_to_add.split(',')) {
-    promise.then(import_into_worksheet(node));
-  }
-}
-
-//
-// Similarly, allow `inspect=XXXX` to load the workspace page with
-// a single node pre-loaded in the inspector.
-//
-const node_to_inspect = $.url('?inspect');
-if (node_to_inspect) {
-  inspect(node_to_inspect);
-}
-
-// If we've explicitly specified nodes to import or inspect, close the sidebar
-// (which is really about initial exploration).
-if (nodes_to_add || node_to_inspect) {
-  toggle_sidebar();
-}
-  </script>
 {% endblock %}

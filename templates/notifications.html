@@ -1,6 +1,9 @@
 {%- extends "base.html" -%}
 
-{% import "bootstrap/utils.html" as utils %}
+{% block scripts %}
+  {{ super() }}
+  <script type="text/javascript" src="/dist/notifications.js"></script>
+{% endblock %}
 
 {% block content %}
   {{ super() }}
