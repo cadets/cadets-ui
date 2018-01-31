@@ -8,7 +8,7 @@ To run WebApp:
 - Clone the https://github.com/cadets/cadets-ui.git repo
 - Open the cadets_ui_js branch
 - Open the terminal
-- cd into the cloned folder where the JSON.package file is
+- cd into the cloned folder where the package.json file is
 - Run the command "npm install"
 - Open Neo4j and run the desired database with default login permissions
 - Run the Command "webpack-dev-server"
