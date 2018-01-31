@@ -1,0 +1,221 @@
+.hide{
+	display: none; 
+}
+.fill{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0%;
+	left: 0%;
+}
+.fillHeader{
+	color: white;
+	background-color: black;
+	width: 100%;
+	height: 7%;
+	position: absolute;
+	top: 0%;
+	left: 0%;
+}
+.title{
+	height: 88%;
+	position: absolute;
+	top: 12%;
+}
+.headerButtons{
+	height: 75%;
+	position: absolute;
+	top: 25%;
+	left: 20%;
+}
+.headerButton{
+	transition-duration: 0.5s;
+	font-size: 20px;
+	background-color: black;
+	color: white;
+	border: black;
+	outline:none;
+}
+.headerButton:Hover{
+	font-size: 20px;
+	background-color: white;
+	color: black;
+	border: white;
+}
+.fillBody{
+	background-color: #eee;
+	width: 100%;
+	height: 93%;
+	position: absolute;
+	top: 7%;
+	left: 0%;
+}
+.machineGraph{
+	box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	background-color: white;
+	width: 90%;
+	height: 90%;
+	position: absolute;
+	top: 5%;
+	left: 5%;
+}
+.notificationForm{
+	width: 88%;
+	height: 88%;
+	position: absolute;
+	top: 6%;
+	left: 6%;
+}
+.notificationTable{
+	border: 1px solid black;
+	border-collapse: collapse;
+	box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	background-color: white;
+	color: black;
+	width: 100%;
+	position: absolute;
+	top: 7%;
+}
+.notificationTable, th, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+th,td{
+	padding: 15px;
+}
+.analysisWorksheet{
+	box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	background-color: white;
+	width: 31%;
+	height: 96%;
+	position: absolute;
+	top: 2%;
+	left: 1%;
+}
+#analysisSearch{
+	background-color: #2ab7ea;
+	width: 100%;
+	height: 38%;
+	position: absolute;
+	top: 0%;
+	left: 0%;
+}
+.formBox{
+	background-color: white;
+	color: black;
+	width: 96%;
+	height: 87%;
+	position: absolute;
+	top: 10%;
+	left: 2%;
+}
+.analysisBody{
+	width: 100%;
+	height: 62%;
+	position: absolute;
+	top: 38%;
+	left: 0%;
+}
+.worksheet{
+	box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	background-color: white;
+	width: 33%;
+	height: 96%;
+	position: absolute;
+	top: 2%;
+	left: 33%;
+}
+.expandedWorksheet{
+	box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	background-color: white;
+	width: 65%;
+	height: 96%;
+	position: absolute;
+	top: 2%;
+	left: 1%;
+}
+.worksheetBtns{
+	width: 100%;
+	height: 7%;
+	position: absolute;
+	top: 93%;
+	left: 3%;
+}
+.bodyButton{
+	box-shadow: 0 4px #999;
+	background-color: #eee;
+	color: black;
+	border: none;
+	height: 55%;
+	border-radius: 15px;
+	outline:none;
+}
+.bodyButton:Hover{
+	background-color: #dfdfdf;
+}
+.bodyButton:active {
+	background-color: #ddd;
+	box-shadow: 0 2px #666;
+	transform: translateY(2px);
+}
+.inspector{
+	box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	background-color: white;
+	width: 32%;
+	height: 96%;
+	position: absolute;
+	top: 2%;
+	left: 67%;
+}
+.panel-heading{
+	background-color: #2ab7ea;
+	color: white;
+	width: 100%;
+	height: 7%;
+	position: absolute;
+	top: 0%;
+	left: 0%;
+}
+.panel-body{
+	background-color: white;
+	color: black;
+	width: 100%;
+	height: 93%;
+	position: absolute;
+	top: 7%;
+	left: 0%;
+}
+.inspectorT1{
+	width: 100%;
+	height: 50%;
+	position: absolute;
+	top: 100%;
+	left: 0%;
+}
+.inspectorT2{
+	width: 100%;
+	height: 50%;
+	position: absolute;
+	top: 150%;
+	left: 0%;
+}
+.filter{
+	width: 100%;
+	height: 4%;
+	position: absolute;
+	top: 96%;
+	left: 0%;
+}
+.checkbox{
+	color: black;
+}
+.scrollable{
+	overflow: scroll;
+	overflow-x: hidden;
+}
+::-webkit-scrollbar {
+	width: 7px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: #555; 
+}

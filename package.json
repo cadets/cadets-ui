@@ -1,58 +1,35 @@
 {
-  "name": "ui",
-  "version": "0.1.0",
-  "description": "Web-based CADETS/OPUS UI",
-  "main": "lib/worksheet.js",
+  "name": "CADETS_UI_JS",
+  "version": "1.0.0",
+  "description": "CADETS_UI_JS",
+  "main": "webpack.config.js",
+  "dependencies": {
+    "cytoscape": "^3.2.7",
+    "cytoscape-cxtmenu": "^3.0.0",
+    "jquery": "^3.2.1",
+    "moment": "^2.20.1",
+    "neo4j-driver": "^1.5.2",
+    "vex-js": "^4.0.1",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.11.1"
+  },
+  "devDependencies": {
+    "cytoscape": "^3.2.7",
+    "jquery": "^3.2.1",
+    "vex-js": "^4.0.1"
+  },
   "scripts": {
-    "build_assets": "webpack --progress --optimize-minimize"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cadets/cadets-ui.git"
+    "url": "git+https://github.com/gk3758/CADETS_UI_JS.git"
   },
   "keywords": [],
   "author": "",
-  "license": "BSD-2-Clause",
+  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/cadets/cadets-ui/issues"
+    "url": "https://github.com/gk3758/CADETS_UI_JS/issues"
   },
-  "homepage": "https://github.com/cadets/cadets-ui#readme",
-  "devDependencies": {
-    "@types/jquery": "^3.2.7",
-    "@types/jquery.contextmenu": "^1.7.32",
-    "@types/node": "^8.0.12",
-    "awesome-typescript-loader": "^3.2.1",
-    "babel-plugin-typecheck": "^3.9.0",
-    "bootstrap-material-design": "^0.5.10",
-    "css-loader": "^0.28.4",
-    "cytoscape": "^2.7.0",
-    "cytoscape-autopan-on-drag": "^2.0.1",
-    "cytoscape-cose-bilkent": "^1.6.13",
-    "cytoscape-dagre": "^1.6.0",
-    "file-loader": "^0.11.2",
-    "flow-bin": "^0.49.1",
-    "flowtype-loader": "^0.2.2",
-    "font-awesome": "^4.7.0",
-    "font-awesome-webpack": "0.0.5-beta.2",
-    "html-loader": "^0.4.5",
-    "jquery": "^3.2.1",
-    "jquery-contextmenu": "^2.5.0",
-    "less": "^2.7.2",
-    "moment": "^2.18.1",
-    "node-sass": "^4.5.3",
-    "sass-loader": "^6.0.6",
-    "scss": "^0.2.4",
-    "scss-loader": "0.0.1",
-    "style-loader": "^0.18.2",
-    "stylus": "^0.54.5",
-    "stylus-loader": "^3.0.1",
-    "ts-loader": "^2.2.2",
-    "typescript": "^2.4.1",
-    "url": "^0.11.0",
-    "url-loader": "^0.5.9",
-    "vex-js": "^4.0.0",
-    "webpack": "^2.7.0",
-    "wurl": "^2.5.0"
-  },
-  "dependencies": {}
+  "homepage": "https://github.com/gk3758/CADETS_UI_JS#readme"
 }
