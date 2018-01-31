@@ -1,6 +1,6 @@
 CADETS_UI_JS
 
-This is a prototype for the implementation of the CADETS/OPUS UI. Implemented with only js, html and css.
+This is a prototype for CADETS/OPUS UI. Implemented with only js, html and css.
 
 To run WebApp:
 
