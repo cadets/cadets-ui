@@ -8,6 +8,8 @@
 		<link href="css/cytoscape.css" rel="stylesheet" />
 		<link rel="stylesheet" href="node_modules/vex-js/dist/css/vex.css" />
 		<link rel="stylesheet" href="node_modules/vex-js/dist/css/vex-theme-os.css" />
+		<link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-base.css" />
+		<link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-light-theme.css" />
 
 		<script src="node_modules/vex-js/dist/js/vex.combined.min.js"></script>
 		<script src="node_modules/jquery/dist/jquery.js"></script>
@@ -15,6 +17,7 @@
 		<script src="node_modules/cytoscape-cxtmenu/cytoscape-cxtmenu.js"></script>
 		<script src="node_modules/neo4j-driver/lib/browser/neo4j-web.min.js"></script>
 		<script src="node_modules/moment/moment.js"></script>
+		<script src="node_modules/golden-layout/dist/goldenlayout.min.js"></script>
 
 		<script src="js/graphing.js"></script>
 	</head>
@@ -33,7 +36,7 @@
 				</div>
 			</div>
 
-			<div class=fillBody>
+			<div class="fillBody">
 
 				<div class="machineGraph" id="machinePage" >
 
@@ -75,86 +78,7 @@
 					</div>
 				</div>
 
-				<div class="fill hide" id="worksheetPage">
-
-					<div class="analysisWorksheet" id="analysisWorksheet">
-						<div id="analysisSearch">
-							<font class="analysisHeader" style="color: white">&nbsp;Available nodes:</font>
-							<div class="formBox">
-								<label for="filterNodeType">&nbsp;Type</label>
-								<div>
-									&nbsp;<select id="filterNodeType">
-										<option></option>
-										<option>connection</option>
-										<option>file-version</option>
-										<option>pipe-endpoint</option>
-										<option>process</option>
-										<option>process-meta</option>
-										<option>socket-version</option>
-										<option>machine</option>
-									</select>
-								</div>
-								<label for="filterName">&nbsp;Name</label>
-								<div class="col-md-10">
-									&nbsp;<input id="filterName"/>
-								</div>
-								<label for="filterHost">&nbsp;Host</label>
-								<div>
-									&nbsp;<input id="filterHost"/>
-								</div>
-								<label for="filterTuple">&nbsp;TCP</label>
-								<div id="filterTuple">
-									&nbsp;<input id="filterLocalIp" size="10"/>
-									<input id="filterLocalPort" size="3"/>&nbsp;L<br/>
-									&nbsp;<input id="filterRemoteIp" size="10"/>
-									<input id="filterRemotePort" size="3"/>&nbsp;R
-								</div>
-							</div>
-						</div>
-						<div class="analysisBody scrollable">
-							<table class="table">
-								<tbody id="nodelist"></tbody>
-							</table>
-						</div>
-					</div>
-
-					<div class="worksheet" id="worksheet">
-						<div class="fill" id="worksheetGraph"></div>
-						<div class="worksheetBtns">
-							<button type="button" class="bodyButton" id="hideAnalysisWorksheet">Toggle SideBar</button>
-							<input id="loadGraph" name="file" type="file" style="display: none">
-							<button class="bodyButton" onclick="$('#loadGraph').click();">Load</button>
-							<button type="button" class="bodyButton" id="saveGraph">Save</button>
-							<button type="button" class="bodyButton" id="reDagre">Temp</button>
-							<button type="button" class="bodyButton" id="reCose-Bilkent">Cose</button>
-						</div>
-					</div>
-
-					<div class="inspector scrollable">
-						<div class="fill" id="inspectorGraph"></div>
-						<div class="panel-heading">
-							<font size="+3" style="color:white">&nbsp;Inspector</font>
-						</div>
-						<div class="filter">
-							<input type="checkbox" class="roundedOne" id="inspectFiles">Files</input>
-							<input type="checkbox" class="roundedOne" id="inspectSockets">Sockets</input>
-							<input type="checkbox" class="roundedOne" id="inspectPipes">Pipes</input>
-							<input type="checkbox" class="roundedOne" id="inspectProcessMeta">ProcessMetaData</input>
-						</div>
-						<div class="inspectorT1">
-							<div class="panel-heading">&nbsp;Details</div>
-							<div class="panel-body scrollable">
-								<table id="inspector-detail" class="table"></table>
-							</div>
-						</div>
-						<div class="inspectorT2">
-							<div class="panel-heading">&nbsp;Neighbours</div>
-							<div class="panel-body scrollable">
-								<table id="neighbour-detail" class="table"></table>
-							</div>
-						</div>
-					</div>
-				</div>
+				<div class="fill hide" id="worksheetPage"></div>
 			</div>
 		</div>
 		<script src='js/bundle.js'></script>

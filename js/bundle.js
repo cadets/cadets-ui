@@ -67,153 +67,316 @@
 /* 0 */
 /***/ (function(module, exports) {
 
-//******************Don't forget to close sessions!!!!!
+//Global variables
 
-//Worksheet Graph
+var driver;
+var testGraph;
+var machineGraph;
+var inspectorGraph;
+var inspector;
+var worksheetGraph
 
-var testGraph = create('worksheetGraph');
+var analysisWorksheetHtml = `<div class="sheet" id="analysisWorksheet">
+								<div id="analysisSearch">
+									<font class="analysisHeader" style="color: white">&nbsp;Available nodes:</font>
+									<div class="formBox">
+										<label for="filterNodeType">&nbsp;Type</label>
+										<div>
+											&nbsp;<select id="filterNodeType">
+												<option></option>
+												<option>connection</option>
+												<option>file-version</option>
+												<option>pipe-endpoint</option>
+												<option>process</option>
+												<option>process-meta</option>
+												<option>socket-version</option>
+												<option>machine</option>
+											</select>
+										</div>
+										<label for="filterName">&nbsp;Name</label>
+										<div class="col-md-10">
+											&nbsp;<input id="filterName"/>
+										</div>
+										<label for="filterHost">&nbsp;Host</label>
+										<div>
+											&nbsp;<input id="filterHost"/>
+										</div>
+										<label for="filterTuple">&nbsp;TCP</label>
+										<div id="filterTuple">
+											&nbsp;<input id="filterLocalIp" size="10"/>
+											<input id="filterLocalPort" size="3"/>&nbsp;L<br/>
+											&nbsp;<input id="filterRemoteIp" size="10"/>
+											<input id="filterRemotePort" size="3"/>&nbsp;R
+										</div>
+									</div>
+								</div>
+								<div class="analysisBody scrollable">
+									<table class="table">
+										<tbody id="nodelist"></tbody>
+									</table>
+								</div>
+							</div>`;
 
-var worksheetGraph = {
-	graph: testGraph
+var worksheetHtml = `<div class="sheet" id="worksheet">
+						<div class="sheet" id="worksheetGraph"></div>
+						<div class="worksheetBtns">
+							<input id="loadGraph" name="file" type="file" style="display: none">
+							<button class="bodyButton" onclick="$('#loadGraph').click();">Load</button>
+							<button type="button" class="bodyButton" id="saveGraph">Save</button>
+							<button type="button" class="bodyButton" id="reDagre">Temp</button>
+							<button type="button" class="bodyButton" id="reCose-Bilkent">Cose</button>
+						</div>
+					</div>`;
+
+var inspectorHtml = `<div class="sheet scrollable">
+						<div class="sheet" id="inspectorGraph"></div>
+						<div class="panel-heading">
+							<font size="+3" style="color:white">&nbsp;Inspector</font>
+						</div>
+						<div class="filter">
+							<input type="checkbox" class="roundedOne" id="inspectFiles">Files</input>
+							<input type="checkbox" class="roundedOne" id="inspectSockets">Sockets</input>
+							<input type="checkbox" class="roundedOne" id="inspectPipes">Pipes</input>
+							<input type="checkbox" class="roundedOne" id="inspectProcessMeta">ProcessMetaData</input>
+						</div>
+						<div class="inspectorT1">
+							<div class="panel-heading">&nbsp;Details</div>
+							<div class="panel-body scrollable">
+								<table id="inspector-detail" class="table"></table>
+							</div>
+						</div>
+						<div class="inspectorT2">
+							<div class="panel-heading">&nbsp;Neighbours</div>
+							<div class="panel-body scrollable">
+								<table id="neighbour-detail" class="table"></table>
+							</div>
+						</div>
+					</div>`;
+
+var config = {
+	content: [{
+		type: 'row',
+		content: [
+		{
+			type:'component',
+			componentName: 'analysisWorksheet',
+			componentState: { text: analysisWorksheetHtml },
+			showPopoutIcon: false
+		},
+		{
+			type:'component',
+			componentName: 'worksheet',
+			componentState: { text: worksheetHtml },
+			showPopoutIcon: false
+		},
+		{
+			type:'component',
+			componentName: 'inspector',
+			componentState: { text: inspectorHtml }
+		}
+		]
+	}]
 };
 
-testGraph.cxtmenu( 
-{
-	menuRadius: 140,
-	separatorWidth: 5,
-	selector: 'node',
-	commands: [
-		{
-			content: 'Inspect',//TODO: get row onclick working
-			select: function(ele){
-				inspect_node(ele.data('id'));
-			}
-		},
-		{
-			content: 'Import neighbours',
-			select: function(ele){
-			import_neighbours_into_worksheet(ele.data('id'));
-			}
-		},
-		{
-			content: 'Import successors',//TODO: check if correct
-			select: function(ele){
-			successors(ele.data('id'));
-			}
-		},
-		{
-			content: 'Highlight',
-			select: function(ele){
-				toggle_node_importance(ele.data("id"));
-			}
-		},
-		{
-			content: 'Files read',
-			select: function(ele){
-					var id = ele.data('id');
-					file_read_query(id, function(result){
-						let str = '';
-						 result.forEach(function(name) {
-							str += `<li>${name}</li>`;  // XXX: requires trusted UI server!
-						 });
-						 vex.dialog.alert({
-							unsafeMessage: `<h2>Files read:</h2><ul>${str}</ul>`,
-						 });
-				});
-			}
-		},
-		{
-			content: 'Commands',
-			select: function(ele){
-				var id = ele.data('id');
-				cmd_query(id, function(result) {
-					let message = `<h2>Commands run by node ${id}:</h2>`;
-					if (result.length == 0) {
-						message += '<p>none</p>';
-					} else {
-						message += '<ul>';
-						for (let command of result) {//TODO: ask if this is correct output
-							message += `<li><a onclick="command_clicked(${command.dbid})">${command.cmdline}</a></li>`;
-						}
-						message += '</ul>';
+var workSheetLayout = new GoldenLayout( config, document.getElementById('worksheetPage') );
+
+//Global variables end
+
+//Run
+
+workSheetLayout.registerComponent( 'analysisWorksheet', function( container, state ){
+	container.getElement().html(state.text);
+});
+workSheetLayout.registerComponent( 'worksheet', function( container, state ){
+	container.getElement().html(state.text);
+});
+workSheetLayout.registerComponent( 'inspector', function( container, state ){
+	container.getElement().html(state.text);
+});
+
+workSheetLayout.init();
+
+//Run end
+
+//Events
+
+workSheetLayout.on('initialised', function(){
+
+	testGraph = create('worksheetGraph');
+	machineGraph = create('machineGraph');
+	inspectorGraph = create('inspectorGraph');
+
+	inspector = {
+		detail: $('#inspector-detail'),
+		neighbours: $('#neighbour-detail'),
+		graph: inspectorGraph,
+	};
+	inspector.graph.inspectee = null;
+
+	worksheetGraph = {
+		graph: testGraph
+	};
+
+	testGraph.cxtmenu( 
+	{
+		menuRadius: 140,
+		separatorWidth: 5,
+		selector: 'node',
+		commands: [
+				{
+					content: 'Inspect',//TODO: get row onclick working
+					select: function(ele){
+						inspect_node(ele.data('id'));
 					}
-					vex.dialog.alert({ unsafeMessage: message });
-				});
+				},
+				{
+					content: 'Import neighbours',
+					select: function(ele){
+					import_neighbours_into_worksheet(ele.data('id'));
+					}
+				},
+				{
+					content: 'Import successors',//TODO: check if correct
+					select: function(ele){
+					successors(ele.data('id'));
+					}
+				},
+				{
+					content: 'Highlight',
+					select: function(ele){
+						toggle_node_importance(ele.data("id"));
+					}
+				},
+				{
+					content: 'Files read',
+					select: function(ele){
+							var id = ele.data('id');
+							file_read_query(id, function(result){
+								let str = '';
+								 result.forEach(function(name) {
+									str += `<li>${name}</li>`;  // XXX: requires trusted UI server!
+								 });
+								 vex.dialog.alert({
+									unsafeMessage: `<h2>Files read:</h2><ul>${str}</ul>`,
+								 });
+						});
+					}
+				},
+				{
+					content: 'Commands',
+					select: function(ele){
+						var id = ele.data('id');
+						cmd_query(id, function(result) {
+							let message = `<h2>Commands run by node ${id}:</h2>`;
+							if (result.length == 0) {
+								message += '<p>none</p>';
+						} else {
+							message += '<ul>';
+							for (let command of result) {//TODO: ask if this is correct output
+								message += `<li><a onclick="command_clicked(${command.dbid})">${command.cmdline}</a></li>`;
+							}
+							message += '</ul>';
+						}
+						vex.dialog.alert({ unsafeMessage: message });
+					});
+				}
+			},
+			{
+				content: 'Remove neighbours',
+				select: function(ele){
+					remove_neighbours_from_worksheet(ele.data("id"));
+				}
+			},
+			{
+				content: 'Remove',
+				select: function(ele){
+					ele.remove();
+				}
+			},
+		]
+	});
+
+	inspectorGraph.cxtmenu({
+		selector: 'node',
+		commands: [
+			{
+				content: 'Import node',//TODO: get row onclick working
+				select: function(ele){
+					import_into_worksheet(ele.data('id'));		
 			}
-		},
-		{
-			content: 'Remove neighbours',
-			select: function(ele){
-				remove_neighbours_from_worksheet(ele.data("id"));
+			},
+			{
+				content: 'Import neighbours',
+				select: function(ele){
+					import_neighbours_into_worksheet(ele.data('id'));
 			}
-		},
-		{
-			content: 'Remove',
-			select: function(ele){
-				ele.remove();
+			},
+			{
+				content: 'Inspect',//TODO: get row onclick working
+				select: function(ele){
+					inspect_node(ele.data("id"));
 			}
-		},
-	]
-});
-
-//Worksheet Graph end
-
-//Machine Graph
-
-var machineGraph = create('machineGraph');
-
-//Machine Graph end
-
-//inspector Graph
-
-var inspectorGraph = create('inspectorGraph');
-
-var inspector = {
-	detail: $('#inspector-detail'),
-	neighbours: $('#neighbour-detail'),
-	graph: inspectorGraph,
-};
-inspector.graph.inspectee = null;
-
-inspectorGraph.cxtmenu({
-	selector: 'node',
-	commands: [
-		{
-			content: 'Import node',//TODO: get row onclick working
-			select: function(ele){
-				import_into_worksheet(ele.data('id'));		
-		}
-		},
-		{
-			content: 'Import neighbours',
-			select: function(ele){
-				import_neighbours_into_worksheet(ele.data('id'));
-		}
-		},
-		{
-			content: 'Inspect',//TODO: get row onclick working
-			select: function(ele){
-				inspect_node(ele.data("id"));
-		}
-		},
-		{
-			content: 'Import and Inspect',//TODO: get row onclick working
-			select: function(ele){
-				inspect_and_import(ele.data('id'));
-		}
-		},
-	]
-});
-
-
-//inspector Graph end
-
-//run
-	var driver;
+			},
+			{
+				content: 'Import and Inspect',//TODO: get row onclick working
+				select: function(ele){
+					inspect_and_import(ele.data('id'));
+			}
+			},
+		]
+	});
 
 	neo4jLogin();
 
-//run end
+	document.getElementById("machinesPageBtn").onclick = function () {
+		openPage('#machinePage');
+		refreshGraph('#machineGraph');
+	};
+
+	document.getElementById("notificationsPageBtn").onclick = function () {
+		openPage('#notificationPage');
+	};
+
+	document.getElementById("WorksheetPageBtn").onclick = function () {
+		openPage('#worksheetPage');
+		workSheetLayout.updateSize();
+		refreshGraph('#worksheetGraph');
+		refreshGraph('#inspectorGraph');
+	};
+
+	document.getElementById("loadGraph").onchange = function () {
+		load(this.files[0], worksheetGraph);
+	};
+
+	document.getElementById("saveGraph").onclick = function () {
+		save(worksheetGraph.graph);
+	};
+
+	document.getElementById("reDagre").onclick = function () {
+		console.log("test1");
+		//layout( worksheetGraph.graph, 'cose'); //TODO: get cDagre
+	};
+
+	document.getElementById("reCose-Bilkent").onclick = function () { 
+		layout( worksheetGraph.graph, 'cose'); //TODO: get cose-bilkent
+	};
+});
+
+workSheetLayout.on('windowOpened', function( id ){
+});
+
+//workSheetLayout.eventHub.emit( 'InspectorNewWindow', { id: id } );
+
+workSheetLayout.eventHub.on( 'InspectorNewWindow', function( id ){
+		$('input[id *= "inspect"]').on('change', function() {
+		const node = inspector.graph.inspectee;
+		if (node && !node.empty()) {
+			inspect_node(node.id());
+		}
+	});
+});
+
+//Events end
 
 //Functions
 
@@ -1304,49 +1467,6 @@ function get_nodes(node_type=null,
 }
 
 //Queries end
-
-//Button logic
-
-document.getElementById("machinesPageBtn").onclick = function () {
-	openPage('#machinePage');
-	refreshGraph('#machineGraph');
-};
-
-document.getElementById("notificationsPageBtn").onclick = function () {
-	openPage('#notificationPage');
-};
-
-document.getElementById("WorksheetPageBtn").onclick = function () {
-	openPage('#worksheetPage');
-	refreshGraph('#worksheetGraph');
-	refreshGraph('#inspectorGraph');
-};
-
-document.getElementById("hideAnalysisWorksheet").onclick = function () { 
-	$('#analysisWorksheet').toggleClass('hide');
-	$('#worksheet').toggleClass('expandedWorksheet');
-	refreshGraph('#worksheetGraph');
-};
-
-document.getElementById("loadGraph").onchange = function () {
-	load(this.files[0], worksheetGraph);
-};
-
-document.getElementById("saveGraph").onclick = function () {
-	save(worksheetGraph.graph);
-};
-
-//layout from graphing.js
-document.getElementById("reDagre").onclick = function () {
-	//layout( worksheetGraph.graph, 'cose'); //TODO: get cDagre online
-};
-
-//layout from graphing.js
-document.getElementById("reCose-Bilkent").onclick = function () { 
-	layout( worksheetGraph.graph, 'cose'); //TODO: get cose-bilkent online
-};
-
-//Button logic ends
 
 /***/ })
 /******/ ]);
