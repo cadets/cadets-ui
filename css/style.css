@@ -76,7 +76,7 @@
 	position: absolute;
 	top: 7%;
 }
-.notificationTable, th, td {
+.table, th, td {
 	border: 1px solid black;
 	border-collapse: collapse;
 }

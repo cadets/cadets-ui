@@ -96,6 +96,7 @@ function load(file, graphContainer) {
 		let data = JSON.parse(reader.result);
 		data.container = graphContainer.graph.container();
 		data.layout = { name: 'preset' };
+		console.log(data);
 		graphContainer.graph = cytoscape(data);
 	});
 

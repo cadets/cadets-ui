@@ -67,9 +67,6 @@
 /* 0 */
 /***/ (function(module, exports) {
 
-var neo4j = window.neo4j.v1;
-var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "abcde"));
-
 //******************Don't forget to close sessions!!!!!
 
 //Worksheet Graph
@@ -212,20 +209,46 @@ inspectorGraph.cxtmenu({
 //inspector Graph end
 
 //run
+	var driver;
 
-	setup_machines();
+	neo4jLogin();
 
-	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
-
-	$('input[id *= "inspect"]').on('change', function() {
-	  const node = inspector.graph.inspectee;
-	  if (node && !node.empty()) {
-		inspect_node(node.id());
-	  }
-	});
 //run end
 
 //Functions
+
+function neo4jLogin(){
+	vex.dialog.open({
+		message: 'Enter your Neo4j username and password:',
+		input: [
+			'<input name="username" type="text" placeholder="Username" required /><br>',
+			'<input name="password" type="password" placeholder="Password" required />'
+		].join(''),
+		buttons: [
+			$.extend({}, vex.dialog.buttons.YES, { text: 'Login' })
+		],
+		callback: function (data) {
+			var neo4j = window.neo4j.v1;
+			if (!data) {
+				console.log('Assuming no login authorization on Neo4j db. To relogin please refresh page.');
+				driver = neo4j.driver("bolt://localhost", neo4j.auth.basic('', ''));
+			} else {
+				driver = neo4j.driver("bolt://localhost", neo4j.auth.basic(data.username, data.password));
+			}
+
+			setup_machines();
+
+			$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
+
+			$('input[id *= "inspect"]').on('change', function() {
+				const node = inspector.graph.inspectee;
+				if (node && !node.empty()) {
+					inspect_node(node.id());
+				}
+			});
+		}
+	})
+}
 
 function remove_neighbours_from_worksheet(id) {
 	let node = worksheetGraph.graph.$id(id);
@@ -426,9 +449,7 @@ function inspect_node(id, err = console.log) {
 				var table = document.getElementById("neighbour-detail");
 
 				var row = table.insertRow(0);
-				//row.setAttribute("data-myID", items[i].id);
 				row.onclick = (function() {
-					//console.log("test");
 					import_into_worksheet(n.id);
 				});
 				var cell = row.insertCell(0);
@@ -526,9 +547,7 @@ function update_nodelist(err = console.log) {
 					var table = document.getElementById("nodelist");
 
 					var row = table.insertRow(0);
-					//row.setAttribute("data-myID", items[i].id);
 					row.onclick = (function() {
-						//console.log("test");
 						inspect_node(node.id);
 					});
 					var cell = row.insertCell(0);
@@ -728,6 +747,30 @@ function parseNeo4jEdge(o){
 //Parser end
 
 //Queries
+
+// function notifications(){
+// 	var alerts = [];
+
+// 	if current_app.bro_location:
+// 		with open(current_app.bro_location) as f:
+// 			for l in f:
+// 				bro_data = [p for p in l.split() if p != '']
+// 				if (bro_data.length == 0){
+// 					break;
+// 				}
+
+// 				alerts = alerts.concat({
+// 					'local_ip': bro_data[7],
+// 					'local_port': bro_data[8],
+// 					'remote_ip': bro_data[9],
+// 					'remote_port': bro_data[10],
+// 					'timestamp': datetime.fromtimestamp(int(float(bro_data[5]))),
+// 					'event': bro_data[15]
+// 				});
+
+// 	return flask.render_template('notifications.html', alerts = alerts)
+// }
+
 
 function file_read_query(id, fn){
 	var session = driver.session();
