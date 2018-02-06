@@ -96,7 +96,6 @@ function load(file, graphContainer) {
 		let data = JSON.parse(reader.result);
 		data.container = graphContainer.graph.container();
 		data.layout = { name: 'preset' };
-		console.log(data);
 		graphContainer.graph = cytoscape(data);
 	});
 
@@ -216,7 +215,6 @@ function node_metadata(node) {
 
 	default:
 		console.log('unknown node type: ' + node.type);
-		console.log(node);
 		return {
 			icon: 'question',
 			label: 'unknown',

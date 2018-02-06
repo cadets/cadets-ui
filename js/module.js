@@ -5,7 +5,12 @@ var testGraph;
 var machineGraph;
 var inspectorGraph;
 var inspector;
-var worksheetGraph
+var worksheetGraph;
+var inspectorWindowed = false;
+var isWindow = false;
+var windowMessageAccepted = true;
+var lastInspectedId = null;
+
 
 var analysisWorksheetHtml = `<div class="sheet" id="analysisWorksheet">
 								<div id="analysisSearch">
@@ -61,26 +66,31 @@ var worksheetHtml = `<div class="sheet" id="worksheet">
 
 var inspectorHtml = `<div class="sheet scrollable">
 						<div class="sheet" id="inspectorGraph"></div>
-						<div class="panel-heading">
-							<font size="+3" style="color:white">&nbsp;Inspector</font>
-						</div>
 						<div class="filter">
-							<input type="checkbox" class="roundedOne" id="inspectFiles">Files</input>
-							<input type="checkbox" class="roundedOne" id="inspectSockets">Sockets</input>
-							<input type="checkbox" class="roundedOne" id="inspectPipes">Pipes</input>
-							<input type="checkbox" class="roundedOne" id="inspectProcessMeta">ProcessMetaData</input>
+							<input type="checkbox" id="inspectFiles">Files</input>
+							<input type="checkbox" id="inspectSockets">Sockets</input>
+							<input type="checkbox" id="inspectPipes">Pipes</input>
+							<input type="checkbox" id="inspectProcessMeta">ProcessMetaData</input>
 						</div>
 						<div class="inspectorT1">
-							<div class="panel-heading">&nbsp;Details</div>
-							<div class="panel-body scrollable">
-								<table id="inspector-detail" class="table"></table>
-							</div>
+							<div class="box">
+								<div class="row header fillHeader">
+									<font>&nbsp;Details</font>
+								</div>
+								<div class="row content scrollable">
+									<table id="inspector-detail" class="table"></table>
+								</div>
+							</div>	
 						</div>
 						<div class="inspectorT2">
-							<div class="panel-heading">&nbsp;Neighbours</div>
-							<div class="panel-body scrollable">
-								<table id="neighbour-detail" class="table"></table>
-							</div>
+							<div class="box">
+								<div class="row header fillHeader">
+									<font>&nbsp;Neighbours</font>
+								</div>
+								<div class="row content scrollable">
+									<table id="neighbour-detail" class="table"></table>
+								</div>
+							</div>	
 						</div>
 					</div>`;
 
@@ -133,16 +143,62 @@ workSheetLayout.init();
 
 workSheetLayout.on('initialised', function(){
 
-	testGraph = create('worksheetGraph');
-	machineGraph = create('machineGraph');
-	inspectorGraph = create('inspectorGraph');
+	neo4jLogin();
 
-	inspector = {
-		detail: $('#inspector-detail'),
-		neighbours: $('#neighbour-detail'),
-		graph: inspectorGraph,
-	};
-	inspector.graph.inspectee = null;
+	if(document.getElementById("inspectorGraph") != null){
+		createInspector();
+	}
+	if(document.getElementById("worksheetGraph") != null){
+		createWorksheet();
+	}
+});
+
+//Currently assumes that only the inspector can be windowed 
+workSheetLayout.on('windowOpened', function( id ){
+	workSheetLayout.eventHub.emit('inspectorWindowOpened', lastInspectedId, driver);
+});
+
+workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, driver ){
+	inspectorWindowed = true;
+	if(document.getElementById("inspectorGraph") != null){
+		diver = driver;
+		lastInspectedId = id;
+		isWindow = true;
+		inspect(id);
+	}
+});
+
+workSheetLayout.on('windowClosed', function( id ){
+	console.log('closedWindow');
+	workSheetLayout.eventHub.emit('inspectorWindowClosed', true);
+});
+
+workSheetLayout.eventHub.on('inspectorWindowClosed', function( bool ){
+	inspectorWindowed = false;
+});
+
+workSheetLayout.eventHub.on('inspect', function( id ){
+	console.log("inspect async");
+	console.log(isWindow);
+	if(document.getElementById("inspectorGraph") != null){
+		inspect_node(id);
+	}
+});
+
+workSheetLayout.eventHub.on('messageAccepted', function( bool ){
+	windowMessageAccepted = true;
+});
+
+window.onresize = function(){
+	workSheetLayout.updateSize();
+}
+
+//Events end
+
+//Functions
+
+function createWorksheet(){
+	testGraph = create('worksheetGraph');
 
 	worksheetGraph = {
 		graph: testGraph
@@ -154,52 +210,52 @@ workSheetLayout.on('initialised', function(){
 		separatorWidth: 5,
 		selector: 'node',
 		commands: [
-				{
-					content: 'Inspect',//TODO: get row onclick working
-					select: function(ele){
-						inspect_node(ele.data('id'));
-					}
-				},
-				{
-					content: 'Import neighbours',
-					select: function(ele){
+			{
+				content: 'Inspect',//TODO: get row onclick working
+				select: function(ele){
+					inspect(ele.data('id'));
+				}
+			},
+			{
+				content: 'Import neighbours',
+				select: function(ele){
 					import_neighbours_into_worksheet(ele.data('id'));
-					}
-				},
-				{
-					content: 'Import successors',//TODO: check if correct
-					select: function(ele){
+				}
+			},
+			{
+				content: 'Import successors',//TODO: check if correct
+				select: function(ele){
 					successors(ele.data('id'));
-					}
-				},
-				{
-					content: 'Highlight',
-					select: function(ele){
-						toggle_node_importance(ele.data("id"));
-					}
-				},
-				{
-					content: 'Files read',
-					select: function(ele){
-							var id = ele.data('id');
-							file_read_query(id, function(result){
-								let str = '';
-								 result.forEach(function(name) {
-									str += `<li>${name}</li>`;  // XXX: requires trusted UI server!
-								 });
-								 vex.dialog.alert({
-									unsafeMessage: `<h2>Files read:</h2><ul>${str}</ul>`,
-								 });
-						});
-					}
-				},
-				{
-					content: 'Commands',
-					select: function(ele){
-						var id = ele.data('id');
-						cmd_query(id, function(result) {
-							let message = `<h2>Commands run by node ${id}:</h2>`;
-							if (result.length == 0) {
+				}
+			},
+			{
+				content: 'Highlight',
+				select: function(ele){
+					toggle_node_importance(ele.data("id"));
+				}
+			},
+			{
+				content: 'Files read',
+				select: function(ele){
+					var id = ele.data('id');
+					file_read_query(id, function(result){
+						let str = '';
+						 result.forEach(function(name) {
+							str += `<li>${name}</li>`;  // XXX: requires trusted UI server!
+						 });
+						 vex.dialog.alert({
+							unsafeMessage: `<h2>Files read:</h2><ul>${str}</ul>`,
+						 });
+					});
+				}
+			},
+			{
+				content: 'Commands',
+				select: function(ele){
+					var id = ele.data('id');
+					cmd_query(id, function(result) {
+						let message = `<h2>Commands run by node ${id}:</h2>`;
+						if (result.length == 0) {
 								message += '<p>none</p>';
 						} else {
 							message += '<ul>';
@@ -227,6 +283,36 @@ workSheetLayout.on('initialised', function(){
 		]
 	});
 
+	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
+
+	document.getElementById("loadGraph").onchange = function () {
+		load(this.files[0], worksheetGraph);
+	};
+
+	document.getElementById("saveGraph").onclick = function () {
+		save(worksheetGraph.graph);
+	};
+
+	document.getElementById("reDagre").onclick = function () {
+		//layout( worksheetGraph.graph, 'cose'); //TODO: get cDagre
+	};
+
+	document.getElementById("reCose-Bilkent").onclick = function () { 
+		layout( worksheetGraph.graph, 'cose'); //TODO: get cose-bilkent
+	};
+}
+
+function createInspector(){
+	inspectorGraph = create('inspectorGraph');
+
+	inspector = {
+		detail: $('#inspector-detail'),
+		neighbours: $('#neighbour-detail'),
+		graph: inspectorGraph,
+	};
+	inspector.graph.inspectee = null;
+
+
 	inspectorGraph.cxtmenu({
 		selector: 'node',
 		commands: [
@@ -245,7 +331,7 @@ workSheetLayout.on('initialised', function(){
 			{
 				content: 'Inspect',//TODO: get row onclick working
 				select: function(ele){
-					inspect_node(ele.data("id"));
+					inspect(ele.data("id"));
 			}
 			},
 			{
@@ -257,59 +343,12 @@ workSheetLayout.on('initialised', function(){
 		]
 	});
 
-	neo4jLogin();
-
-	document.getElementById("machinesPageBtn").onclick = function () {
-		openPage('#machinePage');
-		refreshGraph('#machineGraph');
-	};
-
-	document.getElementById("notificationsPageBtn").onclick = function () {
-		openPage('#notificationPage');
-	};
-
-	document.getElementById("WorksheetPageBtn").onclick = function () {
-		openPage('#worksheetPage');
-		workSheetLayout.updateSize();
-		refreshGraph('#worksheetGraph');
-		refreshGraph('#inspectorGraph');
-	};
-
-	document.getElementById("loadGraph").onchange = function () {
-		load(this.files[0], worksheetGraph);
-	};
-
-	document.getElementById("saveGraph").onclick = function () {
-		save(worksheetGraph.graph);
-	};
-
-	document.getElementById("reDagre").onclick = function () {
-		console.log("test1");
-		//layout( worksheetGraph.graph, 'cose'); //TODO: get cDagre
-	};
-
-	document.getElementById("reCose-Bilkent").onclick = function () { 
-		layout( worksheetGraph.graph, 'cose'); //TODO: get cose-bilkent
-	};
-});
-
-workSheetLayout.on('windowOpened', function( id ){
-});
-
-//workSheetLayout.eventHub.emit( 'InspectorNewWindow', { id: id } );
-
-workSheetLayout.eventHub.on( 'InspectorNewWindow', function( id ){
-		$('input[id *= "inspect"]').on('change', function() {
-		const node = inspector.graph.inspectee;
-		if (node && !node.empty()) {
-			inspect_node(node.id());
+	$('input[id *= "inspect"]').on('change', function() {
+		if (lastInspectedId != null) {
+			inspect(lastInspectedId);
 		}
 	});
-});
-
-//Events end
-
-//Functions
+}
 
 function neo4jLogin(){
 	vex.dialog.open({
@@ -329,17 +368,6 @@ function neo4jLogin(){
 			} else {
 				driver = neo4j.driver("bolt://localhost", neo4j.auth.basic(data.username, data.password));
 			}
-
-			setup_machines();
-
-			$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
-
-			$('input[id *= "inspect"]').on('change', function() {
-				const node = inspector.graph.inspectee;
-				if (node && !node.empty()) {
-					inspect_node(node.id());
-				}
-			});
 		}
 	})
 }
@@ -426,12 +454,12 @@ function get_neighbours(id, fn) {
 //
 function get_successors(id, fn, err = console.log) {
 	return successors_query(id,
-					max_depth = 100,
-					files = $('#inspectFiles').is(':checked'),
-					sockets = $('#inspectSockets').is(':checked'),
-					pipes = $('#inspectPipes').is(':checked'),
-					process_meta = $('#inspectProcessMeta').is(':checked'),
-					fn);
+							max_depth = 100,
+							files = $('#inspectFiles').is(':checked'),
+							sockets = $('#inspectSockets').is(':checked'),
+							pipes = $('#inspectPipes').is(':checked'),
+							process_meta = $('#inspectProcessMeta').is(':checked'),
+							fn);
 }
 
 //
@@ -485,7 +513,7 @@ function import_into_worksheet(id, err = console.log) {
 
 function inspect_and_import(id) {
 	import_into_worksheet(id);
-	inspect_node(id);
+	inspect(id);
 }
 
 //
@@ -502,12 +530,19 @@ function import_neighbours_into_worksheet(id) {
 	});
 }
 
+function inspect(id){
+	console.log('inspectCall');
+	workSheetLayout.eventHub.emit('inspect', id);
+}
+
 //
 // Define what it means to "inspect" a node.
 //
 function inspect_node(id, err = console.log) {
 	// Display the node's details in the inspector "Details" panel.
 	var inspectee;
+
+	lastInspectedId = id;
 
 	inspector.detail.empty();
 	inspector.neighbours.empty();
@@ -521,6 +556,7 @@ function inspect_node(id, err = console.log) {
 				</tr>
 			`)
 		}
+		lastInspectee = id;//for testing windowed inspector
 		inspectee = result;
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
@@ -642,7 +678,7 @@ function update_nodelist(err = console.log) {
 
 					var row = table.insertRow(0);
 					row.onclick = (function() {
-						inspect_node(node.id);
+						inspect(node.id);
 					});
 					var cell = row.insertCell(0);
 					cell.innerHTML = (`
@@ -903,25 +939,25 @@ function cmd_query(id, fn){
 }
 
 
-function setup_machines() {
-	var session = driver.session();
-	session.run("MATCH (m:Machine) RETURN m")
-	.then(result => {result.records.forEach(function (record) 
-		{
-			var nodeData = parseNeo4jNode(record.get('m'));
-			add_node(nodeData, machineGraph);
-		});
-		session.run("MATCH (:Machine)-[e]->(:Machine) RETURN DISTINCT e")
-		.then(result => {result.records.forEach(function (record) 
-			{
-				var edgeData = parseNeo4jEdge(record.get('e'));
-				add_edge(edgeData, machineGraph);
-			});
-			session.close();
-		});
-		layout( machineGraph, 'cose');
-	});
-}
+// function setup_machines() {
+// 	var session = driver.session();
+// 	session.run("MATCH (m:Machine) RETURN m")
+// 	.then(result => {result.records.forEach(function (record) 
+// 		{
+// 			var nodeData = parseNeo4jNode(record.get('m'));
+// 			add_node(nodeData, machineGraph);
+// 		});
+// 		session.run("MATCH (:Machine)-[e]->(:Machine) RETURN DISTINCT e")
+// 		.then(result => {result.records.forEach(function (record) 
+// 			{
+// 				var edgeData = parseNeo4jEdge(record.get('e'));
+// 				add_edge(edgeData, machineGraph);
+// 			});
+// 			session.close();
+// 		});
+// 		layout( machineGraph, 'cose');
+// 	});
+// }
 
 function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process_meta=true){
 	var session = driver.session();

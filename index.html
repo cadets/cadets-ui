@@ -9,7 +9,7 @@
 		<link rel="stylesheet" href="node_modules/vex-js/dist/css/vex.css" />
 		<link rel="stylesheet" href="node_modules/vex-js/dist/css/vex-theme-os.css" />
 		<link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-base.css" />
-		<link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-light-theme.css" />
+		<link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-dark-theme.css" />
 
 		<script src="node_modules/vex-js/dist/js/vex.combined.min.js"></script>
 		<script src="node_modules/jquery/dist/jquery.js"></script>
@@ -23,63 +23,13 @@
 	</head>
 
 	<body>
-		<div class="fill">
-
-			<div class="fillHeader">
-				<div class="title">
+		<div class="box">
+			<div class="row header">
+				<div class="fillHeader" >
 					<font size="+3">&nbsp;CADETS/OPUS</font>
 				</div>
-				<div class="headerButtons">
-					<button type="button" class="headerButton" id="machinesPageBtn">Machines</button>
-					<button type="button" class="headerButton" id="notificationsPageBtn">Notifications</button>
-					<button type="button" class="headerButton" id="WorksheetPageBtn">Worksheets</button>
-				</div>
 			</div>
-
-			<div class="fillBody">
-
-				<div class="machineGraph" id="machinePage" >
-
-					<div class="fill" id="machineGraph"></div>
-				</div>
-
-				<div class="fill hide" id="notificationPage">
-					<div class="notificationForm">
-						<font size="+3" style="color:black;">Alert Notifications</font>
-						<table class="table notificationTable">
-							<thead>
-								<tr>
-									<th>Time</th>
-									<th>Local</th>
-									<th>Remote</th>
-									<th>Event</th>
-									<th></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>{{ alert.timestamp }}</td>
-									<td>
-										<a href="worksheet?nodeType=socket-version&tcp={{ alert.local_ip }}:{{ alert.local_port }}::">{{ alert.local_ip }}:{{ alert.local_port }}
-										</a>
-									</td>
-									<td>
-										<a href="worksheet?nodeType=socket-version&tcp=::{{ alert.remote_ip }}:{{ alert.remote_port }}">{{ alert.remote_ip }}:{{ alert.remote_port }}
-										</a>
-									</td>
-									<td>{{ alert.event }}</td>
-									<td>
-										<a href="worksheet?nodeType=socket-version&tcp={{ alert.local_ip }}:{{ alert.local_port }}:{{ alert.remote_ip }}:{{ alert.remote_port }}">lookup
-										</a>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-
-				<div class="fill hide" id="worksheetPage"></div>
-			</div>
+			<div class="row content" id="worksheetPage"></div>
 		</div>
 		<script src='js/bundle.js'></script>
 	</body>
