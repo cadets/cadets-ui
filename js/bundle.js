@@ -69,53 +69,47 @@
 
 //Global variables
 
-var driver;
+var driver = null;
 var testGraph;
 var machineGraph;
 var inspectorGraph;
 var inspector;
 var worksheetGraph;
-var inspectorWindowed = false;
-var isWindow = false;
-var windowMessageAccepted = true;
 var lastInspectedId = null;
 
 
-var analysisWorksheetHtml = `<div class="sheet" id="analysisWorksheet">
-								<div id="analysisSearch">
-									<font class="analysisHeader" style="color: white">&nbsp;Available nodes:</font>
-									<div class="formBox">
-										<label for="filterNodeType">&nbsp;Type</label>
-										<div>
-											&nbsp;<select id="filterNodeType">
-												<option></option>
-												<option>connection</option>
-												<option>file-version</option>
-												<option>pipe-endpoint</option>
-												<option>process</option>
-												<option>process-meta</option>
-												<option>socket-version</option>
-												<option>machine</option>
-											</select>
-										</div>
-										<label for="filterName">&nbsp;Name</label>
-										<div class="col-md-10">
-											&nbsp;<input id="filterName"/>
-										</div>
-										<label for="filterHost">&nbsp;Host</label>
-										<div>
-											&nbsp;<input id="filterHost"/>
-										</div>
-										<label for="filterTuple">&nbsp;TCP</label>
-										<div id="filterTuple">
-											&nbsp;<input id="filterLocalIp" size="10"/>
-											<input id="filterLocalPort" size="3"/>&nbsp;L<br/>
-											&nbsp;<input id="filterRemoteIp" size="10"/>
-											<input id="filterRemotePort" size="3"/>&nbsp;R
-										</div>
+var analysisWorksheetHtml = `<div class="sheet box">
+								<div class="row header formBox">
+									<label for="filterNodeType">&nbsp;Type</label>
+									<div>
+										&nbsp;<select id="filterNodeType">
+										<option></option>
+											<option>connection</option>
+											<option>file-version</option>
+											<option>pipe-endpoint</option>
+											<option>process</option>
+											<option>process-meta</option>
+											<option>socket-version</option>
+											<option>machine</option>
+										</select>
+									</div>
+									<label for="filterName">&nbsp;Name</label>
+									<div>
+										&nbsp;<input id="filterName"/>
+									</div>
+									<label for="filterHost">&nbsp;Host</label>
+									<div>
+										&nbsp;<input id="filterHost"/>
+									</div>
+									<label for="filterTuple">&nbsp;TCP</label>
+									<div id="filterTuple">
+										&nbsp;<input id="filterLocalIp" size="10"/>
+										<input id="filterLocalPort" size="3"/>&nbsp;L<br/>
+										&nbsp;<input id="filterRemoteIp" size="10"/>
+										<input id="filterRemotePort" size="3"/>&nbsp;R
 									</div>
 								</div>
-								<div class="analysisBody scrollable">
+								<div class="row content scrollable">
 									<table class="table">
 										<tbody id="nodelist"></tbody>
 									</table>
@@ -124,7 +118,7 @@ var analysisWorksheetHtml = `<div class="sheet" id="analysisWorksheet">
 
 var worksheetHtml = `<div class="sheet" id="worksheet">
 						<div class="sheet" id="worksheetGraph"></div>
-						<div class="worksheetBtns">
+						<div class="bottomOptions">
 							<input id="loadGraph" name="file" type="file" style="display: none">
 							<button class="bodyButton" onclick="$('#loadGraph').click();">Load</button>
 							<button type="button" class="bodyButton" id="saveGraph">Save</button>
@@ -135,7 +129,7 @@ var worksheetHtml = `<div class="sheet" id="worksheet">
 
 var inspectorHtml = `<div class="sheet scrollable">
 						<div class="sheet" id="inspectorGraph"></div>
-						<div class="filter">
+						<div class="bottomOptions">
 							<input type="checkbox" id="inspectFiles">Files</input>
 							<input type="checkbox" id="inspectSockets">Sockets</input>
 							<input type="checkbox" id="inspectPipes">Pipes</input>
@@ -169,19 +163,19 @@ var config = {
 		content: [
 		{
 			type:'component',
-			componentName: 'analysisWorksheet',
+			componentName: 'NodeSearchsheet',
 			componentState: { text: analysisWorksheetHtml },
 			showPopoutIcon: false
 		},
 		{
 			type:'component',
-			componentName: 'worksheet',
+			componentName: 'Worksheet',
 			componentState: { text: worksheetHtml },
 			showPopoutIcon: false
 		},
 		{
 			type:'component',
-			componentName: 'inspector',
+			componentName: 'Inspector',
 			componentState: { text: inspectorHtml }
 		}
 		]
@@ -194,14 +188,20 @@ var workSheetLayout = new GoldenLayout( config, document.getElementById('workshe
 
 //Run
 
-workSheetLayout.registerComponent( 'analysisWorksheet', function( container, state ){
+workSheetLayout.registerComponent( 'NodeSearchsheet', function( container, state ){
 	container.getElement().html(state.text);
 });
-workSheetLayout.registerComponent( 'worksheet', function( container, state ){
+workSheetLayout.registerComponent( 'Worksheet', function( container, state ){
 	container.getElement().html(state.text);
+	container.on('resize', function(){
+		refreshGraph('worksheetGraph');
+	})
 });
-workSheetLayout.registerComponent( 'inspector', function( container, state ){
+workSheetLayout.registerComponent( 'Inspector', function( container, state ){
 	container.getElement().html(state.text);
+	container.on('resize', function(){
+		refreshGraph('inspectorGraph');
+	})
 });
 
 workSheetLayout.init();
@@ -212,7 +212,9 @@ workSheetLayout.init();
 
 workSheetLayout.on('initialised', function(){
 
-	neo4jLogin();
+	if(driver == null){
+		neo4jLogin();
+	}
 
 	if(document.getElementById("inspectorGraph") != null){
 		createInspector();
@@ -227,35 +229,25 @@ workSheetLayout.on('windowOpened', function( id ){
 	workSheetLayout.eventHub.emit('inspectorWindowOpened', lastInspectedId, driver);
 });
 
-workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, driver ){
-	inspectorWindowed = true;
+workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currDriver ){
 	if(document.getElementById("inspectorGraph") != null){
-		diver = driver;
+		driver = currDriver;
 		lastInspectedId = id;
-		isWindow = true;
-		inspect(id);
+		inspectAsync(id);
 	}
 });
 
-workSheetLayout.on('windowClosed', function( id ){
-	console.log('closedWindow');
-	workSheetLayout.eventHub.emit('inspectorWindowClosed', true);
-});
+// workSheetLayout.on('windowClosed', function( id ){
+// 	workSheetLayout.eventHub.emit('inspectorWindowClosed', true);
+// });
 
 workSheetLayout.eventHub.on('inspectorWindowClosed', function( bool ){
-	inspectorWindowed = false;
 });
 
-workSheetLayout.eventHub.on('inspect', function( id ){
-	console.log("inspect async");
-	console.log(isWindow);
+workSheetLayout.eventHub.on('inspect', function( id ){//import_into_worksheet
 	if(document.getElementById("inspectorGraph") != null){
 		inspect_node(id);
 	}
-});
-
-workSheetLayout.eventHub.on('messageAccepted', function( bool ){
-	windowMessageAccepted = true;
 });
 
 window.onresize = function(){
@@ -282,7 +274,7 @@ function createWorksheet(){
 			{
 				content: 'Inspect',//TODO: get row onclick working
 				select: function(ele){
-					inspect(ele.data('id'));
+					inspectAsync(ele.data('id'));
 				}
 			},
 			{
@@ -400,7 +392,7 @@ function createInspector(){
 			{
 				content: 'Inspect',//TODO: get row onclick working
 				select: function(ele){
-					inspect(ele.data("id"));
+					inspectAsync(ele.data("id"));
 			}
 			},
 			{
@@ -414,7 +406,7 @@ function createInspector(){
 
 	$('input[id *= "inspect"]').on('change', function() {
 		if (lastInspectedId != null) {
-			inspect(lastInspectedId);
+			inspectAsync(lastInspectedId);
 		}
 	});
 }
@@ -580,9 +572,15 @@ function import_into_worksheet(id, err = console.log) {
 	});
 }
 
+function inspect_and_importAsync(id){
+	console.log('inspectCall');
+	workSheetLayout.eventHub.emit('import_into_worksheet', id);
+	workSheetLayout.eventHub.emit('inspect', id);
+}
+
 function inspect_and_import(id) {
 	import_into_worksheet(id);
-	inspect(id);
+	inspectAsync(id);
 }
 
 //
@@ -599,7 +597,7 @@ function import_neighbours_into_worksheet(id) {
 	});
 }
 
-function inspect(id){
+function inspectAsync(id){
 	console.log('inspectCall');
 	workSheetLayout.eventHub.emit('inspect', id);
 }
@@ -747,7 +745,7 @@ function update_nodelist(err = console.log) {
 
 					var row = table.insertRow(0);
 					row.onclick = (function() {
-						inspect(node.id);
+						inspectAsync(node.id);
 					});
 					var cell = row.insertCell(0);
 					cell.innerHTML = (`
