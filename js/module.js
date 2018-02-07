@@ -7,9 +7,14 @@ var inspectorGraph;
 var inspector;
 var worksheetGraph;
 var lastInspectedId = null;
+var baseWindow = false;//has analysisWorksheet
+var inspectFiles = false;
+var inspectSockets = false;
+var inspectPipes = false;
+var inspectProcessMeta = false;
 
 
-var analysisWorksheetHtml = `<div class="sheet box">
+var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
 								<div class="row header formBox">
 									<label for="filterNodeType">&nbsp;Type</label>
 									<div>
@@ -143,10 +148,12 @@ workSheetLayout.init();
 
 workSheetLayout.on('initialised', function(){
 
-	if(driver == null){
+	if(document.getElementById("analysisWorksheet") != null){
+		baseWindow = true;
+	}
+	if(baseWindow == true){
 		neo4jLogin();
 	}
-
 	if(document.getElementById("inspectorGraph") != null){
 		createInspector();
 	}
@@ -160,7 +167,17 @@ workSheetLayout.on('windowOpened', function( id ){
 	workSheetLayout.eventHub.emit('inspectorWindowOpened', lastInspectedId, driver);
 });
 
+var once = false;
+
 workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currDriver ){
+	if(baseWindow && once){
+		once = true;
+		workSheetLayout.eventHub.emit('updateInspectTargets',
+										$('#inspectFiles').is(':checked'),
+										$('#inspectSockets').is(':checked'),
+										$('#inspectPipes').is(':checked'),
+										$('#inspectProcessMeta').is(':checked'));
+	}
 	if(document.getElementById("inspectorGraph") != null){
 		driver = currDriver;
 		lastInspectedId = id;
@@ -168,17 +185,33 @@ workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currDriver ){
 	}
 });
 
-// workSheetLayout.on('windowClosed', function( id ){
-// 	workSheetLayout.eventHub.emit('inspectorWindowClosed', true);
-// });
-
-workSheetLayout.eventHub.on('inspectorWindowClosed', function( bool ){
+workSheetLayout.on('windowClosed', function( id ){
+	if(document.getElementById("inspectorGraph") != null){
+		createInspector();
+		inspect_node(lastInspectedId);
+	}
 });
 
-workSheetLayout.eventHub.on('inspect', function( id ){//import_into_worksheet
+workSheetLayout.eventHub.on('inspect', function( id ){
 	if(document.getElementById("inspectorGraph") != null){
 		inspect_node(id);
 	}
+});
+
+workSheetLayout.eventHub.on('import_into_worksheet', function( id ){
+	if(document.getElementById("worksheetGraph") != null){
+		import_into_worksheet(id);
+	}
+});
+
+workSheetLayout.eventHub.on('import_neighbours_into_worksheet', function( id ){
+	if(document.getElementById("worksheetGraph") != null){
+		import_neighbours_into_worksheet(id);
+	}
+});
+
+workSheetLayout.eventHub.on('updateInspectTargets', function(files, sockets, pipes, meta){
+	updateInspectTargets(files, sockets, pipes, meta);
 });
 
 window.onresize = function(){
@@ -188,6 +221,13 @@ window.onresize = function(){
 //Events end
 
 //Functions
+
+function updateInspectTargets(files, scokets, pipes, meta){
+	inspectFiles = files;
+	inspectSockets = scokets;
+	inspectPipes = pipes;
+	inspectProcessMeta = meta;
+}
 
 function createWorksheet(){
 	testGraph = create('worksheetGraph');
@@ -237,6 +277,7 @@ function createWorksheet(){
 						 });
 						 vex.dialog.alert({
 							unsafeMessage: `<h2>Files read:</h2><ul>${str}</ul>`,
+    						className: 'vex-theme-wireframe'
 						 });
 					});
 				}
@@ -256,7 +297,8 @@ function createWorksheet(){
 							}
 							message += '</ul>';
 						}
-						vex.dialog.alert({ unsafeMessage: message });
+						vex.dialog.alert({ unsafeMessage: message, 
+    										className: 'vex-theme-wireframe'});
 					});
 				}
 			},
@@ -311,13 +353,13 @@ function createInspector(){
 			{
 				content: 'Import node',//TODO: get row onclick working
 				select: function(ele){
-					import_into_worksheet(ele.data('id'));		
+					import_into_worksheetAsync(ele.data('id'));		
 			}
 			},
 			{
 				content: 'Import neighbours',
 				select: function(ele){
-					import_neighbours_into_worksheet(ele.data('id'));
+					import_neighbours_into_worksheetAsync(ele.data('id'));
 			}
 			},
 			{
@@ -336,6 +378,12 @@ function createInspector(){
 	});
 
 	$('input[id *= "inspect"]').on('change', function() {
+		workSheetLayout.eventHub.emit('updateInspectTargets',
+										$('#inspectFiles').is(':checked'),
+										$('#inspectSockets').is(':checked'),
+										$('#inspectPipes').is(':checked'),
+										$('#inspectProcessMeta').is(':checked')
+		 );
 		if (lastInspectedId != null) {
 			inspectAsync(lastInspectedId);
 		}
@@ -352,13 +400,22 @@ function neo4jLogin(){
 		buttons: [
 			$.extend({}, vex.dialog.buttons.YES, { text: 'Login' })
 		],
+    	className: 'vex-theme-wireframe',
 		callback: function (data) {
 			var neo4j = window.neo4j.v1;
 			if (!data) {
-				console.log('Assuming no login authorization on Neo4j db. To relogin please refresh page.');
-				driver = neo4j.driver("bolt://localhost", neo4j.auth.basic('', ''));
+				neo4jLogin();
 			} else {
 				driver = neo4j.driver("bolt://localhost", neo4j.auth.basic(data.username, data.password));
+				var session = driver.session();
+					session.run(`MATCH (n) WHERE id(n)=1 RETURN n LIMIT 0`)//tests connection might be better way to do this
+					.then(function(tokens) {session.close();},
+					function(error) {
+						session.close();
+						neo4jLogin();
+						vex.dialog.alert({message: error.message,
+								    	className: 'vex-theme-wireframe'});
+					});
 			}
 		}
 	})
@@ -433,11 +490,11 @@ function add_edge(data, graph) {
 //
 function get_neighbours(id, fn) {
 	return get_neighbours_id(id,
-							fn,
-							files = $('#inspectFiles').is(':checked'),
-							sockets = $('#inspectSockets').is(':checked'),
-							pipes = $('#inspectPipes').is(':checked'),
-							process_meta = $('#inspectProcessMeta').is(':checked')
+							fn,	
+							inspectFiles,
+							inspectSockets,
+							inspectPipes,
+							inspectProcessMeta
 							);
 }
 
@@ -447,11 +504,15 @@ function get_neighbours(id, fn) {
 function get_successors(id, fn, err = console.log) {
 	return successors_query(id,
 							max_depth = 100,
-							files = $('#inspectFiles').is(':checked'),
-							sockets = $('#inspectSockets').is(':checked'),
-							pipes = $('#inspectPipes').is(':checked'),
-							process_meta = $('#inspectProcessMeta').is(':checked'),
+							inspectFiles,
+							inspectSockets,
+							inspectPipes,
+							inspectProcessMeta,
 							fn);
+}
+
+function import_into_worksheetAsync(id){
+	workSheetLayout.eventHub.emit('import_into_worksheet', id);
 }
 
 //
@@ -504,14 +565,17 @@ function import_into_worksheet(id, err = console.log) {
 }
 
 function inspect_and_importAsync(id){
-	console.log('inspectCall');
 	workSheetLayout.eventHub.emit('import_into_worksheet', id);
 	workSheetLayout.eventHub.emit('inspect', id);
 }
 
 function inspect_and_import(id) {
-	import_into_worksheet(id);
+	import_into_worksheetAsync(id);
 	inspectAsync(id);
+}
+
+function import_neighbours_into_worksheetAsync(id){
+	workSheetLayout.eventHub.emit('import_neighbours_into_worksheet', id);
 }
 
 //
@@ -529,7 +593,7 @@ function import_neighbours_into_worksheet(id) {
 }
 
 function inspectAsync(id){
-	console.log('inspectCall');
+	lastInspectedId = id;
 	workSheetLayout.eventHub.emit('inspect', id);
 }
 
@@ -539,8 +603,6 @@ function inspectAsync(id){
 function inspect_node(id, err = console.log) {
 	// Display the node's details in the inspector "Details" panel.
 	var inspectee;
-
-	lastInspectedId = id;
 
 	inspector.detail.empty();
 	inspector.neighbours.empty();
