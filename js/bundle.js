@@ -218,6 +218,7 @@ workSheetLayout.init();
 workSheetLayout.on('initialised', function(){
 
 	if(document.getElementById("analysisWorksheet") != null){
+		console.log("baseInit");
 		baseWindow = true;
 	}
 	if(baseWindow == true){
@@ -480,14 +481,18 @@ function neo4jLogin(){
 					session.run(`MATCH (n) WHERE id(n)=1 RETURN n LIMIT 0`)//tests connection might be better way to do this
 					.then(function(tokens) {session.close();},
 					function(error) {
-						session.close();
 						neo4jLogin();
-						vex.dialog.alert({message: error.message,
-								    	className: 'vex-theme-wireframe'});
+						neo4jError(error, session);
 					});
 			}
 		}
 	})
+}
+
+function neo4jError(error, session){
+	session.close();
+	vex.dialog.alert({message: error.message,
+					className: 'vex-theme-wireframe'});
 }
 
 function remove_neighbours_from_worksheet(id) {
@@ -1048,6 +1053,8 @@ function file_read_query(id, fn){
 			files = files.concat(record.get('g_name'));
 		});
 		fn(files);
+	}, function(error) {
+		neo4jError(error, session);
 	});
 }
 
@@ -1064,6 +1071,8 @@ function cmd_query(id, fn){
 			cmds = cmds.concat(parseNeo4jNode(record.get('c')));
 		});
 		fn(cmds);
+	}, function(error) {
+		neo4jError(error, session);
 	});
 }
 
@@ -1172,6 +1181,8 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 					neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(m_nodes));
 					neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(m_links));
 				}
+			}, function(error) {
+				neo4jError(error, session);
 			});
 		}
 		for(row in neighbours){//maybe cause issues where it is not inside the the async
@@ -1181,6 +1192,8 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 		session.close();
 		fn({nodes: neighbour_nodes,
 				edges: neighbour_edges});
+	}, function(error) {
+		neo4jError(error, session);
 	});
 }
 
@@ -1286,6 +1299,8 @@ function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=tru
 				.then(result => {
 					session.close();
 					findEdges(dbid, result.records, fn);
+				}, function(error) {
+					neo4jError(error, session);
 				});
 			}
 			else if (process_obj['labels'] == ('Process')){
@@ -1312,6 +1327,8 @@ function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=tru
 				.then(result => {
 					session.close();
 					findEdges(dbid, result.records, fn);
+				}, function(error) {
+					neo4jError(error, session);
 				});
 			}
 			else if (process_obj['labels'] == ('Conn')){
@@ -1332,6 +1349,8 @@ function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=tru
 				.then(result => {
 					session.close();
 					findEdges(dbid, result.records, fn);
+				}, function(error) {
+					neo4jError(error, session);
 				});
 			}
 			// if (neighbours == null){
@@ -1369,6 +1388,8 @@ function findEdges(curId, neighbours, fn){
 			});
 			fn({'nodes': nodes,
 				'edges': edges});
+			}, function(error) {
+				neo4jError(error, session);
 			});
 }
 
@@ -1381,6 +1402,8 @@ function get_detail_id(id, fn){
 		}
 		session.close();
 		fn(parseNeo4jNode(result.records[0].get('n')));
+	}, function(error) {
+		neo4jError(error, session);
 	});
 }
 function get_detail_id_unparsed(id, fn){
@@ -1392,6 +1415,8 @@ function get_detail_id_unparsed(id, fn){
 		}
 		session.close();
 		fn(result.records[0].get('n'));
+	}, function(error) {
+		neo4jError(error, session);
 	});
 }
 
@@ -1559,7 +1584,9 @@ function get_nodes(node_type=null,
 			nodes = nodes.concat(parseNeo4jNode(record.get('n')));
 		});
 		fn(nodes);
-	 });
+	 }, function(error) {
+		neo4jError(error, session);
+	});
 }
 
 //Queries end
