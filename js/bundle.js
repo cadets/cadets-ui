@@ -81,7 +81,7 @@ var inspectFiles = false;
 var inspectSockets = false;
 var inspectPipes = false;
 var inspectProcessMeta = false;
-
+var worksheetNum = 0;
 
 var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
 								<div class="row header formBox">
@@ -186,6 +186,12 @@ var config = {
 		}
 		]
 	}]
+};
+
+var newItemConfig = {
+    type: 'component',
+    componentName: 'Worksheet',
+    componentState: { text: "test" }
 };
 
 var workSheetLayout = new GoldenLayout( config, document.getElementById('worksheetPage') );
@@ -398,7 +404,7 @@ function createWorksheet(){
 	};
 
 	document.getElementById("reDagre").onclick = function () {
-		console.log(document.getElementById('saveFilename').value);
+    	workSheetLayout.root.contentItems[ 0 ].addChild( newItemConfig );
 		//layout( worksheetGraph.graph, 'cose'); //TODO: get cDagre
 	};
 
@@ -685,6 +691,10 @@ function inspect_node(id, err = console.log) {
 
 	get_detail_id(id, function(result) {
 		for (let property in result) {
+			if (property == 'timestamp') {
+				result[property] =
+					moment.unix(result[property] / 1000000000).format('HH:mm[h] D MMM');
+			}
 			inspector.detail.append(`
 				<tr>
 					<th>${property}</th>
@@ -855,6 +865,9 @@ function refreshGraph(graphId){
 	$(graphId).css('height', '100%');
 }
 
+function concatDictionary(a, b){
+	return Object.assign({}, a, b);
+}
 
 //Functions end
 
@@ -866,62 +879,26 @@ function parseNeo4jNode(o){
 	var labels = o['labels'];
 	if (labels.indexOf('Socket') > -1){//TODO: test socket
 		data.type = "socket-version";
-		data.names = o['properties']['name'];
-		data.creation = o['properties']['timestamp']['low'];
-		data.uuid = o['properties']['uuid'];
-		data.host = o['properties']['host'];
-		data.saw_creation = !o['properties']['anomalous'];
+		data = concatDictionary( data, o['properties']);
 	}
 	else if (labels.indexOf('Pipe') > -1){//TODO: test pipe
 		data.type = "pipe-endpoint";
-		data.creation = o['properties']['timestamp']['low'];
-		//data.properties = o[properties];
+		data = concatDictionary( data, o['properties']);
 	}
 	else if (labels.indexOf('Process') > -1){
 		data.type = "process";
-		//data.properties = o['properties'];
-		data.saw_creation = !o['properties']['anomalous'];
-		data.cmdline = o['properties']['cmdline'];
-		data.host = o['properties']['host'];
-		data.egid = o['properties'][`meta_egid`];
-		data.euid = o['properties'][`meta_euid`];
-		data.gid = o['properties'][`meta_gid`];
-		data.login = o['properties'][`meta_login`];
-		data.ts = o['properties'][`meta_ts`]['low'];
-		data.uid = o['properties'][`meta_uid`];
-		data.pid = o['properties']['pid'];
-		data.uuid = o['properties']['uuid'];
-		data.status = o['properties']['status'];
-		data.timestamp = o['properties']['timestamp'];
-		data.thin = o['properties']['thin'];
+		data = concatDictionary( data, o['properties']);
 	}
 	else if (labels.indexOf('Machine') > -1){
 		data.type = "machine";
-		data.uuid = o['properties']['uuid'];
-		data.ips = o['properties']['ips'];
-		data.names = o['properties']['name'];
-		data.first_seen = o['properties']['timestamp']['low'];
-		data.external = o['properties']['external'];
+		data = concatDictionary( data, o['properties']);
 	} 
 	else if (labels.indexOf('Meta') > -1){
 		data.type = "process-meta";
-		data.egid = o['properties'][`meta_egid`];
-		data.euid = o['properties'][`meta_euid`];
-		data.gid = o['properties'][`meta_gid`];
-		data.login = o['properties'][`meta_login`];
-		data.ts = o['properties'][`meta_ts`]['low'];
-		data.uid = o['properties'][`meta_uid`];
+		data = concatDictionary( data, o['properties']);
 	}
 	else if (labels.indexOf('Conn') > -1){//TODO: not many Conns to test with
-		data.authority = o['properties'][`authority`];
-		data.client = o['properties'][`client`];
-		data.client_ip = o['properties'][`client_ip`];
-		data.client_port = o['properties'][`client_port`];
-		data.confidence = o['properties'][`confidence`];
-		data.method = o['properties'][`method`];
-		data.server = o['properties'][`server`];
-		data.server_ip = o['properties'][`server_ip`];
-		data.server_port = o['properties'][`server_port`];
+		data = concatDictionary( data, o['properties']);
 		if(data['type'] != null){
 			data['ctype'] = data['type'];
 		} 
@@ -933,18 +910,19 @@ function parseNeo4jNode(o){
 								data['server_ip'] + ":" + data['server_port']];
 		}
 		else if (data['ctype'] == 'Pipe'){
-			data['endpoints'] = ['wrpipe: ' + short_hash(data['wrpipe']),
-								'rdpipe: ' + short_hash(data['rdpipe'])];
+			// var hashids = new Hashids();//ask about short_hash
+			// console.log(data['wrpipe']);
+			// console.log(hashids.encode(data['wrpipe']));
+			// var wrpipe = hashids.encode(data['wrpipe']);
+			// var rdpipe = hashids.encode(data['rdpipe']);
+			data['endpoints'] = ['wrpipe: ' + data['wrpipe'],
+								'rdpipe: ' + data['rdpipe']];
 		}
 		data.type= "connection";
 	}
 	 else{
 		data.type = "file-version";
-		data.uuid = o['properties']['uuid'];
-		data.host = o['properties']['host'];
-		data.names = o['properties']['name'];
-		data.creation = o['properties']['timestamp'];
-		data.saw_creation = !o['properties']['anomalous'];
+		data = concatDictionary( data, o['properties']);
 	}
 	// if 'host' in o and o['host'] in self.machines{
 	// 	(i, name) = self.machines[o['host']];
@@ -952,7 +930,8 @@ function parseNeo4jNode(o){
 	// }
 	// // Calculate a short, easily-compared hash of something unique
 	// // (database ID if we don't have a UUID)
-	// unique = o['uuid'] if 'uuid' in o else str(o.id);
+	var unique = o['uuid'] ? o['uuid'] : data['id'];
+	data['hash'] = unique
 	// data['hash'] = short_hash(unique);
 	return data;
 }
@@ -1103,7 +1082,6 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 	var session = driver.session();
 	var neighbours;
 	var root_node;
-	var m_links;
 	var m_nodes;
 	var m_qry;
 	var neighbour_nodes = [];
@@ -1166,23 +1144,24 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 						AND
 						split(skt.name[0], ":")[0] in mch.ips
 						RETURN skt, mch`)
-			.then(result => {
-				m_qry = result;
-				for(row in m_qry){
-					m_links.id = (row['skt'].id + row['mch'].id);
-					m_links.source = row['skt'].id;
-					m_links.target = row['mch'].id;
+			.then(result => {result.records.forEach(function (record){
+					console.log(id);
+					console.log(record.get('mch'));
+					console.log(result);
+					var m_links = {'id' : (record.get('skt')['identity']['low'] + record.get('mch')['identity']['low'])};
+					m_links.source = record.get('skt')['identity']['low'];
+					m_links.target = record.get('mch')['identity']['low'];
 					m_links.type = 'comm';
 					m_links.state = null; 
-					if(row['mch'] == null){
-						m_nodes = row['skt'];
+					if(record.get('mch') == null){
+						m_nodes = record.get('skt');
 					}
 					else{
-						m_nodes = row['mch'];
+						m_nodes = record.get('mch');
 					}
 					neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(m_nodes));
 					neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(m_links));
-				}
+				});
 			}, function(error) {
 				neo4jError(error, session);
 			});
@@ -1583,6 +1562,8 @@ function get_nodes(node_type=null,
 		session.close();
 		result.records.forEach(function (record) 
 		{
+			// console.log(record.get('n'));
+			// console.log(parseNeo4jNode(record.get('n')));
 			nodes = nodes.concat(parseNeo4jNode(record.get('n')));
 		});
 		fn(nodes);

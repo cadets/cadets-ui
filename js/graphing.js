@@ -21,7 +21,7 @@ function create(container) {
 
 	load_graph_style([ graph ]);
 
-	// //graph.add_node = function(node) { add_node(node, graph); };
+	//graph.add_node = function(node) { add_node(node, graph); };
 
 	return graph;
 }
@@ -44,9 +44,9 @@ function add_node(data, graph, renderedPosition = null) {
 		let compound = graph.nodes(`[id="${data.uuid}"]`);
 		let type = data.type.substr(0, 4);
 
-		let names = data.names;
-		if (names == null) {
-			names = new Set().add(data.hash);
+		let name = data.name;
+		if (name == null) {
+			name = new Set().add(data.hash);
 		}
 
 		// Add file descriptors if we have them.
@@ -58,13 +58,13 @@ function add_node(data, graph, renderedPosition = null) {
 			add_node({
 				id: data.uuid,
 				type: type,
-				label: Array.from(names).join(', '),
-				names: names,
+				label: Array.from(name).join(', '),
+				names: name,
 				'parent': data['parent'],
 			}, graph, renderedPosition);
 		} else {
 			let existing = compound.data();
-			existing.names = new Set([...existing.names, ...names]);
+			existing.names = new Set([...existing.names, ...name]);
 			existing.label = Array.from(existing.names).join(' ');
 		}
 
@@ -81,6 +81,7 @@ function add_node(data, graph, renderedPosition = null) {
 		node.classes += ' external';
 	}
 
+	//console.log(data);
 	node.data.label = node_metadata(data).label;
 
 	graph.add(node);
@@ -145,15 +146,15 @@ function node_metadata(node) {
 				icon: 'connectdevelop',
 				label: node.endpoints.join(' '),
 			};
-			timestamp = node.timestamp;
+			timestamp = node['timestamp'];
 			break;
 
 		case 'machine':
 			metadata = {
 				icon: 'desktop',
-				label: node.names.join(' / '),
+				label: node.name.join(' / '),
 			};
-			timestamp = node.first_seen;
+			timestamp = node['timestamp'];
 			if (metadata.label == '') {
 					metadata.label = node.ips.join(' / ');
 			}
@@ -171,7 +172,7 @@ function node_metadata(node) {
 				icon: 'circle',
 				label: node.hash,
 			};
-			timestamp = node.creation;
+			timestamp = node['timestamp'];
 			break;
 
 		case 'process':
@@ -179,7 +180,7 @@ function node_metadata(node) {
 				icon: 'terminal',
 				label: node.cmdline,
 			};
-			timestamp = node.last_update;
+			timestamp = node['timestamp'];
 			break;
 
 		case 'file':
@@ -192,9 +193,9 @@ function node_metadata(node) {
 		case 'file-version':
 			metadata = {
 				icon: 'file-o',
-				label: node.names.join(' / '),
+				label: node.name.join(' / '),
 			};
-			timestamp = node.creation;
+			timestamp = node['timestamp'];
 			break;
 
 		case 'process-meta':
@@ -208,9 +209,9 @@ function node_metadata(node) {
 		case 'socket-version':
 			metadata = {
 				icon: 'plug',
-				label: node.names.join(' / '),
+				label: node.name.join(' / '),
 			};
-			timestamp = node.creation;
+			timestamp = node['timestamp'];
 			break;
 
 	default:
@@ -222,7 +223,6 @@ function node_metadata(node) {
 	}
 
 	if (timestamp) {
-		//****************** remove time temp
 		metadata.timestamp =
 			moment.unix(timestamp / 1000000000).format('HH:mm[h] D MMM');
 	} else {
