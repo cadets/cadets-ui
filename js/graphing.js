@@ -239,12 +239,12 @@ function node_metadata(node) {
 //
 // Save the current graph in a JSON format.
 //
-function save(graph) {
+function save(graph, filename) {
 	let blob = new Blob([ JSON.stringify(graph.json()) ], { type: 'text/json' });
 
 	let a = document.createElement('a');
 
-	a.download = 'worksheet.json';
+	a.download = `${filename}.json`;
 	a.href= window.URL.createObjectURL(blob);
 	a.style.display = 'none';
 

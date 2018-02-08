@@ -58,6 +58,7 @@ var worksheetHtml = `<div class="sheet" id="worksheet">
 							<input id="loadGraph" name="file" type="file" style="display: none">
 							<button class="bodyButton" onclick="$('#loadGraph').click();">Load</button>
 							<button type="button" class="bodyButton" id="saveGraph">Save</button>
+							<input id="saveFilename" name="saveFilename" type="text" placeholder="File name""></input>
 							<button type="button" class="bodyButton" id="reDagre">Temp</button>
 							<button type="button" class="bodyButton" id="reCose-Bilkent">Cose</button>
 						</div>
@@ -149,7 +150,6 @@ workSheetLayout.init();
 workSheetLayout.on('initialised', function(){
 
 	if(document.getElementById("analysisWorksheet") != null){
-		console.log("baseInit");
 		baseWindow = true;
 	}
 	if(baseWindow == true){
@@ -325,10 +325,11 @@ function createWorksheet(){
 	};
 
 	document.getElementById("saveGraph").onclick = function () {
-		save(worksheetGraph.graph);
+		save(worksheetGraph.graph, document.getElementById('saveFilename').value);
 	};
 
 	document.getElementById("reDagre").onclick = function () {
+		console.log(document.getElementById('saveFilename').value);
 		//layout( worksheetGraph.graph, 'cose'); //TODO: get cDagre
 	};
 
@@ -379,6 +380,7 @@ function createInspector(){
 	});
 
 	$('input[id *= "inspect"]').on('change', function() {
+		console.log("fliter");
 		workSheetLayout.eventHub.emit('updateInspectTargets',
 										$('#inspectFiles').is(':checked'),
 										$('#inspectSockets').is(':checked'),
