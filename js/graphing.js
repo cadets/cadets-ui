@@ -51,7 +51,10 @@ function add_node(data, graph, renderedPosition = null) {
 
 		// Add file descriptors if we have them.
 		if (data.fds) {
-			data.fds.forEach(function(fd) { names.add('FD ' + fd); });
+			for(fd in data.fds){
+				name = name.concat('FD ' + fd)
+			}
+			//data.fds.forEach(function(fd) { name.add('FD ' + fd); });
 		}
 
 		if (compound.empty()) {
@@ -215,6 +218,7 @@ function node_metadata(node) {
 			break;
 
 	default:
+		//console.log(node);
 		console.log('unknown node type: ' + node.type);
 		return {
 			icon: 'question',

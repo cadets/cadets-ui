@@ -82,6 +82,7 @@ var inspectSockets = false;
 var inspectPipes = false;
 var inspectProcessMeta = false;
 var worksheetNum = 0;
+var mchs;
 
 var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
 								<div class="row header formBox">
@@ -404,6 +405,7 @@ function createWorksheet(){
 	};
 
 	document.getElementById("reDagre").onclick = function () {
+		//get_machines_ids();
     	workSheetLayout.root.contentItems[ 0 ].addChild( newItemConfig );
 		//layout( worksheetGraph.graph, 'cose'); //TODO: get cDagre
 	};
@@ -455,7 +457,7 @@ function createInspector(){
 	});
 
 	$('input[id *= "inspect"]').on('change', function() {
-		console.log("fliter");
+		//console.log("fliter");
 		workSheetLayout.eventHub.emit('updateInspectTargets',
 										$('#inspectFiles').is(':checked'),
 										$('#inspectSockets').is(':checked'),
@@ -487,12 +489,16 @@ function neo4jLogin(){
 				driver = neo4j.driver("bolt://localhost", neo4j.auth.basic(data.username, data.password));
 				var session = driver.session();
 					session.run(`MATCH (n) WHERE id(n)=1 RETURN n LIMIT 0`)//tests connection might be better way to do this
-					.then(function(tokens) {session.close();},
+					.then(function(tokens) {
+						updates_machines()
+						session.close();
+					},
 					function(error) {
 						neo4jLogin();
 						neo4jError(error, session);
 					});
 			}
+
 		}
 	})
 }
@@ -691,7 +697,7 @@ function inspect_node(id, err = console.log) {
 
 	get_detail_id(id, function(result) {
 		for (let property in result) {
-			if (property == 'timestamp') {
+			if (property == 'timestamp' || property == 'meta_ts') {
 				result[property] =
 					moment.unix(result[property] / 1000000000).format('HH:mm[h] D MMM');
 			}
@@ -745,11 +751,12 @@ function inspect_node(id, err = console.log) {
 			}
 			inspector.graph.inspectee = n;
 
+
 			// Only use the (somewhat expensive) dagre algorithm when the number of
 			// edges is small enough to be computationally zippy.
-			//if (result.edges.length < 100) { TODO: get dagre layout online
-			//	layout(inspector.graph, 'dagre');
-			//} else {
+			// if (result.edges.length < 100) { //TODO: get dagre layout online
+			// 	layout(inspector.graph, 'dagre');
+			// } else {
 				layout(inspector.graph, 'cose');
 			//}
 
@@ -924,10 +931,15 @@ function parseNeo4jNode(o){
 		data.type = "file-version";
 		data = concatDictionary( data, o['properties']);
 	}
-	// if 'host' in o and o['host'] in self.machines{
-	// 	(i, name) = self.machines[o['host']];
-	// 	data.update({'hostname': name, 'parent': i});
-	// }
+	// mchs.forEach(function(mch){
+	// //for(mch in mchs){
+	// 	//console.log(`${data['host']} == ${mch.id}`);
+	// 	if (data['host'] != null && data['host'] == mch.id){//'host' in o and o['host'] in self.machines{
+	// 		data.parent = mch.id;
+	// 		data.hostname = mch.name;
+	// 		//data.update({'hostname': name, 'parent': i});
+	// 	}
+	// });
 	// // Calculate a short, easily-compared hash of something unique
 	// // (database ID if we don't have a UUID)
 	var unique = o['uuid'] ? o['uuid'] : data['id'];
@@ -937,6 +949,7 @@ function parseNeo4jNode(o){
 }
 
 function parseNeo4jEdge(o){
+	 //console.log(o);
 	var id = o['identity']['low'];
 	var type_map = {'PROC_PARENT': 'parent'};
 	type_map.PROC_OBJ = 'io';
@@ -970,16 +983,16 @@ function parseNeo4jEdge(o){
 		}
 	}
 	if (state != null && (state.indexOf('WRITE') <= -1)){
-		src = o.start;
-		dst = o.end;
+		src = o['start']['low'];
+		dst = o['end']['low'];
 	}
 	if (o['type'] == 'COMM'){
 		src = o['start']['low'];
 		dst = o['end']['low'];
 	}
 	else{
-		src = o.end;
-		dst = o.start;
+		src = o['end']['low'];
+		dst = o['start']['low'];
 	}
 
 	return {'source': src,
@@ -1057,6 +1070,27 @@ function cmd_query(id, fn){
 	});
 }
 
+function updates_machines() {
+	var mch = [];
+	var session = driver.session();
+	session.run("MATCH (m:Machine) RETURN m")
+	.then(result => {result.records.forEach(function (record) 
+		{
+			var temp = {};
+			//console.log(record.get('m'));
+			temp.name = record.get('m')['properties']['name'];
+			if(record.get('m')['properties']['uuid'] != null){
+				temp.id = record.get('m')['properties']['uuid'];
+			}else{
+				temp.id = record.get('m')['identity']['low'];
+			}
+			mch = mch.concat(temp);
+		});
+		session.close();
+
+		mchs = mch;
+	});
+}
 
 // function setup_machines() {
 // 	var session = driver.session();
@@ -1121,6 +1155,7 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 				RETURN s, e, d`)
 
 	.then(result => {
+		//console.log(sockets);
 		neighbours = result.records;
 		if (neighbours.length){
 			root_node = neighbours[0].get('s');
@@ -1145,34 +1180,43 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 						split(skt.name[0], ":")[0] in mch.ips
 						RETURN skt, mch`)
 			.then(result => {result.records.forEach(function (record){
-					console.log(id);
-					console.log(record.get('mch'));
-					console.log(result);
-					var m_links = {'id' : (record.get('skt')['identity']['low'] + record.get('mch')['identity']['low'])};
-					m_links.source = record.get('skt')['identity']['low'];
-					m_links.target = record.get('mch')['identity']['low'];
-					m_links.type = 'comm';
-					m_links.state = null; 
-					if(record.get('mch') == null){
-						m_nodes = record.get('skt');
-					}
-					else{
-						m_nodes = record.get('mch');
-					}
-					neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(m_nodes));
+					// console.log(id);
+					var m_links = {'type' : 'comm'};
+					m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
+					m_links.properties = {'state' : null}; 
+					m_links.start = {'low' : record.get('skt')['identity']['low']};
+					m_links.end = {'low' : record.get('mch')['identity']['low']};
+					// if(record.get('mch') == null){
+					// 	m_nodes = record.get('skt');
+					// }
+					// else{
+					// 	m_nodes = record.get('mch');
+					// }
+					neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(record.get('skt')));
+					neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(record.get('mch')));
 					neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(m_links));
+
+					for(row in neighbours){//should replace with function double code
+						neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(neighbours[row].get('d')));
+						neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(neighbours[row].get('e')));
+					}
+					session.close();
+					fn({nodes: neighbour_nodes,
+							edges: neighbour_edges});
 				});
 			}, function(error) {
 				neo4jError(error, session);
 			});
 		}
-		for(row in neighbours){//maybe cause issues where it is not inside the the async
-			neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(neighbours[row].get('d')));
-			neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(neighbours[row].get('e')));
+		else{
+			for(row in neighbours){//should replace with function double code
+				neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(neighbours[row].get('d')));
+				neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(neighbours[row].get('e')));
+			}
+			session.close();
+			fn({nodes: neighbour_nodes,
+					edges: neighbour_edges});
 		}
-		session.close();
-		fn({nodes: neighbour_nodes,
-				edges: neighbour_edges});
 	}, function(error) {
 		neo4jError(error, session);
 	});
