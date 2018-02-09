@@ -1093,7 +1093,7 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 			root_node = neighbours[0].get('s');
 			neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(root_node));
 		}
-		//if (sockets){
+		if (sockets){
 			session.run(`MATCH (skt:Socket), (mch:Machine)
 						WHERE 
 						mch.external
@@ -1139,16 +1139,16 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 			}, function(error) {
 				neo4jError(error, session);
 			});
-		//}
-		// else{
-		// 	for(row in neighbours){//should replace with function double code
-		// 		neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(neighbours[row].get('d')));
-		// 		neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(neighbours[row].get('e')));
-		// 	}
-		// 	session.close();
-		// 	fn({nodes: neighbour_nodes,
-		// 			edges: neighbour_edges});
-		// }
+		}
+		else{
+			for(row in neighbours){//should replace with function double code
+				neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(neighbours[row].get('d')));
+				neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(neighbours[row].get('e')));
+			}
+			session.close();
+			fn({nodes: neighbour_nodes,
+					edges: neighbour_edges});
+		}
 	}, function(error) {
 		neo4jError(error, session);
 	});

@@ -1136,6 +1136,7 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 	if (process_meta){
 		matchers = matchers.concat('Meta');
 	}
+		console.log("sockets");
 	session.run(`MATCH (s)-[e]-(d)
 				WHERE id(s) = ${id}
 				AND NOT
