@@ -15,6 +15,88 @@ var inspectProcessMeta = false;
 var worksheetNum = 0;
 var mchs;
 
+
+var worksheetCxtMenu = ( 
+{
+	menuRadius: 140,
+	separatorWidth: 5,
+	selector: 'node',
+	commands: [
+		{
+			content: 'Inspect',//TODO: get row onclick working
+			select: function(ele){
+				inspectAsync(ele.data('id'));
+			}
+		},
+		{
+			content: 'Import neighbours',
+			select: function(ele){
+				import_neighbours_into_worksheet(ele.data('id'));
+			}
+		},
+		{
+			content: 'Import successors',//TODO: check if correct
+			select: function(ele){
+				successors(ele.data('id'));
+			}
+		},
+		{
+			content: 'Highlight',
+			select: function(ele){
+				toggle_node_importance(ele.data("id"));
+			}
+		},
+		{
+			content: 'Files read',
+			select: function(ele){
+				var id = ele.data('id');
+				file_read_query(id, function(result){
+					let str = '';
+					 result.forEach(function(name) {
+						str += `<li>${name}</li>`;  // XXX: requires trusted UI server!
+					 });
+					 vex.dialog.alert({
+						unsafeMessage: `<h2>Files read:</h2><ul>${str}</ul>`,
+   						className: 'vex-theme-wireframe'
+					 });
+				});
+			}
+		},
+		{
+			content: 'Commands',
+			select: function(ele){
+				var id = ele.data('id');
+				cmd_query(id, function(result) {
+					let message = `<h2>Commands run by node ${id}:</h2>`;
+					if (result.length == 0) {
+						message += '<p>none</p>';
+					} else {
+						message += '<ul>';
+						for (let command of result) {//TODO: ask if this is correct output
+							message += `<li><a onclick="command_clicked(${command.dbid})">${command.cmdline}</a></li>`;
+						}
+						message += '</ul>';
+					}
+					vex.dialog.alert({ unsafeMessage: message, 
+   										className: 'vex-theme-wireframe'});
+				});
+			}
+		},
+		{
+			content: 'Remove neighbours',
+			select: function(ele){
+				remove_neighbours_from_worksheet(ele.data("id"));
+			}
+		},
+		{
+			content: 'Remove',
+			select: function(ele){
+				ele.remove();
+			}
+		},
+	]
+});
+
 var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
 								<div class="row header formBox">
 									<label for="filterNodeType">&nbsp;Type</label>
@@ -244,91 +326,12 @@ function createWorksheet(){
 		graph: testGraph
 	};
 
-	testGraph.cxtmenu( 
-	{
-		menuRadius: 140,
-		separatorWidth: 5,
-		selector: 'node',
-		commands: [
-			{
-				content: 'Inspect',//TODO: get row onclick working
-				select: function(ele){
-					inspectAsync(ele.data('id'));
-				}
-			},
-			{
-				content: 'Import neighbours',
-				select: function(ele){
-					import_neighbours_into_worksheet(ele.data('id'));
-				}
-			},
-			{
-				content: 'Import successors',//TODO: check if correct
-				select: function(ele){
-					successors(ele.data('id'));
-				}
-			},
-			{
-				content: 'Highlight',
-				select: function(ele){
-					toggle_node_importance(ele.data("id"));
-				}
-			},
-			{
-				content: 'Files read',
-				select: function(ele){
-					var id = ele.data('id');
-					file_read_query(id, function(result){
-						let str = '';
-						 result.forEach(function(name) {
-							str += `<li>${name}</li>`;  // XXX: requires trusted UI server!
-						 });
-						 vex.dialog.alert({
-							unsafeMessage: `<h2>Files read:</h2><ul>${str}</ul>`,
-    						className: 'vex-theme-wireframe'
-						 });
-					});
-				}
-			},
-			{
-				content: 'Commands',
-				select: function(ele){
-					var id = ele.data('id');
-					cmd_query(id, function(result) {
-						let message = `<h2>Commands run by node ${id}:</h2>`;
-						if (result.length == 0) {
-								message += '<p>none</p>';
-						} else {
-							message += '<ul>';
-							for (let command of result) {//TODO: ask if this is correct output
-								message += `<li><a onclick="command_clicked(${command.dbid})">${command.cmdline}</a></li>`;
-							}
-							message += '</ul>';
-						}
-						vex.dialog.alert({ unsafeMessage: message, 
-    										className: 'vex-theme-wireframe'});
-					});
-				}
-			},
-			{
-				content: 'Remove neighbours',
-				select: function(ele){
-					remove_neighbours_from_worksheet(ele.data("id"));
-				}
-			},
-			{
-				content: 'Remove',
-				select: function(ele){
-					ele.remove();
-				}
-			},
-		]
-	});
+	testGraph.cxtmenu(worksheetCxtMenu);
 
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 
 	document.getElementById("loadGraph").onchange = function () {
-		load(this.files[0], worksheetGraph);
+		load(this.files[0], worksheetGraph.graph, worksheetCxtMenu);
 	};
 
 	document.getElementById("saveGraph").onclick = function () {

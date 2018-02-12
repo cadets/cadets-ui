@@ -94,13 +94,15 @@ function add_node(data, graph, renderedPosition = null) {
 //
 // Load a Cytograph JSON representation into an object with a 'graph' property.
 //
-function load(file, graphContainer) {
+function load(file, graph, cxtMenu) {
 	let reader = new FileReader();
 	reader.addEventListener('loadend', function() {
 		let data = JSON.parse(reader.result);
-		data.container = graphContainer.graph.container();
+		data.container = graph.container();
 		data.layout = { name: 'preset' };
-		graphContainer.graph = cytoscape(data);
+		graph = cytoscape(data);
+		console.log(graph);
+		graph.cxtmenu(cxtMenu);
 	});
 
 	reader.readAsText(file);
