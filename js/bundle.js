@@ -1136,7 +1136,6 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 	if (process_meta){
 		matchers = matchers.concat('Meta');
 	}
-		console.log("sockets");
 	session.run(`MATCH (s)-[e]-(d)
 				WHERE id(s) = ${id}
 				AND NOT
@@ -1159,8 +1158,12 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 		//console.log(sockets);
 		neighbours = result.records;
 		if (neighbours.length){
-			root_node = neighbours[0].get('s');
-			neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(root_node));
+			root_node = parseNeo4jNode(neighbours[0].get('s'));
+			neighbour_nodes = neighbour_nodes.concat(root_node);
+			for(row in neighbours){
+				neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(neighbours[row].get('d')));
+				neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(neighbours[row].get('e')));
+			}
 		}
 		if (sockets){
 			session.run(`MATCH (skt:Socket), (mch:Machine)
@@ -1180,40 +1183,25 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 						AND
 						split(skt.name[0], ":")[0] in mch.ips
 						RETURN skt, mch`)
-			.then(result => {result.records.forEach(function (record){
-					// console.log(id);
+			.then(result => {
+				session.close();
+				result.records.forEach(function (record){
 					var m_links = {'type' : 'comm'};
 					m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
 					m_links.properties = {'state' : null}; 
 					m_links.start = {'low' : record.get('skt')['identity']['low']};
 					m_links.end = {'low' : record.get('mch')['identity']['low']};
-					// if(record.get('mch') == null){
-					// 	m_nodes = record.get('skt');
-					// }
-					// else{
-					// 	m_nodes = record.get('mch');
-					// }
 					neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(record.get('skt')));
 					neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(record.get('mch')));
 					neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(m_links));
-
-					for(row in neighbours){//should replace with function double code
-						neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(neighbours[row].get('d')));
-						neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(neighbours[row].get('e')));
-					}
-					session.close();
-					fn({nodes: neighbour_nodes,
-							edges: neighbour_edges});
 				});
+				fn({nodes: neighbour_nodes,
+					edges: neighbour_edges});
 			}, function(error) {
 				neo4jError(error, session);
 			});
 		}
 		else{
-			for(row in neighbours){//should replace with function double code
-				neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(neighbours[row].get('d')));
-				neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(neighbours[row].get('e')));
-			}
 			session.close();
 			fn({nodes: neighbour_nodes,
 					edges: neighbour_edges});
