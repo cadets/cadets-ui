@@ -1,71 +1,42 @@
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports) {
+import _ from 'lodash';
+import $ from './../node_modules/jquery/dist/jquery.js';
+import vex from './../node_modules/vex-js/dist/js/vex.combined.min.js';
+import cytoscape from './../node_modules/cytoscape/dist/cytoscape.min.js';
+import cxtmenu from './../node_modules/cytoscape-cxtmenu/cytoscape-cxtmenu.js';
+import moment from './../node_modules/moment/moment.js';
+import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.js';
+
+import { create } from './graphing.js';
+import { save } from './graphing.js';
+import { load } from './graphing.js';
+import { layout } from './graphing.js';
+import { node_metadata } from './graphing.js';
+import { add_node } from './graphing.js';
+
+//import './../node_modules/hashids/dist/hashids.min.js';
+//import './../node_modules/cytoscape-dagre/cytoscape-dagre.js';
+
+import './css/style.css';
+import './../node_modules/vex-js/dist/css/vex.css';
+import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
+import './../node_modules/golden-layout/src/css/goldenlayout-base.css';
+import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
+
+var neo4j = require('./../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js').v1;
+
+cytoscape.use( cxtmenu );
+
+let element = htmlBody();
+document.body.appendChild(element);
+
+if (module.hot) {
+	module.hot.accept('./graphing.js', function() {
+		console.log('Accepting the updated graphing module!');
+		document.body.removeChild(element);
+		element = component();
+		document.body.appendChild(element);
+	})
+}
 
 //Global variables
 
@@ -208,7 +179,7 @@ var worksheetHtml = `<div class="sheet" id="worksheet">
 						<div class="sheet" id="worksheetGraph"></div>
 						<div class="bottomOptions">
 							<input id="loadGraph" name="file" type="file" style="display: none">
-							<button class="bodyButton" onclick="$('#loadGraph').click();">Load</button>
+							<button class="bodyButton" onclick="document.getElementById('loadGraph').click();">Load</button>
 							<button type="button" class="bodyButton" id="saveGraph">Save</button>
 							<input id="saveFilename" name="saveFilename" type="text" placeholder="File name""></input>
 							<button type="button" class="bodyButton" id="reDagre">Temp</button>
@@ -381,6 +352,19 @@ window.onresize = function(){
 
 //Functions
 
+function htmlBody() {
+	var element = document.createElement('div');
+	element.classList.add('box');
+
+	element.innerHTML = `
+						<div class="row header fillHeader">
+							<font size="+3">&nbsp;CADETS/OPUS</font>
+						</div>
+						<div class="row content" style="padding: 1%;" id="worksheetPage"></div>`;
+
+	return element;
+}
+
 function updateInspectTargets(files, scokets, pipes, meta){
 	inspectFiles = files;
 	inspectSockets = scokets;
@@ -485,7 +469,7 @@ function neo4jLogin(){
 		],
     	className: 'vex-theme-wireframe',
 		callback: function (data) {
-			var neo4j = window.neo4j.v1;
+			//var neo4j = window.neo4j.v1;
 			if (!data) {
 				neo4jLogin();
 			} else {
@@ -711,7 +695,7 @@ function inspect_node(id, err = console.log) {
 				</tr>
 			`)
 		}
-		lastInspectee = id;//for testing windowed inspector
+		//lastInspectee = id;//for testing windowed inspector
 		inspectee = result;
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
@@ -758,7 +742,7 @@ function inspect_node(id, err = console.log) {
 			// Only use the (somewhat expensive) dagre algorithm when the number of
 			// edges is small enough to be computationally zippy.
 			// if (result.edges.length < 100) { //TODO: get dagre layout online
-			// 	layout(inspector.graph, 'dagre');
+			//  	layout(inspector.graph, 'dagre');
 			// } else {
 				layout(inspector.graph, 'cose');
 			//}
@@ -800,14 +784,14 @@ function successors(id) {
 // Populate node list.
 //
 function update_nodelist(err = console.log) {
-	get_nodes(node_type = $('#filterNodeType').val(),
-			name = $('#filterName').val(),
-			host = $('#filterHost').val(),
-			local_ip = $('#filterLocalIp').val(),
-			local_port = $('#filterLocalPort').val(),
-			remote_ip = $('#filterRemoteIp').val(), 
-			remote_port = $('#filterRemotePort').val(),
-			limit = '100',
+	get_nodes($('#filterNodeType').val(),
+				$('#filterName').val(),
+				$('#filterHost').val(),
+				$('#filterLocalIp').val(),
+				$('#filterLocalPort').val(),
+				$('#filterRemoteIp').val(), 
+				$('#filterRemotePort').val(),
+				'100',
 			function(result) {
 				let nodelist = $('#nodelist');
 				nodelist.empty();
@@ -1163,6 +1147,7 @@ function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process
 		if (neighbours.length){
 			root_node = parseNeo4jNode(neighbours[0].get('s'));
 			neighbour_nodes = neighbour_nodes.concat(root_node);
+			let row;
 			for(row in neighbours){
 				neighbour_nodes = neighbour_nodes.concat(parseNeo4jNode(neighbours[row].get('d')));
 				neighbour_edges = neighbour_edges.concat(parseNeo4jEdge(neighbours[row].get('e')));
@@ -1609,6 +1594,3 @@ function get_nodes(node_type=null,
 }
 
 //Queries end
-
-/***/ })
-/******/ ]);
