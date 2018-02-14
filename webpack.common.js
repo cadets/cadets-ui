@@ -9,7 +9,7 @@ module.exports = {
 	plugins: [
 		new CleanWebpackPlugin(['dist']),
 		new HtmlWebpackPlugin({
-			title: 'CADETS/OPUD_GUI'
+			title: 'CADETS/OPUS_GUI'
 		})
 	],
 	output: {
