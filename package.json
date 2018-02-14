@@ -1,42 +1,47 @@
 {
-  "name": "cadets-demo",
-  "version": "3.0.0",
-  "description": "OPUS console that allows interactive provenance queries on process and file histories",
-  "main": "lib/opus-console/index.js",
+  "name": "CADETS_UI_JS",
+  "version": "1.0.0",
+  "description": "CADETS_UI_JS",
+  "main": "webpack.config.js",
+  "dependencies": {
+    "cytoscape": "^3.2.7",
+    "cytoscape-cxtmenu": "^3.0.0",
+    "cytoscape-dagre": "^2.2.0",
+    "golden-layout": "^1.5.9",
+    "hashids": "^1.1.4",
+    "jquery": "^3.2.1",
+    "lodash": "^4.17.5",
+    "moment": "^2.20.1",
+    "neo4j-driver": "^1.5.2",
+    "vex-js": "^4.0.1",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.11.1"
+  },
+  "devDependencies": {
+    "clean-webpack-plugin": "^0.1.18",
+    "css-loader": "^0.28.9",
+    "cytoscape": "^3.2.7",
+    "file-loader": "^1.1.6",
+    "html-webpack-plugin": "^2.30.1",
+    "jquery": "^3.2.1",
+    "style-loader": "^0.20.1",
+    "uglifyjs-webpack-plugin": "^1.1.8",
+    "vex-js": "^4.0.1",
+    "webpack-merge": "^4.1.1"
+  },
   "scripts": {
-    "test": "echo \"Error: no tests specified\" && exit 1",
-    "build:www": "webpack --config lib/config/webpack.conf.js"
+    "build": "webpack --config webpack.prod.js",
+    "start": "webpack-dev-server --open --config webpack.dev.js"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/lc525/cadets-demo"
+    "url": "git+https://github.com/gk3758/CADETS_UI_JS.git"
   },
-  "keywords": [
-    "provenance",
-    "gui",
-    "console",
-    "opus"
-  ],
-  "author": "Lucian Carata <lc525@cam.ac.uk>",
-  "license": "Apache-2.0",
-  "dependencies": {
-    "babel-core": "^6.11.4",
-    "babel-loader": "^6.2.4",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-preset-react": "^6.11.1",
-    "codemirror": "^5.17.0",
-    "cytoscape": "^2.7.6",
-    "jquery": "^3.1.0",
-    "jstree": "^3.3.1",
-    "phosphide": "^0.10.0",
-    "phosphor-commandpalette": "^0.2.0",
-    "phosphor-dockpanel": "^0.9.7",
-    "phosphor-keymap": "^0.8.0",
-    "phosphor-menus": "^1.0.0-rc.1"
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gk3758/CADETS_UI_JS/issues"
   },
-  "devDependencies": {
-    "css-loader": "^0.23.1",
-    "style-loader": "^0.13.1",
-    "webpack": "^1.13.1"
-  }
+  "homepage": "https://github.com/gk3758/CADETS_UI_JS#readme"
 }

@@ -1,0 +1,102 @@
+# CADETS UI
+
+This is a prototype for the CADETS/OPUS UI implemented with only JavaScript,
+HTML and CSS.
+
+
+## Getting started
+
+### Install dependencies
+
+This UI depends on:
+
+[horizontal]
+http://neo4j.com[Neo4j]::
+Graph database to hold
+https://www.cl.cam.ac.uk/research/dtg/fresco/opus[OPUS] provenance graph
+
+https://www.npmjs.com[npm]::
+https://nodejs.org[Node] package manager
+
+Start by installing these tools with your system's package manager
+(https://debian-handbook.info/browse/stable/sect.apt-get.html[apt-get],
+https://chocolatey.org[Chocolatey],
+https://brew.sh[Homebrew],
+https://www.freebsd.org/doc/handbook/pkgng-intro.html[pkg], …).
+All other dependencies are installed using `npm`:
+
+```terminal
+$ npm install
+⸨        ░░░░░░░░░░⸩ ⠦ fetchMetadata: sill mapToRegistry uri https://registry
+[...]
+> node lib/post_install.js
+
+added 594 packages in 5.621s
+```
+
+
+### Get OPUS data and start Neo4j
+
+In order to visualize OPUS provenance data, you will need a running Neo4j
+instance containing a graph database. Describing this process is out of scope
+for the UI, but we hope to have some public instructions to link to soon.
+Once you have a graph database in an appropriate place
+(e.g., `/var/db/neo4j/databases/graph.db`),
+start running Neo4j:
+
+```terminal
+# neo4j start
+Active database: graph.db
+Directories in use:
+  home:         /usr/local/neo4j
+  config:       /usr/local/neo4j/../etc
+  logs:         /var/log
+  plugins:      /usr/local/lib/neo4j/plugins
+  import:       /usr/local/neo4j/import
+  data:         /var/db/neo4j
+  certificates: /usr/local/etc/neo4j-certificates
+  run:          /var/run
+Starting Neo4j.
+Started neo4j (pid 93067). It is available at http://localhost:7474/
+There may be a short delay until the server is ready.
+See /var/log/neo4j.log for current status.
+```
+
+You can check that Neo4j is running correctly by visiting
+http://localhost:7474/.
+Ensure that you can connect to the database (`:server connect`);
+the first time you connect you will need to choose a database password.
+
+
+### Build and run demo UI
+
+We use https://webpack.js.org[Webpack] to manage our scripts and style
+definitions together with their JavaScript dependencies.
+You can build our code using the `webpack` command from the
+`node_modules/.bin` directory:
+
+```terminal
+$ ./node_modules/.bin/webpack
+Hash: 9ceef271a6cb69f75a20
+Version: webpack 3.10.0
+Time: 81ms
+    Asset     Size  Chunks             Chunk Names
+bundle.js  33.9 kB       0  [emitted]  main
+   [0] ./js/module.js 31.5 kB {0} [built]
+```
+
+The compiles our JavaScript files together with their dependencies into an
+optimized and "minified" file called `bundle.js` and transforms images into
+cache-friendly (but human-unfriendly) names like `1531d[…]2af.svg`.
+This content is optimized for serving quickly via the Web rather than debugging.
+A more developer-friendly way to build the assets is `webpack-dev-server`,
+which compiles unoptimized versions of JavaScript and recompiles them whenever
+the source files change and serves them from http://localhost:8080:
+
+```terminal
+$ ./node_modules/.bin/webpack-dev-server
+Project is running at http://localhost:8080/
+webpack output is served from /
+[...]
+webpack: Compiled successfully.
+```

@@ -1,6 +1,0 @@
-# Install Python dependencies with `pip install -r requirements.txt`:
-Flask-Bootstrap>=3.3
-Flask-DotEnv>=0.1
-flask-nav>=0.6
-docopt>=0.6
-neo4j-driver>=1.3
