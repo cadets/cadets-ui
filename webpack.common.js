@@ -1,30 +1,20 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const webpack = require('webpack');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
 	entry: {
-		app: "./src/index.js",
-	},
-	devtool: 'inline-source-map',
-	devServer: {
-		contentBase: './dist',
-		hot: true
+		app: './src/index.js'
 	},
 	plugins: [
 		new CleanWebpackPlugin(['dist']),
 		new HtmlWebpackPlugin({
 			title: 'CADETS/OPUD_GUI'
-		}),
-		new webpack.NamedModulesPlugin(),
-		new webpack.HotModuleReplacementPlugin(),
-		//new UglifyJSPlugin()
+		})
 	],
 	output: {
-		path: __dirname + "/dist",
-		filename: "[name].bundle.js"
+		filename: '[name].bundle.js',
+		path: path.resolve(__dirname, 'dist')
 	},
 	module: {
 		rules: [
