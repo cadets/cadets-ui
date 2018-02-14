@@ -9,6 +9,7 @@
 
 import cytoscape from './../node_modules/cytoscape/dist/cytoscape.min.js';
 import moment from './../node_modules/moment/moment.js';
+
 import connection from './img/connection.png';
 import proc from './img/proc.png';
 import file_version from './img/file-version.png';
@@ -442,3 +443,14 @@ export function save(graph, filename) {
 
 	a.click();
 }
+
+const graphing ={
+	save,
+	node_metadata,
+	layout,
+	load,
+	add_node,
+	create,
+}
+
+export default graphing;
