@@ -1,6 +1,3 @@
-
-
-
 export function parseNeo4jNode(o){
 	var data = {'id': o['identity']['low']};
 	var labels = o['labels'];

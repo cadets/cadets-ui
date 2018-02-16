@@ -7,7 +7,7 @@ import moment from './../node_modules/moment/moment.js';
 import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.js';
 
 //import './../node_modules/hashids/dist/hashids.min.js';
-//import './../node_modules/cytoscape-dagre/cytoscape-dagre.js';
+import dagre from './../node_modules/cytoscape-dagre/cytoscape-dagre.js';
 
 import './css/style.css';
 import './../node_modules/vex-js/dist/css/vex.css';
@@ -20,6 +20,7 @@ var neo4jQueries = require('./neo4jQueries.js');
 var goldenLayoutHTML = require('./goldenLayoutHTML.js');
 
 cytoscape.use( cxtmenu );
+cytoscape.use( dagre );
 
 let element = htmlBody();
 document.body.appendChild(element);
@@ -59,13 +60,15 @@ var inspectorGraph;
 var inspector;
 var worksheetGraph;
 var lastInspectedId = null;
-var baseWindow = false;//has analysisWorksheet
 var inspectFiles = false;
 var inspectSockets = false;
 var inspectPipes = false;
 var inspectProcessMeta = false;
 var worksheetNum = 0;
 //var mchs;
+
+var worksheetContainer;
+var inspectorContainer;
 
 
 var worksheetCxtMenu = ( 
@@ -75,7 +78,7 @@ var worksheetCxtMenu = (
 	selector: 'node',
 	commands: [
 		{
-			content: 'Inspect',//TODO: get row onclick working
+			content: 'Inspect',
 			select: function(ele){
 				inspectAsync(ele.data('id'));
 			}
@@ -87,7 +90,7 @@ var worksheetCxtMenu = (
 			}
 		},
 		{
-			content: 'Import successors',//TODO: check if correct
+			content: 'Import successors',
 			select: function(ele){
 				successors(ele.data('id'));
 			}
@@ -124,7 +127,7 @@ var worksheetCxtMenu = (
 						message += '<p>none</p>';
 					} else {
 						message += '<ul>';
-						for (let command of result) {//TODO: ask if this is correct output
+						for (let command of result) {
 							message += `<li><a onclick="command_clicked(${command.dbid})">${command.cmdline}</a></li>`;
 						}
 						message += '</ul>';
@@ -160,15 +163,11 @@ workSheetLayout.registerComponent( 'NodeSearchsheet', function( container, state
 });
 workSheetLayout.registerComponent( 'Worksheet', function( container, state ){
 	container.getElement().html(state.text);
-	container.on('resize', function(){
-		refreshGraph('worksheetGraph');
-	})
+	worksheetContainer = container;
 });
 workSheetLayout.registerComponent( 'Inspector', function( container, state ){
 	container.getElement().html(state.text);
-	container.on('resize', function(){
-		refreshGraph('inspectorGraph');
-	})
+	inspectorContainer = container;
 });
 
 workSheetLayout.init();
@@ -178,11 +177,7 @@ workSheetLayout.init();
 //Events
 
 workSheetLayout.on('initialised', function(){
-
 	if(document.getElementById("analysisWorksheet") != null){
-		baseWindow = true;
-	}
-	if(baseWindow == true){
 		neo4jQueries.neo4jLogin();
 	}
 	if(document.getElementById("inspectorGraph") != null){
@@ -195,13 +190,13 @@ workSheetLayout.on('initialised', function(){
 
 //Currently assumes that only the inspector can be windowed 
 workSheetLayout.on('windowOpened', function( id ){
-	workSheetLayout.eventHub.emit('inspectorWindowOpened', lastInspectedId, driver);
+		workSheetLayout.eventHub.emit('inspectorWindowOpened', lastInspectedId, neo4jQueries);
 });
 
 var once = false;
 
-workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currDriver ){
-	if(baseWindow && once){
+workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currNeo4jQueries ){
+	if(document.getElementById("analysisWorksheet") != null && !once){
 		once = true;
 		workSheetLayout.eventHub.emit('updateInspectTargets',
 										$('#inspectFiles').is(':checked'),
@@ -210,13 +205,14 @@ workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currDriver ){
 										$('#inspectProcessMeta').is(':checked'));
 	}
 	if(document.getElementById("inspectorGraph") != null){
-		driver = currDriver;
+		neo4jQueries = currNeo4jQueries;
 		lastInspectedId = id;
 		inspectAsync(id);
 	}
 });
 
 workSheetLayout.on('windowClosed', function( id ){
+	once = false;
 	if(document.getElementById("inspectorGraph") != null){
 		createInspector();
 		inspect_node(lastInspectedId);
@@ -246,6 +242,7 @@ workSheetLayout.eventHub.on('updateInspectTargets', function(files, sockets, pip
 });
 
 window.onresize = function(){
+	console.log(window.height);
 	workSheetLayout.updateSize();
 }
 
@@ -254,7 +251,7 @@ window.onresize = function(){
 //Functions
 
 function htmlBody() {
-	var element = document.createElement('div');
+	let element = document.createElement('div');
 	element.classList.add('box');
 
 	element.innerHTML = `
@@ -267,6 +264,13 @@ function htmlBody() {
 }
 
 function updateInspectTargets(files, scokets, pipes, meta){
+	if(document.getElementById("worksheetGraph") != null)
+	{
+		$('#inspectFiles').value = files;
+		$('#inspectSockets').value = scokets;
+		$('#inspectPipes').value = pipes;
+		$('#inspectProcessMeta').value = meta;
+	}
 	inspectFiles = files;
 	inspectSockets = scokets;
 	inspectPipes = pipes;
@@ -276,9 +280,14 @@ function updateInspectTargets(files, scokets, pipes, meta){
 function createWorksheet(){
 	testGraph = graphingAPI.create('worksheetGraph');
 
+
 	worksheetGraph = {
 		graph: testGraph
 	};
+
+	worksheetContainer.on('resize', function(){
+		refreshGraph(worksheetGraph.graph);
+	})
 
 	testGraph.cxtmenu(worksheetCxtMenu);
 
@@ -293,8 +302,11 @@ function createWorksheet(){
 	};
 
 	document.getElementById("reDagre").onclick = function () {
+		
+		worksheetGraph.graph.resize();
+		//refreshGraph(worksheetGraph.graph);
 		//get_machines_ids();
-    	workSheetLayout.root.contentItems[ 0 ].addChild( goldenLayoutHTML.newItemConfig );
+    	//workSheetLayout.root.contentItems[ 0 ].addChild( goldenLayoutHTML.newItemConfig );
 		//graphingAPI.layout( worksheetGraph.graph, 'cose'); //TODO: get cDagre
 	};
 
@@ -313,6 +325,9 @@ function createInspector(){
 	};
 	inspector.graph.inspectee = null;
 
+	inspectorContainer.on('resize', function(){
+		refreshGraph(inspector.graph);
+	})
 
 	inspectorGraph.cxtmenu({
 		selector: 'node',
@@ -321,31 +336,30 @@ function createInspector(){
 				content: 'Import node',//TODO: get row onclick working
 				select: function(ele){
 					import_into_worksheetAsync(ele.data('id'));		
-			}
+				}
 			},
 			{
 				content: 'Import neighbours',
 				select: function(ele){
 					import_neighbours_into_worksheetAsync(ele.data('id'));
-			}
+				}
 			},
 			{
 				content: 'Inspect',//TODO: get row onclick working
 				select: function(ele){
 					inspectAsync(ele.data("id"));
-			}
+				}
 			},
 			{
 				content: 'Import and Inspect',//TODO: get row onclick working
 				select: function(ele){
 					inspect_and_import(ele.data('id'));
-			}
+				}
 			},
 		]
 	});
 
 	$('input[id *= "inspect"]').on('change', function() {
-		//console.log("fliter");
 		workSheetLayout.eventHub.emit('updateInspectTargets',
 										$('#inspectFiles').is(':checked'),
 										$('#inspectSockets').is(':checked'),
@@ -427,12 +441,12 @@ function add_edge(data, graph) {
 //
 function get_neighbours(id, fn) {
 	return neo4jQueries.get_neighbours_id(id,
-							fn,	
-							inspectFiles,
-							inspectSockets,
-							inspectPipes,
-							inspectProcessMeta
-							);
+											fn,	
+											inspectFiles,
+											inspectSockets,
+											inspectPipes,
+											inspectProcessMeta
+											);
 }
 
 //
@@ -440,12 +454,12 @@ function get_neighbours(id, fn) {
 //
 function get_successors(id, fn, err = console.log) {
 	return neo4jQueries.successors_query(id,
-							100,
-							inspectFiles,
-							inspectSockets,
-							inspectPipes,
-							inspectProcessMeta,
-							fn);
+										100,
+										inspectFiles,
+										inspectSockets,
+										inspectPipes,
+										inspectProcessMeta,
+										fn);
 }
 
 function import_into_worksheetAsync(id){
@@ -557,7 +571,6 @@ function inspect_node(id, err = console.log) {
 				</tr>
 			`)
 		}
-		//lastInspectee = id;//for testing windowed inspector
 		inspectee = result;
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
@@ -577,13 +590,13 @@ function inspect_node(id, err = console.log) {
 				// `);
 
 
-				var table = document.getElementById("neighbour-detail");
+				let table = document.getElementById("neighbour-detail");
 
-				var row = table.insertRow(0);
+				let row = table.insertRow(0);
 				row.onclick = (function() {
 					import_into_worksheet(n.id);
 				});
-				var cell = row.insertCell(0);
+				let cell = row.insertCell(0);
 				cell.innerHTML = (`
 								<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
 								<td><a>${meta.label}</a></td>
@@ -603,11 +616,11 @@ function inspect_node(id, err = console.log) {
 
 			// Only use the (somewhat expensive) dagre algorithm when the number of
 			// edges is small enough to be computationally zippy.
-			// if (result.edges.length < 100) { //TODO: get dagre layout online
-			//  	layout(inspector.graph, 'dagre');
+			// if (result.edges.length < 100) {
+			//    	graphingAPI.layout(inspector.graph, 'dagre');
 			// } else {
 				graphingAPI.layout(inspector.graph, 'cose');
-			//}
+			// }
 
 			inspector.graph.zoom({
 				level: 1,
@@ -676,13 +689,13 @@ function update_nodelist(err = console.log) {
 					// 		<td><a onclick="inspect_node(${node.id});">${meta.label}</a></td>
 					// 	</tr>`);
 
-					var table = document.getElementById("nodelist");
+					let table = document.getElementById("nodelist");
 
-					var row = table.insertRow(0);
+					let row = table.insertRow(0);
 					row.onclick = (function() {
 						inspectAsync(node.id);
 					});
-					var cell = row.insertCell(0);
+					let cell = row.insertCell(0);
 					cell.innerHTML = (`
 										<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
 										<td>${meta.timestamp}</td>
@@ -709,9 +722,8 @@ function rowColour(n) {
 	}
 }
 
-function refreshGraph(graphId){
-	$(graphId).css('height', '99%');
-	$(graphId).css('height', '100%');
+function refreshGraph(graph){
+	graph.resize();
 }
 
 //Functions end

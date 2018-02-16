@@ -24,8 +24,8 @@ export function neo4jLogin(){
 			//var neo4j = window.neo4j.v1;
 			if (!data) {
 				neo4jLogin();
-			} else {
-				driver = neo4j.driver("bolt://localhost", neo4j.auth.basic(data.username, data.password));
+			} else {//bolt://localhost
+				driver = neo4j.driver("bolt://localhost:7687/", neo4j.auth.basic(data.username, data.password));
 				var session = driver.session();
 					session.run(`MATCH (n) WHERE id(n)=1 RETURN n LIMIT 0`)//tests connection might be better way to do this
 					.then(function(tokens) {
@@ -37,7 +37,6 @@ export function neo4jLogin(){
 						neo4jError(error, session);
 					});
 			}
-
 		}
 	})
 }
