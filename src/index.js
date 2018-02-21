@@ -54,6 +54,9 @@ if (module.hot) {
 
 //Global variables
 
+var currMouseX = 0;
+var currMouseY = 0;
+
 var worksheetGraph;
 var inspectorGraph;
 var inspector;
@@ -268,6 +271,8 @@ window.onresize = function(){
 	workSheetLayout.updateSize();
 }
 
+document.getElementById("worksheetPage").onmousemove = findMouseCoords;
+
 workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
 	createWorksheet();
 	fn();
@@ -277,6 +282,36 @@ workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
 
 //Functions
 
+function findMouseCoords(mouseEvent)
+{
+	let obj = document.getElementById("worksheetPage");
+	let obj_left = 0;
+	let obj_top = 0;
+	let xpos;
+	let ypos;
+	while (obj.offsetParent)
+	{
+		obj_left += obj.offsetLeft;
+		obj_top += obj.offsetTop;
+		obj = obj.offsetParent;
+	}
+	if (mouseEvent)
+	{
+		//FireFox
+		xpos = mouseEvent.pageX;
+		ypos = mouseEvent.pageY;
+	}
+	else
+	{
+		//IE/chrome
+		xpos = window.event.x + document.body.scrollLeft - 2;
+		ypos = window.event.y + document.body.scrollTop - 2;
+	}
+	xpos -= obj_left;
+	ypos -= obj_top;
+	currMouseX = xpos;
+	currMouseY = ypos;
+}
 
 function addNewWorksheet(){
 	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
@@ -287,15 +322,10 @@ function addNewWorksheet(){
 	});
 }
 
-function openSubMenu(fn, isNewWorksheetOption = true ){
+function openSubMenu(fn, e, isNewWorksheetOption = true ){
 
-
-	var e = window.event;
-
-	var posX = e.clientX;
-	var posY = e.clientY;
 	let cxtSubMenu = document.createElement('div');
-	cxtSubMenu.style.cssText = `left:${posX}px;top:${posY}px;`;
+	cxtSubMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
 	cxtSubMenu.className = 'dropdown-content';
 	cxtSubMenu.id = 'myDropdown';
 
@@ -378,7 +408,6 @@ function createWorksheet(){
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
-		console.log(this);
 		graphingAPI.load(this.files[0], worksheets[index].graph, worksheetCxtMenu);
 	};
 
