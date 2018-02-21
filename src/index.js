@@ -205,7 +205,7 @@ workSheetLayout.on('initialised', function(){
 	// document.getElementById(`loadWorksheet`).onclick = function () {
 	// 	console.log(this);
 	// 	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
-	// 		//graphingAPI.load(this.files[0], worksheets[getWorksheetCount() -1].graph, worksheetCxtMenu);
+	// 		//graphingAPI.load(this.files[0], worksheets[`${getWorksheetCount() -1}`].graph, worksheetCxtMenu);
 	// 	});
 	// };
 
@@ -273,6 +273,20 @@ window.onresize = function(){
 
 document.getElementById("worksheetPage").onmousemove = findMouseCoords;
 
+workSheetLayout.on("tabCreated", function(tab){
+	if(tab.contentItem.componentName == "Worksheet"){
+		tab.setTitle(`Worksheet_${getWorksheetCount()}`);
+		tab.contentItem.worksheetID = getWorksheetCount();
+	}
+});
+
+workSheetLayout.on(`itemDestroyed`, function(item){
+	if(item.componentName == "Worksheet"){
+		console.log(item);
+		delete worksheets[`${item.worksheetID}`];
+	}
+});
+
 workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
 	createWorksheet();
 	fn();
@@ -317,7 +331,7 @@ function addNewWorksheet(){
 	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
 		let temp = workSheetLayout.root.contentItems[ 0 ].contentItems;
 		temp[ temp.length-1 ].on('resize', function(){
-			refreshGraph(worksheets[getWorksheetCount() -1].graph);
+			refreshGraph(worksheets[`${getWorksheetCount() -1}`].graph);
 		});
 	});
 }
@@ -329,12 +343,12 @@ function openSubMenu(fn, e, isNewWorksheetOption = true ){
 	cxtSubMenu.className = 'dropdown-content';
 	cxtSubMenu.id = 'myDropdown';
 
-	let i;
-	for(i in worksheets){
+	for(let i in worksheets){
 		let SubMenuOption = document.createElement('a');
-		SubMenuOption.text = i;
+		SubMenuOption.text = `Worksheet_${i}`;
 		SubMenuOption.onclick =(function() {
-			selectedWorksheet = SubMenuOption.text;
+			console.log(i);
+			selectedWorksheet = i;
 			fn();
 		});
 		cxtSubMenu.appendChild(SubMenuOption);
@@ -355,10 +369,6 @@ function openSubMenu(fn, e, isNewWorksheetOption = true ){
 		window.onclick = null;
 	}
 }
-
-
-
-
 
 function getWorksheetCount(){
 	return goldenLayoutHTML.getWorksheetCount();
@@ -400,7 +410,7 @@ function createWorksheet(){
 	worksheets[`${index}`] = { graph: worksheetGraph};
 
 	worksheetContainer.on('resize', function(){
-		refreshGraph(worksheets[index].graph);
+		refreshGraph(worksheets[`${index}`].graph);
 	})
 
 	worksheetGraph.cxtmenu(worksheetCxtMenu);
@@ -408,22 +418,22 @@ function createWorksheet(){
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
-		graphingAPI.load(this.files[0], worksheets[index].graph, worksheetCxtMenu);
+		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, worksheetCxtMenu);
 	};
 
 	document.getElementById(`saveGraph${index}`).onclick = function () {
-		graphingAPI.save(worksheets[index].graph, document.getElementById(`saveFilename${index}`).value);
+		graphingAPI.save(worksheets[`${index}`].graph, document.getElementById(`saveFilename${index}`).value);
 	};
 
 	document.getElementById(`reDagre${index}`).onclick = function () {
-		//worksheets[index].graph.resize();
-		//refreshGraph(worksheets[index].graph);
+		//worksheets[`${index}`].graph.resize();
+		//refreshGraph(worksheets[`${index}`].graph);
 		//workSheetLayout.root.contentItems[ 0 ].addChild( goldenLayoutHTML.newItemConfig );
-		//graphingAPI.layout( worksheets[index].graph, 'cose'); //TODO: get cDagre
+		//graphingAPI.layout( worksheets[`${index}`].graph, 'cose'); //TODO: get cDagre
 	};
 
 	document.getElementById(`reCose-Bilkent${index}`).onclick = function () { 
-		graphingAPI.layout( worksheets[index].graph, 'cose'); //TODO: get cose-bilkent
+		graphingAPI.layout( worksheets[`${index}`].graph, 'cose'); //TODO: get cose-bilkent
 	};
 	goldenLayoutHTML.incrementWorksheetCount();
 }
@@ -493,12 +503,14 @@ function createInspector(){
 }
 
 function remove_neighbours_from_worksheet(id) {
-	let node = worksheets[selectedWorksheet].graph.$id(id);
+	console.log(`${selectedWorksheet}`);
+	console.log(worksheets);
+	let node = worksheets[`${selectedWorksheet}`].graph.$id(id);
 
 	// First check to see if this is a compound node.
 	let children = node.children();
 	if (!children.empty()) {
-		children.forEach(function (node) { worksheets[selectedWorksheet].graph.remove(node); });
+		children.forEach(function (node) { worksheets[`${selectedWorksheet}`].graph.remove(node); });
 		node.remove();
 		return;
 	}
@@ -594,7 +606,7 @@ function import_into_worksheetAsync(id){
 // How to import a node into the worksheet
 //
 function import_into_worksheet(id, err = console.log) {
-	let graph = worksheets[selectedWorksheet].graph;
+	let graph = worksheets[`${selectedWorksheet}`].graph;
 
 	// Have we already imported this node?
 	if (!graph.getElementById(id).empty()) {
@@ -758,7 +770,7 @@ function inspect_node(id, err = console.log) {
 // Define what it means to show "successors" to a node.
 //
 function successors(id) {
-	let graph = worksheets[selectedWorksheet].graph;
+	let graph = worksheets[`${selectedWorksheet}`].graph;
 
 	// Display the node's details in the inspector "Details" panel.
 	get_successors(id, function(result) {
