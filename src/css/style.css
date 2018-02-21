@@ -1,23 +1,23 @@
 html, body {
 	background-color: black;
-    height: 100%;
-    width: 100%;
-    margin: 0;
+	height: 100%;
+	width: 100%;
+	margin: 0;
 }
 body .lm_content{
 	overflow: scroll;
 	overflow-x: hidden;
 }
 .box {
-  display: flex;
-  flex-flow: column;
-  height: 100%;
+	display: flex;
+	flex-flow: column;
+	height: 100%;
 }
 .box .row.header {
-  flex: 0 0 auto;
+	flex: 0 0 auto;
 }
 .box .row.content {
-  flex: 1 1 auto;
+	flex: 1 1 auto;
 }
 .fillHeader{
 	color: white;
@@ -27,6 +27,26 @@ body .lm_content{
 	top: 0%;
 	left: 0%;
 }
+.headerButtons{
+	height: 100%;
+	position: absolute;
+	top: 25%;
+	left: 20%;
+ }
+ .headerButton{
+	transition-duration: 0.5s;
+	font-size: 20px;
+	background-color: black;
+	color: white;
+	border: black;
+	outline:none;
+ }
+ .headerButton:Hover{
+	font-size: 20px;
+	background-color: white;
+	color: black;
+	border: white;
+ }
 .sheet{
 	background-color: #c1c1c1;
 	width: 100%;
@@ -103,3 +123,29 @@ th,td{
 	top: 150%;
 	left: 0%;
 }
+
+
+
+
+
+.dropdown {
+    position: relative;
+    /*display: inline-block;*/
+}
+
+.dropdown-content {
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {background-color: #ddd}

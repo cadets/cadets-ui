@@ -41,18 +41,6 @@ var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
 								</div>
 							</div>`;
 
-var worksheetHtml = `<div class="sheet" id="worksheet">
-						<div class="sheet" id="worksheetGraph"></div>
-						<div class="bottomOptions">
-							<input id="loadGraph" name="file" type="file" style="display: none">
-							<button class="bodyButton" onclick="document.getElementById('loadGraph').click();">Load</button>
-							<button type="button" class="bodyButton" id="saveGraph">Save</button>
-							<input id="saveFilename" name="saveFilename" type="text" placeholder="File name""></input>
-							<button type="button" class="bodyButton" id="reDagre">Temp</button>
-							<button type="button" class="bodyButton" id="reCose-Bilkent">Cose</button>
-						</div>
-					</div>`;
-
 var inspectorHtml = `<div class="sheet scrollable">
 						<div class="sheet" id="inspectorGraph"></div>
 						<div class="bottomOptions">
@@ -83,6 +71,8 @@ var inspectorHtml = `<div class="sheet scrollable">
 						</div>
 					</div>`;
 
+var worksheetCount = 0;
+
 var config = {
 	content: [{
 		type: 'row',
@@ -94,10 +84,9 @@ var config = {
 			showPopoutIcon: false
 		},
 		{
-			type:'component',
-			componentName: 'Worksheet',
-			componentState: { text: worksheetHtml },
-			showPopoutIcon: false
+			type: 'component',
+			componentName: `Worksheet`,
+			componentState: { text: getWorksheetHtml() }
 		},
 		{
 			type:'component',
@@ -108,19 +97,48 @@ var config = {
 	}]
 };
 
-export var newItemConfig = {
-    type: 'component',
-    componentName: 'Worksheet',
-    componentState: { text: "test" }
-};
+function getWorksheetHtml(){
+	let index = worksheetCount;
+	return `<div class="sheet" id="worksheet${index}">
+				<div class="sheet" id="worksheetGraph${index}"></div>
+				<div class="bottomOptions">
+					<input id="loadGraph${index}" name="file" type="file" style="display: none">
+					<button class="bodyButton" onclick="document.getElementById('loadGraph${index}').click();">Load</button>
+					<button type="button" class="bodyButton" id="saveGraph${index}">Save</button>
+					<input id="saveFilename${index}" name="saveFilename" type="text" placeholder="File name""></input>
+					<button type="button" class="bodyButton" id="reDagre${index}">Test</button>
+					<button type="button" class="bodyButton" id="reCose-Bilkent${index}">Cose</button>
+				</div>
+			</div>`;
+}
 
 export function intiGoldenLayoutHTML(){
 	return new GoldenLayout( config, document.getElementById('worksheetPage') );
 }
 
+export function incrementWorksheetCount(){
+	worksheetCount++;
+}
+
+export function getWorksheetCount(){
+	return worksheetCount;
+}
+
+export function addWorksheet(goldenlayout, fn){
+	goldenlayout.root.contentItems[ 0 ].addChild( {
+		type: 'component',
+		componentName: `Worksheet`,
+		componentState: { text: getWorksheetHtml() }
+	} );
+	//console.log(goldenlayout.root.contentItems[ 0 ]);
+	goldenlayout.emit(`WorksheetContainerCreated`, fn);
+}
+
 const goldenLayoutHTML = {
 	intiGoldenLayoutHTML,
-	newItemConfig,
+	incrementWorksheetCount,
+	getWorksheetCount,
+	addWorksheet,
 }
 
 export default goldenLayoutHTML;

@@ -54,17 +54,16 @@ if (module.hot) {
 
 //Global variables
 
-var testGraph;
-var machineGraph;
+var worksheetGraph;
 var inspectorGraph;
 var inspector;
-var worksheetGraph;
+var worksheets = {};
+var selectedWorksheet = 0;
 var lastInspectedId = null;
 var inspectFiles = false;
 var inspectSockets = false;
 var inspectPipes = false;
 var inspectProcessMeta = false;
-var worksheetNum = 0;
 //var mchs;
 
 var worksheetContainer;
@@ -86,13 +85,17 @@ var worksheetCxtMenu = (
 		{
 			content: 'Import neighbours',
 			select: function(ele){
-				import_neighbours_into_worksheet(ele.data('id'));
+				openSubMenu(function(){
+					import_neighbours_into_worksheet(ele.data('id'));
+				});
 			}
 		},
 		{
 			content: 'Import successors',
 			select: function(ele){
-				successors(ele.data('id'));
+				openSubMenu(function(){
+					successors(ele.data('id'));
+				});
 			}
 		},
 		{
@@ -112,7 +115,7 @@ var worksheetCxtMenu = (
 					 });
 					 vex.dialog.alert({
 						unsafeMessage: `<h2>Files read:</h2><ul>${str}</ul>`,
-   						className: 'vex-theme-wireframe'
+						className: 'vex-theme-wireframe'
 					 });
 				});
 			}
@@ -133,14 +136,16 @@ var worksheetCxtMenu = (
 						message += '</ul>';
 					}
 					vex.dialog.alert({ unsafeMessage: message, 
-   										className: 'vex-theme-wireframe'});
+										className: 'vex-theme-wireframe'});
 				});
 			}
 		},
 		{
 			content: 'Remove neighbours',
 			select: function(ele){
-				remove_neighbours_from_worksheet(ele.data("id"));
+				openSubMenu(function(){
+					remove_neighbours_from_worksheet(ele.data("id"));
+				}, false);
 			}
 		},
 		{
@@ -159,13 +164,16 @@ var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
 //Run
 
 workSheetLayout.registerComponent( 'NodeSearchsheet', function( container, state ){
+	container._config.isClosable = false;
 	container.getElement().html(state.text);
 });
-workSheetLayout.registerComponent( 'Worksheet', function( container, state ){
+workSheetLayout.registerComponent( `Worksheet`, function( container, state ){
 	container.getElement().html(state.text);
+	container.setTitle(`Worksheet_0`);
 	worksheetContainer = container;
 });
 workSheetLayout.registerComponent( 'Inspector', function( container, state ){
+	container._config.isClosable = false;
 	container.getElement().html(state.text);
 	inspectorContainer = container;
 });
@@ -181,16 +189,31 @@ workSheetLayout.on('initialised', function(){
 		neo4jQueries.neo4jLogin();
 	}
 	if(document.getElementById("inspectorGraph") != null){
+		$("body").on("contextmenu", function(e){
+			return false;
+		});
 		createInspector();
 	}
-	if(document.getElementById("worksheetGraph") != null){
+	if(document.getElementById(`worksheetGraph${getWorksheetCount()}`) != null){
 		createWorksheet();
 	}
+
+
+	// document.getElementById(`loadWorksheet`).onclick = function () {
+	// 	console.log(this);
+	// 	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
+	// 		//graphingAPI.load(this.files[0], worksheets[getWorksheetCount() -1].graph, worksheetCxtMenu);
+	// 	});
+	// };
+
+	document.getElementById(`newWorksheet`).onclick = function () {
+		addNewWorksheet();
+	};
 });
 
 //Currently assumes that only the inspector can be windowed 
 workSheetLayout.on('windowOpened', function( id ){
-		workSheetLayout.eventHub.emit('inspectorWindowOpened', lastInspectedId, neo4jQueries);
+	workSheetLayout.eventHub.emit('inspectorWindowOpened', lastInspectedId, neo4jQueries);
 });
 
 var once = false;
@@ -226,13 +249,13 @@ workSheetLayout.eventHub.on('inspect', function( id ){
 });
 
 workSheetLayout.eventHub.on('import_into_worksheet', function( id ){
-	if(document.getElementById("worksheetGraph") != null){
+	if(document.getElementById(`worksheetGraph${selectedWorksheet}`) != null){
 		import_into_worksheet(id);
 	}
 });
 
 workSheetLayout.eventHub.on('import_neighbours_into_worksheet', function( id ){
-	if(document.getElementById("worksheetGraph") != null){
+	if(document.getElementById(`worksheetGraph${selectedWorksheet}`) != null){
 		import_neighbours_into_worksheet(id);
 	}
 });
@@ -242,21 +265,83 @@ workSheetLayout.eventHub.on('updateInspectTargets', function(files, sockets, pip
 });
 
 window.onresize = function(){
-	console.log(window.height);
 	workSheetLayout.updateSize();
 }
+
+workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
+	createWorksheet();
+	fn();
+});
 
 //Events end
 
 //Functions
 
+
+function addNewWorksheet(){
+	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
+		let temp = workSheetLayout.root.contentItems[ 0 ].contentItems;
+		temp[ temp.length-1 ].on('resize', function(){
+			refreshGraph(worksheets[getWorksheetCount() -1].graph);
+		});
+	});
+}
+
+function openSubMenu(fn, isNewWorksheetOption = true ){
+
+
+	var e = window.event;
+
+	var posX = e.clientX;
+	var posY = e.clientY;
+	let cxtSubMenu = document.createElement('div');
+	cxtSubMenu.style.cssText = `left:${posX}px;top:${posY}px;`;
+	cxtSubMenu.className = 'dropdown-content';
+	cxtSubMenu.id = 'myDropdown';
+
+	let i;
+	for(i in worksheets){
+		let SubMenuOption = document.createElement('a');
+		SubMenuOption.text = i;
+		SubMenuOption.onclick =(function() {
+			selectedWorksheet = SubMenuOption.text;
+			fn();
+		});
+		cxtSubMenu.appendChild(SubMenuOption);
+	}
+	if(isNewWorksheetOption){
+		let SubMenuOption = document.createElement('a');
+		SubMenuOption.text = `New Worksheet`;
+		SubMenuOption.onclick =(function() {
+			selectedWorksheet = getWorksheetCount();
+			addNewWorksheet()
+			fn();
+		});
+		cxtSubMenu.appendChild(SubMenuOption);
+	}
+	document.body.appendChild(cxtSubMenu);
+	window.onclick = function(event) {
+		document.getElementById(`myDropdown`).remove();
+		window.onclick = null;
+	}
+}
+
+
+
+
+
+function getWorksheetCount(){
+	return goldenLayoutHTML.getWorksheetCount();
+}
+
 function htmlBody() {
 	let element = document.createElement('div');
 	element.classList.add('box');
-
-	element.innerHTML = `
-						<div class="row header fillHeader">
-							<font size="+3">&nbsp;CADETS/OPUS</font>
+//<input id="loadWorksheet" name="file" type="file" style="display: none">
+//<button onclick="document.getElementById('loadWorksheet').click();" class="headerButton">Load Worksheet</button>
+	element.innerHTML = `<div class="row header fillHeader">
+							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
+								<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 						</div>
 						<div class="row content" style="padding: 1%;" id="worksheetPage"></div>`;
 
@@ -264,7 +349,7 @@ function htmlBody() {
 }
 
 function updateInspectTargets(files, scokets, pipes, meta){
-	if(document.getElementById("worksheetGraph") != null)
+	if(document.getElementById(`worksheetGraph${getWorksheetCount()}`) != null)
 	{
 		$('#inspectFiles').value = files;
 		$('#inspectSockets').value = scokets;
@@ -278,42 +363,42 @@ function updateInspectTargets(files, scokets, pipes, meta){
 }
 
 function createWorksheet(){
-	testGraph = graphingAPI.create('worksheetGraph');
+	let index = getWorksheetCount();
+	worksheetGraph = graphingAPI.create(`worksheetGraph${index}`);
 
 
-	worksheetGraph = {
-		graph: testGraph
-	};
+	worksheets[`${index}`] = { graph: worksheetGraph};
 
 	worksheetContainer.on('resize', function(){
-		refreshGraph(worksheetGraph.graph);
+		refreshGraph(worksheets[index].graph);
 	})
 
-	testGraph.cxtmenu(worksheetCxtMenu);
+	worksheetGraph.cxtmenu(worksheetCxtMenu);
 
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 
-	document.getElementById("loadGraph").onchange = function () {
-		graphingAPI.load(this.files[0], worksheetGraph.graph, worksheetCxtMenu);
+	document.getElementById(`loadGraph${index}`).onchange = function () {
+		console.log(this);
+		graphingAPI.load(this.files[0], worksheets[index].graph, worksheetCxtMenu);
 	};
 
-	document.getElementById("saveGraph").onclick = function () {
-		graphingAPI.save(worksheetGraph.graph, document.getElementById('saveFilename').value);
+	document.getElementById(`saveGraph${index}`).onclick = function () {
+		graphingAPI.save(worksheets[index].graph, document.getElementById(`saveFilename${index}`).value);
 	};
 
-	document.getElementById("reDagre").onclick = function () {
-		
-		worksheetGraph.graph.resize();
-		//refreshGraph(worksheetGraph.graph);
-		//get_machines_ids();
-    	//workSheetLayout.root.contentItems[ 0 ].addChild( goldenLayoutHTML.newItemConfig );
-		//graphingAPI.layout( worksheetGraph.graph, 'cose'); //TODO: get cDagre
+	document.getElementById(`reDagre${index}`).onclick = function () {
+		//worksheets[index].graph.resize();
+		//refreshGraph(worksheets[index].graph);
+		//workSheetLayout.root.contentItems[ 0 ].addChild( goldenLayoutHTML.newItemConfig );
+		//graphingAPI.layout( worksheets[index].graph, 'cose'); //TODO: get cDagre
 	};
 
-	document.getElementById("reCose-Bilkent").onclick = function () { 
-		graphingAPI.layout( worksheetGraph.graph, 'cose'); //TODO: get cose-bilkent
+	document.getElementById(`reCose-Bilkent${index}`).onclick = function () { 
+		graphingAPI.layout( worksheets[index].graph, 'cose'); //TODO: get cose-bilkent
 	};
+	goldenLayoutHTML.incrementWorksheetCount();
 }
+
 
 function createInspector(){
 	inspectorGraph = graphingAPI.create('inspectorGraph');
@@ -333,27 +418,33 @@ function createInspector(){
 		selector: 'node',
 		commands: [
 			{
-				content: 'Import node',//TODO: get row onclick working
+				content: 'Import node',
 				select: function(ele){
-					import_into_worksheetAsync(ele.data('id'));		
+					openSubMenu(function(){
+						import_into_worksheetAsync(ele.data('id'));
+					});
 				}
 			},
 			{
 				content: 'Import neighbours',
 				select: function(ele){
-					import_neighbours_into_worksheetAsync(ele.data('id'));
+					openSubMenu(function(){
+						import_neighbours_into_worksheetAsync(ele.data('id'));
+					});
 				}
 			},
 			{
-				content: 'Inspect',//TODO: get row onclick working
+				content: 'Inspect',
 				select: function(ele){
 					inspectAsync(ele.data("id"));
 				}
 			},
 			{
-				content: 'Import and Inspect',//TODO: get row onclick working
+				content: 'Import and Inspect',
 				select: function(ele){
-					inspect_and_import(ele.data('id'));
+					openSubMenu(function(){
+						inspect_and_import(ele.data('id'));
+					});
 				}
 			},
 		]
@@ -373,12 +464,12 @@ function createInspector(){
 }
 
 function remove_neighbours_from_worksheet(id) {
-	let node = worksheetGraph.graph.$id(id);
+	let node = worksheets[selectedWorksheet].graph.$id(id);
 
 	// First check to see if this is a compound node.
 	let children = node.children();
 	if (!children.empty()) {
-		children.forEach(function (node) { worksheetGraph.graph.remove(node); });
+		children.forEach(function (node) { worksheets[selectedWorksheet].graph.remove(node); });
 		node.remove();
 		return;
 	}
@@ -390,7 +481,11 @@ function remove_neighbours_from_worksheet(id) {
 }
 
 function toggle_node_importance(id) {
-	nodes = worksheetGraph.graph.nodes(`node#${id}`);
+	let nodes = [];
+	let i;
+	for(i in worksheets){
+		nodes = nodes.concat(worksheets[i].graph.nodes(`node#${id}`));
+	}
 	nodes.forEach( function(ele){
 		if (ele.hasClass('important')) {
 			ele.removeClass('important');
@@ -470,7 +565,7 @@ function import_into_worksheetAsync(id){
 // How to import a node into the worksheet
 //
 function import_into_worksheet(id, err = console.log) {
-	let graph = worksheetGraph.graph;
+	let graph = worksheets[selectedWorksheet].graph;
 
 	// Have we already imported this node?
 	if (!graph.getElementById(id).empty()) {
@@ -616,11 +711,11 @@ function inspect_node(id, err = console.log) {
 
 			// Only use the (somewhat expensive) dagre algorithm when the number of
 			// edges is small enough to be computationally zippy.
-			// if (result.edges.length < 100) {
-			//    	graphingAPI.layout(inspector.graph, 'dagre');
-			// } else {
+			if (result.edges.length < 100) {
+				graphingAPI.layout(inspector.graph, 'dagre');
+			} else {
 				graphingAPI.layout(inspector.graph, 'cose');
-			// }
+			}
 
 			inspector.graph.zoom({
 				level: 1,
@@ -634,7 +729,7 @@ function inspect_node(id, err = console.log) {
 // Define what it means to show "successors" to a node.
 //
 function successors(id) {
-	let graph = worksheetGraph.graph;
+	let graph = worksheets[selectedWorksheet].graph;
 
 	// Display the node's details in the inspector "Details" panel.
 	get_successors(id, function(result) {
@@ -702,7 +797,7 @@ function update_nodelist(err = console.log) {
 										<td><a>${meta.label}</a></td>
 						`);
 				}
-			});//.fail(err);
+			});
 }
 
 function rowColour(n) {
