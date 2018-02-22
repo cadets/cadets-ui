@@ -311,6 +311,7 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 	var process_obj;
 	var session = driver.session();
 	get_detail_id_unparsed(dbid, function(result) {
+
 		if (result == null){
 			console.log(404);
 		}
@@ -318,7 +319,7 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 		//process_obj = result.splice(0,max_depth-1);//[(max_depth, result)];
 		//while (process_obj.length){
 		//	nodes = nodes.concat(cur);
-			if (process_obj['labels'] == ('Global')){
+			if (process_obj.labels.indexOf('Global') > -1){
 				session.run(`MATCH (cur:Global)-[e]->(n:Process)
 										WHERE
 										id(cur)=${dbid}
@@ -351,7 +352,7 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 					neo4jError(error, session);
 				});
 			}
-			else if (process_obj['labels'] == ('Process')){
+			else if (process_obj.labels.indexOf('Process') > -1){
 				session.run(`MATCH (cur:Process)<-[e]-(n:Global)
 										WHERE
 										id(cur)=${dbid}
@@ -379,7 +380,7 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 					neo4jError(error, session);
 				});
 			}
-			else if (process_obj['labels'] == ('Conn')){
+			else if (process_obj.labels.indexOf('Conn') > -1 ){
 				session.run(`MATCH (cur:Conn)-[e]-(n:Global)
 										WHERE
 										id(cur)=${dbid}

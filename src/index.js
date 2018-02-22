@@ -8,6 +8,7 @@ import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.
 
 //import './../node_modules/hashids/dist/hashids.min.js';
 import dagre from './../node_modules/cytoscape-dagre/cytoscape-dagre.js';
+import cose_bilkent from './../node_modules/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js';
 
 import './css/style.css';
 import './../node_modules/vex-js/dist/css/vex.css';
@@ -21,6 +22,7 @@ var goldenLayoutHTML = require('./goldenLayoutHTML.js');
 
 cytoscape.use( cxtmenu );
 cytoscape.use( dagre );
+cytoscape.use( cose_bilkent );
 
 let element = htmlBody();
 document.body.appendChild(element);
@@ -203,10 +205,9 @@ workSheetLayout.on('initialised', function(){
 
 
 	// document.getElementById(`loadWorksheet`).onclick = function () {
-	// 	console.log(this);
-	// 	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
-	// 		//graphingAPI.load(this.files[0], worksheets[`${getWorksheetCount() -1}`].graph, worksheetCxtMenu);
-	// 	});
+	// 	//console.log(this);
+	// 	addNewWorksheet();
+	// 	graphingAPI.load(this.files[0], worksheets[`${getWorksheetCount() -1}`].graph, worksheetCxtMenu);
 	// };
 
 	document.getElementById(`newWorksheet`).onclick = function () {
@@ -282,7 +283,6 @@ workSheetLayout.on("tabCreated", function(tab){
 
 workSheetLayout.on(`itemDestroyed`, function(item){
 	if(item.componentName == "Worksheet"){
-		console.log(item);
 		delete worksheets[`${item.worksheetID}`];
 	}
 });
@@ -347,7 +347,6 @@ function openSubMenu(fn, e, isNewWorksheetOption = true ){
 		let SubMenuOption = document.createElement('a');
 		SubMenuOption.text = `Worksheet_${i}`;
 		SubMenuOption.onclick =(function() {
-			console.log(i);
 			selectedWorksheet = i;
 			fn();
 		});
@@ -377,8 +376,9 @@ function getWorksheetCount(){
 function htmlBody() {
 	let element = document.createElement('div');
 	element.classList.add('box');
-//<input id="loadWorksheet" name="file" type="file" style="display: none">
-//<button onclick="document.getElementById('loadWorksheet').click();" class="headerButton">Load Worksheet</button>
+	
+								// <input id="loadWorksheet" name="file" type="file" style="display: none">
+								// <button class="headerButton" onclick="document.getElementById('loadWorksheet').click();">Load New Worksheet</button>
 	element.innerHTML = `<div class="row header fillHeader">
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 								<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
@@ -426,14 +426,11 @@ function createWorksheet(){
 	};
 
 	document.getElementById(`reDagre${index}`).onclick = function () {
-		//worksheets[`${index}`].graph.resize();
-		//refreshGraph(worksheets[`${index}`].graph);
-		//workSheetLayout.root.contentItems[ 0 ].addChild( goldenLayoutHTML.newItemConfig );
-		//graphingAPI.layout( worksheets[`${index}`].graph, 'cose'); //TODO: get cDagre
+		graphingAPI.layout( worksheets[`${index}`].graph, 'dagre'); //TODO: get cDagre
 	};
 
 	document.getElementById(`reCose-Bilkent${index}`).onclick = function () { 
-		graphingAPI.layout( worksheets[`${index}`].graph, 'cose'); //TODO: get cose-bilkent
+		graphingAPI.layout( worksheets[`${index}`].graph, 'cose-bilkent');
 	};
 	goldenLayoutHTML.incrementWorksheetCount();
 }
@@ -503,8 +500,6 @@ function createInspector(){
 }
 
 function remove_neighbours_from_worksheet(id) {
-	console.log(`${selectedWorksheet}`);
-	console.log(worksheets);
 	let node = worksheets[`${selectedWorksheet}`].graph.$id(id);
 
 	// First check to see if this is a compound node.
