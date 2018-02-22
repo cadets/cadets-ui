@@ -72,17 +72,33 @@ the first time you connect you will need to choose a database password.
 
 We use https://webpack.js.org[Webpack] to manage our scripts and style
 definitions together with their JavaScript dependencies.
-You can build our code using the `webpack` command from the
-`node_modules/.bin` directory:
+You can build our code using the command `npm run build`:
 
 ```terminal
-$ ./node_modules/.bin/webpack
-Hash: 9ceef271a6cb69f75a20
+$ npm run build
+
+> CADETS_UI_JS@1.0.0 build /usr/home/jon/CADETS/ui
+> webpack --config webpack.prod.js
+
+clean-webpack-plugin: /usr/home/jon/CADETS/ui/dist has been removed.
+
+Hash: d341ea6b74e9d30e90ed
 Version: webpack 3.10.0
-Time: 81ms
+Time: 20909ms
     Asset     Size  Chunks             Chunk Names
-bundle.js  33.9 kB       0  [emitted]  main
-   [0] ./js/module.js 31.5 kB {0} [built]
+                               Asset       Size  Chunks                    Chunk Names
+2900a1ec47b7252ab90bc098a14bcc8a.png    5.79 kB          [emitted]
+2883d56f655c6f2f262465069957d804.png    13.3 kB          [emitted]
+96bf620db9e7e70833c7f13717a7e61f.png    4.75 kB          [emitted]
+a6712c2111b9a9df9b9dbcfaa03e582a.svg    23.2 kB          [emitted]
+[...]
+ [211] ./src/goldenLayoutHTML.js 4.68 kB {0} [built]
+    + 197 hidden modules
+Child html-webpack-plugin for "index.html":
+     1 asset
+       [2] (webpack)/buildin/global.js 509 bytes {0} [built]
+       [3] (webpack)/buildin/module.js 517 bytes {0} [built]
+        + 2 hidden modules
 ```
 
 The compiles our JavaScript files together with their dependencies into an
@@ -94,9 +110,31 @@ which compiles unoptimized versions of JavaScript and recompiles them whenever
 the source files change and serves them from http://localhost:8080:
 
 ```terminal
-$ ./node_modules/.bin/webpack-dev-server
+$ npm run start
+
+> CADETS_UI_JS@1.0.0 start /usr/home/jon/CADETS/ui
+> webpack-dev-server --open --config webpack.dev.js
+
+clean-webpack-plugin: /usr/home/jon/CADETS/ui/dist has been removed.
 Project is running at http://localhost:8080/
 webpack output is served from /
+Content not from webpack is served from ./dist
+webpack: wait until bundle finished: /
+Hash: 30340c68845bf485621a
+Version: webpack 3.10.0
+Time: 3725ms
+                               Asset       Size  Chunks                    Chunk
+ Names
+a6712c2111b9a9df9b9dbcfaa03e582a.svg    23.2 kB          [emitted]
+2900a1ec47b7252ab90bc098a14bcc8a.png    5.79 kB          [emitted]
 [...]
+[./src/neo4jQueries.js] ./src/neo4jQueries.js 17.4 kB {0} [built]
+    + 222 hidden modules
+Child html-webpack-plugin for "index.html":
+     1 asset
+    [./node_modules/html-webpack-plugin/lib/loader.js!./node_modules/html-webpack-plugin/default_index.ejs] ./node_modules/html-webpack-plugin/lib/loader.js!./node_modules/html-webpack-plugin/default_index.ejs 538 bytes {0} [built]
+    [./node_modules/lodash/lodash.js] ./node_modules/lodash/lodash.js 540 kB {0} [built]
+    [./node_modules/webpack/buildin/global.js] (webpack)/buildin/global.js 509 bytes {0} [built]
+    [./node_modules/webpack/buildin/module.js] (webpack)/buildin/module.js 517 bytes {0} [built]
 webpack: Compiled successfully.
 ```
