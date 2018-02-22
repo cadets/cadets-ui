@@ -104,6 +104,7 @@ export function add_node(data, graph, renderedPosition = null) {
 // Load a Cytograph JSON representation into an object with a 'graph' property.
 //
 export function load(file, graph, cxtMenu) {
+	//console.log(file);
 	let reader = new FileReader();
 	reader.addEventListener('loadend', function() {
 		let data = JSON.parse(reader.result);

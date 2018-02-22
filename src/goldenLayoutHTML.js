@@ -106,7 +106,7 @@ function getWorksheetHtml(){
 					<button class="bodyButton" onclick="document.getElementById('loadGraph${index}').click();">Load</button>
 					<button type="button" class="bodyButton" id="saveGraph${index}">Save</button>
 					<input id="saveFilename${index}" name="saveFilename" type="text" placeholder="File name""></input>
-					<button type="button" class="bodyButton" id="reDagre${index}">Test</button>
+					<button type="button" class="bodyButton" id="reDagre${index}">Dagre</button>
 					<button type="button" class="bodyButton" id="reCose-Bilkent${index}">Cose</button>
 				</div>
 			</div>`;
