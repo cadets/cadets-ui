@@ -103,7 +103,7 @@ export function add_node(data, graph, renderedPosition = null) {
 //
 // Load a Cytograph JSON representation into an object with a 'graph' property.
 //
-export function load(file, graph, cxtMenu) {
+export function load(file, graph, cxtMenu, fn) {
 	//console.log(file);
 	let reader = new FileReader();
 	reader.addEventListener('loadend', function() {
@@ -112,6 +112,7 @@ export function load(file, graph, cxtMenu) {
 		data.layout = { name: 'preset' };
 		graph = cytoscape(data);
 		graph.cxtmenu(cxtMenu);
+		fn(graph);
 	});
 
 	reader.readAsText(file);

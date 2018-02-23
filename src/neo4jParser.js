@@ -1,11 +1,11 @@
 export function parseNeo4jNode(o){
 	var data = {'id': o['identity']['low']};
 	var labels = o['labels'];
-	if (labels.indexOf('Socket') > -1){//TODO: test socket
+	if (labels.indexOf('Socket') > -1){
 		data.type = "socket-version";
 		data = concatDictionary( data, o['properties']);
 	}
-	else if (labels.indexOf('Pipe') > -1){//TODO: test pipe
+	else if (labels.indexOf('Pipe') > -1){
 		data.type = "pipe-endpoint";
 		data = concatDictionary( data, o['properties']);
 	}
@@ -21,7 +21,7 @@ export function parseNeo4jNode(o){
 		data.type = "process-meta";
 		data = concatDictionary( data, o['properties']);
 	}
-	else if (labels.indexOf('Conn') > -1){//TODO: not many Conns to test with
+	else if (labels.indexOf('Conn') > -1){
 		data = concatDictionary( data, o['properties']);
 		if(data['type'] != null){
 			data['ctype'] = data['type'];

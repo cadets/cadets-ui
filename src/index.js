@@ -317,7 +317,7 @@ function findMouseCoords(mouseEvent)
 	}
 	else
 	{
-		//IE/chrome
+		//IE
 		xpos = window.event.x + document.body.scrollLeft - 2;
 		ypos = window.event.y + document.body.scrollTop - 2;
 	}
@@ -406,7 +406,6 @@ function createWorksheet(){
 	let index = getWorksheetCount();
 	worksheetGraph = graphingAPI.create(`worksheetGraph${index}`);
 
-
 	worksheets[`${index}`] = { graph: worksheetGraph};
 
 	worksheetContainer.on('resize', function(){
@@ -418,7 +417,9 @@ function createWorksheet(){
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
-		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, worksheetCxtMenu);
+		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, worksheetCxtMenu, function(newGraph){
+			worksheets[`${index}`].graph = newGraph;
+		});
 	};
 
 	document.getElementById(`saveGraph${index}`).onclick = function () {
@@ -426,7 +427,7 @@ function createWorksheet(){
 	};
 
 	document.getElementById(`reDagre${index}`).onclick = function () {
-		graphingAPI.layout( worksheets[`${index}`].graph, 'dagre'); //TODO: get cDagre
+		graphingAPI.layout( worksheets[`${index}`].graph, 'dagre');
 	};
 
 	document.getElementById(`reCose-Bilkent${index}`).onclick = function () { 
@@ -518,8 +519,7 @@ function remove_neighbours_from_worksheet(id) {
 
 function toggle_node_importance(id) {
 	let nodes = [];
-	let i;
-	for(i in worksheets){
+	for(let i in worksheets){
 		nodes = nodes.concat(worksheets[i].graph.nodes(`node#${id}`));
 	}
 	nodes.forEach( function(ele){
