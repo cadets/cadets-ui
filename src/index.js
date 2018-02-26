@@ -179,6 +179,10 @@ workSheetLayout.registerComponent( 'NodeSearchsheet', function( container, state
 	container.getElement().html(state.text);
 });
 workSheetLayout.registerComponent( `Worksheet`, function( container, state ){
+	// var temp = container.parent.parent;
+	// console.log(temp["header"]);
+	// console.log(temp.header);
+	//container.parent.parent.header.controlsContainer.find( '.lm_popout').hide();
 	container.getElement().html(state.text);
 	container.setTitle(`Worksheet_0`);
 	worksheetContainer = container;
@@ -284,11 +288,18 @@ workSheetLayout.eventHub.on('updateInspectTargets', function(files, sockets, pip
 	updateInspectTargets(files, sockets, pipes, meta);
 });
 
-window.onresize = function(){
-	workSheetLayout.updateSize();
-}
-
-document.getElementById("worksheetPage").onmousemove = findMouseCoords;
+workSheetLayout.on('stackCreated', function(stack) {
+			stack.on('activeContentItemChanged', function(contentItem) {
+				if (contentItem.componentName != "Inspector") {
+					contentItem.parent.header.controlsContainer.find('.lm_popout').hide();
+				}
+				if (contentItem.componentName == "Inspector") {
+					contentItem.parent.header.controlsContainer.find('.lm_popout').show();
+				}
+			}
+		);
+	}
+);
 
 workSheetLayout.on("tabCreated", function(tab){
 	if(tab.contentItem.componentName == "Worksheet"){
@@ -307,6 +318,12 @@ workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
 	createWorksheet();
 	fn();
 });
+
+window.onresize = function(){
+	workSheetLayout.updateSize();
+}
+
+document.getElementById("worksheetPage").onmousemove = findMouseCoords;
 
 //Events end
 
@@ -868,9 +885,10 @@ function update_nodelist(err = console.log) {
 										<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
 										<td>${meta.timestamp}</td>
 										<td><a>${meta.label}</a></td>
-						`);
+									`);
 				}
-			});
+			}
+	);
 }
 
 function rowColour(n) {
