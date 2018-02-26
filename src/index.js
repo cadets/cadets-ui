@@ -73,6 +73,8 @@ var inspectProcessMeta = false;
 
 var worksheetContainer;
 var inspectorContainer;
+var detailsContainer;
+var neighboursContainer;
 
 
 var worksheetCxtMenu = ( 
@@ -185,6 +187,16 @@ workSheetLayout.registerComponent( 'Inspector', function( container, state ){
 	container._config.isClosable = false;
 	container.getElement().html(state.text);
 	inspectorContainer = container;
+});
+workSheetLayout.registerComponent( 'Details', function( container, state ){
+	container._config.isClosable = false;
+	container.getElement().html(state.text);
+	detailsContainer = container;
+});
+workSheetLayout.registerComponent( 'Neighbours', function( container, state ){
+	container._config.isClosable = false;
+	container.getElement().html(state.text);
+	neighboursContainer = container;
 });
 
 workSheetLayout.init();
@@ -742,7 +754,11 @@ function inspect_node(id, err = console.log) {
 
 				let row = table.insertRow(0);
 				row.onclick = (function() {
-					import_into_worksheet(n.id);
+					//openSubMenu(function(){
+					//	console.log("inside");
+						import_into_worksheet(n.id);
+					//});
+					//console.log(openSubMenu);
 				});
 				let cell = row.insertCell(0);
 				cell.innerHTML = (`

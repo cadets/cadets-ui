@@ -41,34 +41,20 @@ var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
 								</div>
 							</div>`;
 
-var inspectorHtml = `<div class="sheet scrollable">
-						<div class="sheet" id="inspectorGraph"></div>
-						<div class="bottomOptions">
-							<input type="checkbox" id="inspectFiles">Files</input>
-							<input type="checkbox" id="inspectSockets">Sockets</input>
-							<input type="checkbox" id="inspectPipes">Pipes</input>
-							<input type="checkbox" id="inspectProcessMeta">ProcessMetaData</input>
-						</div>
-						<div class="inspectorT1">
-							<div class="box">
-								<div class="row header fillHeader">
-									<font>&nbsp;Details</font>
-								</div>
-								<div class="row content scrollable">
-									<table id="inspector-detail" class="table"></table>
-								</div>
-							</div>	
-						</div>
-						<div class="inspectorT2">
-							<div class="box">
-								<div class="row header fillHeader">
-									<font>&nbsp;Neighbours</font>
-								</div>
-								<div class="row content scrollable">
-									<table id="neighbour-detail" class="table"></table>
-								</div>
-							</div>	
-						</div>
+var inspectorHtml = `<div class="sheet" id="inspectorGraph"></div>
+					<div class="bottomOptions">
+						<input type="checkbox" id="inspectFiles">Files</input>
+						<input type="checkbox" id="inspectSockets">Sockets</input>
+						<input type="checkbox" id="inspectPipes">Pipes</input>
+						<input type="checkbox" id="inspectProcessMeta">ProcessMetaData</input>
+					</div>`;
+
+var DetailsHtml = `<div class="sheet scrollable">
+						<table id="inspector-detail" class="table"></table>
+					</div>`;
+
+var NeighboursHtml = `<div class="sheet scrollable">
+						<table id="neighbour-detail" class="table"></table>
 					</div>`;
 
 var worksheetCount = 0;
@@ -77,22 +63,37 @@ var config = {
 	content: [{
 		type: 'row',
 		content: [
-		{
-			type:'component',
-			componentName: 'NodeSearchsheet',
-			componentState: { text: analysisWorksheetHtml },
-			showPopoutIcon: false
-		},
-		{
-			type: 'component',
-			componentName: `Worksheet`,
-			componentState: { text: getWorksheetHtml() }
-		},
-		{
-			type:'component',
-			componentName: 'Inspector',
-			componentState: { text: inspectorHtml }
-		}
+			{
+				type:'component',
+				componentName: 'NodeSearchsheet',
+				componentState: { text: analysisWorksheetHtml },
+				showPopoutIcon: false
+			},
+			{
+				type: 'component',
+				componentName: `Worksheet`,
+				componentState: { text: getWorksheetHtml() }
+			},
+			{
+				type: 'stack',
+				content: [
+					{
+					type:'component',
+					componentName: 'Inspector',
+					componentState: { text: inspectorHtml }
+					},
+					{
+					type:'component',
+					componentName: 'Details',
+					componentState: { text: DetailsHtml }
+					},
+					{
+					type:'component',
+					componentName: 'Neighbours',
+					componentState: { text: NeighboursHtml }
+					}
+				]
+			}
 		]
 	}]
 };
