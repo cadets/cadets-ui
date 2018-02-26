@@ -104,7 +104,6 @@ export function add_node(data, graph, renderedPosition = null) {
 // Load a Cytograph JSON representation into an object with a 'graph' property.
 //
 export function load(file, graph, cxtMenu, fn) {
-	//console.log(file);
 	let reader = new FileReader();
 	reader.addEventListener('loadend', function() {
 		let data = JSON.parse(reader.result);
@@ -329,10 +328,8 @@ export function layout(graph, algorithm) {
 // really appropriate to serve from OPUS/Neo4j.
 //
 export function node_metadata(node) {
-	//console.log(node);
 	let metadata = null;
 	let timestamp = null;
-
 	switch (node.type) {
 		case 'connection':
 			metadata = {
@@ -414,7 +411,6 @@ export function node_metadata(node) {
 			break;
 
 	default:
-		//console.log(node);
 		console.log('unknown node type: ' + node.type);
 		return {
 			icon: 'question',
@@ -424,7 +420,7 @@ export function node_metadata(node) {
 
 	if (timestamp) {
 		metadata.timestamp =
-			moment.unix(timestamp / 1000000000).format('HH:mm[h] D MMM');
+			moment.unix(timestamp / 1000000000).format();
 	} else {
 		metadata.timestamp = '';
 	}

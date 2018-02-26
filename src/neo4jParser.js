@@ -1,4 +1,5 @@
 export function parseNeo4jNode(o){
+	//console.log(o);
 	var data = {'id': o['identity']['low']};
 	var labels = o['labels'];
 	if (labels.indexOf('Socket') > -1){

@@ -189,7 +189,6 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 				RETURN s, e, d`)
 
 	.then(result => {
-		//console.log(sockets);
 		neighbours = result.records;
 		if (neighbours.length){
 			root_node = neo4jParser.parseNeo4jNode(neighbours[0].get('s'));
@@ -634,8 +633,6 @@ export function get_nodes(node_type=null,
 		session.close();
 		result.records.forEach(function (record) 
 		{
-			// console.log(record.get('n'));
-			// console.log(neo4jParser.parseNeo4jNode(record.get('n')));
 			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
 		});
 		fn(nodes);

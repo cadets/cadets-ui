@@ -731,7 +731,7 @@ function inspect_node(id, err = console.log) {
 		for (let property in result) {
 			if (property == 'timestamp' || property == 'meta_ts') {
 				result[property] =
-					moment.unix(result[property] / 1000000000).format('HH:mm[h] D MMM');
+					moment.unix(result[property] / 1000000000).format();
 			}
 			inspector.detail.append(`
 				<tr>
