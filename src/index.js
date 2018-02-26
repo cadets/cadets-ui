@@ -162,7 +162,7 @@ var worksheetCxtMenu = (
 					let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
 					ele.remove();
 					removeEmptyParents(node.parents());
-				});
+				}, false);
 			}
 		},
 	]
@@ -179,10 +179,6 @@ workSheetLayout.registerComponent( 'NodeSearchsheet', function( container, state
 	container.getElement().html(state.text);
 });
 workSheetLayout.registerComponent( `Worksheet`, function( container, state ){
-	// var temp = container.parent.parent;
-	// console.log(temp["header"]);
-	// console.log(temp.header);
-	//container.parent.parent.header.controlsContainer.find( '.lm_popout').hide();
 	container.getElement().html(state.text);
 	container.setTitle(`Worksheet_0`);
 	worksheetContainer = container;
@@ -290,12 +286,7 @@ workSheetLayout.eventHub.on('updateInspectTargets', function(files, sockets, pip
 
 workSheetLayout.on('stackCreated', function(stack) {
 			stack.on('activeContentItemChanged', function(contentItem) {
-				if (contentItem.componentName != "Inspector") {
-					contentItem.parent.header.controlsContainer.find('.lm_popout').hide();
-				}
-				if (contentItem.componentName == "Inspector") {
-					contentItem.parent.header.controlsContainer.find('.lm_popout').show();
-				}
+				contentItem.parent.header.controlsContainer.find('.lm_popout').hide();
 			}
 		);
 	}
@@ -369,8 +360,7 @@ function addNewWorksheet(){
 	});
 }
 
-function openSubMenu(fn, e, isNewWorksheetOption = true ){
-
+function openSubMenu(fn, isNewWorksheetOption = true, leftClickSpawn = false){
 	let cxtSubMenu = document.createElement('div');
 	cxtSubMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
 	cxtSubMenu.className = 'dropdown-content';
@@ -397,8 +387,11 @@ function openSubMenu(fn, e, isNewWorksheetOption = true ){
 	}
 	document.body.appendChild(cxtSubMenu);
 	window.onclick = function(event) {
-		document.getElementById(`myDropdown`).remove();
-		window.onclick = null;
+		if(!leftClickSpawn){//this is here so SubMenu is usable with a left click
+			document.getElementById(`myDropdown`).remove();
+			window.onclick = null;
+		}
+		leftClickSpawn = !leftClickSpawn;
 	}
 }
 
@@ -771,11 +764,9 @@ function inspect_node(id, err = console.log) {
 
 				let row = table.insertRow(0);
 				row.onclick = (function() {
-					//openSubMenu(function(){
-					//	console.log("inside");
+					openSubMenu(function(){
 						import_into_worksheet(n.id);
-					//});
-					//console.log(openSubMenu);
+					}, true, true);
 				});
 				let cell = row.insertCell(0);
 				cell.innerHTML = (`
