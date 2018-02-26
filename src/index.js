@@ -156,7 +156,11 @@ var worksheetCxtMenu = (
 		{
 			content: 'Remove',
 			select: function(ele){
-				ele.remove();
+				openSubMenu(function(){
+					let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
+					ele.remove();
+					removeEmptyParents(node.parents());
+				});
 			}
 		},
 	]
@@ -501,8 +505,8 @@ function createInspector(){
 }
 
 function remove_neighbours_from_worksheet(id) {
+	let parents = [];
 	let node = worksheets[`${selectedWorksheet}`].graph.$id(id);
-
 	// First check to see if this is a compound node.
 	let children = node.children();
 	if (!children.empty()) {
@@ -513,8 +517,19 @@ function remove_neighbours_from_worksheet(id) {
 
 	// Otherwise, remove edge-connected neighbours that aren't highlighted.
 	node.connectedEdges().connectedNodes().filter(function(ele) {
-	return !ele.hasClass('important');
+		parents = parents.concat(ele.parents());
+		return !ele.hasClass('important');
 	}).remove();
+	removeEmptyParents(parents);
+}
+
+function removeEmptyParents(parents){
+	parents.forEach(function(parent){
+		//console.log(parent.children());
+		if(parent.children().length < 1){
+			parent.remove();
+		}
+	})
 }
 
 function toggle_node_importance(id) {
@@ -571,13 +586,14 @@ function add_edge(data, graph) {
 // Fetch neighbours to a node, based on some user-specified filters.
 //
 function get_neighbours(id, fn) {
+	//console.log(id);
 	return neo4jQueries.get_neighbours_id(id,
-											fn,	
-											inspectFiles,
-											inspectSockets,
-											inspectPipes,
-											inspectProcessMeta
-											);
+										fn,	
+										inspectFiles,
+										inspectSockets,
+										inspectPipes,
+										inspectProcessMeta
+										);
 }
 
 //
@@ -705,6 +721,7 @@ function inspect_node(id, err = console.log) {
 		inspectee = result;
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
+			//console.log(result);
 			inspector.graph.remove('node');
 
 			graphingAPI.add_node(inspectee, inspector.graph);
@@ -737,12 +754,16 @@ function inspect_node(id, err = console.log) {
 			for (let e of result.edges) {
 				add_edge(e, inspector.graph);
 			}
-
 			let n = inspector.graph.elements().nodes(`[id="${id}"]`);
 			if (n.empty()) {
 				n = inspector.graph.elements().nodes(`[uuid="${id}"]`);
 			}
 			inspector.graph.inspectee = n;
+
+			//console.log(inspector.graph._private.elements.length);
+			// for (let i = 0; i < inspector.graph._private.elements.length; i++){
+			// 	console.log(inspector.graph._private.elements[`${i}`]._private.data);
+			// }
 
 
 			// Only use the (somewhat expensive) dagre algorithm when the number of
@@ -750,7 +771,7 @@ function inspect_node(id, err = console.log) {
 			if (result.edges.length < 100) {
 				graphingAPI.layout(inspector.graph, 'dagre');
 			} else {
-				graphingAPI.layout(inspector.graph, 'cose');
+				graphingAPI.layout(inspector.graph, 'cose-bilkent');
 			}
 
 			inspector.graph.zoom({

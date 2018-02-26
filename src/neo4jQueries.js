@@ -246,7 +246,7 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 	});
 }
 
-// export function get_neighbours_uuid(uuid, files=True, sockets=True, pipes=True, process_meta=True){
+// export function get_neighbours_uuid(uuid, fn, files=True, sockets=True, pipes=True, process_meta=True){
 // 	var matchers = ['Machine', 'Process', 'Conn'];
 // 	if (files){
 // 		matchers.add('File');
@@ -265,7 +265,7 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 // 	}
 
 // 	var session = driver.session();
-// 	var res = session.run(`MATCH (s)-[e]-(d)
+// 	session.run(`MATCH (s)-[e]-(d)
 // 						WHERE
 // 						exists(s.uuid)
 // 						AND 
@@ -278,17 +278,20 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 // 						s.uuid=${uuid}
 // 						AND
 // 						any(lab in labels(d) WHERE lab IN ${list(matchers)})
-// 						RETURN s, e, d`);
-
-// 	if(res.length){
-// 		var root_node = res[0]['s'];
-// 	}
-// 	else{
-// 		var root_node = set();
-// 	}
-// 	//var root_node = {res[0]['s']} if len(res) else set();
-// 	// return flask.jsonify({'nodes': {row['d'] for row in res} | root_node,
-// 	// 					  'edges': {row['e'] for row in res}});
+// 						RETURN s, e, d`)
+// 	.then(result => {
+// 		session.close();
+// 		let neighbour_nodes = [result[0].get('s')];
+// 		let neighbour_edges = [];
+// 		result.records.forEach(function (record){
+// 			neighbour_nodes = nodes.concat(record.get('d'));
+// 			neighbour_edges = edges.concat(record.get('e'));
+// 		});
+// 		fn({nodes: neighbour_nodes,
+// 			edges: neighbour_edges});
+// 	}, function(error) {
+// 		neo4jError(error, session);
+// 	});
 // }
 
 export function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=true, process_meta=true, fn){

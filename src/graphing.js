@@ -329,6 +329,7 @@ export function layout(graph, algorithm) {
 // really appropriate to serve from OPUS/Neo4j.
 //
 export function node_metadata(node) {
+	//console.log(node);
 	let metadata = null;
 	let timestamp = null;
 
@@ -402,6 +403,12 @@ export function node_metadata(node) {
 			metadata = {
 				icon: 'plug',
 				label: node.name.join(' / '),
+			};
+			timestamp = node['timestamp'];
+			break;
+		case 'sock':
+			metadata = {
+				label: node['label'],
 			};
 			timestamp = node['timestamp'];
 			break;
