@@ -409,7 +409,7 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 								<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 						</div>
-						<div class="row content" style="padding: 1%;" id="worksheetPage"></div>`;
+						<div class="row content notScrollable" style="padding: 1%;" id="worksheetPage"></div>`;
 
 	return element;
 }

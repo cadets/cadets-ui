@@ -4,10 +4,6 @@ html, body {
 	width: 100%;
 	margin: 0;
 }
-body .lm_content{
-	overflow: scroll;
-	overflow-x: hidden;
-}
 .box {
 	display: flex;
 	flex-flow: column;
@@ -63,6 +59,9 @@ body .lm_content{
 .scrollable{
 	overflow: scroll;
 	overflow-x: hidden;
+}
+.notScrollable{
+	overflow: hidden;
 }
 ::-webkit-scrollbar {
 	width: 7px;
