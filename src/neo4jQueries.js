@@ -99,6 +99,7 @@ export function cmd_query(id, fn){
 			cmds = cmds.concat(neo4jParser.parseNeo4jNode(record.get('c')));
 		});
 		fn(cmds);
+		
 	}, function(error) {
 		neo4jError(error, session);
 	});

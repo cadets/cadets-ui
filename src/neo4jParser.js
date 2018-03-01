@@ -1,5 +1,4 @@
 export function parseNeo4jNode(o){
-	//console.log(o);
 	var data = {'id': o['identity']['low']};
 	var labels = o['labels'];
 	if (labels.indexOf('Socket') > -1){
@@ -67,7 +66,6 @@ export function parseNeo4jNode(o){
 }
 
 export function parseNeo4jEdge(o){
-	 //console.log(o);
 	var id = o['identity']['low'];
 	var type_map = {'PROC_PARENT': 'parent'};
 	type_map.PROC_OBJ = 'io';

@@ -42,6 +42,10 @@ var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
 							</div>`;
 
 var inspectorHtml = `<div class="sheet" id="inspectorGraph"></div>
+					<div class="topOptions">
+						<button type="button" class="bodyButton" id="inspectLast">🡐</button>
+						<button type="button" class="bodyButton" id="inspectForward">🡒</button>
+					</div>
 					<div class="bottomOptions">
 						<input type="checkbox" id="inspectFiles">Files</input>
 						<input type="checkbox" id="inspectSockets">Sockets</input>
@@ -131,7 +135,6 @@ export function addWorksheet(goldenlayout, fn){
 		componentName: `Worksheet`,
 		componentState: { text: getWorksheetHtml() }
 	} );
-	//console.log(goldenlayout.root.contentItems[ 0 ]);
 	goldenlayout.emit(`WorksheetContainerCreated`, fn);
 }
 

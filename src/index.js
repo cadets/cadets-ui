@@ -59,17 +59,18 @@ if (module.hot) {
 var currMouseX = 0;
 var currMouseY = 0;
 
-var worksheetGraph;
-var inspectorGraph;
 var inspector;
 var worksheets = {};
+
 var selectedWorksheet = 0;
-var lastInspectedId = null;
+//var lastInspectedId = null;
+var inspecteeBackStack = [];
+var inspecteeForwardStack = [];
+
 var inspectFiles = false;
 var inspectSockets = false;
 var inspectPipes = false;
 var inspectProcessMeta = false;
-//var mchs;
 
 var worksheetContainer;
 var inspectorContainer;
@@ -430,7 +431,7 @@ function updateInspectTargets(files, scokets, pipes, meta){
 
 function createWorksheet(){
 	let index = getWorksheetCount();
-	worksheetGraph = graphingAPI.create(`worksheetGraph${index}`);
+	let worksheetGraph = graphingAPI.create(`worksheetGraph${index}`);
 
 	worksheets[`${index}`] = { graph: worksheetGraph};
 
@@ -464,7 +465,7 @@ function createWorksheet(){
 
 
 function createInspector(){
-	inspectorGraph = graphingAPI.create('inspectorGraph');
+	let inspectorGraph = graphingAPI.create('inspectorGraph');
 
 	inspector = {
 		detail: $('#inspector-detail'),
@@ -520,10 +521,24 @@ function createInspector(){
 										$('#inspectPipes').is(':checked'),
 										$('#inspectProcessMeta').is(':checked')
 		 );
-		if (lastInspectedId != null) {
-			inspectAsync(lastInspectedId);
+		if (inspector.graph.inspectee != null) {
+			inspect_node(inspector.graph.inspectee.id());
 		}
 	});
+
+	document.getElementById(`inspectLast`).onclick = function () {
+		if(inspecteeBackStack.length > 0){
+			inspecteeForwardStack.push(inspector.graph.inspectee.id());
+			inspect_node(inspecteeBackStack.pop());
+		}
+	};
+
+	document.getElementById(`inspectForward`).onclick = function () {
+		if(inspecteeForwardStack.length >= 1){
+			inspecteeBackStack.push(inspector.graph.inspectee.id());
+			inspect_node(inspecteeForwardStack.pop());
+		}
+	};
 }
 
 function remove_neighbours_from_worksheet(id) {
@@ -547,8 +562,7 @@ function remove_neighbours_from_worksheet(id) {
 
 function removeEmptyParents(parents){
 	parents.forEach(function(parent){
-		//console.log(parent.children());
-		if(parent.children().length < 1){
+		if(parent.isChildless()){
 			parent.remove();
 		}
 	})
@@ -713,12 +727,15 @@ function import_neighbours_into_worksheet(id) {
 }
 
 function inspectAsync(id){
-	lastInspectedId = id;
+	if(inspector.graph.inspectee != null){
+		inspecteeBackStack.push(inspector.graph.inspectee.id());
+	}
+	inspecteeForwardStack = [];
 	workSheetLayout.eventHub.emit('inspect', id);
 }
 
 //
-// Define what it means to "inspect" a node.
+// Define what it means to "inspect" a node. 
 //
 function inspect_node(id, err = console.log) {
 	// Display the node's details in the inspector "Details" panel.
@@ -743,7 +760,6 @@ function inspect_node(id, err = console.log) {
 		inspectee = result;
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
-			//console.log(result);
 			inspector.graph.remove('node');
 
 			graphingAPI.add_node(inspectee, inspector.graph);
