@@ -362,6 +362,9 @@ function addNewWorksheet(){
 }
 
 function openSubMenu(fn, isNewWorksheetOption = true, leftClickSpawn = false){
+	if(document.getElementById("myDropdown") != null){
+		document.getElementById("myDropdown").remove();
+	}
 	let cxtSubMenu = document.createElement('div');
 	cxtSubMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
 	cxtSubMenu.className = 'dropdown-content';
@@ -392,7 +395,7 @@ function openSubMenu(fn, isNewWorksheetOption = true, leftClickSpawn = false){
 			document.getElementById(`myDropdown`).remove();
 			window.onclick = null;
 		}
-		leftClickSpawn = !leftClickSpawn;
+		leftClickSpawn = false;
 	}
 }
 
