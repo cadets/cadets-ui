@@ -77,6 +77,8 @@ var inspectorContainer;
 var detailsContainer;
 var neighboursContainer;
 
+var inspectorElementBuffer;
+
 
 var worksheetCxtMenu = ( 
 {
@@ -756,7 +758,11 @@ function inspectAsync(id){
 //
 // Define what it means to "inspect" a node. 
 //
-function inspect_node(id, err = console.log) {
+function inspect_node(id, neighbourDisplayAmount = 49) {
+	if(document.getElementById("overflowWarning") != null){
+		document.getElementById("overflowWarning").remove();
+	}
+
 	// Display the node's details in the inspector "Details" panel.
 	var inspectee;
 
@@ -781,13 +787,24 @@ function inspect_node(id, err = console.log) {
 		get_neighbours(id, function(result) {
 			inspector.graph.remove('node');
 
+			inspectorElementBuffer = result;
+
 			graphingAPI.add_node(inspectee, inspector.graph);
+
 			let count = 0;
-			let displayAmount = 99;
+			let hasSpawnedOverflowWarning = false;
 			for (let n of result.nodes) {
-				//if(count++ < displayAmount){
+				if(count++ < neighbourDisplayAmount){
 					graphingAPI.add_node(n, inspector.graph);
-				//}
+				}
+				else if(!hasSpawnedOverflowWarning){
+					hasSpawnedOverflowWarning = true;
+					let overflowWarning = document.createElement("div");
+					overflowWarning.id = `overflowWarning`;
+					overflowWarning.style.cssText = `color: red;`;
+					overflowWarning.innerHTML = `<font size=+1><br>Only showing ${neighbourDisplayAmount + 1} nodes out of ${result.nodes.length} nodes.</font>`;
+					document.getElementById('inspectorHeader').appendChild(overflowWarning);
+				}
 
 				let meta = graphingAPI.node_metadata(n);
 				// inspector.neighbours.append(`
@@ -813,14 +830,9 @@ function inspect_node(id, err = console.log) {
 								`);
 			}
 			for (let e of result.edges) {
-				//console.log(e.source );
-				//if(inspector.graph.getElementById( e.source ) != null && inspector.graph.getElementById( e.target ) != null){
+				if(inspector.graph.$id( e.source ).length > 0 && inspector.graph.$id( e.target ).length > 0){
 					add_edge(e, inspector.graph);
-				//}
-				//else{
-
-				//console.log(inspector.graph.getElementById( e.source ));
-				//}
+				}
 			}
 			let n = inspector.graph.elements().nodes(`[id="${id}"]`);
 			if (n.empty()) {
@@ -828,15 +840,9 @@ function inspect_node(id, err = console.log) {
 			}
 			inspector.graph.inspectee = n;
 
-			//console.log(inspector.graph._private.elements.length);
-			// for (let i = 0; i < inspector.graph._private.elements.length; i++){
-			// 	console.log(inspector.graph._private.elements[`${i}`]._private.data);
-			// }
-
-
 			// Only use the (somewhat expensive) dagre algorithm when the number of
 			// edges is small enough to be computationally zippy.
-			if (result.edges.length < 100) {
+			if (inspector.graph.edges.length < 100) {
 				graphingAPI.layout(inspector.graph, 'dagre');
 			} else {
 				graphingAPI.layout(inspector.graph, 'cose-bilkent');

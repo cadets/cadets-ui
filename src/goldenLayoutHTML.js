@@ -42,7 +42,7 @@ var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
 							</div>`;
 
 var inspectorHtml = `<div class="sheet" id="inspectorGraph"></div>
-					<div class="topOptions">
+					<div class="topOptions" id="inspectorHeader">
 						<button type="button" class="bodyButton" id="inspectLast">🡐</button>
 						<button type="button" class="bodyButton" id="inspectForward">🡒</button>
 					</div>
