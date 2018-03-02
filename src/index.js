@@ -152,7 +152,7 @@ var worksheetCxtMenu = (
 						file.innerHTML = `<a>${result.cmdline}</a>`;
 						file.onclick =(function() {
 							openSubMenu(function(){
-								inspect_and_importAsync(result.identity.low);
+								inspect_and_importAsync(result.id);
 							}, true, true);
 						});
 						files.appendChild(file);
@@ -782,9 +782,12 @@ function inspect_node(id, err = console.log) {
 			inspector.graph.remove('node');
 
 			graphingAPI.add_node(inspectee, inspector.graph);
-
+			let count = 0;
+			let displayAmount = 99;
 			for (let n of result.nodes) {
-				graphingAPI.add_node(n, inspector.graph);
+				//if(count++ < displayAmount){
+					graphingAPI.add_node(n, inspector.graph);
+				//}
 
 				let meta = graphingAPI.node_metadata(n);
 				// inspector.neighbours.append(`
@@ -809,9 +812,15 @@ function inspect_node(id, err = console.log) {
 								<td><a>${meta.label}</a></td>
 								`);
 			}
-
 			for (let e of result.edges) {
-				add_edge(e, inspector.graph);
+				//console.log(e.source );
+				//if(inspector.graph.getElementById( e.source ) != null && inspector.graph.getElementById( e.target ) != null){
+					add_edge(e, inspector.graph);
+				//}
+				//else{
+
+				//console.log(inspector.graph.getElementById( e.source ));
+				//}
 			}
 			let n = inspector.graph.elements().nodes(`[id="${id}"]`);
 			if (n.empty()) {
