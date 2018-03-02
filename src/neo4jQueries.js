@@ -69,16 +69,16 @@ export function file_read_query(id, fn){
 	session.run(`MATCH (n:Process)<-[e:PROC_OBJ]-(c:File)
 						WHERE id(n) = ${id} AND
 							e.state in ['BIN', 'READ', 'RaW']
-						RETURN c.name AS g_name`)
+						RETURN c`)
 	.then(result => {
 		session.close();
 		if (result.length){
 			console.log(404);
 		}
-		var files = [];
+		let files = [];
 		result.records.forEach(function (record) 
 		{
-			files = files.concat(record.get('g_name'));
+			files = files.concat(record.get("c"));
 		});
 		fn(files);
 	}, function(error) {

@@ -114,17 +114,27 @@ var worksheetCxtMenu = (
 		},
 		{
 			content: 'Files read',
-			select: function(ele){
-				var id = ele.data('id');
-				neo4jQueries.file_read_query(id, function(result){
-					let str = '';
-					 result.forEach(function(name) {
-						str += `<li>${name}</li>`;  // XXX: requires trusted UI server!
-					 });
-					 vex.dialog.alert({
-						unsafeMessage: `<h2>Files read:</h2><ul>${str}</ul>`,
+			select: function(ele){//TODO: basically same as Commands turn into one function
+				let id = ele.data('id');
+				neo4jQueries.file_read_query(id, function(results){
+					let files = document.createElement("ul");
+					let header = document.createElement("h2");
+					header.innerHTML = `<font>Files read by ${id}:</font>`
+					files.appendChild(header);
+					results.forEach(function(result) {
+						let file = document.createElement("li");
+						file.innerHTML = `<a>${result.properties.name}</a>`;
+						file.onclick =(function() {
+							openSubMenu(function(){
+								inspect_and_importAsync(result.identity.low);
+							}, true, true);
+						});
+						files.appendChild(file);
+					});
+					vex.dialog.alert({
+						unsafeMessage: files,
 						className: 'vex-theme-wireframe'
-					 });
+					});
 				});
 			}
 		},
@@ -132,19 +142,25 @@ var worksheetCxtMenu = (
 			content: 'Commands',
 			select: function(ele){
 				var id = ele.data('id');
-				neo4jQueries.cmd_query(id, function(result) {
-					let message = `<h2>Commands run by node ${id}:</h2>`;
-					if (result.length == 0) {
-						message += '<p>none</p>';
-					} else {
-						message += '<ul>';
-						for (let command of result) {
-							message += `<li><a onclick="command_clicked(${command.dbid})">${command.cmdline}</a></li>`;
-						}
-						message += '</ul>';
-					}
-					vex.dialog.alert({ unsafeMessage: message, 
-										className: 'vex-theme-wireframe'});
+				neo4jQueries.cmd_query(id, function(results) {
+					let files = document.createElement("ul");
+					let header = document.createElement("h2");
+					header.innerHTML = `<font>Commands run by node ${id}:</font>`;
+					files.appendChild(header);
+					results.forEach(function(result) {
+						let file = document.createElement("li");
+						file.innerHTML = `<a>${result.cmdline}</a>`;
+						file.onclick =(function() {
+							openSubMenu(function(){
+								inspect_and_importAsync(result.identity.low);
+							}, true, true);
+						});
+						files.appendChild(file);
+					});
+					vex.dialog.alert({
+						unsafeMessage: files,
+						className: 'vex-theme-wireframe'
+					});
 				});
 			}
 		},
@@ -315,7 +331,7 @@ window.onresize = function(){
 	workSheetLayout.updateSize();
 }
 
-document.getElementById("worksheetPage").onmousemove = findMouseCoords;
+document.body.onmousemove = findMouseCoords;
 
 //Events end
 
@@ -413,7 +429,7 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 								<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 						</div>
-						<div class="row content notScrollable" style="padding: 1%;" id="worksheetPage"></div>`;
+						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>`;
 
 	return element;
 }
