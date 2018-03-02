@@ -78,6 +78,8 @@ var detailsContainer;
 var neighboursContainer;
 
 var inspectorElementBuffer;
+var inspectorDisplayAmount = 49;
+var currInspectorBufferIndex = 1;
 
 
 var worksheetCxtMenu = ( 
@@ -758,7 +760,8 @@ function inspectAsync(id){
 //
 // Define what it means to "inspect" a node. 
 //
-function inspect_node(id, neighbourDisplayAmount = 49) {
+function inspect_node(id) {
+	currInspectorBufferIndex = 0;
 	if(document.getElementById("overflowWarning") != null){
 		document.getElementById("overflowWarning").remove();
 	}
@@ -794,7 +797,7 @@ function inspect_node(id, neighbourDisplayAmount = 49) {
 			let count = 0;
 			let hasSpawnedOverflowWarning = false;
 			for (let n of result.nodes) {
-				if(count++ < neighbourDisplayAmount){
+				if(count++ < inspectorDisplayAmount){
 					graphingAPI.add_node(n, inspector.graph);
 				}
 				else if(!hasSpawnedOverflowWarning){
@@ -802,7 +805,21 @@ function inspect_node(id, neighbourDisplayAmount = 49) {
 					let overflowWarning = document.createElement("div");
 					overflowWarning.id = `overflowWarning`;
 					overflowWarning.style.cssText = `color: red;`;
-					overflowWarning.innerHTML = `<font size=+1><br>Only showing ${neighbourDisplayAmount + 1} nodes out of ${result.nodes.length} nodes.</font>`;
+					overflowWarning.innerHTML = `<font size=+1><br>Only showing ${inspectorDisplayAmount + 1} nodes out of ${result.nodes.length} nodes.<br></font>`;
+					let lastNodes = document.createElement("button");
+					lastNodes.className  = "bodyButton";
+					lastNodes.innerHTML = `previous ${inspectorDisplayAmount} nodes`;
+					lastNodes.onclick =(function() {
+						showInspectorNextPrevious(false);
+					});
+					overflowWarning.appendChild(lastNodes);
+					let nextNodes = document.createElement("button");
+					nextNodes.className  = "bodyButton";
+					nextNodes.innerHTML = `Next ${inspectorDisplayAmount} nodes`;
+					nextNodes.onclick =(function() {
+						showInspectorNextPrevious(true);
+					});
+					overflowWarning.appendChild(nextNodes);
 					document.getElementById('inspectorHeader').appendChild(overflowWarning);
 				}
 
@@ -854,6 +871,31 @@ function inspect_node(id, neighbourDisplayAmount = 49) {
 			});
 		});
 	});
+}
+
+function showInspectorNextPrevious(isNext){
+	inspector.graph.remove('node');
+	graphingAPI.add_node(inspectorElementBuffer.nodes[0], inspector.graph);
+	if(isNext && currInspectorBufferIndex + inspectorDisplayAmount < inspectorElementBuffer.nodes.length){
+		currInspectorBufferIndex += inspectorDisplayAmount;
+	}
+	else if(!isNext && currInspectorBufferIndex > 1){
+		currInspectorBufferIndex -= inspectorDisplayAmount;
+	}
+	for(let i = currInspectorBufferIndex; i <= currInspectorBufferIndex + inspectorDisplayAmount; i++ ){
+		if(i == inspectorElementBuffer.nodes.length){break;}
+		graphingAPI.add_node(inspectorElementBuffer.nodes[i], inspector.graph);
+	}
+	for (let e of inspectorElementBuffer.edges) {
+		if(inspector.graph.$id( e.source ).length > 0 && inspector.graph.$id( e.target ).length > 0){
+			add_edge(e, inspector.graph);
+		}
+	}
+	if (inspector.graph.edges.length < 100) {
+		graphingAPI.layout(inspector.graph, 'dagre');
+	} else {
+		graphingAPI.layout(inspector.graph, 'cose-bilkent');
+	}
 }
 
 //
