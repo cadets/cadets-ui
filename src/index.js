@@ -63,7 +63,6 @@ var inspector;
 var worksheets = {};
 
 var selectedWorksheet = 0;
-//var lastInspectedId = null;
 var inspecteeBackStack = [];
 var inspecteeForwardStack = [];
 
@@ -72,6 +71,7 @@ var inspectSockets = false;
 var inspectPipes = false;
 var inspectProcessMeta = false;
 
+var nodeSearchsheetContainer;
 var worksheetContainer;
 var inspectorContainer;
 var detailsContainer;
@@ -181,7 +181,7 @@ var worksheetCxtMenu = (
 			select: function(ele){
 				openSubMenu(function(){
 					let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
-					ele.remove();
+					node.remove();
 					removeEmptyParents(node.parents());
 				}, false);
 			}
@@ -197,6 +197,7 @@ var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
 
 workSheetLayout.registerComponent( 'NodeSearchsheet', function( container, state ){
 	container._config.isClosable = false;
+	nodeSearchsheetContainer = container;
 	container.getElement().html(state.text);
 });
 workSheetLayout.registerComponent( `Worksheet`, function( container, state ){
@@ -227,7 +228,7 @@ workSheetLayout.init();
 //Events
 
 workSheetLayout.on('initialised', function(){
-	if(document.getElementById("analysisWorksheet") != null){
+	if(document.getElementById("NodeSearchsheet") != null){
 		neo4jQueries.neo4jLogin();
 	}
 	if(document.getElementById("inspectorGraph") != null){
@@ -240,6 +241,17 @@ workSheetLayout.on('initialised', function(){
 		createWorksheet();
 	}
 
+	document.getElementById(`toggleNodeSearchsheet`).onclick = function () {
+		if(document.getElementById("NodeSearchsheet") != null){
+			document.getElementById("toggleNodeSearchsheet").innerHTML = "Open NodeSearchsheet";
+			nodeSearchsheetContainer._config.isClosable = true;
+			nodeSearchsheetContainer.close();
+		}
+		else{
+			document.getElementById("toggleNodeSearchsheet").innerHTML = "Close NodeSearchsheet";
+			goldenLayoutHTML.addNodeSearchsheet(workSheetLayout);
+		}
+	};
 
 	// document.getElementById(`loadWorksheet`).onclick = function () {
 	// 	//console.log(this);
@@ -260,7 +272,7 @@ workSheetLayout.on('windowOpened', function( id ){
 var once = false;
 
 workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currNeo4jQueries ){
-	if(document.getElementById("analysisWorksheet") != null && !once){
+	if(document.getElementById("NodeSearchsheet") != null && !once){
 		once = true;
 		workSheetLayout.eventHub.emit('updateInspectTargets',
 										$('#inspectFiles').is(':checked'),
@@ -273,6 +285,11 @@ workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currNeo4jQuer
 		lastInspectedId = id;
 		inspectAsync(id);
 	}
+});
+
+workSheetLayout.on(`NodeSearchsheetContainerCreated`, function(){
+	console.log("dd");
+	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 });
 
 workSheetLayout.on('windowClosed', function( id ){
@@ -431,7 +448,8 @@ function htmlBody() {
 								// <button class="headerButton" onclick="document.getElementById('loadWorksheet').click();">Load New Worksheet</button>
 	element.innerHTML = `<div class="row header fillHeader">
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
-								<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
+							<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
+							<button type="button" class="headerButton" id="toggleNodeSearchsheet">Close NodeSearchsheet</button>
 						</div>
 						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>`;
 
@@ -645,7 +663,6 @@ function add_edge(data, graph) {
 // Fetch neighbours to a node, based on some user-specified filters.
 //
 function get_neighbours(id, fn) {
-	//console.log(id);
 	return neo4jQueries.get_neighbours_id(id,
 										fn,	
 										inspectFiles,

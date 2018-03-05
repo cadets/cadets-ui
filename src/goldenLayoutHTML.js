@@ -3,12 +3,12 @@ import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.
 import './../node_modules/golden-layout/src/css/goldenlayout-base.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
 
-var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
+var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 								<div class="row header formBox">
 									<label for="filterNodeType">&nbsp;Type</label>
 									<div>
 										&nbsp;<select id="filterNodeType">
-										<option></option>
+											<option></option>
 											<option>connection</option>
 											<option>file-version</option>
 											<option>pipe-endpoint</option>
@@ -70,13 +70,13 @@ var config = {
 			{
 				type:'component',
 				componentName: 'NodeSearchsheet',
-				componentState: { text: analysisWorksheetHtml },
-				showPopoutIcon: false
+				componentState: { text: nodeSearchsheetHtml },
+				width: 20,
 			},
 			{
 				type: 'component',
 				componentName: `Worksheet`,
-				componentState: { text: getWorksheetHtml() }
+				componentState: { text: getWorksheetHtml() },
 			},
 			{
 				type: 'stack',
@@ -84,17 +84,17 @@ var config = {
 					{
 					type:'component',
 					componentName: 'Inspector',
-					componentState: { text: inspectorHtml }
+					componentState: { text: inspectorHtml },
 					},
 					{
 					type:'component',
 					componentName: 'Details',
-					componentState: { text: DetailsHtml }
+					componentState: { text: DetailsHtml },
 					},
 					{
 					type:'component',
 					componentName: 'Neighbours',
-					componentState: { text: NeighboursHtml }
+					componentState: { text: NeighboursHtml },
 					}
 				]
 			}
@@ -138,11 +138,22 @@ export function addWorksheet(goldenlayout, fn){
 	goldenlayout.emit(`WorksheetContainerCreated`, fn);
 }
 
+export function addNodeSearchsheet(goldenlayout, fn){
+	goldenlayout.root.contentItems[ 0 ].addChild( {
+		type: 'component',
+		componentName: `NodeSearchsheet`,
+		componentState: { text: nodeSearchsheetHtml },
+		width: 20,
+	} );
+	goldenlayout.emit(`NodeSearchsheetContainerCreated`, fn);
+}
+
 const goldenLayoutHTML = {
 	intiGoldenLayoutHTML,
 	incrementWorksheetCount,
 	getWorksheetCount,
 	addWorksheet,
+	addNodeSearchsheet,
 }
 
 export default goldenLayoutHTML;
