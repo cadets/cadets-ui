@@ -34,7 +34,7 @@ export function neo4jLogin(){
 					},
 					function(error) {
 						neo4jLogin();
-						neo4jError(error, session);
+						neo4jError(error, session, "neo4jLogin");
 					});
 			}
 		}
@@ -82,7 +82,7 @@ export function file_read_query(id, fn){
 		});
 		fn(files);
 	}, function(error) {
-		neo4jError(error, session);
+		neo4jError(error, session, "file_read_query");
 	});
 }
 
@@ -101,7 +101,7 @@ export function cmd_query(id, fn){
 		fn(cmds);
 		
 	}, function(error) {
-		neo4jError(error, session);
+		neo4jError(error, session, "cmd_query");
 	});
 }
 
@@ -194,8 +194,7 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 		if (neighbours.length){
 			root_node = neo4jParser.parseNeo4jNode(neighbours[0].get('s'));
 			neighbour_nodes = neighbour_nodes.concat(root_node);
-			let row;
-			for(row in neighbours){
+			for(let row in neighbours){
 				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(neighbours[row].get('d')));
 				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(neighbours[row].get('e')));
 			}
@@ -233,7 +232,7 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 				fn({nodes: neighbour_nodes,
 					edges: neighbour_edges});
 			}, function(error) {
-				neo4jError(error, session);
+				neo4jError(error, session, "get_neighbours_id");
 			});
 		}
 		else{
@@ -242,7 +241,105 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 					edges: neighbour_edges});
 		}
 	}, function(error) {
-		neo4jError(error, session);
+		neo4jError(error, session, "get_neighbours_id");
+	});
+}
+
+export function get_neighbours_id_batch(ids, fn, files=true, sockets=true, pipes=true, process_meta=true){
+	let session = driver.session();
+	let neighbours;
+	let root_node;
+	let m_nodes;
+	let m_qry;
+	let neighbour_nodes = [];
+	let neighbour_edges = [];
+	let matchers = ["Machine", "Process", "Conn"];
+	if (files){
+		matchers = matchers.concat('File');
+	}
+	if (sockets){
+		matchers = matchers.concat('Socket');
+	}
+	if (pipes){
+		matchers = matchers.concat('Pipe');
+	}
+	if (files && sockets && pipes){
+		matchers = matchers.concat('Global');
+	}
+	if (process_meta){
+		matchers = matchers.concat('Meta');
+	}
+	session.run(`MATCH (s)-[e]-(d)
+				WHERE id(s) IN ${JSON.stringify(ids)}
+				AND NOT
+				(
+					"Machine" in labels(s)
+					AND
+					"Machine" in labels(d)
+				)
+				AND
+				(
+					NOT d:Pipe
+					OR
+					d.fds <> []
+				)	
+				AND
+				any(lab in labels(d) WHERE lab IN ${JSON.stringify(matchers)})
+				RETURN DISTINCT e, d`)
+
+	.then(result => {
+		neighbours = result.records;
+		if (neighbours.length){
+			// root_node = neo4jParser.parseNeo4jNode(neighbours[0].get('s'));
+			// neighbour_nodes = neighbour_nodes.concat(root_node);
+			for(let row in neighbours){
+				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(neighbours[row].get('d')));
+				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(neighbours[row].get('e')));
+			}
+		}
+		if (sockets){
+			session.run(`MATCH (skt:Socket), (mch:Machine)
+						WHERE 
+						mch.external
+						AND 
+						id(skt) IN ${JSON.stringify(ids)}
+						AND 
+						split(skt.name[0], ":")[0] in mch.ips
+						RETURN skt, mch
+						UNION
+						MATCH (skt:Socket), (mch:Machine)
+						WHERE 
+						mch.external
+						AND 
+						id(mch) IN ${JSON.stringify(ids)}
+						AND
+						split(skt.name[0], ":")[0] in mch.ips
+						RETURN skt, mch`)
+			.then(result => {
+				session.close();
+				result.records.forEach(function (record){
+					var m_links = {'type' : 'comm'};
+					m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
+					m_links.properties = {'state' : null}; 
+					m_links.start = {'low' : record.get('skt')['identity']['low']};
+					m_links.end = {'low' : record.get('mch')['identity']['low']};
+					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('skt')));
+					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('mch')));
+					neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(m_links));
+				});
+				fn({nodes: neighbour_nodes,
+					edges: neighbour_edges});
+			}, function(error) {
+				neo4jError(error, session, "get_neighbours_id");
+			});
+		}
+		else{
+			session.close();
+			fn({nodes: neighbour_nodes,
+					edges: neighbour_edges});
+		}
+	}, function(error) {
+		neo4jError(error, session, "get_neighbours_id");
 	});
 }
 
@@ -352,7 +449,7 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 					session.close();
 					findEdges(dbid, result.records, fn);
 				}, function(error) {
-					neo4jError(error, session);
+					neo4jError(error, session, "successors_query");
 				});
 			}
 			else if (process_obj.labels.indexOf('Process') > -1){
@@ -380,7 +477,7 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 					session.close();
 					findEdges(dbid, result.records, fn);
 				}, function(error) {
-					neo4jError(error, session);
+					neo4jError(error, session, "successors_query");
 				});
 			}
 			else if (process_obj.labels.indexOf('Conn') > -1 ){
@@ -402,7 +499,7 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 					session.close();
 					findEdges(dbid, result.records, fn);
 				}, function(error) {
-					neo4jError(error, session);
+					neo4jError(error, session, "successors_query");
 				});
 			}
 			// if (neighbours == null){
@@ -441,7 +538,7 @@ function findEdges(curId, neighbours, fn){
 			fn({'nodes': nodes,
 				'edges': edges});
 			}, function(error) {
-				neo4jError(error, session);
+				neo4jError(error, session, "findEdges");
 			});
 }
 
@@ -449,27 +546,48 @@ export function get_detail_id(id, fn){
 	var session = driver.session();
 	session.run(`MATCH (n) WHERE id(n)=${id} RETURN n`)
 	.then(result => {
+		session.close();
 		if (result == null){
 			console.log(404);
 		}
-		session.close();
 		fn(neo4jParser.parseNeo4jNode(result.records[0].get('n')));
 	}, function(error) {
-		neo4jError(error, session);
+		neo4jError(error, session, "get_detail_id");
+	});
+}
+
+export function get_batch_detail_id(ids, fn){
+	let session = driver.session();
+	session.run(`MATCH (n) WHERE id(n) IN ${JSON.stringify(ids)} RETURN n`)
+	.then(result => {
+		session.close();
+		if (result == null){
+			console.log(404);
+		}
+		// result.records.forEach(function (record){
+		// 	fn(neo4jParser.parseNeo4jNode(record.get('n')));
+		// });
+		let nodes = [];
+		result.records.forEach(function (record){
+			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
+		});
+		fn(nodes);
+	}, function(error) {
+		neo4jError(error, session, "get_detail_id");
 	});
 }
 
 function get_detail_id_unparsed(id, fn){
-	var session = driver.session();
+	let session = driver.session();
 	session.run(`MATCH (n) WHERE id(n)=${id} RETURN n`)
 	.then(result => {
+		session.close();
 		if (result == null){
 			console.log(404);
 		}
-		session.close();
 		fn(result.records[0].get('n'));
 	}, function(error) {
-		neo4jError(error, session);
+		neo4jError(error, session, "get_detail_id_unparsed");
 	});
 }
 
@@ -638,12 +756,13 @@ export function get_nodes(node_type=null,
 		});
 		fn(nodes);
 	 }, function(error) {
-		neo4jError(error, session);
+		neo4jError(error, session, "get_nodes");
 	});
 }
 
-function neo4jError(error, session){
+function neo4jError(error, session, funcName){
 	session.close();
+	console.log(`Error reported from ${funcName}() in neo4jQueries.js`);
 	vex.dialog.alert({message: error.message,
 					className: 'vex-theme-wireframe'});
 }
@@ -654,6 +773,7 @@ const neo4jQueries ={
 	cmd_query,
 	//updates_machines,
 	get_neighbours_id,
+	get_neighbours_id_batch,
 	successors_query,
 	get_detail_id,
 	//get_detail_id_unparsed,

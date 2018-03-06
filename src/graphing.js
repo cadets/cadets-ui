@@ -99,6 +99,70 @@ export function add_node(data, graph, renderedPosition = null) {
 	graph.add(node);
 }
 
+export function add_node_batch(nodes, graph, renderedPosition = null) {
+	let parsedNodes = [];
+	nodes.forEach(function(data){
+		// Have we already imported this node?
+		if (!graph.nodes(`[id="${data.id}"]`).empty()) {
+			return;
+		}
+
+		// When importing things with abstract containers (e.g., file versions),
+		// draw a compound node to show the abstraction and simplify the versions.
+		if (data.uuid && (
+				[ 'file-version', 'pipe-endpoint', 'socket-version', ].indexOf(data.type)
+					!= -1
+				)) {
+			let compound = graph.nodes(`[id="${data.uuid}"]`);
+			let type = data.type.substr(0, 4);
+
+			let name = data.name;
+			if (name == null) {
+				name = new Set().add(data.hash);
+			}
+
+			// Add file descriptors if we have them.
+			if (data.fds) {
+				let fd;
+				for(fd in data.fds){
+					name = name.concat('FD ' + fd)
+				}
+				//data.fds.forEach(function(fd) { name.add('FD ' + fd); });
+			}
+
+			if (compound.empty()) {
+				add_node({
+					id: data.uuid,
+					type: type,
+					label: Array.from(name).join(', '),
+					names: name,
+					'parent': data['parent'],
+				}, graph, renderedPosition);
+			} else {
+				let existing = compound.data();
+				existing.names = new Set([...existing.names, ...name]);
+				existing.label = Array.from(existing.names).join(' ');
+			}
+
+			data['parent'] = data.uuid;
+		}
+
+		let node = {
+			data: data,
+			renderedPosition: renderedPosition,
+		};
+
+		node.classes = data.type;
+		if (data.external) {
+			node.classes += ' external';
+		}
+
+		node.data.label = node_metadata(data).label;
+
+		parsedNodes = parsedNodes.concat(node);
+	});
+	graph.add(parsedNodes);
+}
 
 //
 // Load a Cytograph JSON representation into an object with a 'graph' property.
@@ -455,6 +519,7 @@ const graphing ={
 	layout,
 	load,
 	add_node,
+	add_node_batch,
 	create,
 }
 

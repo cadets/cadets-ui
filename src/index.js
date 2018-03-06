@@ -81,6 +81,8 @@ var inspectorElementBuffer;
 var inspectorDisplayAmount = 49;
 var currInspectorBufferIndex = 1;
 
+var maxImportLength = 500;
+
 
 var worksheetCxtMenu = ( 
 {
@@ -288,7 +290,6 @@ workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currNeo4jQuer
 });
 
 workSheetLayout.on(`NodeSearchsheetContainerCreated`, function(){
-	console.log("dd");
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 });
 
@@ -498,7 +499,7 @@ function createWorksheet(){
 		graphingAPI.layout( worksheets[`${index}`].graph, 'dagre');
 	};
 
-	document.getElementById(`reCose-Bilkent${index}`).onclick = function () { 
+	document.getElementById(`reCose-Bilkent${index}`).onclick = function () {
 		graphingAPI.layout( worksheets[`${index}`].graph, 'cose-bilkent');
 	};
 	goldenLayoutHTML.incrementWorksheetCount();
@@ -672,10 +673,20 @@ function get_neighbours(id, fn) {
 										);
 }
 
+function get_neighbours_batch(ids, fn) {
+	return neo4jQueries.get_neighbours_id_batch(ids,
+										fn,	
+										inspectFiles,
+										inspectSockets,
+										inspectPipes,
+										inspectProcessMeta
+										);
+}
+
 //
 // Fetch successors to a node, based on some user-specified filters.
 //
-function get_successors(id, fn, err = console.log) {
+function get_successors(id, fn) {
 	return neo4jQueries.successors_query(id,
 										100,
 										inspectFiles,
@@ -692,7 +703,7 @@ function import_into_worksheetAsync(id){
 //
 // How to import a node into the worksheet
 //
-function import_into_worksheet(id, err = console.log) {
+function import_into_worksheet(id) {
 	let graph = worksheets[`${selectedWorksheet}`].graph;
 
 	// Have we already imported this node?
@@ -738,6 +749,48 @@ function import_into_worksheet(id, err = console.log) {
 	});
 }
 
+function import_batch_into_worksheet(nodes) {
+	let graph = worksheets[`${selectedWorksheet}`].graph;
+	let ids = [];
+
+	if(nodes.length >= maxImportLength){
+		vex.dialog.alert({
+			unsafeMessage: `Trying to import more nodes than the maxImportLength:${maxImportLength} allows!`,
+			className: 'vex-theme-wireframe'
+		});
+		return;
+	}
+
+	nodes.forEach(function(node){
+		if (!graph.$id(node.id).empty()) {
+			var index = nodes.indexOf(node);
+			nodes.splice(index, 1);
+		}
+		else{
+			ids = ids.concat(node.id);
+		}
+	});
+	if(ids.length <= 0){return;}
+
+	let position = {
+		x: graph.width() / 2,
+		y: graph.height() / 2,
+	};
+
+	// if ('parent' in nodes && graph.$id( nodes.parent ).length > 0) {
+	// 	import_into_worksheet(nodes.parent);
+	// } 
+	graphingAPI.add_node_batch(nodes, graph, position);
+	get_neighbours_batch(ids, function(result) {
+	
+		for (let edge of result.edges) {
+			if(graph.$id( edge.source ).length > 0 && graph.$id( edge.target ).length > 0){
+				add_edge(edge, graph);
+			}
+		}
+	});
+}
+
 function inspect_and_importAsync(id){
 	workSheetLayout.eventHub.emit('import_into_worksheet', id);
 	workSheetLayout.eventHub.emit('inspect', id);
@@ -758,11 +811,11 @@ function import_neighbours_into_worksheetAsync(id){
 function import_neighbours_into_worksheet(id) {
 	// Get all of the node's neighbours:
 	get_neighbours(id, function(result) {
-		let promise = $.when(null);
-
-		for (let n of result.nodes) {
-			promise.then(function() { import_into_worksheet(n.id); });
-		}
+		import_batch_into_worksheet(result.nodes);
+		// let promise = $.when(null);
+		// for (let n of result.nodes) {
+		// 	promise.then(function() { import_into_worksheet(n.id); });
+		// }
 	});
 }
 
@@ -943,7 +996,7 @@ function successors(id) {
 //
 // Populate node list.
 //
-function update_nodelist(err = console.log) {
+function update_nodelist() {
 	neo4jQueries.get_nodes($('#filterNodeType').val(),
 				$('#filterName').val(),
 				$('#filterHost').val(),
