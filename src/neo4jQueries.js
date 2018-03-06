@@ -219,6 +219,9 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 						RETURN skt, mch`)
 			.then(result => {
 				session.close();
+				if(result.records.length > 0){
+					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(result.records[0].get('mch')));
+				}
 				result.records.forEach(function (record){
 					var m_links = {'type' : 'comm'};
 					m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
@@ -226,7 +229,6 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 					m_links.start = {'low' : record.get('skt')['identity']['low']};
 					m_links.end = {'low' : record.get('mch')['identity']['low']};
 					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('skt')));
-					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('mch')));
 					neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(m_links));
 				});
 				fn({nodes: neighbour_nodes,
@@ -317,6 +319,9 @@ export function get_neighbours_id_batch(ids, fn, files=true, sockets=true, pipes
 						RETURN skt, mch`)
 			.then(result => {
 				session.close();
+				if(result.records.length > 0){
+					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(result.records[0].get('mch')));
+				}
 				result.records.forEach(function (record){
 					var m_links = {'type' : 'comm'};
 					m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
@@ -324,7 +329,6 @@ export function get_neighbours_id_batch(ids, fn, files=true, sockets=true, pipes
 					m_links.start = {'low' : record.get('skt')['identity']['low']};
 					m_links.end = {'low' : record.get('mch')['identity']['low']};
 					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('skt')));
-					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('mch')));
 					neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(m_links));
 				});
 				fn({nodes: neighbour_nodes,
