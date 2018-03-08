@@ -16,6 +16,7 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 											<option>process-meta</option>
 											<option>socket-version</option>
 											<option>machine</option>
+											<option>global-only</option>
 										</select>
 									</div>
 									<label for="filterName">&nbsp;Name</label>

@@ -621,12 +621,21 @@ export function get_nodes(node_type=null,
 					'machine': 'Machine',
 					'process-meta': 'Meta',
 					'connection': 'Conn',
-					'file-version': 'File'};//'Global'};  Was there a reason this was global  
-	if  (!(node_type in node_labels)){					//and not file because pipes also have a global label
+					'file-version': 'File',
+					'global-only': 'Global'};
+	let labelQuery;
+	if  (!(node_type in node_labels)){
 		lab = "Null";
 	}
 	else{
 		lab = node_labels[node_type];
+	}
+	if(lab != 'Global'){
+		labelQuery = `${JSON.stringify(lab)} in labels(n)`;
+	}
+	else{
+		labelQuery = `n:Global AND NOT n:File AND NOT n:Socket AND NOT n:Pipe`;
+
 	}
 	if (local_ip == null || local_ip == ""){
 		local_ip = ".*?";
@@ -645,7 +654,7 @@ export function get_nodes(node_type=null,
 				WHERE 
 					${JSON.stringify(lab)} is Null
 					OR
-					${JSON.stringify(lab)} in labels(n)
+					${labelQuery}
 				WITH n
 				WHERE
 					${JSON.stringify(name)} is Null
@@ -748,6 +757,7 @@ export function get_nodes(node_type=null,
 							)
 						)
 					)
+
 				RETURN DISTINCT n
 				LIMIT ${limit}`)
 	 .then(result => {
