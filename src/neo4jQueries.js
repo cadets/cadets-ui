@@ -21,13 +21,12 @@ export function neo4jLogin(){
 		],
     	className: 'vex-theme-wireframe',
 		callback: function (data) {
-			//var neo4j = window.neo4j.v1;
 			if (!data) {
 				neo4jLogin();
 			} else {//bolt://localhost
 				driver = neo4j.driver("bolt://localhost:7687/", neo4j.auth.basic(data.username, data.password));
-				var session = driver.session();
-					session.run(`MATCH (n) WHERE id(n)=1 RETURN n LIMIT 0`)//tests connection might be better way to do this
+				let session = driver.session();
+					session.run(`MATCH (n) WHERE id(n)=1 RETURN n LIMIT 0`)//change this to get version number with pvm2 data
 					.then(function(tokens) {
 						//updates_machines()
 						session.close();
@@ -65,7 +64,7 @@ export function neo4jLogin(){
 // }
 
 export function file_read_query(id, fn){
-	var session = driver.session();
+	let session = driver.session();
 	session.run(`MATCH (n:Process)<-[e:PROC_OBJ]-(c:File)
 						WHERE id(n) = ${id} AND
 							e.state in ['BIN', 'READ', 'RaW']
@@ -87,13 +86,13 @@ export function file_read_query(id, fn){
 }
 
 export function cmd_query(id, fn){
-	var session = driver.session();
+	let session = driver.session();
 	session.run(`MATCH (n:Process)<-[:PROC_PARENT]-(c:Process) 
 						WHERE id(n) = ${id} 
 						RETURN c ORDER BY c.timestamp`)
 	.then(result => {
 		session.close();
-		var cmds = [];
+		let cmds = [];
 		result.records.forEach(function (record) 
 		{
 			cmds = cmds.concat(neo4jParser.parseNeo4jNode(record.get('c')));
@@ -148,14 +147,14 @@ export function cmd_query(id, fn){
 // }
 
 export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process_meta=true){
-	var session = driver.session();
-	var neighbours;
-	var root_node;
-	var m_nodes;
-	var m_qry;
-	var neighbour_nodes = [];
-	var neighbour_edges = [];
-	var matchers = ["Machine", "Process", "Conn"];
+	let session = driver.session();
+	let neighbours;
+	let root_node;
+	let m_nodes;
+	let m_qry;
+	let neighbour_nodes = [];
+	let neighbour_edges = [];
+	let matchers = ["Machine", "Process", "Conn"];
 	if (files){
 		matchers = matchers.concat('File');
 	}
@@ -180,15 +179,15 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 					"Machine" in labels(d)
 				)
 				AND
-				(
-					NOT d:Pipe
-					OR
-					d.fds <> []
-				)	
-				AND
 				any(lab in labels(d) WHERE lab IN ${JSON.stringify(matchers)})
 				RETURN s, e, d`)
 
+				// AND
+				// (
+				// 	NOT d:Pipe
+				// 	OR
+				// 	d.fds <> []
+				// )	
 	.then(result => {
 		neighbours = result.records;
 		if (neighbours.length){
@@ -223,7 +222,7 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(result.records[0].get('mch')));
 				}
 				result.records.forEach(function (record){
-					var m_links = {'type' : 'comm'};
+					let m_links = {'type' : 'comm'};
 					m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
 					m_links.properties = {'state' : null}; 
 					m_links.start = {'low' : record.get('skt')['identity']['low']};
@@ -323,7 +322,7 @@ export function get_neighbours_id_batch(ids, fn, files=true, sockets=true, pipes
 					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(result.records[0].get('mch')));
 				}
 				result.records.forEach(function (record){
-					var m_links = {'type' : 'comm'};
+					let m_links = {'type' : 'comm'};
 					m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
 					m_links.properties = {'state' : null}; 
 					m_links.start = {'low' : record.get('skt')['identity']['low']};
@@ -396,7 +395,7 @@ export function get_neighbours_id_batch(ids, fn, files=true, sockets=true, pipes
 // }
 
 export function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=true, process_meta=true, fn){
-	var matchers = [];
+	let matchers = [];
 	if (files){
 		matchers = matchers.concat('File');
 	}
@@ -412,8 +411,8 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 	if (!files && !sockets && !pipes){
 		matchers = [];
 	}
-	var process_obj;
-	var session = driver.session();
+	let process_obj;
+	let session = driver.session();
 	get_detail_id_unparsed(dbid, function(result) {
 
 		if (result == null){
@@ -523,9 +522,9 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 }
 
 function findEdges(curId, neighbours, fn){
-		var session = driver.session();
-		var ids = [];
-		var nodes = [];
+		let session = driver.session();
+		let ids = [];
+		let nodes = [];
 		neighbours.forEach(function (record) 
 		{
 			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
@@ -534,7 +533,7 @@ function findEdges(curId, neighbours, fn){
 		session.run(`MATCH (a)-[e]-(b) WHERE id(a) = ${curId} AND id(b) IN ${JSON.stringify(ids)} RETURN DISTINCT e`)
 		.then(result => {
 			session.close();
-			var edges = [];
+			let edges = [];
 			result.records.forEach(function (record) 
 			{
 				edges = edges.concat(neo4jParser.parseNeo4jEdge(record.get('e')));
@@ -547,7 +546,7 @@ function findEdges(curId, neighbours, fn){
 }
 
 export function get_detail_id(id, fn){
-	var session = driver.session();
+	let session = driver.session();
 	session.run(`MATCH (n) WHERE id(n)=${id} RETURN n`)
 	.then(result => {
 		session.close();
@@ -615,15 +614,15 @@ export function get_nodes(node_type=null,
 				remote_port=null, 
 				limit='100',
 				fn){
-	var lab;
-	var node_labels = {'pipe-endpoint': 'Pipe',
+	let lab;
+	let node_labels = {'pipe-endpoint': 'Pipe',
 					'socket-version': 'Socket',
 					'process': 'Process',
 					'machine': 'Machine',
 					'process-meta': 'Meta',
 					'connection': 'Conn',
-					'file-version': 'Global'};
-	if  (!(node_type in node_labels)){
+					'file-version': 'File'};//'Global'};  Was there a reason this was global  
+	if  (!(node_type in node_labels)){					//and not file because pipes also have a global label
 		lab = "Null";
 	}
 	else{
@@ -641,8 +640,7 @@ export function get_nodes(node_type=null,
 	if (remote_port == null || remote_port == ""){
 		remote_port = ".*?";
 	}
-	var nodes = [];
-	var session = driver.session();
+	let session = driver.session();
 	session.run(`MATCH (n)
 				WHERE 
 					${JSON.stringify(lab)} is Null
@@ -754,6 +752,7 @@ export function get_nodes(node_type=null,
 				LIMIT ${limit}`)
 	 .then(result => {
 		session.close();
+		let nodes = [];
 		result.records.forEach(function (record) 
 		{
 			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));

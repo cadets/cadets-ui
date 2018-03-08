@@ -1,11 +1,4 @@
-// Cytoscape core library and layouts:
-// const cytoscape = require('js/cytoscape.js');
 // require('cytoscape-autopan-on-drag')(cytoscape);
-// require('cytoscape-cose-bilkent')(cytoscape);
-// require('cytoscape-dagre')(cytoscape);
-
-// Our Cytoscape styling:
-//require('./cytoscape.styl');
 
 import cytoscape from './../node_modules/cytoscape/dist/cytoscape.min.js';
 import moment from './../node_modules/moment/moment.js';

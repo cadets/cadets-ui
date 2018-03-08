@@ -63,6 +63,7 @@ var inspector;
 var worksheets = {};
 
 var selectedWorksheet = 0;
+
 var inspecteeBackStack = [];
 var inspecteeForwardStack = [];
 
@@ -199,12 +200,12 @@ var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
 
 workSheetLayout.registerComponent( 'NodeSearchsheet', function( container, state ){
 	container._config.isClosable = false;
-	nodeSearchsheetContainer = container;
 	container.getElement().html(state.text);
+	nodeSearchsheetContainer = container;
 });
 workSheetLayout.registerComponent( `Worksheet`, function( container, state ){
-	container.getElement().html(state.text);
 	container.setTitle(`Worksheet_0`);
+	container.getElement().html(state.text);
 	worksheetContainer = container;
 });
 workSheetLayout.registerComponent( 'Inspector', function( container, state ){
@@ -505,7 +506,6 @@ function createWorksheet(){
 	goldenLayoutHTML.incrementWorksheetCount();
 }
 
-
 function createInspector(){
 	let inspectorGraph = graphingAPI.create('inspectorGraph');
 
@@ -624,14 +624,14 @@ function toggle_node_importance(id) {
 	});
 }
 
-function command_clicked(dbid) {
-	inspect_and_import(dbid);
+// function command_clicked(dbid) {
+// 	inspect_and_import(dbid);
 
-	let vexes = vex.getAll();
-	for (let i in vexes) {
-		vexes[i].close();
-	}
-}
+// 	let vexes = vex.getAll();
+// 	for (let i in vexes) {
+// 		vexes[i].close();
+// 	}
+// }
 
 //
 // How to add an edge to the worksheet
@@ -719,7 +719,7 @@ function import_into_worksheet(id) {
 	neo4jQueries.get_detail_id(id, function(result) {
 		let promise = null;
 
-		if ('parent' in result && graph.nodes(`[id="${result.parent}"]`).empty()) {
+		if (result['parent'] != null && graph.nodes(`[id="${result.parent}"]`).empty()) {
 			promise = import_into_worksheet(result.parent);
 		} else {
 			promise = $.when(null);
@@ -753,6 +753,7 @@ function import_batch_into_worksheet(nodes) {
 	let graph = worksheets[`${selectedWorksheet}`].graph;
 	let ids = [];
 
+
 	if(nodes.length >= maxImportLength){
 		vex.dialog.alert({
 			unsafeMessage: `Trying to import more nodes than the maxImportLength:${maxImportLength} allows!`,
@@ -766,9 +767,9 @@ function import_batch_into_worksheet(nodes) {
 			var index = nodes.indexOf(node);
 			nodes.splice(index, 1);
 		}
-		else{
+		//else{
 			ids = ids.concat(node.id);
-		}
+		//}
 	});
 	if(ids.length <= 0){return;}
 
@@ -776,10 +777,10 @@ function import_batch_into_worksheet(nodes) {
 		x: graph.width() / 2,
 		y: graph.height() / 2,
 	};
-
 	// if ('parent' in nodes && graph.$id( nodes.parent ).length > 0) {
 	// 	import_into_worksheet(nodes.parent);
 	// } 
+	//console.log(ids);
 	graphingAPI.add_node_batch(nodes, graph, position);
 	get_neighbours_batch(ids, function(result) {
 	
@@ -998,49 +999,49 @@ function successors(id) {
 //
 function update_nodelist() {
 	neo4jQueries.get_nodes($('#filterNodeType').val(),
-				$('#filterName').val(),
-				$('#filterHost').val(),
-				$('#filterLocalIp').val(),
-				$('#filterLocalPort').val(),
-				$('#filterRemoteIp').val(), 
-				$('#filterRemotePort').val(),
-				'100',
-			function(result) {
-				let nodelist = $('#nodelist');
-				nodelist.empty();
+							$('#filterName').val(),
+							$('#filterHost').val(),
+							$('#filterLocalIp').val(),
+							$('#filterLocalPort').val(),
+							$('#filterRemoteIp').val(), 
+							$('#filterRemotePort').val(),
+							'100',
+		function(result) {
+			let nodelist = $('#nodelist');
+			nodelist.empty();
 
-				let current_uuid = null;
-				let colour = 0;
+			let current_uuid = null;
+			let colour = 0;
 
-				for (let node of result) {
-					let meta = graphingAPI.node_metadata(node);
+			for (let node of result) {
+				let meta = graphingAPI.node_metadata(node);
 
-					if (node.uuid != current_uuid) {
-						colour += 1;
-						current_uuid = node.uuid;
-					}
-
-					// nodelist.append(`
-					// 	<tr class="${rowColour(colour)}">
-					// 		<td><a onclick="inspect_node(${node.id});" style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
-					// 		<td>${meta.timestamp}</td>
-					// 		<td><a onclick="inspect_node(${node.id});">${meta.label}</a></td>
-					// 	</tr>`);
-
-					let table = document.getElementById("nodelist");
-
-					let row = table.insertRow(0);
-					row.onclick = (function() {
-						inspectAsync(node.id);
-					});
-					let cell = row.insertCell(0);
-					cell.innerHTML = (`
-										<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
-										<td>${meta.timestamp}</td>
-										<td><a>${meta.label}</a></td>
-									`);
+				if (node.uuid != current_uuid) {
+					colour += 1;
+					current_uuid = node.uuid;
 				}
+
+				// nodelist.append(`
+				// 	<tr class="${rowColour(colour)}">
+				// 		<td><a onclick="inspect_node(${node.id});" style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
+				// 		<td>${meta.timestamp}</td>
+				// 		<td><a onclick="inspect_node(${node.id});">${meta.label}</a></td>
+				// 	</tr>`);
+
+				let table = document.getElementById("nodelist");
+
+				let row = table.insertRow(0);
+				row.onclick = (function() {
+					inspectAsync(node.id);
+				});
+				let cell = row.insertCell(0);
+				cell.innerHTML = (`
+									<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
+									<td>${meta.timestamp}</td>
+									<td><a>${meta.label}</a></td>
+								`);
 			}
+		}
 	);
 }
 
