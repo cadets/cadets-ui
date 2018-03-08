@@ -204,7 +204,8 @@ workSheetLayout.registerComponent( 'NodeSearchsheet', function( container, state
 	nodeSearchsheetContainer = container;
 });
 workSheetLayout.registerComponent( `Worksheet`, function( container, state ){
-	container.setTitle(`Worksheet_0`);
+	container.setTitle(`Worksheet_${getWorksheetCount()}`);
+	container.worksheetID = getWorksheetCount();
 	container.getElement().html(state.text);
 	worksheetContainer = container;
 });
@@ -332,16 +333,9 @@ workSheetLayout.on('stackCreated', function(stack) {
 	}
 );
 
-workSheetLayout.on("tabCreated", function(tab){
-	if(tab.contentItem.componentName == "Worksheet"){
-		tab.setTitle(`Worksheet_${getWorksheetCount()}`);
-		tab.contentItem.worksheetID = getWorksheetCount();
-	}
-});
-
 workSheetLayout.on(`itemDestroyed`, function(item){
 	if(item.componentName == "Worksheet"){
-		delete worksheets[`${item.worksheetID}`];
+		delete worksheets[`${item.container.worksheetID}`];
 	}
 });
 
