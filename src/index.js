@@ -393,9 +393,10 @@ function findMouseCoords(mouseEvent)
 
 function addNewWorksheet(){
 	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
+		const index = getWorksheetCount() -1;
 		let temp = workSheetLayout.root.contentItems[ 0 ].contentItems;
 		temp[ temp.length-1 ].on('resize', function(){
-			refreshGraph(worksheets[`${getWorksheetCount() -1}`].graph);
+			refreshGraph(worksheets[`${index}`].graph);
 		});
 	});
 }
