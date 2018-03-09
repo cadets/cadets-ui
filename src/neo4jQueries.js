@@ -172,22 +172,9 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 	}
 	session.run(`MATCH (s)-[e]-(d)
 				WHERE id(s) = ${id}
-				AND NOT
-				(
-					"Machine" in labels(s)
-					AND
-					"Machine" in labels(d)
-				)
 				AND
 				any(lab in labels(d) WHERE lab IN ${JSON.stringify(matchers)})
 				RETURN s, e, d`)
-
-				// AND
-				// (
-				// 	NOT d:Pipe
-				// 	OR
-				// 	d.fds <> []
-				// )	
 	.then(result => {
 		neighbours = result.records;
 		if (neighbours.length){
@@ -272,18 +259,6 @@ export function get_neighbours_id_batch(ids, fn, files=true, sockets=true, pipes
 	}
 	session.run(`MATCH (s)-[e]-(d)
 				WHERE id(s) IN ${JSON.stringify(ids)}
-				AND NOT
-				(
-					"Machine" in labels(s)
-					AND
-					"Machine" in labels(d)
-				)
-				AND
-				(
-					NOT d:Pipe
-					OR
-					d.fds <> []
-				)	
 				AND
 				any(lab in labels(d) WHERE lab IN ${JSON.stringify(matchers)})
 				RETURN DISTINCT e, d`)
@@ -396,6 +371,9 @@ export function get_neighbours_id_batch(ids, fn, files=true, sockets=true, pipes
 
 export function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=true, process_meta=true, fn){
 	let matchers = [];
+	// matchers = matchers.concat("Process");
+	// matchers = matchers.concat("Conn");
+	// matchers = matchers.concat("Machine");
 	if (files){
 		matchers = matchers.concat('File');
 	}
@@ -408,9 +386,9 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 	if (files && sockets && pipes){
 		matchers = matchers.concat('Global');
 	}
-	if (!files && !sockets && !pipes){
-		matchers = [];
-	}
+	// if (process_meta){
+	// 	matchers = matchers.concat('Meta');
+	// }
 	let process_obj;
 	let session = driver.session();
 	get_detail_id_unparsed(dbid, function(result) {
@@ -424,30 +402,24 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 		//	nodes = nodes.concat(cur);
 			if (process_obj.labels.indexOf('Global') > -1){
 				session.run(`MATCH (cur:Global)-[e]->(n:Process)
-										WHERE
-										id(cur)=${dbid}
-										AND
-										e.state in ['BIN', 'READ', 'RaW', 'CLIENT', 'SERVER']
-										RETURN n, e
-										UNION
-										MATCH (cur:Global)<-[e]-(n:Global)
-										WHERE
-										id(cur)=${dbid}
-										AND
-										(
-											NOT n:Pipe
-											OR
-											n.fds <> []
-										)
-										AND
-										NOT ${JSON.stringify(matchers)} is Null
-										AND
-										any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
-										RETURN n, e
-										UNION
-										MATCH (cur:Global)-[e]-(n:Conn)
-										WHERE id(cur)=${dbid}
-										RETURN n, e`)
+							WHERE
+								id(cur)=${dbid}
+								AND
+								e.state in ['BIN', 'READ', 'RaW', 'CLIENT', 'SERVER']
+							RETURN n, e
+							UNION
+							MATCH (cur:Global)<-[e]-(n:Global)
+							WHERE
+								id(cur)=${dbid}
+								AND
+								NOT ${JSON.stringify(matchers)} is Null
+								AND
+								any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
+							RETURN n, e
+							UNION
+							MATCH (cur:Global)-[e]-(n:Conn)
+							WHERE id(cur)=${dbid}
+							RETURN n, e`)
 				.then(result => {
 					session.close();
 					findEdges(dbid, result.records, fn);
@@ -457,25 +429,19 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 			}
 			else if (process_obj.labels.indexOf('Process') > -1){
 				session.run(`MATCH (cur:Process)<-[e]-(n:Global)
-										WHERE
-										id(cur)=${dbid}
-										AND
-										e.state in ['WRITE', 'RaW', 'CLIENT', 'SERVER']
-										AND
-										(
-											NOT n:Pipe
-											OR
-											n.fds <> []
-										)
-										AND
-										NOT ${JSON.stringify(matchers)} is Null
-										AND
-										any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
-										RETURN n, e
-										UNION
-										MATCH (cur:Process)<-[e]-(n:Process)
-										WHERE id(cur)=${dbid}
-										RETURN n, e`)
+							WHERE
+								id(cur)=${dbid}
+								AND
+								e.state in ['WRITE', 'RaW', 'CLIENT', 'SERVER']
+								AND
+								NOT ${JSON.stringify(matchers)} is Null
+								AND
+								any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
+								RETURN n, e
+							UNION
+							MATCH (cur:Process)<-[e]-(n:Process)
+							WHERE id(cur)=${dbid}
+							RETURN n, e`)
 				.then(result => {
 					session.close();
 					findEdges(dbid, result.records, fn);
@@ -485,19 +451,13 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 			}
 			else if (process_obj.labels.indexOf('Conn') > -1 ){
 				session.run(`MATCH (cur:Conn)-[e]-(n:Global)
-										WHERE
-										id(cur)=${dbid}
-										AND
-										(
-											NOT n:Pipe
-											OR
-											n.fds <> []
-										)
-										AND
-										NOT ${JSON.stringify(matchers)} is Null
-										AND
-										any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
-										RETURN n, e`)
+							WHERE
+								id(cur)=${dbid}
+								AND
+								NOT ${JSON.stringify(matchers)} is Null
+								AND
+								any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
+							RETURN n, e`)
 				.then(result => {
 					session.close();
 					findEdges(dbid, result.records, fn);
@@ -525,6 +485,7 @@ function findEdges(curId, neighbours, fn){
 		let session = driver.session();
 		let ids = [];
 		let nodes = [];
+		//console.log(neighbours);
 		neighbours.forEach(function (record) 
 		{
 			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));

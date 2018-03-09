@@ -83,6 +83,8 @@ var inspectorDisplayAmount = 49;
 var currInspectorBufferIndex = 1;
 
 var maxImportLength = 500;
+var amountShownInNodeList = 100;
+var limitNodesForDagre = 100;
 
 
 var worksheetCxtMenu = ( 
@@ -805,13 +807,8 @@ function import_neighbours_into_worksheetAsync(id){
 // Add a node and all of its neighbours to the worksheet.
 //
 function import_neighbours_into_worksheet(id) {
-	// Get all of the node's neighbours:
 	get_neighbours(id, function(result) {
 		import_batch_into_worksheet(result.nodes);
-		// let promise = $.when(null);
-		// for (let n of result.nodes) {
-		// 	promise.then(function() { import_into_worksheet(n.id); });
-		// }
 	});
 }
 
@@ -833,7 +830,7 @@ function inspect_node(id) {
 	}
 
 	// Display the node's details in the inspector "Details" panel.
-	var inspectee;
+	let inspectee;
 
 	inspector.detail.empty();
 	inspector.neighbours.empty();
@@ -925,7 +922,7 @@ function inspect_node(id) {
 
 			// Only use the (somewhat expensive) dagre algorithm when the number of
 			// edges is small enough to be computationally zippy.
-			if (inspector.graph.edges.length < 100) {
+			if (inspector.graph.edges.length < limitNodesForDagre) {
 				graphingAPI.layout(inspector.graph, 'dagre');
 			} else {
 				graphingAPI.layout(inspector.graph, 'cose-bilkent');
@@ -957,7 +954,7 @@ function showInspectorNextPrevious(isNext){
 			add_edge(e, inspector.graph);
 		}
 	}
-	if (inspector.graph.edges.length < 100) {
+	if (inspector.graph.edges.length < limitNodesForDagre) {
 		graphingAPI.layout(inspector.graph, 'dagre');
 	} else {
 		graphingAPI.layout(inspector.graph, 'cose-bilkent');
@@ -972,6 +969,7 @@ function successors(id) {
 
 	// Display the node's details in the inspector "Details" panel.
 	get_successors(id, function(result) {
+		//console.log(result);
 
 		let position = {
 			x: graph.width() / 2,
@@ -1000,7 +998,7 @@ function update_nodelist() {
 							$('#filterLocalPort').val(),
 							$('#filterRemoteIp').val(), 
 							$('#filterRemotePort').val(),
-							'100',
+							amountShownInNodeList,
 		function(result) {
 			let nodelist = $('#nodelist');
 			nodelist.empty();
