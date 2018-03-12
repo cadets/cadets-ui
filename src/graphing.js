@@ -16,7 +16,7 @@ import socket from './img/socket.png';
 // Create a new graph.
 //
 export function create(container) {
-	var graph = cytoscape({
+	let graph = cytoscape({
 		container: document.getElementById(container),
 		boxSelectionEnabled: true,
 	});
@@ -53,8 +53,7 @@ export function add_node(data, graph, renderedPosition = null) {
 
 		// Add file descriptors if we have them.
 		if (data.fds) {
-			let fd;
-			for(fd in data.fds){
+			for(let fd in data.fds){
 				name = name.concat('FD ' + fd)
 			}
 			//data.fds.forEach(function(fd) { name.add('FD ' + fd); });
@@ -116,8 +115,7 @@ export function add_node_batch(nodes, graph, renderedPosition = null) {
 
 			// Add file descriptors if we have them.
 			if (data.fds) {
-				let fd;
-				for(fd in data.fds){
+				for(let fd in data.fds){
 					name = name.concat('FD ' + fd)
 				}
 				//data.fds.forEach(function(fd) { name.add('FD ' + fd); });
@@ -155,6 +153,30 @@ export function add_node_batch(nodes, graph, renderedPosition = null) {
 		parsedNodes = parsedNodes.concat(node);
 	});
 	graph.add(parsedNodes);
+}
+
+export function add_edge(data, graph) {
+	// Have we already imported this edge?
+	if (!graph.edges(`#${data.id}`).empty()) {
+		return;
+	}
+
+	// If the target is explicitly marked as something we read from
+	// (e.g., the by-convention read-from pipe), reverse the edge's direction.
+	let source = graph.nodes(`[id="${data.source}"]`);
+	let target = graph.nodes(`[id="${data.target}"]`);
+
+	if (source.data() && source.data().type == 'process'
+		&& target.data() && target.data().end == 'R') {
+		let tmp = data.source;
+		data.source = data.target;
+		data.target = tmp;
+	}
+
+	graph.add({
+		classes: data.type,
+		data: data,
+	});
 }
 
 //
@@ -514,6 +536,7 @@ const graphing ={
 	add_node,
 	add_node_batch,
 	create,
+	add_edge,
 }
 
 export default graphing;

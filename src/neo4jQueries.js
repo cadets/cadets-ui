@@ -202,7 +202,7 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 						id(mch)=${id}
 						AND
 						split(skt.name[0], ":")[0] in mch.ips
-						RETURN skt, mch`)
+						RETURN DISTINCT skt, mch`)
 			.then(result => {
 				session.close();
 				if(result.records.length > 0){
@@ -290,7 +290,7 @@ export function get_neighbours_id_batch(ids, fn, files=true, sockets=true, pipes
 						id(mch) IN ${JSON.stringify(ids)}
 						AND
 						split(skt.name[0], ":")[0] in mch.ips
-						RETURN skt, mch`)
+						RETURN DISTINCT skt, mch`)
 			.then(result => {
 				session.close();
 				if(result.records.length > 0){
@@ -386,9 +386,6 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 	if (files && sockets && pipes){
 		matchers = matchers.concat('Global');
 	}
-	// if (process_meta){
-	// 	matchers = matchers.concat('Meta');
-	// }
 	let process_obj;
 	let session = driver.session();
 	get_detail_id_unparsed(dbid, function(result) {
@@ -596,7 +593,6 @@ export function get_nodes(node_type=null,
 	}
 	else{
 		labelQuery = `n:Global AND NOT n:File AND NOT n:Socket AND NOT n:Pipe`;
-
 	}
 	if (local_ip == null || local_ip == ""){
 		local_ip = ".*?";
