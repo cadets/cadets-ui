@@ -3,12 +3,12 @@ import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.
 import './../node_modules/golden-layout/src/css/goldenlayout-base.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
 
-var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
+var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 								<div class="row header formBox">
 									<label for="filterNodeType">&nbsp;Type</label>
 									<div>
 										&nbsp;<select id="filterNodeType">
-										<option></option>
+											<option></option>
 											<option>connection</option>
 											<option>file-version</option>
 											<option>pipe-endpoint</option>
@@ -16,6 +16,7 @@ var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
 											<option>process-meta</option>
 											<option>socket-version</option>
 											<option>machine</option>
+											<option>global-only</option>
 										</select>
 									</div>
 									<label for="filterName">&nbsp;Name</label>
@@ -41,34 +42,24 @@ var analysisWorksheetHtml = `<div class="sheet box" id="analysisWorksheet">
 								</div>
 							</div>`;
 
-var inspectorHtml = `<div class="sheet scrollable">
-						<div class="sheet" id="inspectorGraph"></div>
-						<div class="bottomOptions">
-							<input type="checkbox" id="inspectFiles">Files</input>
-							<input type="checkbox" id="inspectSockets">Sockets</input>
-							<input type="checkbox" id="inspectPipes">Pipes</input>
-							<input type="checkbox" id="inspectProcessMeta">ProcessMetaData</input>
-						</div>
-						<div class="inspectorT1">
-							<div class="box">
-								<div class="row header fillHeader">
-									<font>&nbsp;Details</font>
-								</div>
-								<div class="row content scrollable">
-									<table id="inspector-detail" class="table"></table>
-								</div>
-							</div>	
-						</div>
-						<div class="inspectorT2">
-							<div class="box">
-								<div class="row header fillHeader">
-									<font>&nbsp;Neighbours</font>
-								</div>
-								<div class="row content scrollable">
-									<table id="neighbour-detail" class="table"></table>
-								</div>
-							</div>	
-						</div>
+var inspectorHtml = `<div class="sheet" id="inspectorGraph"></div>
+					<div class="topOptions" id="inspectorHeader">
+						<button type="button" class="bodyButton" id="inspectLast">🡐</button>
+						<button type="button" class="bodyButton" id="inspectForward">🡒</button>
+					</div>
+					<div class="bottomOptions">
+						<input type="checkbox" id="inspectFiles">Files</input>
+						<input type="checkbox" id="inspectSockets">Sockets</input>
+						<input type="checkbox" id="inspectPipes">Pipes</input>
+						<input type="checkbox" id="inspectProcessMeta">ProcessMetaData</input>
+					</div>`;
+
+var DetailsHtml = `<div class="sheet scrollable">
+						<table id="inspector-detail" class="table"></table>
+					</div>`;
+
+var NeighboursHtml = `<div class="sheet scrollable">
+						<table id="neighbour-detail" class="table"></table>
 					</div>`;
 
 var worksheetCount = 0;
@@ -77,22 +68,37 @@ var config = {
 	content: [{
 		type: 'row',
 		content: [
-		{
-			type:'component',
-			componentName: 'NodeSearchsheet',
-			componentState: { text: analysisWorksheetHtml },
-			showPopoutIcon: false
-		},
-		{
-			type: 'component',
-			componentName: `Worksheet`,
-			componentState: { text: getWorksheetHtml() }
-		},
-		{
-			type:'component',
-			componentName: 'Inspector',
-			componentState: { text: inspectorHtml }
-		}
+			{
+				type:'component',
+				componentName: 'NodeSearchsheet',
+				componentState: { text: nodeSearchsheetHtml },
+				width: 20,
+			},
+			{
+				type: 'component',
+				componentName: `Worksheet`,
+				componentState: { text: getWorksheetHtml() },
+			},
+			{
+				type: 'stack',
+				content: [
+					{
+					type:'component',
+					componentName: 'Inspector',
+					componentState: { text: inspectorHtml },
+					},
+					{
+					type:'component',
+					componentName: 'Details',
+					componentState: { text: DetailsHtml },
+					},
+					{
+					type:'component',
+					componentName: 'Neighbours',
+					componentState: { text: NeighboursHtml },
+					}
+				]
+			}
 		]
 	}]
 };
@@ -130,8 +136,17 @@ export function addWorksheet(goldenlayout, fn){
 		componentName: `Worksheet`,
 		componentState: { text: getWorksheetHtml() }
 	} );
-	//console.log(goldenlayout.root.contentItems[ 0 ]);
 	goldenlayout.emit(`WorksheetContainerCreated`, fn);
+}
+
+export function addNodeSearchsheet(goldenlayout, fn){
+	goldenlayout.root.contentItems[ 0 ].addChild( {
+		type: 'component',
+		componentName: `NodeSearchsheet`,
+		componentState: { text: nodeSearchsheetHtml },
+		width: 20,
+	} );
+	goldenlayout.emit(`NodeSearchsheetContainerCreated`, fn);
 }
 
 const goldenLayoutHTML = {
@@ -139,6 +154,7 @@ const goldenLayoutHTML = {
 	incrementWorksheetCount,
 	getWorksheetCount,
 	addWorksheet,
+	addNodeSearchsheet,
 }
 
 export default goldenLayoutHTML;

@@ -1,11 +1,11 @@
 export function parseNeo4jNode(o){
-	var data = {'id': o['identity']['low']};
-	var labels = o['labels'];
-	if (labels.indexOf('Socket') > -1){//TODO: test socket
+	let data = {'id': o['identity']['low']};
+	let labels = o['labels'];
+	if (labels.indexOf('Socket') > -1){
 		data.type = "socket-version";
 		data = concatDictionary( data, o['properties']);
 	}
-	else if (labels.indexOf('Pipe') > -1){//TODO: test pipe
+	else if (labels.indexOf('Pipe') > -1){
 		data.type = "pipe-endpoint";
 		data = concatDictionary( data, o['properties']);
 	}
@@ -21,7 +21,7 @@ export function parseNeo4jNode(o){
 		data.type = "process-meta";
 		data = concatDictionary( data, o['properties']);
 	}
-	else if (labels.indexOf('Conn') > -1){//TODO: not many Conns to test with
+	else if (labels.indexOf('Conn') > -1){
 		data = concatDictionary( data, o['properties']);
 		if(data['type'] != null){
 			data['ctype'] = data['type'];
@@ -59,24 +59,23 @@ export function parseNeo4jNode(o){
 	// });
 	// // Calculate a short, easily-compared hash of something unique
 	// // (database ID if we don't have a UUID)
-	var unique = o['uuid'] ? o['uuid'] : data['id'];
+	let unique = o['uuid'] ? o['uuid'] : data['id'];
 	data['hash'] = unique
 	// data['hash'] = short_hash(unique);
 	return data;
 }
 
 export function parseNeo4jEdge(o){
-	 //console.log(o);
-	var id = o['identity']['low'];
-	var type_map = {'PROC_PARENT': 'parent'};
+	let id = -o['identity']['low'];				// This is negitive because it was sometimes conflicting 
+	let type_map = {'PROC_PARENT': 'parent'};	// with a nodes id which must be unique
 	type_map.PROC_OBJ = 'io';
 	type_map.META_PREV = 'proc-metadata';
 	type_map.PROC_OBJ_PREV = 'proc-change';
 	type_map.GLOB_OBJ_PREV = 'file-change';
 	type_map.COMM = 'comm';
-	var state;
-	var src;
-	var dst;
+	let state;
+	let src;
+	let dst;
 	if (o['properties']['state'] != null){
 		state = o['properties']['state'];
 	} else{

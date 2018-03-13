@@ -1,11 +1,4 @@
-// Cytoscape core library and layouts:
-// const cytoscape = require('js/cytoscape.js');
 // require('cytoscape-autopan-on-drag')(cytoscape);
-// require('cytoscape-cose-bilkent')(cytoscape);
-// require('cytoscape-dagre')(cytoscape);
-
-// Our Cytoscape styling:
-//require('./cytoscape.styl');
 
 import cytoscape from './../node_modules/cytoscape/dist/cytoscape.min.js';
 import moment from './../node_modules/moment/moment.js';
@@ -23,7 +16,7 @@ import socket from './img/socket.png';
 // Create a new graph.
 //
 export function create(container) {
-	var graph = cytoscape({
+	let graph = cytoscape({
 		container: document.getElementById(container),
 		boxSelectionEnabled: true,
 	});
@@ -43,10 +36,9 @@ export function add_node(data, graph, renderedPosition = null) {
 	if (!graph.nodes(`[id="${data.id}"]`).empty()) {
 		return;
 	}
-
 	// When importing things with abstract containers (e.g., file versions),
 	// draw a compound node to show the abstraction and simplify the versions.
-	if (data.uuid && (
+	if (data.uuid != null && (
 			[ 'file-version', 'pipe-endpoint', 'socket-version', ].indexOf(data.type)
 				!= -1
 			)) {
@@ -60,11 +52,9 @@ export function add_node(data, graph, renderedPosition = null) {
 
 		// Add file descriptors if we have them.
 		if (data.fds) {
-			let fd;
-			for(fd in data.fds){
+			for(let fd in data.fds){
 				name = name.concat('FD ' + fd)
 			}
-			//data.fds.forEach(function(fd) { name.add('FD ' + fd); });
 		}
 
 		if (compound.empty()) {
@@ -96,15 +86,104 @@ export function add_node(data, graph, renderedPosition = null) {
 
 	node.data.label = node_metadata(data).label;
 
+
 	graph.add(node);
+	let n = graph.nodes(`[id="${node.id}"]`);
 }
 
+
+export function add_node_batch(nodes, graph, renderedPosition = null) {
+	let parsedNodes = [];
+	nodes.forEach(function(data){
+		// Have we already imported this node?
+		if (!graph.nodes(`[id="${data.id}"]`).empty()) {
+			return;
+		}
+
+		// When importing things with abstract containers (e.g., file versions),
+		// draw a compound node to show the abstraction and simplify the versions.
+		if (data.uuid && (
+				[ 'file-version', 'pipe-endpoint', 'socket-version', ].indexOf(data.type)
+					!= -1
+				)) {
+			let compound = graph.nodes(`[id="${data.uuid}"]`);
+			let type = data.type.substr(0, 4);
+
+			let name = data.name;
+			if (name == null) {
+				name = new Set().add(data.hash);
+			}
+
+			// Add file descriptors if we have them.
+			if (data.fds) {
+				for(let fd in data.fds){
+					name = name.concat('FD ' + fd)
+				}
+				//data.fds.forEach(function(fd) { name.add('FD ' + fd); });
+			}
+
+			if (compound.empty()) {
+				add_node({
+					id: data.uuid,
+					type: type,
+					label: Array.from(name).join(', '),
+					names: name,
+					'parent': data['parent'],
+				}, graph, renderedPosition);
+			} else {
+				let existing = compound.data();
+				existing.names = new Set([...existing.names, ...name]);
+				existing.label = Array.from(existing.names).join(' ');
+			}
+
+			data['parent'] = data.uuid;
+		}
+
+		let node = {
+			data: data,
+			renderedPosition: renderedPosition,
+		};
+
+		node.classes = data.type;
+		if (data.external) {
+			node.classes += ' external';
+		}
+
+		node.data.label = node_metadata(data).label;
+
+		parsedNodes = parsedNodes.concat(node);
+	});
+	graph.add(parsedNodes);
+}
+
+export function add_edge(data, graph) {
+	// Have we already imported this edge?
+	if (!graph.edges(`#${data.id}`).empty()) {
+		return;
+	}
+
+	// If the target is explicitly marked as something we read from
+	// (e.g., the by-convention read-from pipe), reverse the edge's direction.
+	let source = graph.nodes(`[id="${data.source}"]`);
+	let target = graph.nodes(`[id="${data.target}"]`);
+
+	if (source.data() && source.data().type == 'process'
+		&& target.data() && target.data().end == 'R') {
+		let tmp = data.source;
+		data.source = data.target;
+		data.target = tmp;
+	}
+
+	graph.add({
+		classes: data.type,
+		data: data,
+	});
+}
 
 //
 // Load a Cytograph JSON representation into an object with a 'graph' property.
 //
-export function load(file, graph, cxtMenu) {
-	//console.log(file);
+export function load(file, graph, cxtMenu, fn) {
 	let reader = new FileReader();
 	reader.addEventListener('loadend', function() {
 		let data = JSON.parse(reader.result);
@@ -112,6 +191,7 @@ export function load(file, graph, cxtMenu) {
 		data.layout = { name: 'preset' };
 		graph = cytoscape(data);
 		graph.cxtmenu(cxtMenu);
+		fn(graph);
 	});
 
 	reader.readAsText(file);
@@ -330,7 +410,6 @@ export function layout(graph, algorithm) {
 export function node_metadata(node) {
 	let metadata = null;
 	let timestamp = null;
-
 	switch (node.type) {
 		case 'connection':
 			metadata = {
@@ -404,9 +483,14 @@ export function node_metadata(node) {
 			};
 			timestamp = node['timestamp'];
 			break;
+		case 'sock':
+			metadata = {
+				label: node['label'],
+			};
+			timestamp = node['timestamp'];
+			break;
 
 	default:
-		//console.log(node);
 		console.log('unknown node type: ' + node.type);
 		return {
 			icon: 'question',
@@ -416,7 +500,7 @@ export function node_metadata(node) {
 
 	if (timestamp) {
 		metadata.timestamp =
-			moment.unix(timestamp / 1000000000).format('HH:mm[h] D MMM');
+			moment.unix(timestamp / 1000000000).format();
 	} else {
 		metadata.timestamp = '';
 	}
@@ -451,7 +535,9 @@ const graphing ={
 	layout,
 	load,
 	add_node,
+	add_node_batch,
 	create,
+	add_edge,
 }
 
 export default graphing;
