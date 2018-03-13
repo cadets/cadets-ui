@@ -86,10 +86,11 @@ export function add_node(data, graph, renderedPosition = null) {
 
 	node.data.label = node_metadata(data).label;
 
+
 	graph.add(node);
 	let n = graph.nodes(`[id="${node.id}"]`);
-	//console.log(node);
 }
+
 
 export function add_node_batch(nodes, graph, renderedPosition = null) {
 	let parsedNodes = [];

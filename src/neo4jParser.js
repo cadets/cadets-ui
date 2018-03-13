@@ -66,8 +66,8 @@ export function parseNeo4jNode(o){
 }
 
 export function parseNeo4jEdge(o){
-	let id = o['identity']['low'];
-	let type_map = {'PROC_PARENT': 'parent'};
+	let id = -o['identity']['low'];				// This is negitive because it was sometimes conflicting 
+	let type_map = {'PROC_PARENT': 'parent'};	// with a nodes id which must be unique
 	type_map.PROC_OBJ = 'io';
 	type_map.META_PREV = 'proc-metadata';
 	type_map.PROC_OBJ_PREV = 'proc-change';
