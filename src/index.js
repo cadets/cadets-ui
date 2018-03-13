@@ -112,14 +112,14 @@ var worksheetCxtMenu = (
 				});
 			}
 		},
-		{
-			content: 'Import successors',
-			select: function(ele){
-				openSubMenu(function(){
-					successors(ele.data('id'));
-				});
-			}
-		},
+		// {
+		// 	content: 'Import successors',
+		// 	select: function(ele){
+		// 		openSubMenu(function(){
+		// 			successors(ele.data('id'));
+		// 		});
+		// 	}
+		// },
 		{
 			content: 'Highlight',
 			select: function(ele){
@@ -743,6 +743,7 @@ function inspect_node(id) {
 			let hasSpawnedOverflowWarning = false;
 			for (let n of result.nodes) {
 				if(count++ < inspectorDisplayAmount){
+					//console.log(n);
 					graphingAPI.add_node(n, inspector.graph);
 				}
 				else if(!hasSpawnedOverflowWarning){
@@ -793,6 +794,7 @@ function inspect_node(id) {
 			}
 			for (let e of result.edges) {
 				if(inspector.graph.$id( e.source ).length > 0 && inspector.graph.$id( e.target ).length > 0){
+					//console.log(e);
 					graphingAPI.add_edge(e, inspector.graph);
 				}
 			}
@@ -1059,7 +1061,7 @@ function openSubMenu(fn, isNewWorksheetOption = true, leftClickSpawn = false){
 	}
 }
 
-//an attempt to sync filters between pops 
+//an attempt to sync filters between popouts 
 function updateInspectTargets(files, scokets, pipes, meta){
 	if(document.getElementById(`worksheetGraph${getWorksheetCount()}`) != null)
 	{

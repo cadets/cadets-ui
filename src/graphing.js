@@ -36,10 +36,9 @@ export function add_node(data, graph, renderedPosition = null) {
 	if (!graph.nodes(`[id="${data.id}"]`).empty()) {
 		return;
 	}
-
 	// When importing things with abstract containers (e.g., file versions),
 	// draw a compound node to show the abstraction and simplify the versions.
-	if (data.uuid && (
+	if (data.uuid != null && (
 			[ 'file-version', 'pipe-endpoint', 'socket-version', ].indexOf(data.type)
 				!= -1
 			)) {
@@ -56,7 +55,6 @@ export function add_node(data, graph, renderedPosition = null) {
 			for(let fd in data.fds){
 				name = name.concat('FD ' + fd)
 			}
-			//data.fds.forEach(function(fd) { name.add('FD ' + fd); });
 		}
 
 		if (compound.empty()) {
@@ -89,6 +87,8 @@ export function add_node(data, graph, renderedPosition = null) {
 	node.data.label = node_metadata(data).label;
 
 	graph.add(node);
+	let n = graph.nodes(`[id="${node.id}"]`);
+	//console.log(node);
 }
 
 export function add_node_batch(nodes, graph, renderedPosition = null) {
