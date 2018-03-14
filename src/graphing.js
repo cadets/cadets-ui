@@ -506,7 +506,7 @@ export function node_metadata(node) {
 	}
 
 	if (metadata.label == '') {
-		metadata.label = '???';
+		metadata.label = 'node';
 	}
 
 	return metadata;
