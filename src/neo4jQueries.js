@@ -7,6 +7,7 @@ import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
 var neo4jParser = require('./neo4jParser.js');
 var neo4j = require('./../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js').v1;
 var driver = null;
+var pvm_version = null;
 
 
 export function neo4jLogin(){
@@ -26,10 +27,13 @@ export function neo4jLogin(){
 			} else {//bolt://localhost
 				driver = neo4j.driver("bolt://localhost:7687/", neo4j.auth.basic(data.username, data.password));
 				let session = driver.session();
-					session.run(`MATCH (n) WHERE id(n)=1 RETURN n LIMIT 0`)//change this to get version number with pvm2 data
-					.then(function(tokens) {
-						//updates_machines()
+					session.run(`MATCH (n:DBInfo) RETURN n`)
+					.then(function(result) {
 						session.close();
+						if(result.records.length > 0){
+							pvm_version = result.records[0].get("n").properties.pvm_version
+							neo4jParser.pvm_version = pvm_version;
+						}
 					},
 					function(error) {
 						neo4jLogin();
@@ -606,8 +610,12 @@ export function get_nodes(node_type=null,
 	if (remote_port == null || remote_port == ""){
 		remote_port = ".*?";
 	}
-	let session = driver.session();
-	session.run(`MATCH (n)
+	let query;
+	if(pvm_version == 2){
+		query = `MATCH (n:${lab}) RETURN n Limit 100`;
+	}
+	else{
+	query = `MATCH (n)
 				WHERE 
 					${JSON.stringify(lab)} is Null
 					OR
@@ -716,9 +724,13 @@ export function get_nodes(node_type=null,
 					)
 
 				RETURN DISTINCT n
-				LIMIT ${limit}`)
+				LIMIT ${limit}`;
+	}
+	let session = driver.session();
+	session.run(query)
 	 .then(result => {
 		session.close();
+		//console.log(result);
 		let nodes = [];
 		result.records.forEach(function (record) 
 		{

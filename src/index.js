@@ -92,11 +92,11 @@ var amountShownInNodeList = 100;//The max number of nodes that are display in th
 
 var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
 
-var worksheetCxtMenu = ( 
+var worksheetChildCxtMenu = ( 
 {
 	menuRadius: 140,
 	separatorWidth: 5,
-	selector: 'node',
+	selector: 'node:childless',
 	commands: [
 		{
 			content: 'Inspect',
@@ -197,6 +197,23 @@ var worksheetCxtMenu = (
 			}
 		},
 	]
+});var worksheetParentCxtMenu = ( 
+{
+	menuRadius: 70,
+	separatorWidth: 0,
+	selector: 'node:parent',
+	commands: [
+		{
+			content: 'Remove',
+			select: function(ele){
+				openSubMenu(function(){
+					let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
+					node.remove();
+					removeEmptyParents(node.parents());
+				}, false);
+			}
+		},
+	]
 });
 
 //Global variables end
@@ -267,7 +284,7 @@ workSheetLayout.on('initialised', function(){
 	// document.getElementById(`loadWorksheet`).onclick = function () {
 	// 	//console.log(this);
 	// 	addNewWorksheet();
-	// 	graphingAPI.load(this.files[0], worksheets[`${getWorksheetCount() -1}`].graph, worksheetCxtMenu);
+	// 	graphingAPI.load(this.files[0], worksheets[`${getWorksheetCount() -1}`].graph, worksheetChildCxtMenu);
 	// };
 
 	document.getElementById(`newWorksheet`).onclick = function () {
@@ -390,15 +407,18 @@ function createWorksheet(){
 		refreshGraph(worksheets[`${index}`].graph);
 	})
 
-	worksheetGraph.cxtmenu(worksheetCxtMenu);
+	worksheetGraph.cxtmenu(worksheetChildCxtMenu);
+	worksheetGraph.cxtmenu(worksheetParentCxtMenu);
 
 	//setRefreshGraphOnElementShow(`worksheet${index}`, worksheetGraph);
 
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
-		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, worksheetCxtMenu, function(newGraph){
+		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, worksheetChildCxtMenu, function(newGraph){
 			worksheets[`${index}`].graph = newGraph;
+			worksheets[`${index}`].graph.cxtmenu(worksheetChildCxtMenu);
+			worksheets[`${index}`].graph.cxtmenu(worksheetParentCxtMenu);
 		});
 	};
 
@@ -471,7 +491,6 @@ function successors(id) {
 
 	// Display the node's details in the inspector "Details" panel.
 	get_successors(id, function(result) {
-		//console.log(result);
 
 		let position = {
 			x: graph.width() / 2,
@@ -523,7 +542,7 @@ function createInspector(){
 	setRefreshGraphOnElementShow('inspectorGraph', inspector.graph);
 
 	inspectorGraph.cxtmenu({
-		selector: 'node',
+		selector: 'node:childless',
 		commands: [
 			{
 				content: 'Import node',
@@ -743,7 +762,6 @@ function inspect_node(id) {
 			let hasSpawnedOverflowWarning = false;
 			for (let n of result.nodes) {
 				if(count++ < inspectorDisplayAmount){
-					//console.log(n);
 					graphingAPI.add_node(n, inspector.graph);
 				}
 				else if(!hasSpawnedOverflowWarning){
@@ -794,7 +812,6 @@ function inspect_node(id) {
 			}
 			for (let e of result.edges) {
 				if(inspector.graph.$id( e.source ).length > 0 && inspector.graph.$id( e.target ).length > 0){
-					//console.log(e);
 					graphingAPI.add_edge(e, inspector.graph);
 				}
 			}
@@ -1074,6 +1091,10 @@ function updateInspectTargets(files, scokets, pipes, meta){
 	inspectSockets = scokets;
 	inspectPipes = pipes;
 	inspectProcessMeta = meta;
+}
+
+function testIfNumber(val){
+	return /^\d+$/.test(val);
 }
 
 //Utility Functions end

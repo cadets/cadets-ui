@@ -183,14 +183,13 @@ export function add_edge(data, graph) {
 //
 // Load a Cytograph JSON representation into an object with a 'graph' property.
 //
-export function load(file, graph, cxtMenu, fn) {
+export function load(file, graph, fn) {
 	let reader = new FileReader();
 	reader.addEventListener('loadend', function() {
 		let data = JSON.parse(reader.result);
 		data.container = graph.container();
 		data.layout = { name: 'preset' };
 		graph = cytoscape(data);
-		graph.cxtmenu(cxtMenu);
 		fn(graph);
 	});
 
@@ -308,85 +307,85 @@ function load_graph_style(graphs) {
 
 			node.file {
 				background-color: #dc9;
-					background-opacity: 0.25;
-					border-color: #633;
-					color: #633; }
+				background-opacity: 0.25;
+				border-color: #633;
+				color: #633; }
 
-				node.file-version {
-					shape: rectangle;
-					content: '';
-					text-opacity: 0;
-					background-image: ${file_version};
-					background-opacity: 0;
-					border-width: 0; }
+			node.file-version {
+				shape: rectangle;
+				content: '';
+				text-opacity: 0;
+				background-image: ${file_version};
+				background-opacity: 0;
+				border-width: 0; }
 
-				node.machine {
-					font-size: 48pt;
-					text-valign: top;
-					shape: rectangle;
-					padding: 4em;
-					width: 180px;
-					height: 180px;
-					background-color: #eee;
-					background-image: ${cadets_machine};
-					background-fit: contain;
-					background-opacity: 0;
-					border-width: 0;
-					color: #0A3A62;
-					font-weight: bold;
-					text-background-opacity: 0;
-					text-outline-color: white;
-					text-outline-width: 3; }
+			node.machine {
+				font-size: 48pt;
+				text-valign: top;
+				shape: rectangle;
+				padding: 4em;
+				width: 180px;
+				height: 180px;
+				background-color: #eee;
+				background-image: ${cadets_machine};
+				background-fit: contain;
+				background-opacity: 0;
+				border-width: 0;
+				color: #0A3A62;
+				font-weight: bold;
+				text-background-opacity: 0;
+				text-outline-color: white;
+				text-outline-width: 3; }
 
-				node.machine:parent {
-					background-image-opacity: 0;
-					background-fit: none;
-					background-height: 128px;
-					background-width: 128px;
-					background-opacity: 1;
-					border-width: 2;
-					min-height: 128px;
-					min-width: 128px; }
+			node.machine:parent {
+				background-image-opacity: 0;
+				background-fit: none;
+				background-height: 128px;
+				background-width: 128px;
+				background-opacity: 1;
+				border-width: 2;
+				min-height: 128px;
+				min-width: 128px; }
 
-				node.machine.external {
-					text-margin-y: 0.25em;
-					padding: 1em;
-					width: 80px;
-					height: 80px;
-					background-image: ${machine_external};
-					background-image-opacity: 1; }
+			node.machine.external {
+				text-margin-y: 0.25em;
+				padding: 1em;
+				width: 80px;
+				height: 80px;
+				background-image: ${machine_external};
+				background-image-opacity: 1; }
 
-				node.pipe {
-					content: data(label);
-					background-color: #076928;
-					background-opacity: 0.25;
-					border-color: #076928;
-					color: #076928; }
+			node.pipe {
+				content: data(label);
+				background-color: #076928;
+				background-opacity: 0.25;
+				border-color: #076928;
+				color: #076928; }
 
-				node.pipe-endpoint {
-					content: '';
-					font-size: 0;
-					text-opacity: 0;
-					shape: rectangle;
-					background-image: ${pipe};
-					background-color: white;
-					background-opacity: 0;
-					border-width: 0; }
+			node.pipe-endpoint {
+				content: '';
+				font-size: 0;
+				text-opacity: 0;
+				shape: rectangle;
+				background-image: ${pipe};
+				background-color: white;
+				background-opacity: 0;
+				border-width: 0; }
 
-				node.sock {
-					background-color: #999;
-					background-opacity: 0.5;
-					border-color: #999;
-					border-opacity: 1; }
+			node.sock {
+				background-color: #999;
+				background-opacity: 0.5;
+				border-color: #999;
+				border-opacity: 1; }
 
-				node.socket-version {
-					shape: rectangle;
-					background-image: ${socket};
-					background-fit: contain;
-					background-opacity: 0;
-					border-opacity: 0;
-					font-size: 0;
-					text-opacity: 0; }`
+			node.socket-version {
+				shape: rectangle;
+				background-image: ${socket};
+				background-fit: contain;
+				background-opacity: 0;
+				border-opacity: 0;
+				font-size: 0;
+				text-opacity: 0; }`
 	 	);
 	 }
 }
@@ -410,6 +409,7 @@ export function layout(graph, algorithm) {
 export function node_metadata(node) {
 	let metadata = null;
 	let timestamp = null;
+	//console.log(node);
 	switch (node.type) {
 		case 'connection':
 			metadata = {

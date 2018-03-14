@@ -1,3 +1,5 @@
+var pvm_version;
+
 export function parseNeo4jNode(o){
 	let data = {'id': o['identity']['low']};
 	let labels = o['labels'];
@@ -66,6 +68,7 @@ export function parseNeo4jNode(o){
 }
 
 export function parseNeo4jEdge(o){
+	//console.log(o);
 	let id = -o['identity']['low'];				// This is negitive because it was sometimes conflicting 
 	let type_map = {'PROC_PARENT': 'parent'};	// with a nodes id which must be unique
 	type_map.PROC_OBJ = 'io';
