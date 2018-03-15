@@ -87,8 +87,15 @@ var currInspectorBufferIndex = 1;
 var inspectorDisplayAmount = 49;//The max number of nodes shown in the inspector at one time
 var limitNodesForDagre = 100;//The max number of nodes the inspector will use the Dagre layout
 
-var maxImportLength = 500;//The max number of nodes that can be imported into a worksheet in one action
+var nodeListIDStart = 0;
+var nodeListIDNextStart = -1;
+var nodeListIDEnd = 0;
 var amountShownInNodeList = 100;//The max number of nodes that are display in the NodeSearchsheet
+var nextLowestShownNodeListID = [];
+var lastLowestShownNodeListID = [];
+let nodeListOverflowWarning = false;
+
+var maxImportLength = 500;//The max number of nodes that can be imported into a worksheet in one action
 
 var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
 
@@ -647,6 +654,16 @@ function showInspectorNextPrevious(isNext){
 // Populate node list.
 //
 function update_nodelist() {
+	if_DOM_IDExsitsRemove("nodeSearchSheetOverflowWarning");
+	nodeListOverflowWarning = false;
+	nodeListIDStart = 0;
+	lastLowestShownNodeListID =[];
+	showNodeSearchsheetNextPrevious();
+}
+
+let UILock = false;
+
+function showNodeSearchsheetNextPrevious(){
 	neo4jQueries.get_nodes($('#filterNodeType').val(),
 							$('#filterName').val(),
 							$('#filterHost').val(),
@@ -654,13 +671,59 @@ function update_nodelist() {
 							$('#filterLocalPort').val(),
 							$('#filterRemoteIp').val(), 
 							$('#filterRemotePort').val(),
-							amountShownInNodeList,
+							amountShownInNodeList + 1,
+							nodeListIDStart,
+							false,
 		function(result) {
+			if(result.length <= 0){return;}
+			nodeListIDStart = result[0].id;
+			nodeListIDNextStart = result[result.length-1].id;
+			if(result.length >= amountShownInNodeList){
+				result.splice(result.length-1, 1);
+			}
+			nodeListIDEnd = result[result.length-1].id;
 			let nodelist = $('#nodelist');
 			nodelist.empty();
 
 			let current_uuid = null;
 			let colour = 0;
+
+			if(result.length >= amountShownInNodeList && !nodeListOverflowWarning){
+				nodeListOverflowWarning = true;
+				let overflowWarning = document.createElement("div");
+				overflowWarning.id = `nodeSearchSheetOverflowWarning`;
+				// overflowWarning.style.cssText = `color: red;`;
+				// overflowWarning.innerHTML = `<font size=+1>Only showing ${amountShownInNodeList} 
+				// nodes.<br></font>`;
+				let lastNodes = document.createElement("button");
+				lastNodes.className  = "bodyButton";
+				lastNodes.innerHTML = `previous ${amountShownInNodeList} nodes`;
+				lastNodes.onclick =(function() {
+					if(lastLowestShownNodeListID.length > 0 && !UILock){
+						UILock = true;
+						nodeListIDStart = lastLowestShownNodeListID.pop();
+						showNodeSearchsheetNextPrevious();
+						UILock = false;
+					}
+				});
+				overflowWarning.appendChild(lastNodes);
+				let nextNodes = document.createElement("button");
+				nextNodes.className  = "bodyButton";
+				nextNodes.innerHTML = `Next ${amountShownInNodeList} nodes`;
+				nextNodes.onclick =(function() {
+					if(nodeListIDStart != nodeListIDNextStart && 
+						nodeListIDNextStart != nodeListIDEnd && 
+						!UILock){
+						UILock = true;
+						lastLowestShownNodeListID = lastLowestShownNodeListID.concat(nodeListIDStart);
+						nodeListIDStart = nodeListIDNextStart;
+						showNodeSearchsheetNextPrevious();
+						UILock = false;
+					}
+				});
+				overflowWarning.appendChild(nextNodes);
+				document.getElementById('formBox').appendChild(overflowWarning);
+			}
 
 			for (let node of result) {
 				let meta = graphingAPI.node_metadata(node);
@@ -726,9 +789,7 @@ function inspectAsync(id){
 //
 function inspect_node(id) {
 	currInspectorBufferIndex = 0;
-	if(document.getElementById("overflowWarning") != null){
-		document.getElementById("overflowWarning").remove();
-	}
+	if_DOM_IDExsitsRemove("overflowWarning");
 
 	// Display the node's details in the inspector "Details" panel.
 	let inspectee;
@@ -1041,9 +1102,7 @@ function setRefreshGraphOnElementShow(watchElement, graph){
 }
 
 function openSubMenu(fn, isNewWorksheetOption = true, leftClickSpawn = false){
-	if(document.getElementById("myDropdown") != null){
-		document.getElementById("myDropdown").remove();
-	}
+	if_DOM_IDExsitsRemove("myDropdown");
 	let cxtSubMenu = document.createElement('div');
 	cxtSubMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
 	cxtSubMenu.className = 'dropdown-content';
@@ -1095,6 +1154,12 @@ function updateInspectTargets(files, scokets, pipes, meta){
 
 function testIfNumber(val){
 	return /^\d+$/.test(val);
+}
+
+function if_DOM_IDExsitsRemove(id){
+	if(document.getElementById(id) != null){
+		document.getElementById(id).remove();
+	}
 }
 
 //Utility Functions end

@@ -4,7 +4,7 @@ import './../node_modules/golden-layout/src/css/goldenlayout-base.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
 
 var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
-								<div class="row header formBox">
+								<div class="row header formBox" id="formBox">
 									<label for="filterNodeType">&nbsp;Type</label>
 									<div>
 										&nbsp;<select id="filterNodeType">
