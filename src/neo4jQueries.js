@@ -150,7 +150,15 @@ export function cmd_query(id, fn){
 // 	});
 // }
 
-export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, process_meta=true){
+export function get_neighbours_id(id, 
+								fn, 
+								files=true, 
+								sockets=true, 
+								pipes=true, 
+								process_meta=true,
+								limit=-1,
+								startID = 0,
+								){
 	let session = driver.session();
 	let neighbours;
 	let root_node;
@@ -174,11 +182,23 @@ export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 	if (process_meta){
 		matchers = matchers.concat('Meta');
 	}
+	let limitQuery = '';
+	let startQuery = '';
+	if(limit != -1){
+		limitQuery = `Limit ${limit}`;
+	}
+	if(startID != -1){
+		startQuery =`id(d) <= ${startID}
+					AND`;
+	}
 	session.run(`MATCH (s)-[e]-(d)
-				WHERE id(s) = ${id}
+				WHERE 
+				${startQuery}
+				id(s) = ${id}
 				AND
 				any(lab in labels(d) WHERE lab IN ${JSON.stringify(matchers)})
-				RETURN s, e, d`)
+				RETURN s, e, d
+				${limitQuery}`)
 	.then(result => {
 		neighbours = result.records;
 		if (neighbours.length){
@@ -486,7 +506,6 @@ function findEdges(curId, neighbours, fn){
 		let session = driver.session();
 		let ids = [];
 		let nodes = [];
-		//console.log(neighbours);
 		neighbours.forEach(function (record) 
 		{
 			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));

@@ -82,18 +82,17 @@ var inspectorContainer;
 var detailsContainer;
 var neighboursContainer;
 
-var inspectorElementBuffer;//This is to hold on to inspects that are larger then inspectorDisplayAmount
-var currInspectorBufferIndex = 1;
-var inspectorDisplayAmount = 49;//The max number of nodes shown in the inspector at one time
-var limitNodesForDagre = 100;//The max number of nodes the inspector will use the Dagre layout
 
-var nodeListIDStart = 0;
-var nodeListIDNextStart = -1;
-var nodeListIDEnd = 0;
-var amountShownInNodeList = 100;//The max number of nodes that are display in the NodeSearchsheet
-var nextLowestShownNodeListID = [];
-var lastLowestShownNodeListID = [];
-let nodeListOverflowWarning = false;
+let UILock = false;//for overFlow ui lock
+var overFlowVars = {'nodeList':{'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'DisplayAmount':100, 
+					'LastLowestShownIDs':[], 'func':showNodeListNextPrevious, 'OverflowWarning':false,
+					'overFlowEle':'nodeListOverflowWarning', 'appendTo':'formBox'},
+					'inspector':{'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'DisplayAmount':25, 
+					'LastLowestShownIDs':[], 'func':showInspectorNextPrevious, 'OverflowWarning':false,
+					'overFlowEle':'inspectorOverflowWarning', 'appendTo':'inspectorHeader', 'inspectee':-1}};
+
+
+var limitNodesForDagre = 100;//The max number of nodes the inspector will use the Dagre layout
 
 var maxImportLength = 500;//The max number of nodes that can be imported into a worksheet in one action
 
@@ -289,7 +288,6 @@ workSheetLayout.on('initialised', function(){
 	};
 
 	// document.getElementById(`loadWorksheet`).onclick = function () {
-	// 	//console.log(this);
 	// 	addNewWorksheet();
 	// 	graphingAPI.load(this.files[0], worksheets[`${getWorksheetCount() -1}`].graph, worksheetChildCxtMenu);
 	// };
@@ -621,31 +619,6 @@ function inspect_and_import(id) {
 	inspectAsync(id);
 }
 
-function showInspectorNextPrevious(isNext){
-	inspector.graph.remove('node');
-	graphingAPI.add_node(inspectorElementBuffer.nodes[0], inspector.graph);
-	if(isNext && currInspectorBufferIndex + inspectorDisplayAmount < inspectorElementBuffer.nodes.length){
-		currInspectorBufferIndex += inspectorDisplayAmount;
-	}
-	else if(!isNext && currInspectorBufferIndex > 1){
-		currInspectorBufferIndex -= inspectorDisplayAmount;
-	}
-	for(let i = currInspectorBufferIndex; i <= currInspectorBufferIndex + inspectorDisplayAmount; i++ ){
-		if(i == inspectorElementBuffer.nodes.length){break;}
-		graphingAPI.add_node(inspectorElementBuffer.nodes[i], inspector.graph);
-	}
-	for (let e of inspectorElementBuffer.edges) {
-		if(inspector.graph.$id( e.source ).length > 0 && inspector.graph.$id( e.target ).length > 0){
-			graphingAPI.add_edge(e, inspector.graph);
-		}
-	}
-	if (inspector.graph.edges.length < limitNodesForDagre) {
-		graphingAPI.layout(inspector.graph, 'dagre');
-	} else {
-		graphingAPI.layout(inspector.graph, 'cose-bilkent');
-	}
-}
-
 //Inspector Functions end
 
 //NodeSearchsheet Functions
@@ -654,16 +627,11 @@ function showInspectorNextPrevious(isNext){
 // Populate node list.
 //
 function update_nodelist() {
-	if_DOM_IDExsitsRemove("nodeSearchSheetOverflowWarning");
-	nodeListOverflowWarning = false;
-	nodeListIDStart = 0;
-	lastLowestShownNodeListID =[];
-	showNodeSearchsheetNextPrevious();
+	removeOverFlow(`nodeList`);
+	showNodeListNextPrevious();
 }
 
-let UILock = false;
-
-function showNodeSearchsheetNextPrevious(){
+function showNodeListNextPrevious(){
 	neo4jQueries.get_nodes($('#filterNodeType').val(),
 							$('#filterName').val(),
 							$('#filterHost').val(),
@@ -671,59 +639,18 @@ function showNodeSearchsheetNextPrevious(){
 							$('#filterLocalPort').val(),
 							$('#filterRemoteIp').val(), 
 							$('#filterRemotePort').val(),
-							amountShownInNodeList + 1,
-							nodeListIDStart,
+							overFlowVars[`nodeList`][`DisplayAmount`] + 1,
+							overFlowVars['nodeList'][`IDStart`],
 							false,
 		function(result) {
-			if(result.length <= 0){return;}
-			nodeListIDStart = result[0].id;
-			nodeListIDNextStart = result[result.length-1].id;
-			if(result.length >= amountShownInNodeList){
-				result.splice(result.length-1, 1);
-			}
-			nodeListIDEnd = result[result.length-1].id;
+
 			let nodelist = $('#nodelist');
 			nodelist.empty();
 
 			let current_uuid = null;
 			let colour = 0;
 
-			if(result.length >= amountShownInNodeList && !nodeListOverflowWarning){
-				nodeListOverflowWarning = true;
-				let overflowWarning = document.createElement("div");
-				overflowWarning.id = `nodeSearchSheetOverflowWarning`;
-				// overflowWarning.style.cssText = `color: red;`;
-				// overflowWarning.innerHTML = `<font size=+1>Only showing ${amountShownInNodeList} 
-				// nodes.<br></font>`;
-				let lastNodes = document.createElement("button");
-				lastNodes.className  = "bodyButton";
-				lastNodes.innerHTML = `previous ${amountShownInNodeList} nodes`;
-				lastNodes.onclick =(function() {
-					if(lastLowestShownNodeListID.length > 0 && !UILock){
-						UILock = true;
-						nodeListIDStart = lastLowestShownNodeListID.pop();
-						showNodeSearchsheetNextPrevious();
-						UILock = false;
-					}
-				});
-				overflowWarning.appendChild(lastNodes);
-				let nextNodes = document.createElement("button");
-				nextNodes.className  = "bodyButton";
-				nextNodes.innerHTML = `Next ${amountShownInNodeList} nodes`;
-				nextNodes.onclick =(function() {
-					if(nodeListIDStart != nodeListIDNextStart && 
-						nodeListIDNextStart != nodeListIDEnd && 
-						!UILock){
-						UILock = true;
-						lastLowestShownNodeListID = lastLowestShownNodeListID.concat(nodeListIDStart);
-						nodeListIDStart = nodeListIDNextStart;
-						showNodeSearchsheetNextPrevious();
-						UILock = false;
-					}
-				});
-				overflowWarning.appendChild(nextNodes);
-				document.getElementById('formBox').appendChild(overflowWarning);
-			}
+			updateOverFlow('nodeList', result);
 
 			for (let node of result) {
 				let meta = graphingAPI.node_metadata(node);
@@ -788,8 +715,13 @@ function inspectAsync(id){
 // Define what it means to "inspect" a node. 
 //
 function inspect_node(id) {
-	currInspectorBufferIndex = 0;
-	if_DOM_IDExsitsRemove("overflowWarning");
+	removeOverFlow('inspector');
+	overFlowVars['inspector'][`inspectee`] = id;
+	showInspectorNextPrevious();
+}
+
+function showInspectorNextPrevious(){
+	let id = overFlowVars['inspector'][`inspectee`];
 
 	// Display the node's details in the inspector "Details" panel.
 	let inspectee;
@@ -811,42 +743,18 @@ function inspect_node(id) {
 			`)
 		}
 		inspectee = result;
+
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
+			result.nodes.splice(0, 1);
 			inspector.graph.remove('node');
 
-			inspectorElementBuffer = result;
-
 			graphingAPI.add_node(inspectee, inspector.graph);
+			//result.nodes.reverse()
+			updateOverFlow('inspector', result.nodes);
 
-			let count = 0;
-			let hasSpawnedOverflowWarning = false;
 			for (let n of result.nodes) {
-				if(count++ < inspectorDisplayAmount){
-					graphingAPI.add_node(n, inspector.graph);
-				}
-				else if(!hasSpawnedOverflowWarning){
-					hasSpawnedOverflowWarning = true;
-					let overflowWarning = document.createElement("div");
-					overflowWarning.id = `overflowWarning`;
-					overflowWarning.style.cssText = `color: red;`;
-					overflowWarning.innerHTML = `<font size=+1><br>Only showing ${inspectorDisplayAmount + 1} nodes out of ${result.nodes.length} nodes.<br></font>`;
-					let lastNodes = document.createElement("button");
-					lastNodes.className  = "bodyButton";
-					lastNodes.innerHTML = `previous ${inspectorDisplayAmount} nodes`;
-					lastNodes.onclick =(function() {
-						showInspectorNextPrevious(false);
-					});
-					overflowWarning.appendChild(lastNodes);
-					let nextNodes = document.createElement("button");
-					nextNodes.className  = "bodyButton";
-					nextNodes.innerHTML = `Next ${inspectorDisplayAmount} nodes`;
-					nextNodes.onclick =(function() {
-						showInspectorNextPrevious(true);
-					});
-					overflowWarning.appendChild(nextNodes);
-					document.getElementById('inspectorHeader').appendChild(overflowWarning);
-				}
+				graphingAPI.add_node(n, inspector.graph);
 
 				let meta = graphingAPI.node_metadata(n);
 				// inspector.neighbours.append(`
@@ -894,7 +802,10 @@ function inspect_node(id) {
 				level: 1,
 				position: inspector.graph.inspectee.position(),
 			});
-		});
+		},
+		overFlowVars[`inspector`][`DisplayAmount`] + 1,
+		overFlowVars['inspector'][`IDStart`],
+		);
 	});
 }
 
@@ -954,14 +865,15 @@ function import_into_worksheet(id) {
 //
 // Fetch neighbours to a node, based on some user-specified filters.
 //
-function get_neighbours(id, fn) {
+function get_neighbours(id, fn, displayAmount = -1, startID = 0) {
 	return neo4jQueries.get_neighbours_id(id,
 										fn,	
 										inspectFiles,
 										inspectSockets,
 										inspectPipes,
-										inspectProcessMeta
-										);
+										inspectProcessMeta,
+										displayAmount,
+										startID);
 }
 
 function import_batch_into_worksheet(nodes) {
@@ -1159,6 +1071,75 @@ function testIfNumber(val){
 function if_DOM_IDExsitsRemove(id){
 	if(document.getElementById(id) != null){
 		document.getElementById(id).remove();
+	}
+}
+
+function updateOverFlow(name, results){
+	if(results.length <= 0){return;}
+	overFlowVars[name][`IDStart`] = results[0].id;
+	overFlowVars[name][`IDNextStart`] = results[results.length-1].id;
+	let length = results.length;
+	if(results.length > overFlowVars[name][`DisplayAmount`]){
+		results.splice(results.length-1, 1);
+	}
+	overFlowVars[name][`IDEnd`] = results[results.length-1].id;
+
+	if(length > overFlowVars[name][`DisplayAmount`] && !overFlowVars[name][`OverflowWarning`]){
+		spawnOverFlow(name);
+	}
+}
+
+function removeOverFlow(name){
+	if_DOM_IDExsitsRemove(overFlowVars[name][`overFlowEle`]);
+	overFlowVars[name][`OverflowWarning`] = false;
+	overFlowVars[name][`IDStart`] = -1;
+	overFlowVars[name][`LastLowestShownIDs`] = [];
+}
+
+function spawnOverFlow(name){
+	overFlowVars[name][`OverflowWarning`] = true;
+	let overflowWarning = document.createElement("div");
+	overflowWarning.id = overFlowVars[name][`overFlowEle`];
+	// overflowWarning.style.cssText = `color: red;`;
+	// overflowWarning.innerHTML = `<font size=+1>Only showing ${overFlowVars[name][`DisplayAmount`]} 
+	// nodes.<br></font>`;
+	let lastNodes = document.createElement("button");
+	lastNodes.className  = "bodyButton";
+	lastNodes.innerHTML = `previous ${overFlowVars[name][`DisplayAmount`]} nodes`;
+	lastNodes.onclick = function(){
+		getPreviousNodes(name);
+	};
+	overflowWarning.appendChild(lastNodes);
+
+	let nextNodes = document.createElement("button");
+	nextNodes.className  = "bodyButton";
+	nextNodes.innerHTML = `Next ${overFlowVars[name][`DisplayAmount`]} nodes`;
+	nextNodes.onclick = function(){
+		getNextNodes(name);
+	};
+	overflowWarning.appendChild(nextNodes);
+
+	document.getElementById(overFlowVars[name][`appendTo`]).appendChild(overflowWarning);
+}
+
+function getPreviousNodes(name){
+	if(overFlowVars[name][`LastLowestShownIDs`].length > 0 && !UILock){
+		UILock = true;
+		overFlowVars[name][`IDStart`] = overFlowVars[name][`LastLowestShownIDs`].pop();
+		overFlowVars[name][`func`]();
+		UILock = false;
+	}
+}
+
+function getNextNodes(name){
+	if(overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
+		overFlowVars[name][`IDNextStart`] != overFlowVars[name][`IDEnd`] && 
+		!UILock){
+		UILock = true;
+		overFlowVars[name][`LastLowestShownIDs`] = overFlowVars[name][`LastLowestShownIDs`].concat(overFlowVars[name][`IDStart`]);
+		overFlowVars[name][`IDStart`] = overFlowVars[name][`IDNextStart`];
+		overFlowVars[name][`func`]();
+		UILock = false;
 	}
 }
 
