@@ -628,7 +628,21 @@ function inspect_and_import(id) {
 //
 function update_nodelist() {
 	removeOverFlow(`nodeList`);
-	showNodeListNextPrevious();
+	showNodeListNextPrevious();	
+	// neo4jQueries.get_nodes($('#filterNodeType').val(),
+	// 						$('#filterName').val(),
+	// 						$('#filterHost').val(),
+	// 						$('#filterLocalIp').val(),
+	// 						$('#filterLocalPort').val(),
+	// 						$('#filterRemoteIp').val(), 
+	// 						$('#filterRemotePort').val(),
+	// 						overFlowVars[`nodeList`][`DisplayAmount`] + 1,
+	// 						overFlowVars['nodeList'][`IDStart`],
+	// 						true,
+	// 	function(result) {
+	// 		console.log("output");
+	// 		console.log(result);
+	// 	});
 }
 
 function showNodeListNextPrevious(){
@@ -803,6 +817,7 @@ function showInspectorNextPrevious(){
 				position: inspector.graph.inspectee.position(),
 			});
 		},
+		true,
 		overFlowVars[`inspector`][`DisplayAmount`] + 1,
 		overFlowVars['inspector'][`IDStart`],
 		);
@@ -865,13 +880,14 @@ function import_into_worksheet(id) {
 //
 // Fetch neighbours to a node, based on some user-specified filters.
 //
-function get_neighbours(id, fn, displayAmount = -1, startID = 0) {
+function get_neighbours(id, fn, isOverFlow=false, displayAmount = -1, startID = 0) {
 	return neo4jQueries.get_neighbours_id(id,
 										fn,	
 										inspectFiles,
 										inspectSockets,
 										inspectPipes,
 										inspectProcessMeta,
+										isOverFlow,
 										displayAmount,
 										startID);
 }

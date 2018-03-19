@@ -156,6 +156,7 @@ export function get_neighbours_id(id,
 								sockets=true, 
 								pipes=true, 
 								process_meta=true,
+								isOverFlow=false,
 								limit=-1,
 								startID = 0,
 								){
@@ -184,10 +185,10 @@ export function get_neighbours_id(id,
 	}
 	let limitQuery = '';
 	let startQuery = '';
-	if(limit != -1){
+	if(limit != -1 && isOverFlow){
 		limitQuery = `Limit ${limit}`;
 	}
-	if(startID != -1){
+	if(startID != -1 && isOverFlow){
 		startQuery =`id(d) <= ${startID}
 					AND`;
 	}
@@ -635,7 +636,8 @@ export function get_nodes(node_type=null,
 	let idQuery = ``;
 	let query;
 	if(countOnly == true){
-		returnQuery = 'count(n)';
+		console.log('start');
+		returnQuery = 'DISTINCT count(n)';
 	}
 	else{
 		returnQuery = `DISTINCT n
@@ -763,9 +765,10 @@ export function get_nodes(node_type=null,
 	 .then(result => {
 		session.close();
 		let nodes = [];
-			//console.log(result);
 		if(countOnly){
-			//nodes
+			console.log(result);
+			console.log('end');
+			fn(result.get('n'));
 		}
 		else{
 			result.records.forEach(function (record) 
