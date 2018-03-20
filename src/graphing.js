@@ -31,7 +31,7 @@ export function create(container) {
 //
 // Add a node to a graph.
 //
-export function add_node(data, graph, renderedPosition = null) {
+export function add_node(data, graph, renderedPosition = null, highLightedIDs = []) {
 	// Have we already imported this node?
 	if (!graph.nodes(`[id="${data.id}"]`).empty()) {
 		return;
@@ -88,12 +88,16 @@ export function add_node(data, graph, renderedPosition = null) {
 
 
 	graph.add(node);
-	let n = graph.nodes(`[id="${node.id}"]`);
+	if(highLightedIDs.indexOf(data.id) >= 0){
+		graph.$id( data.id ).addClass('important');
+	}
+
 }
 
 
-export function add_node_batch(nodes, graph, renderedPosition = null) {
+export function add_node_batch(nodes, graph, renderedPosition = null, highLightedIDs = []) {
 	let parsedNodes = [];
+	let nodesToHighLight = [];
 	nodes.forEach(function(data){
 		// Have we already imported this node?
 		if (!graph.nodes(`[id="${data.id}"]`).empty()) {
@@ -150,10 +154,18 @@ export function add_node_batch(nodes, graph, renderedPosition = null) {
 		}
 
 		node.data.label = node_metadata(data).label;
+		
+		if(highLightedIDs.indexOf(`${data.id}`) >= 0){
+			nodesToHighLight = nodesToHighLight.concat(data.id);
+		}
 
 		parsedNodes = parsedNodes.concat(node);
 	});
 	graph.add(parsedNodes);
+	nodesToHighLight.forEach(function(id){
+		graph.$id( id ).addClass('important');
+
+	})
 }
 
 export function add_edge(data, graph) {
@@ -183,13 +195,22 @@ export function add_edge(data, graph) {
 //
 // Load a Cytograph JSON representation into an object with a 'graph' property.
 //
-export function load(file, graph, fn) {
+export function load(file, graph, highLightedIDs = [], fn) {
 	let reader = new FileReader();
 	reader.addEventListener('loadend', function() {
 		let data = JSON.parse(reader.result);
 		data.container = graph.container();
 		data.layout = { name: 'preset' };
 		graph = cytoscape(data);
+
+		highLightedIDs.forEach(function(id){
+			let ele = graph.$id( id );
+			if(ele.length > 0 && !ele.hasClass('important')){
+				ele.addClass('important');
+			}
+		});
+		console.log(graph.$('.important').id());
+		//let difference = $(array_one).not(array_two).get();
 		fn(graph);
 	});
 

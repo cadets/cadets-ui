@@ -64,12 +64,14 @@ var currMouseX = 0;
 var currMouseY = 0;
 
 var inspector;
-var worksheets = {};
+var worksheets = [];
 
 var selectedWorksheet = 0;
 
 var inspecteeBackStack = [];
 var inspecteeForwardStack = [];
+
+var highlightedIDs = [];
 
 var inspectFiles = false;
 var inspectSockets = false;
@@ -420,7 +422,7 @@ function createWorksheet(){
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
-		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, worksheetChildCxtMenu, function(newGraph){
+		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, highlightedIDs, function(newGraph){
 			worksheets[`${index}`].graph = newGraph;
 			worksheets[`${index}`].graph.cxtmenu(worksheetChildCxtMenu);
 			worksheets[`${index}`].graph.cxtmenu(worksheetParentCxtMenu);
@@ -476,14 +478,18 @@ function remove_neighbours_from_worksheet(id) {
 
 function toggle_node_importance(id) {
 	let nodes = [];
-	for(let i in worksheets){
-		nodes = nodes.concat(worksheets[i].graph.nodes(`node#${id}`));
-	}
-	nodes.forEach( function(ele){
-		if (ele.hasClass('important')) {
-			ele.removeClass('important');
-		} else {
-			ele.addClass('important');
+	//console.log(worksheets);
+	worksheets.forEach( function(worksheet){
+		let ele = worksheet.graph.$id( id );
+		if(ele.length > 0){
+			if (ele.hasClass('important')) {
+				let index = highlightedIDs.indexOf(id);
+				highlightedIDs.splice(index, 1);
+				ele.removeClass('important');
+			} else {
+				highlightedIDs = highlightedIDs.concat(id);
+				ele.addClass('important');
+			}
 		}
 	});
 }
@@ -503,7 +509,7 @@ function successors(id) {
 		};
 
 		for (let n of result.nodes) {
-			graphingAPI.add_node(n, graph, position);
+			graphingAPI.add_node(n, graph, position, highlightedIDs);
 		}
 
 		let elements = graph.elements();
@@ -854,7 +860,7 @@ function import_into_worksheet(id) {
 		}
 
 		promise.then(function() {
-			graphingAPI.add_node(result, graph, position);
+			graphingAPI.add_node(result, graph, position, highlightedIDs);
 		}).then(function() {
 			get_neighbours(id, function(result) {
 				let elements = graph.elements();
@@ -924,7 +930,7 @@ function import_batch_into_worksheet(nodes) {
 	// 	import_into_worksheet(nodes.parent);
 	// } 
 	//console.log(ids);
-	graphingAPI.add_node_batch(nodes, graph, position);
+	graphingAPI.add_node_batch(nodes, graph, position, highlightedIDs);
 	get_neighbours_batch(ids, function(result) {
 	
 		for (let edge of result.edges) {
