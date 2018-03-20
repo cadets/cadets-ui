@@ -64,12 +64,14 @@ var currMouseX = 0;
 var currMouseY = 0;
 
 var inspector;
-var worksheets = {};
+var worksheets = [];
 
 var selectedWorksheet = 0;
 
 var inspecteeBackStack = [];
 var inspecteeForwardStack = [];
+
+var highlightedIDs = [];
 
 var inspectFiles = false;
 var inspectSockets = false;
@@ -82,21 +84,26 @@ var inspectorContainer;
 var detailsContainer;
 var neighboursContainer;
 
-var inspectorElementBuffer;//This is to hold on to inspects that are larger then inspectorDisplayAmount
-var currInspectorBufferIndex = 1;
-var inspectorDisplayAmount = 49;//The max number of nodes shown in the inspector at one time
-var limitNodesForDagre = 100;//The max number of nodes the inspector will use the Dagre layout
 
+let UILock = false;//for overFlow ui lock
+var overFlowVars = {'nodeList':{'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'DisplayAmount':100, 
+					'LastLowestShownIDs':[], 'func':showNodeListNextPrevious, 'OverflowWarning':false,
+					'overFlowEle':'nodeListOverflowWarning', 'appendTo':'formBox'},
+					'inspector':{'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'DisplayAmount':25, 
+					'LastLowestShownIDs':[], 'func':showInspectorNextPrevious, 'OverflowWarning':false,
+					'overFlowEle':'inspectorOverflowWarning', 'appendTo':'inspectorHeader', 'inspectee':-1}};
+
+
+var limitNodesForDagre = 100;//The max number of nodes the inspector will use the Dagre layout
 var maxImportLength = 500;//The max number of nodes that can be imported into a worksheet in one action
-var amountShownInNodeList = 100;//The max number of nodes that are display in the NodeSearchsheet
 
 var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
 
-var worksheetCxtMenu = ( 
+var worksheetChildCxtMenu = ( 
 {
 	menuRadius: 140,
 	separatorWidth: 5,
-	selector: 'node',
+	selector: 'node:childless',
 	commands: [
 		{
 			content: 'Inspect',
@@ -128,54 +135,14 @@ var worksheetCxtMenu = (
 		},
 		{
 			content: 'Files read',
-			select: function(ele){//TODO: basically same as Commands turn into one function
-				let id = ele.data('id');
-				neo4jQueries.file_read_query(id, function(results){
-					let files = document.createElement("ul");
-					let header = document.createElement("h2");
-					header.innerHTML = `<font>Files read by ${id}:</font>`
-					files.appendChild(header);
-					results.forEach(function(result) {
-						let file = document.createElement("li");
-						file.innerHTML = `<a>${result.properties.name}</a>`;
-						file.onclick =(function() {
-							openSubMenu(function(){
-								inspect_and_importAsync(result.identity.low);
-							}, true, true);
-						});
-						files.appendChild(file);
-					});
-					vex.dialog.alert({
-						unsafeMessage: files,
-						className: 'vex-theme-wireframe'
-					});
-				});
+			select: function(ele){
+				spawnVexList(ele, 'Files read by', 'identity', ['properties','name'], neo4jQueries.file_read_query);
 			}
 		},
 		{
 			content: 'Commands',
 			select: function(ele){
-				var id = ele.data('id');
-				neo4jQueries.cmd_query(id, function(results) {
-					let files = document.createElement("ul");
-					let header = document.createElement("h2");
-					header.innerHTML = `<font>Commands run by node ${id}:</font>`;
-					files.appendChild(header);
-					results.forEach(function(result) {
-						let file = document.createElement("li");
-						file.innerHTML = `<a>${result.cmdline}</a>`;
-						file.onclick =(function() {
-							openSubMenu(function(){
-								inspect_and_importAsync(result.id);
-							}, true, true);
-						});
-						files.appendChild(file);
-					});
-					vex.dialog.alert({
-						unsafeMessage: files,
-						className: 'vex-theme-wireframe'
-					});
-				});
+				spawnVexList(ele, 'Commands run by node', 'id', ['cmdline'], neo4jQueries.cmd_query);
 			}
 		},
 		{
@@ -190,14 +157,31 @@ var worksheetCxtMenu = (
 			content: 'Remove',
 			select: function(ele){
 				openSubMenu(function(){
-					let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
-					node.remove();
-					removeEmptyParents(node.parents());
+					removeNode(ele);
 				}, false);
 			}
 		},
 	]
 });
+
+var worksheetParentCxtMenu = ( 
+{
+	menuRadius: 70,
+	separatorWidth: 0,
+	selector: 'node:parent',
+	commands: [
+		{
+			content: 'Remove',
+			select: function(ele){
+				openSubMenu(function(){
+					removeNode(ele);
+				}, false);
+			}
+		},
+	]
+});
+
+var worksheetCxtMenus = [worksheetChildCxtMenu, worksheetParentCxtMenu];
 
 //Global variables end
 
@@ -241,6 +225,7 @@ workSheetLayout.init();
 workSheetLayout.on('initialised', function(){
 	if(document.getElementById("NodeSearchsheet") != null){
 		neo4jQueries.neo4jLogin();
+		$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 	}
 	if(document.getElementById("inspectorGraph") != null){
 		$("body").on("contextmenu", function(e){
@@ -265,9 +250,8 @@ workSheetLayout.on('initialised', function(){
 	};
 
 	// document.getElementById(`loadWorksheet`).onclick = function () {
-	// 	//console.log(this);
 	// 	addNewWorksheet();
-	// 	graphingAPI.load(this.files[0], worksheets[`${getWorksheetCount() -1}`].graph, worksheetCxtMenu);
+	// 	graphingAPI.load(this.files[0], worksheets[`${getWorksheetCount() -1}`].graph, worksheetChildCxtMenu);
 	// };
 
 	document.getElementById(`newWorksheet`).onclick = function () {
@@ -384,21 +368,25 @@ function createWorksheet(){
 	let index = getWorksheetCount();
 	let worksheetGraph = graphingAPI.create(`worksheetGraph${index}`);
 
-	worksheets[`${index}`] = { graph: worksheetGraph};
+	worksheets[`${index}`] = { graph: worksheetGraph, id: index};
 
 	worksheetContainer[index].on('resize', function(){
 		refreshGraph(worksheets[`${index}`].graph);
 	})
 
-	worksheetGraph.cxtmenu(worksheetCxtMenu);
+	setWorksheetCxtMenu(index);
 
 	//setRefreshGraphOnElementShow(`worksheet${index}`, worksheetGraph);
 
-	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
-
 	document.getElementById(`loadGraph${index}`).onchange = function () {
-		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, worksheetCxtMenu, function(newGraph){
+		if(this.files[0] == ''){return;}
+		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, highlightedIDs, function(newGraph, newHighLight){
+			newHighLight.forEach(function(id){
+				toggle_node_importance(id, index);
+			});
 			worksheets[`${index}`].graph = newGraph;
+			setWorksheetCxtMenu(index);
+			document.getElementById(`loadGraph${index}`).value = '';
 		});
 	};
 
@@ -449,18 +437,27 @@ function remove_neighbours_from_worksheet(id) {
 	removeEmptyParents(parents);
 }
 
-function toggle_node_importance(id) {
+function toggle_node_importance(id, excludeWorksheet = -1) {
 	let nodes = [];
-	for(let i in worksheets){
-		nodes = nodes.concat(worksheets[i].graph.nodes(`node#${id}`));
+	let index = highlightedIDs.indexOf(id);
+	if(index >= 0){
+		highlightedIDs.splice(index, 1);
 	}
-	nodes.forEach( function(ele){
-		if (ele.hasClass('important')) {
-			ele.removeClass('important');
-		} else {
-			ele.addClass('important');
+	else{
+		highlightedIDs = highlightedIDs.concat(id);
+	}
+	worksheets.forEach( function(worksheet){
+		if(worksheet.id == excludeWorksheet){ return; }
+		let ele = worksheet.graph.$id( id );
+		if(ele.length > 0){
+			if (ele.hasClass('important')) {
+				ele.removeClass('important');
+			} else {
+				ele.addClass('important');
+			}
 		}
 	});
+
 }
 
 //
@@ -471,7 +468,6 @@ function successors(id) {
 
 	// Display the node's details in the inspector "Details" panel.
 	get_successors(id, function(result) {
-		//console.log(result);
 
 		let position = {
 			x: graph.width() / 2,
@@ -479,7 +475,7 @@ function successors(id) {
 		};
 
 		for (let n of result.nodes) {
-			graphingAPI.add_node(n, graph, position);
+			graphingAPI.add_node(n, graph, position, highlightedIDs);
 		}
 
 		let elements = graph.elements();
@@ -523,7 +519,7 @@ function createInspector(){
 	setRefreshGraphOnElementShow('inspectorGraph', inspector.graph);
 
 	inspectorGraph.cxtmenu({
-		selector: 'node',
+		selector: 'node:childless',
 		commands: [
 			{
 				content: 'Import node',
@@ -595,31 +591,6 @@ function inspect_and_import(id) {
 	inspectAsync(id);
 }
 
-function showInspectorNextPrevious(isNext){
-	inspector.graph.remove('node');
-	graphingAPI.add_node(inspectorElementBuffer.nodes[0], inspector.graph);
-	if(isNext && currInspectorBufferIndex + inspectorDisplayAmount < inspectorElementBuffer.nodes.length){
-		currInspectorBufferIndex += inspectorDisplayAmount;
-	}
-	else if(!isNext && currInspectorBufferIndex > 1){
-		currInspectorBufferIndex -= inspectorDisplayAmount;
-	}
-	for(let i = currInspectorBufferIndex; i <= currInspectorBufferIndex + inspectorDisplayAmount; i++ ){
-		if(i == inspectorElementBuffer.nodes.length){break;}
-		graphingAPI.add_node(inspectorElementBuffer.nodes[i], inspector.graph);
-	}
-	for (let e of inspectorElementBuffer.edges) {
-		if(inspector.graph.$id( e.source ).length > 0 && inspector.graph.$id( e.target ).length > 0){
-			graphingAPI.add_edge(e, inspector.graph);
-		}
-	}
-	if (inspector.graph.edges.length < limitNodesForDagre) {
-		graphingAPI.layout(inspector.graph, 'dagre');
-	} else {
-		graphingAPI.layout(inspector.graph, 'cose-bilkent');
-	}
-}
-
 //Inspector Functions end
 
 //NodeSearchsheet Functions
@@ -628,6 +599,11 @@ function showInspectorNextPrevious(isNext){
 // Populate node list.
 //
 function update_nodelist() {
+	removeOverFlow(`nodeList`);
+	showNodeListNextPrevious();
+}
+
+function showNodeListNextPrevious(){
 	neo4jQueries.get_nodes($('#filterNodeType').val(),
 							$('#filterName').val(),
 							$('#filterHost').val(),
@@ -635,13 +611,18 @@ function update_nodelist() {
 							$('#filterLocalPort').val(),
 							$('#filterRemoteIp').val(), 
 							$('#filterRemotePort').val(),
-							amountShownInNodeList,
+							overFlowVars[`nodeList`][`DisplayAmount`] + 1,
+							overFlowVars['nodeList'][`IDStart`],
+							false,
 		function(result) {
+
 			let nodelist = $('#nodelist');
 			nodelist.empty();
 
 			let current_uuid = null;
 			let colour = 0;
+
+			updateOverFlow('nodeList', result);
 
 			for (let node of result) {
 				let meta = graphingAPI.node_metadata(node);
@@ -665,8 +646,7 @@ function update_nodelist() {
 					inspectAsync(node.id);
 				});
 				let cell = row.insertCell(0);
-				cell.innerHTML = (`
-									<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
+				cell.innerHTML = (`<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
 									<td>${meta.timestamp}</td>
 									<td><a>${meta.label}</a></td>
 								`);
@@ -706,10 +686,13 @@ function inspectAsync(id){
 // Define what it means to "inspect" a node. 
 //
 function inspect_node(id) {
-	currInspectorBufferIndex = 0;
-	if(document.getElementById("overflowWarning") != null){
-		document.getElementById("overflowWarning").remove();
-	}
+	removeOverFlow('inspector');
+	overFlowVars['inspector'][`inspectee`] = id;
+	showInspectorNextPrevious();
+}
+
+function showInspectorNextPrevious(){
+	let id = overFlowVars['inspector'][`inspectee`];
 
 	// Display the node's details in the inspector "Details" panel.
 	let inspectee;
@@ -718,56 +701,31 @@ function inspect_node(id) {
 	inspector.neighbours.empty();
 
 	neo4jQueries.get_detail_id(id, function(result) {
-		for (let property in result) {
+		for (let property in result[0]) {
 			if (property == 'timestamp' || property == 'meta_ts') {
-				result[property] =
-					moment.unix(result[property] / 1000000000).format();
+				result[0][property] =
+					moment.unix(result[0][property] / 1000000000).format();
 			}
 			inspector.detail.append(`
 				<tr>
 					<th>${property}</th>
-					<td>${result[property]}</td>
+					<td>${result[0][property]}</td>
 				</tr>
 			`)
 		}
-		inspectee = result;
+		inspectee = result[0];
+
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
+			result.nodes.splice(0, 1);
 			inspector.graph.remove('node');
-
-			inspectorElementBuffer = result;
 
 			graphingAPI.add_node(inspectee, inspector.graph);
 
-			let count = 0;
-			let hasSpawnedOverflowWarning = false;
+			updateOverFlow('inspector', result.nodes);
+
 			for (let n of result.nodes) {
-				if(count++ < inspectorDisplayAmount){
-					//console.log(n);
-					graphingAPI.add_node(n, inspector.graph);
-				}
-				else if(!hasSpawnedOverflowWarning){
-					hasSpawnedOverflowWarning = true;
-					let overflowWarning = document.createElement("div");
-					overflowWarning.id = `overflowWarning`;
-					overflowWarning.style.cssText = `color: red;`;
-					overflowWarning.innerHTML = `<font size=+1><br>Only showing ${inspectorDisplayAmount + 1} nodes out of ${result.nodes.length} nodes.<br></font>`;
-					let lastNodes = document.createElement("button");
-					lastNodes.className  = "bodyButton";
-					lastNodes.innerHTML = `previous ${inspectorDisplayAmount} nodes`;
-					lastNodes.onclick =(function() {
-						showInspectorNextPrevious(false);
-					});
-					overflowWarning.appendChild(lastNodes);
-					let nextNodes = document.createElement("button");
-					nextNodes.className  = "bodyButton";
-					nextNodes.innerHTML = `Next ${inspectorDisplayAmount} nodes`;
-					nextNodes.onclick =(function() {
-						showInspectorNextPrevious(true);
-					});
-					overflowWarning.appendChild(nextNodes);
-					document.getElementById('inspectorHeader').appendChild(overflowWarning);
-				}
+				graphingAPI.add_node(n, inspector.graph);
 
 				let meta = graphingAPI.node_metadata(n);
 				// inspector.neighbours.append(`
@@ -794,7 +752,6 @@ function inspect_node(id) {
 			}
 			for (let e of result.edges) {
 				if(inspector.graph.$id( e.source ).length > 0 && inspector.graph.$id( e.target ).length > 0){
-					//console.log(e);
 					graphingAPI.add_edge(e, inspector.graph);
 				}
 			}
@@ -816,7 +773,11 @@ function inspect_node(id) {
 				level: 1,
 				position: inspector.graph.inspectee.position(),
 			});
-		});
+		},
+		true,
+		overFlowVars[`inspector`][`DisplayAmount`] + 1,
+		overFlowVars['inspector'][`IDStart`],
+		);
 	});
 }
 
@@ -828,62 +789,25 @@ function import_into_worksheetAsync(id){
 // How to import a node into the worksheet
 //
 function import_into_worksheet(id) {
-	let graph = worksheets[`${selectedWorksheet}`].graph;
-
-	// Have we already imported this node?
-	if (!graph.getElementById(id).empty()) {
-		return $.when(null);
-	}
-
-	let position = {
-		x: graph.width() / 2,
-		y: graph.height() / 2,
-	};
-
+	let nodes = [];
 	neo4jQueries.get_detail_id(id, function(result) {
-		let promise = null;
-
-		if (result['parent'] != null && graph.nodes(`[id="${result.parent}"]`).empty()) {
-			promise = import_into_worksheet(result.parent);
-		} else {
-			promise = $.when(null);
-		}
-
-		promise.then(function() {
-			graphingAPI.add_node(result, graph, position);
-		}).then(function() {
-			get_neighbours(id, function(result) {
-				let elements = graph.elements();
-				let node = graph.nodes(`[id="${id}"]`);
-
-				for (let edge of result.edges) {
-					let other = null;
-					if (edge.source == id) {
-						other = elements.nodes(`#${edge.target}`);
-					} else if (edge.target == id) {
-						other = elements.nodes(`#${edge.source}`);
-					}
-
-					if (!other.empty()) {
-						graphingAPI.add_edge(edge, graph);
-					}
-				}
-			});
-		});
+		import_batch_into_worksheet(result);
 	});
 }
 
 //
 // Fetch neighbours to a node, based on some user-specified filters.
 //
-function get_neighbours(id, fn) {
+function get_neighbours(id, fn, isOverFlow=false, displayAmount = -1, startID = 0) {
 	return neo4jQueries.get_neighbours_id(id,
 										fn,	
 										inspectFiles,
 										inspectSockets,
 										inspectPipes,
-										inspectProcessMeta
-										);
+										inspectProcessMeta,
+										isOverFlow,
+										displayAmount,
+										startID);
 }
 
 function import_batch_into_worksheet(nodes) {
@@ -904,9 +828,7 @@ function import_batch_into_worksheet(nodes) {
 			let index = nodes.indexOf(node);
 			nodes.splice(index, 1);
 		}
-		//else{
-			ids = ids.concat(node.id);
-		//}
+		ids = ids.concat(node.id);
 	});
 	if(ids.length <= 0){return;}
 
@@ -914,11 +836,7 @@ function import_batch_into_worksheet(nodes) {
 		x: graph.width() / 2,
 		y: graph.height() / 2,
 	};
-	// if ('parent' in nodes && graph.$id( nodes.parent ).length > 0) {
-	// 	import_into_worksheet(nodes.parent);
-	// } 
-	//console.log(ids);
-	graphingAPI.add_node_batch(nodes, graph, position);
+	graphingAPI.add_node_batch(nodes, graph, position, highlightedIDs);
 	get_neighbours_batch(ids, function(result) {
 	
 		for (let edge of result.edges) {
@@ -1024,9 +942,7 @@ function setRefreshGraphOnElementShow(watchElement, graph){
 }
 
 function openSubMenu(fn, isNewWorksheetOption = true, leftClickSpawn = false){
-	if(document.getElementById("myDropdown") != null){
-		document.getElementById("myDropdown").remove();
-	}
+	if_DOM_IDExsitsRemove("myDropdown");
 	let cxtSubMenu = document.createElement('div');
 	cxtSubMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
 	cxtSubMenu.className = 'dropdown-content';
@@ -1074,6 +990,129 @@ function updateInspectTargets(files, scokets, pipes, meta){
 	inspectSockets = scokets;
 	inspectPipes = pipes;
 	inspectProcessMeta = meta;
+}
+
+function testIfNumber(val){
+	return /^\d+$/.test(val);
+}
+
+function if_DOM_IDExsitsRemove(id){
+	if(document.getElementById(id) != null){
+		document.getElementById(id).remove();
+	}
+}
+
+function updateOverFlow(name, results){
+	if(results.length <= 0){return;}
+	overFlowVars[name][`IDStart`] = results[0].id;
+	overFlowVars[name][`IDNextStart`] = results[results.length-1].id;
+	let length = results.length;
+	if(results.length > overFlowVars[name][`DisplayAmount`]){
+		results.splice(results.length-1, 1);
+	}
+	overFlowVars[name][`IDEnd`] = results[results.length-1].id;
+
+	if(length > overFlowVars[name][`DisplayAmount`] && !overFlowVars[name][`OverflowWarning`]){
+		spawnOverFlow(name);
+	}
+}
+
+function removeOverFlow(name){
+	if_DOM_IDExsitsRemove(overFlowVars[name][`overFlowEle`]);
+	overFlowVars[name][`OverflowWarning`] = false;
+	overFlowVars[name][`IDStart`] = -1;
+	overFlowVars[name][`LastLowestShownIDs`] = [];
+}
+
+function spawnOverFlow(name){
+	overFlowVars[name][`OverflowWarning`] = true;
+	let overflowWarning = document.createElement("div");
+	overflowWarning.id = overFlowVars[name][`overFlowEle`];
+	// overflowWarning.style.cssText = `color: red;`;
+	// overflowWarning.innerHTML = `<font size=+1>Only showing ${overFlowVars[name][`DisplayAmount`]} 
+	// nodes.<br></font>`;
+	let lastNodes = document.createElement("button");
+	lastNodes.className  = "bodyButton";
+	lastNodes.innerHTML = `previous ${overFlowVars[name][`DisplayAmount`]} nodes`;
+	lastNodes.onclick = function(){
+		getPreviousNodes(name);
+	};
+	overflowWarning.appendChild(lastNodes);
+
+	let nextNodes = document.createElement("button");
+	nextNodes.className  = "bodyButton";
+	nextNodes.innerHTML = `Next ${overFlowVars[name][`DisplayAmount`]} nodes`;
+	nextNodes.onclick = function(){
+		getNextNodes(name);
+	};
+	overflowWarning.appendChild(nextNodes);
+
+	document.getElementById(overFlowVars[name][`appendTo`]).appendChild(overflowWarning);
+}
+
+function getPreviousNodes(name){
+	if(overFlowVars[name][`LastLowestShownIDs`].length > 0 && !UILock){
+		UILock = true;
+		overFlowVars[name][`IDStart`] = overFlowVars[name][`LastLowestShownIDs`].pop();
+		overFlowVars[name][`func`]();
+		UILock = false;
+	}
+}
+
+function getNextNodes(name){
+	if(overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
+		overFlowVars[name][`IDNextStart`] != overFlowVars[name][`IDEnd`] && 
+		!UILock){
+		UILock = true;
+		overFlowVars[name][`LastLowestShownIDs`] = overFlowVars[name][`LastLowestShownIDs`].concat(overFlowVars[name][`IDStart`]);
+		overFlowVars[name][`IDStart`] = overFlowVars[name][`IDNextStart`];
+		overFlowVars[name][`func`]();
+		UILock = false;
+	}
+}
+
+function spawnVexList(ele, message, resultID, resultName, func){
+	let id = ele.data('id');
+	func(id, function(results) {
+		let files = document.createElement("ul");
+		let header = document.createElement("h2");
+			header.innerHTML = `<font>${message} ${id}:</font>`;
+			files.appendChild(header);
+			results.forEach(function(result) {
+			let file = document.createElement("li");
+			let name = result;
+			resultName.forEach(function(prop){
+				name = name[prop];
+			})
+			file.innerHTML = `<a>${name}</a>`;
+			file.onclick =(function() {
+				openSubMenu(function(){
+					inspect_and_importAsync(result[resultID]);
+				}, true, true);
+			});
+			files.appendChild(file);
+		});
+		vex.dialog.alert({
+			unsafeMessage: files,
+			className: 'vex-theme-wireframe'
+		});
+	});
+}
+
+function removeNode(ele){
+	let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
+	node.remove();
+	removeEmptyParents(node.parents());
+}
+
+function setWorksheetCxtMenu(index){
+	setGraphCxtMenu(worksheets[index].graph, worksheetCxtMenus);
+}
+
+function setGraphCxtMenu(graph, cxtMenus){
+	cxtMenus.forEach(function(menu){
+		graph.cxtmenu(menu);
+	});
 }
 
 //Utility Functions end
