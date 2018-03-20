@@ -44,29 +44,6 @@ export function neo4jLogin(){
 	})
 }
 
-// export function notifications(){
-// 	var alerts = [];
-
-// 	if current_app.bro_location:
-// 		with open(current_app.bro_location) as f:
-// 			for l in f:
-// 				bro_data = [p for p in l.split() if p != '']
-// 				if (bro_data.length == 0){
-// 					break;
-// 				}
-
-// 				alerts = alerts.concat({
-// 					'local_ip': bro_data[7],
-// 					'local_port': bro_data[8],
-// 					'remote_ip': bro_data[9],
-// 					'remote_port': bro_data[10],
-// 					'timestamp': datetime.fromtimestamp(int(float(bro_data[5]))),
-// 					'event': bro_data[15]
-// 				});
-
-// 	return flask.render_template('notifications.html', alerts = alerts)
-// }
-
 export function file_read_query(id, fn){
 	let session = driver.session();
 	session.run(`MATCH (n:Process)<-[e:PROC_OBJ]-(c:File)
@@ -107,48 +84,6 @@ export function cmd_query(id, fn){
 		neo4jError(error, session, "cmd_query");
 	});
 }
-
-// export function updates_machines() {
-// 	var mch = [];
-// 	var session = driver.session();
-// 	session.run("MATCH (m:Machine) RETURN m")
-// 	.then(result => {result.records.forEach(function (record) 
-// 		{
-// 			var temp = {};
-// 			//console.log(record.get('m'));
-// 			temp.name = record.get('m')['properties']['name'];
-// 			if(record.get('m')['properties']['uuid'] != null){
-// 				temp.id = record.get('m')['properties']['uuid'];
-// 			}else{
-// 				temp.id = record.get('m')['identity']['low'];
-// 			}
-// 			mch = mch.concat(temp);
-// 		});
-// 		session.close();
-
-// 		mchs = mch;
-// 	});
-// }
-
-// export function setup_machines() {
-// 	var session = driver.session();
-// 	session.run("MATCH (m:Machine) RETURN m")
-// 	.then(result => {result.records.forEach(function (record) 
-// 		{
-// 			var nodeData = neo4jParser.parseNeo4jNode(record.get('m'));
-// 			graphingAPI.add_node(nodeData, machineGraph);
-// 		});
-// 		session.run("MATCH (:Machine)-[e]->(:Machine) RETURN DISTINCT e")
-// 		.then(result => {result.records.forEach(function (record) 
-// 			{
-// 				var edgeData = neo4jParser.parseNeo4jEdge(record.get('e'));
-// 				add_edge(edgeData, machineGraph);
-// 			});
-// 			session.close();
-// 		});
-// 		graphingAPI.layout( machineGraph, 'cose');
-// 	});
-// }
 
 export function get_neighbours_id(id, 
 								fn, 
@@ -346,54 +281,6 @@ export function get_neighbours_id_batch(ids, fn, files=true, sockets=true, pipes
 	});
 }
 
-// export function get_neighbours_uuid(uuid, fn, files=True, sockets=True, pipes=True, process_meta=True){
-// 	var matchers = ['Machine', 'Process', 'Conn'];
-// 	if (files){
-// 		matchers.add('File');
-// 	}
-// 	if (sockets){
-// 		matchers.add('Socket');
-// 	}
-// 	if (pipes){
-// 		matchers.add('Pipe');
-// 	}
-// 	if (files && sockets && pipes){
-// 		matchers.add('Global');
-// 	}
-// 	if (process_meta){
-// 		matchers.add('Meta');
-// 	}
-
-// 	var session = driver.session();
-// 	session.run(`MATCH (s)-[e]-(d)
-// 						WHERE
-// 						exists(s.uuid)
-// 						AND 
-// 						(
-// 							NOT d:Pipe
-// 							OR
-// 							d.fds <> []
-// 						)
-// 						AND
-// 						s.uuid=${uuid}
-// 						AND
-// 						any(lab in labels(d) WHERE lab IN ${list(matchers)})
-// 						RETURN s, e, d`)
-// 	.then(result => {
-// 		session.close();
-// 		let neighbour_nodes = [result[0].get('s')];
-// 		let neighbour_edges = [];
-// 		result.records.forEach(function (record){
-// 			neighbour_nodes = nodes.concat(record.get('d'));
-// 			neighbour_edges = edges.concat(record.get('e'));
-// 		});
-// 		fn({nodes: neighbour_nodes,
-// 			edges: neighbour_edges});
-// 	}, function(error) {
-// 		neo4jError(error, session);
-// 	});
-// }
-
 export function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=true, process_meta=true, fn){
 	let matchers = [];
 	// matchers = matchers.concat("Process");
@@ -413,13 +300,13 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 	}
 	let process_obj;
 	let session = driver.session();
-	get_detail_id_unparsed(dbid, function(result) {
+	get_detail_id(dbid, function(result) {
 
-		if (result == null){
+		if (result[0] == null){
 			console.log(404);
 		}
-		process_obj = result;
-		//process_obj = result.splice(0,max_depth-1);//[(max_depth, result)];
+		process_obj = result[0];
+		//process_obj = result[0].splice(0,max_depth-1);//[(max_depth, result[0])];
 		//while (process_obj.length){
 		//	nodes = nodes.concat(cur);
 			if (process_obj.labels.indexOf('Global') > -1){
@@ -500,7 +387,7 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 			// 	}
 			// }
 		//}
-	});
+	}, false);
 }
 
 function findEdges(curId, neighbours, fn){
@@ -527,21 +414,12 @@ function findEdges(curId, neighbours, fn){
 			});
 }
 
-export function get_detail_id(id, fn){
-	let session = driver.session();
-	session.run(`MATCH (n) WHERE id(n)=${id} RETURN n`)
-	.then(result => {
-		session.close();
-		if (result == null){
-			console.log(404);
-		}
-		fn(neo4jParser.parseNeo4jNode(result.records[0].get('n')));
-	}, function(error) {
-		neo4jError(error, session, "get_detail_id");
-	});
+export function get_detail_id(id, fn, parse=true){
+	let ids = [parseInt(id)];
+	get_batch_detail_id(ids, fn, parse=true);
 }
 
-export function get_batch_detail_id(ids, fn){
+export function get_batch_detail_id(ids, fn, parse=true){
 	let session = driver.session();
 	session.run(`MATCH (n) WHERE id(n) IN ${JSON.stringify(ids)} RETURN n`)
 	.then(result => {
@@ -549,43 +427,20 @@ export function get_batch_detail_id(ids, fn){
 		if (result == null){
 			console.log(404);
 		}
-		// result.records.forEach(function (record){
-		// 	fn(neo4jParser.parseNeo4jNode(record.get('n')));
-		// });
 		let nodes = [];
 		result.records.forEach(function (record){
-			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
+			if(parse){
+				nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
+			}
+			else{
+				nodes = nodes.concat(record.get('n'));
+			}
 		});
 		fn(nodes);
 	}, function(error) {
-		neo4jError(error, session, "get_detail_id");
+		neo4jError(error, session, "get_batch_detail_id");
 	});
 }
-
-function get_detail_id_unparsed(id, fn){
-	let session = driver.session();
-	session.run(`MATCH (n) WHERE id(n)=${id} RETURN n`)
-	.then(result => {
-		session.close();
-		if (result == null){
-			console.log(404);
-		}
-		fn(result.records[0].get('n'));
-	}, function(error) {
-		neo4jError(error, session, "get_detail_id_unparsed");
-	});
-}
-
-// export function get_detail_uuid(**kwargs){
-// 	var session = driver.session();
-// 	query = session.run(
-// 			`MATCH (n) WHERE exists(n.uuid) AND n.uuid=${uuid} RETURN n`);
-// 			//kwargs).single()
-// 	if (query == null){
-// 		console.log(404);
-// 	}
-// 	return flask.jsonify(query['n'])
-// }
 
 export function get_nodes(node_type=null, 
 				name=null, 
@@ -790,12 +645,10 @@ const neo4jQueries ={
 	neo4jLogin,
 	file_read_query,
 	cmd_query,
-	//updates_machines,
 	get_neighbours_id,
 	get_neighbours_id_batch,
 	successors_query,
 	get_detail_id,
-	//get_detail_id_unparsed,
 	get_nodes,
 }
 

@@ -24,8 +24,6 @@ export function create(container) {
 
 	load_graph_style([ graph ]);
 
-	//graph.add_node = function(node) { add_node(node, graph); };
-
 	return graph;
 }
 
@@ -33,66 +31,8 @@ export function create(container) {
 // Add a node to a graph.
 //
 export function add_node(data, graph, renderedPosition = null, highLightedIDs = []) {
-	// Have we already imported this node?
-	if (!graph.nodes(`[id="${data.id}"]`).empty()) {
-		return;
-	}
-	// When importing things with abstract containers (e.g., file versions),
-	// draw a compound node to show the abstraction and simplify the versions.
-	if (data.uuid != null && (
-			[ 'file-version', 'pipe-endpoint', 'socket-version', ].indexOf(data.type)
-				!= -1
-			)) {
-		let compound = graph.nodes(`[id="${data.uuid}"]`);
-		let type = data.type.substr(0, 4);
-
-		let name = data.name;
-		if (name == null) {
-			name = new Set().add(data.hash);
-		}
-
-		// Add file descriptors if we have them.
-		if (data.fds) {
-			for(let fd in data.fds){
-				name = name.concat('FD ' + fd)
-			}
-		}
-
-		if (compound.empty()) {
-			add_node({
-				id: data.uuid,
-				type: type,
-				label: Array.from(name).join(', '),
-				names: name,
-				'parent': data['parent'],
-			}, graph, renderedPosition);
-		} else {
-			let existing = compound.data();
-			existing.names = new Set([...existing.names, ...name]);
-			existing.label = Array.from(existing.names).join(' ');
-		}
-
-		data['parent'] = data.uuid;
-	}
-
-	let node = {
-		data: data,
-		renderedPosition: renderedPosition,
-	};
-
-	node.classes = data.type;
-	if (data.external) {
-		node.classes += ' external';
-	}
-
-	node.data.label = node_metadata(data).label;
-
-
-	graph.add(node);
-	if(highLightedIDs.indexOf(data.id) >= 0){
-		graph.$id( data.id ).addClass('important');
-	}
-
+	let nodes = [data];
+	add_node_batch(nodes, graph, renderedPosition = null, highLightedIDs = []);
 }
 
 
@@ -124,7 +64,6 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 				for(let fd in data.fds){
 					name = name.concat('FD ' + fd)
 				}
-				//data.fds.forEach(function(fd) { name.add('FD ' + fd); });
 			}
 
 			if (compound.empty()) {
@@ -165,7 +104,6 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 	graph.add(parsedNodes);
 	nodesToHighLight.forEach(function(id){
 		graph.$id( id ).addClass('important');
-
 	})
 }
 
@@ -191,6 +129,23 @@ export function add_edge(data, graph) {
 		classes: data.type,
 		data: data,
 	});
+}
+
+//
+// Save the current graph in a JSON format.
+//
+export function save(graph, filename) {
+	let blob = new Blob([ JSON.stringify(graph.json()) ], { type: 'text/json' });
+
+	let a = document.createElement('a');
+
+	a.download = `${filename}.json`;
+	a.href= window.URL.createObjectURL(blob);
+	a.style.display = 'none';
+
+	document.body.appendChild(a);
+
+	a.click();
 }
 
 //
@@ -220,6 +175,18 @@ export function load(file, graph, highLightedIDs = [], fn) {
 
 	reader.readAsText(file);
 }
+
+//
+// Apply a named graph layout algorithm to a graph.
+//
+export function layout(graph, algorithm) {
+	graph.layout({
+		name: algorithm,
+		rankDir: 'LR',
+		animate: false
+	})
+	.run();
+};
 
 //
 // Load a Cytograph CSS file and apply it to a graph.
@@ -416,18 +383,6 @@ function load_graph_style(graphs) {
 }
 
 //
-// Apply a named graph layout algorithm to a graph.
-//
-export function layout(graph, algorithm) {
-	graph.layout({
-		name: algorithm,
-		rankDir: 'LR',
-		animate: false
-	})
-	.run();
-};
-
-//
 // Extract graphical metadata about a graph node (icon and label) that isn't
 // really appropriate to serve from OPUS/Neo4j.
 //
@@ -534,23 +489,6 @@ export function node_metadata(node) {
 	}
 
 	return metadata;
-}
-
-//
-// Save the current graph in a JSON format.
-//
-export function save(graph, filename) {
-	let blob = new Blob([ JSON.stringify(graph.json()) ], { type: 'text/json' });
-
-	let a = document.createElement('a');
-
-	a.download = `${filename}.json`;
-	a.href= window.URL.createObjectURL(blob);
-	a.style.display = 'none';
-
-	document.body.appendChild(a);
-
-	a.click();
 }
 
 const graphing ={

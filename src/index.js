@@ -95,7 +95,6 @@ var overFlowVars = {'nodeList':{'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'Dis
 
 
 var limitNodesForDagre = 100;//The max number of nodes the inspector will use the Dagre layout
-
 var maxImportLength = 500;//The max number of nodes that can be imported into a worksheet in one action
 
 var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
@@ -136,54 +135,14 @@ var worksheetChildCxtMenu = (
 		},
 		{
 			content: 'Files read',
-			select: function(ele){//TODO: basically same as Commands turn into one function
-				let id = ele.data('id');
-				neo4jQueries.file_read_query(id, function(results){
-					let files = document.createElement("ul");
-					let header = document.createElement("h2");
-					header.innerHTML = `<font>Files read by ${id}:</font>`
-					files.appendChild(header);
-					results.forEach(function(result) {
-						let file = document.createElement("li");
-						file.innerHTML = `<a>${result.properties.name}</a>`;
-						file.onclick =(function() {
-							openSubMenu(function(){
-								inspect_and_importAsync(result.identity.low);
-							}, true, true);
-						});
-						files.appendChild(file);
-					});
-					vex.dialog.alert({
-						unsafeMessage: files,
-						className: 'vex-theme-wireframe'
-					});
-				});
+			select: function(ele){
+				spawnVexList(ele, 'Files read by', 'identity', ['properties','name'], neo4jQueries.file_read_query);
 			}
 		},
 		{
 			content: 'Commands',
 			select: function(ele){
-				var id = ele.data('id');
-				neo4jQueries.cmd_query(id, function(results) {
-					let files = document.createElement("ul");
-					let header = document.createElement("h2");
-					header.innerHTML = `<font>Commands run by node ${id}:</font>`;
-					files.appendChild(header);
-					results.forEach(function(result) {
-						let file = document.createElement("li");
-						file.innerHTML = `<a>${result.cmdline}</a>`;
-						file.onclick =(function() {
-							openSubMenu(function(){
-								inspect_and_importAsync(result.id);
-							}, true, true);
-						});
-						files.appendChild(file);
-					});
-					vex.dialog.alert({
-						unsafeMessage: files,
-						className: 'vex-theme-wireframe'
-					});
-				});
+				spawnVexList(ele, 'Commands run by node', 'id', ['cmdline'], neo4jQueries.cmd_query);
 			}
 		},
 		{
@@ -198,14 +157,14 @@ var worksheetChildCxtMenu = (
 			content: 'Remove',
 			select: function(ele){
 				openSubMenu(function(){
-					let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
-					node.remove();
-					removeEmptyParents(node.parents());
+					removeNode(ele);
 				}, false);
 			}
 		},
 	]
-});var worksheetParentCxtMenu = ( 
+});
+
+var worksheetParentCxtMenu = ( 
 {
 	menuRadius: 70,
 	separatorWidth: 0,
@@ -215,14 +174,14 @@ var worksheetChildCxtMenu = (
 			content: 'Remove',
 			select: function(ele){
 				openSubMenu(function(){
-					let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
-					node.remove();
-					removeEmptyParents(node.parents());
+					removeNode(ele);
 				}, false);
 			}
 		},
 	]
 });
+
+var worksheetCxtMenus = [worksheetChildCxtMenu, worksheetParentCxtMenu];
 
 //Global variables end
 
@@ -266,6 +225,7 @@ workSheetLayout.init();
 workSheetLayout.on('initialised', function(){
 	if(document.getElementById("NodeSearchsheet") != null){
 		neo4jQueries.neo4jLogin();
+		$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 	}
 	if(document.getElementById("inspectorGraph") != null){
 		$("body").on("contextmenu", function(e){
@@ -414,12 +374,9 @@ function createWorksheet(){
 		refreshGraph(worksheets[`${index}`].graph);
 	})
 
-	worksheetGraph.cxtmenu(worksheetChildCxtMenu);
-	worksheetGraph.cxtmenu(worksheetParentCxtMenu);
+	setWorksheetCxtMenu(index);
 
 	//setRefreshGraphOnElementShow(`worksheet${index}`, worksheetGraph);
-
-	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
 		if(this.files[0] == ''){return;}
@@ -428,8 +385,7 @@ function createWorksheet(){
 				toggle_node_importance(id, index);
 			});
 			worksheets[`${index}`].graph = newGraph;
-			worksheets[`${index}`].graph.cxtmenu(worksheetChildCxtMenu);
-			worksheets[`${index}`].graph.cxtmenu(worksheetParentCxtMenu);
+			setWorksheetCxtMenu(index);
 			document.getElementById(`loadGraph${index}`).value = '';
 		});
 	};
@@ -644,19 +600,7 @@ function inspect_and_import(id) {
 //
 function update_nodelist() {
 	removeOverFlow(`nodeList`);
-	showNodeListNextPrevious();	
-	// neo4jQueries.get_nodes($('#filterNodeType').val(),
-	// 						$('#filterName').val(),
-	// 						$('#filterHost').val(),
-	// 						$('#filterLocalIp').val(),
-	// 						$('#filterLocalPort').val(),
-	// 						$('#filterRemoteIp').val(), 
-	// 						$('#filterRemotePort').val(),
-	// 						overFlowVars[`nodeList`][`DisplayAmount`] + 1,
-	// 						overFlowVars['nodeList'][`IDStart`],
-	// 						true,
-	// 	function(result) {
-	// 	});
+	showNodeListNextPrevious();
 }
 
 function showNodeListNextPrevious(){
@@ -702,8 +646,7 @@ function showNodeListNextPrevious(){
 					inspectAsync(node.id);
 				});
 				let cell = row.insertCell(0);
-				cell.innerHTML = (`
-									<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
+				cell.innerHTML = (`<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
 									<td>${meta.timestamp}</td>
 									<td><a>${meta.label}</a></td>
 								`);
@@ -758,19 +701,19 @@ function showInspectorNextPrevious(){
 	inspector.neighbours.empty();
 
 	neo4jQueries.get_detail_id(id, function(result) {
-		for (let property in result) {
+		for (let property in result[0]) {
 			if (property == 'timestamp' || property == 'meta_ts') {
-				result[property] =
-					moment.unix(result[property] / 1000000000).format();
+				result[0][property] =
+					moment.unix(result[0][property] / 1000000000).format();
 			}
 			inspector.detail.append(`
 				<tr>
 					<th>${property}</th>
-					<td>${result[property]}</td>
+					<td>${result[0][property]}</td>
 				</tr>
 			`)
 		}
-		inspectee = result;
+		inspectee = result[0];
 
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
@@ -778,7 +721,7 @@ function showInspectorNextPrevious(){
 			inspector.graph.remove('node');
 
 			graphingAPI.add_node(inspectee, inspector.graph);
-			//result.nodes.reverse()
+
 			updateOverFlow('inspector', result.nodes);
 
 			for (let n of result.nodes) {
@@ -846,48 +789,9 @@ function import_into_worksheetAsync(id){
 // How to import a node into the worksheet
 //
 function import_into_worksheet(id) {
-	let graph = worksheets[`${selectedWorksheet}`].graph;
-
-	// Have we already imported this node?
-	if (!graph.getElementById(id).empty()) {
-		return $.when(null);
-	}
-
-	let position = {
-		x: graph.width() / 2,
-		y: graph.height() / 2,
-	};
-
+	let nodes = [];
 	neo4jQueries.get_detail_id(id, function(result) {
-		let promise = null;
-
-		if (result['parent'] != null && graph.nodes(`[id="${result.parent}"]`).empty()) {
-			promise = import_into_worksheet(result.parent);
-		} else {
-			promise = $.when(null);
-		}
-
-		promise.then(function() {
-			graphingAPI.add_node(result, graph, position, highlightedIDs);
-		}).then(function() {
-			get_neighbours(id, function(result) {
-				let elements = graph.elements();
-				let node = graph.nodes(`[id="${id}"]`);
-
-				for (let edge of result.edges) {
-					let other = null;
-					if (edge.source == id) {
-						other = elements.nodes(`#${edge.target}`);
-					} else if (edge.target == id) {
-						other = elements.nodes(`#${edge.source}`);
-					}
-
-					if (!other.empty()) {
-						graphingAPI.add_edge(edge, graph);
-					}
-				}
-			});
-		});
+		import_batch_into_worksheet(result);
 	});
 }
 
@@ -924,9 +828,7 @@ function import_batch_into_worksheet(nodes) {
 			let index = nodes.indexOf(node);
 			nodes.splice(index, 1);
 		}
-		//else{
-			ids = ids.concat(node.id);
-		//}
+		ids = ids.concat(node.id);
 	});
 	if(ids.length <= 0){return;}
 
@@ -934,9 +836,6 @@ function import_batch_into_worksheet(nodes) {
 		x: graph.width() / 2,
 		y: graph.height() / 2,
 	};
-	// if ('parent' in nodes && graph.$id( nodes.parent ).length > 0) {
-	// 	import_into_worksheet(nodes.parent);
-	// } 
 	graphingAPI.add_node_batch(nodes, graph, position, highlightedIDs);
 	get_neighbours_batch(ids, function(result) {
 	
@@ -1170,6 +1069,50 @@ function getNextNodes(name){
 		overFlowVars[name][`func`]();
 		UILock = false;
 	}
+}
+
+function spawnVexList(ele, message, resultID, resultName, func){
+	let id = ele.data('id');
+	func(id, function(results) {
+		let files = document.createElement("ul");
+		let header = document.createElement("h2");
+			header.innerHTML = `<font>${message} ${id}:</font>`;
+			files.appendChild(header);
+			results.forEach(function(result) {
+			let file = document.createElement("li");
+			let name = result;
+			resultName.forEach(function(prop){
+				name = name[prop];
+			})
+			file.innerHTML = `<a>${name}</a>`;
+			file.onclick =(function() {
+				openSubMenu(function(){
+					inspect_and_importAsync(result[resultID]);
+				}, true, true);
+			});
+			files.appendChild(file);
+		});
+		vex.dialog.alert({
+			unsafeMessage: files,
+			className: 'vex-theme-wireframe'
+		});
+	});
+}
+
+function removeNode(ele){
+	let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
+	node.remove();
+	removeEmptyParents(node.parents());
+}
+
+function setWorksheetCxtMenu(index){
+	setGraphCxtMenu(worksheets[index].graph, worksheetCxtMenus);
+}
+
+function setGraphCxtMenu(graph, cxtMenus){
+	cxtMenus.forEach(function(menu){
+		graph.cxtmenu(menu);
+	});
 }
 
 //Utility Functions end
