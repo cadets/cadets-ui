@@ -422,6 +422,7 @@ function createWorksheet(){
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
+		if(this.files[0] == ''){return;}
 		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, highlightedIDs, function(newGraph, newHighLight){
 			newHighLight.forEach(function(id){
 				toggle_node_importance(id, index);
@@ -429,6 +430,7 @@ function createWorksheet(){
 			worksheets[`${index}`].graph = newGraph;
 			worksheets[`${index}`].graph.cxtmenu(worksheetChildCxtMenu);
 			worksheets[`${index}`].graph.cxtmenu(worksheetParentCxtMenu);
+			document.getElementById(`loadGraph${index}`).value = '';
 		});
 	};
 
