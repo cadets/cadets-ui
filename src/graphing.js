@@ -1,5 +1,6 @@
 // require('cytoscape-autopan-on-drag')(cytoscape);
 
+import $ from './../node_modules/jquery/dist/jquery.js';
 import cytoscape from './../node_modules/cytoscape/dist/cytoscape.min.js';
 import moment from './../node_modules/moment/moment.js';
 
@@ -197,6 +198,7 @@ export function add_edge(data, graph) {
 //
 export function load(file, graph, highLightedIDs = [], fn) {
 	let reader = new FileReader();
+	let loadedHighLighted = [];
 	reader.addEventListener('loadend', function() {
 		let data = JSON.parse(reader.result);
 		data.container = graph.container();
@@ -209,9 +211,11 @@ export function load(file, graph, highLightedIDs = [], fn) {
 				ele.addClass('important');
 			}
 		});
-		console.log(graph.$('.important').id());
-		//let difference = $(array_one).not(array_two).get();
-		fn(graph);
+		graph.$('.important').forEach(function(ele){
+			loadedHighLighted = loadedHighLighted.concat(ele.attr('id'));
+		});
+		let highDiff = $(loadedHighLighted).not(highLightedIDs).get();
+		fn(graph, highDiff);
 	});
 
 	reader.readAsText(file);
@@ -430,7 +434,6 @@ export function layout(graph, algorithm) {
 export function node_metadata(node) {
 	let metadata = null;
 	let timestamp = null;
-	//console.log(node);
 	switch (node.type) {
 		case 'connection':
 			metadata = {

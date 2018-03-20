@@ -408,7 +408,7 @@ function createWorksheet(){
 	let index = getWorksheetCount();
 	let worksheetGraph = graphingAPI.create(`worksheetGraph${index}`);
 
-	worksheets[`${index}`] = { graph: worksheetGraph};
+	worksheets[`${index}`] = { graph: worksheetGraph, id: index};
 
 	worksheetContainer[index].on('resize', function(){
 		refreshGraph(worksheets[`${index}`].graph);
@@ -422,7 +422,10 @@ function createWorksheet(){
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
-		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, highlightedIDs, function(newGraph){
+		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, highlightedIDs, function(newGraph, newHighLight){
+			newHighLight.forEach(function(id){
+				toggle_node_importance(id, index);
+			});
 			worksheets[`${index}`].graph = newGraph;
 			worksheets[`${index}`].graph.cxtmenu(worksheetChildCxtMenu);
 			worksheets[`${index}`].graph.cxtmenu(worksheetParentCxtMenu);
@@ -476,22 +479,27 @@ function remove_neighbours_from_worksheet(id) {
 	removeEmptyParents(parents);
 }
 
-function toggle_node_importance(id) {
+function toggle_node_importance(id, excludeWorksheet = -1) {
 	let nodes = [];
-	//console.log(worksheets);
+	let index = highlightedIDs.indexOf(id);
+	if(index >= 0){
+		highlightedIDs.splice(index, 1);
+	}
+	else{
+		highlightedIDs = highlightedIDs.concat(id);
+	}
 	worksheets.forEach( function(worksheet){
+		if(worksheet.id == excludeWorksheet){ return; }
 		let ele = worksheet.graph.$id( id );
 		if(ele.length > 0){
 			if (ele.hasClass('important')) {
-				let index = highlightedIDs.indexOf(id);
-				highlightedIDs.splice(index, 1);
 				ele.removeClass('important');
 			} else {
-				highlightedIDs = highlightedIDs.concat(id);
 				ele.addClass('important');
 			}
 		}
 	});
+
 }
 
 //
@@ -646,8 +654,6 @@ function update_nodelist() {
 	// 						overFlowVars['nodeList'][`IDStart`],
 	// 						true,
 	// 	function(result) {
-	// 		console.log("output");
-	// 		console.log(result);
 	// 	});
 }
 
@@ -929,7 +935,6 @@ function import_batch_into_worksheet(nodes) {
 	// if ('parent' in nodes && graph.$id( nodes.parent ).length > 0) {
 	// 	import_into_worksheet(nodes.parent);
 	// } 
-	//console.log(ids);
 	graphingAPI.add_node_batch(nodes, graph, position, highlightedIDs);
 	get_neighbours_batch(ids, function(result) {
 	

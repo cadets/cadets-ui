@@ -636,7 +636,6 @@ export function get_nodes(node_type=null,
 	let idQuery = ``;
 	let query;
 	if(countOnly == true){
-		console.log('start');
 		returnQuery = 'DISTINCT count(n)';
 	}
 	else{
@@ -766,14 +765,11 @@ export function get_nodes(node_type=null,
 		session.close();
 		let nodes = [];
 		if(countOnly){
-			console.log(result);
-			console.log('end');
 			fn(result.get('n'));
 		}
 		else{
 			result.records.forEach(function (record) 
 			{
-				//console.log(record.get('n'));
 				nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
 			});
 		}
