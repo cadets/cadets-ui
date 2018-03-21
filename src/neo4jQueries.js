@@ -85,16 +85,21 @@ export function cmd_query(id, fn){
 	});
 }
 
-export function get_neighbours_id(id, 
-								fn, 
-								files=true, 
-								sockets=true, 
-								pipes=true, 
-								process_meta=true,
-								isOverFlow=false,
-								limit=-1,
-								startID = 0,
-								){
+export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
+								process_meta=true, isOverFlow=false, limit=-1, startID = 0){
+	get_neighbours_id_batch([parseInt(id)], fn, files, sockets, pipes, 
+							process_meta, isOverFlow, limit, startID,);
+}
+
+export function get_neighbours_id_batch(ids,
+										fn,
+										files=true, 
+										sockets=true, 
+										pipes=true, 
+										process_meta=true,
+										isOverFlow=false,
+										limit=-1,
+										startID = 0,){
 	let session = driver.session();
 	let neighbours;
 	let root_node;
@@ -130,98 +135,11 @@ export function get_neighbours_id(id,
 	session.run(`MATCH (s)-[e]-(d)
 				WHERE 
 				${startQuery}
-				id(s) = ${id}
+				id(s) IN ${JSON.stringify(ids)}
 				AND
 				any(lab in labels(d) WHERE lab IN ${JSON.stringify(matchers)})
-				RETURN s, e, d
+				RETURN DISTINCT e, d
 				${limitQuery}`)
-	.then(result => {
-		neighbours = result.records;
-		if (neighbours.length){
-			root_node = neo4jParser.parseNeo4jNode(neighbours[0].get('s'));
-			neighbour_nodes = neighbour_nodes.concat(root_node);
-			for(let row in neighbours){
-				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(neighbours[row].get('d')));
-				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(neighbours[row].get('e')));
-			}
-		}
-		if (sockets){
-			session.run(`MATCH (skt:Socket), (mch:Machine)
-						WHERE 
-						mch.external
-						AND 
-						id(skt)=${id}
-						AND 
-						split(skt.name[0], ":")[0] in mch.ips
-						RETURN skt, mch
-						UNION
-						MATCH (skt:Socket), (mch:Machine)
-						WHERE 
-						mch.external
-						AND 
-						id(mch)=${id}
-						AND
-						split(skt.name[0], ":")[0] in mch.ips
-						RETURN DISTINCT skt, mch`)
-			.then(result => {
-				session.close();
-				if(result.records.length > 0){
-					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(result.records[0].get('mch')));
-				}
-				result.records.forEach(function (record){
-					let m_links = {'type' : 'comm'};
-					m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
-					m_links.properties = {'state' : null}; 
-					m_links.start = {'low' : record.get('skt')['identity']['low']};
-					m_links.end = {'low' : record.get('mch')['identity']['low']};
-					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('skt')));
-					neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(m_links));
-				});
-				fn({nodes: neighbour_nodes,
-					edges: neighbour_edges});
-			}, function(error) {
-				neo4jError(error, session, "get_neighbours_id");
-			});
-		}
-		else{
-			session.close();
-			fn({nodes: neighbour_nodes,
-					edges: neighbour_edges});
-		}
-	}, function(error) {
-		neo4jError(error, session, "get_neighbours_id");
-	});
-}
-
-export function get_neighbours_id_batch(ids, fn, files=true, sockets=true, pipes=true, process_meta=true){
-	let session = driver.session();
-	let neighbours;
-	let root_node;
-	let m_nodes;
-	let m_qry;
-	let neighbour_nodes = [];
-	let neighbour_edges = [];
-	let matchers = ["Machine", "Process", "Conn"];
-	if (files){
-		matchers = matchers.concat('File');
-	}
-	if (sockets){
-		matchers = matchers.concat('Socket');
-	}
-	if (pipes){
-		matchers = matchers.concat('Pipe');
-	}
-	if (files && sockets && pipes){
-		matchers = matchers.concat('Global');
-	}
-	if (process_meta){
-		matchers = matchers.concat('Meta');
-	}
-	session.run(`MATCH (s)-[e]-(d)
-				WHERE id(s) IN ${JSON.stringify(ids)}
-				AND
-				any(lab in labels(d) WHERE lab IN ${JSON.stringify(matchers)})
-				RETURN DISTINCT e, d`)
 
 	.then(result => {
 		neighbours = result.records;
@@ -274,7 +192,7 @@ export function get_neighbours_id_batch(ids, fn, files=true, sockets=true, pipes
 		else{
 			session.close();
 			fn({nodes: neighbour_nodes,
-					edges: neighbour_edges});
+				edges: neighbour_edges});
 		}
 	}, function(error) {
 		neo4jError(error, session, "get_neighbours_id");
@@ -415,8 +333,7 @@ function findEdges(curId, neighbours, fn){
 }
 
 export function get_detail_id(id, fn, parse=true){
-	let ids = [parseInt(id)];
-	get_batch_detail_id(ids, fn, parse=true);
+	get_batch_detail_id([parseInt(id)], fn, parse=true);
 }
 
 export function get_batch_detail_id(ids, fn, parse=true){
