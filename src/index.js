@@ -5,6 +5,7 @@ import cytoscape from './../node_modules/cytoscape/dist/cytoscape.min.js';
 import cxtmenu from './../node_modules/cytoscape-cxtmenu/cytoscape-cxtmenu.js';
 import moment from './../node_modules/moment/moment.js';
 import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.js';
+import events from './../node_modules/events/events.js';
 
 //import './../node_modules/hashids/dist/hashids.min.js';
 import dagre from './../node_modules/cytoscape-dagre/cytoscape-dagre.js';
@@ -19,6 +20,7 @@ import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
 var graphingAPI = require('./graphing.js');
 var neo4jQueries = require('./neo4jQueries.js');
 var goldenLayoutHTML = require('./goldenLayoutHTML.js');
+var eventEmitter = new events.EventEmitter();
 
 cytoscape.use( cxtmenu );
 cytoscape.use( dagre );
@@ -224,7 +226,7 @@ workSheetLayout.init();
 
 workSheetLayout.on('initialised', function(){
 	if(document.getElementById("NodeSearchsheet") != null){
-		neo4jQueries.neo4jLogin();
+		neo4jQueries.neo4jLogin(eventEmitter);
 		$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 	}
 	if(document.getElementById("inspectorGraph") != null){
@@ -272,6 +274,10 @@ window.onresize = function(){
 }
 
 document.body.onmousemove = findMouseCoords;
+
+eventEmitter.on('pvm_version_set', function(pvm_version){
+	graphingAPI.setPVMVersion(pvm_version);
+})
 
 //Main Events end
 
@@ -614,7 +620,6 @@ function showNodeListNextPrevious(){
 							overFlowVars['nodeList'][`IDStart`],
 							false,
 		function(result) {
-
 			let nodelist = $('#nodelist');
 			nodelist.empty();
 

@@ -8,9 +8,11 @@ var neo4jParser = require('./neo4jParser.js');
 var neo4j = require('./../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js').v1;
 var driver = null;
 var pvm_version = null;
+var eventEmitter = null;
 
 
-export function neo4jLogin(){
+export function neo4jLogin(eventE){
+	eventEmitter = eventE;
 	vex.dialog.open({
 		message: 'Enter your Neo4j username and password:',
 		input: [
@@ -33,6 +35,11 @@ export function neo4jLogin(){
 						if(result.records.length > 0){
 							pvm_version = result.records[0].get("n").properties.pvm_version
 							neo4jParser.pvm_version = pvm_version;
+							eventEmitter.emit('pvm_version_set', pvm_version);
+							if(pvm_version == null){
+								vex.dialog.alert({message: "DataBase does not contain PVM version data.",
+										className: 'vex-theme-wireframe'});
+							}
 						}
 					},
 					function(error) {
@@ -417,124 +424,125 @@ export function get_nodes(node_type=null,
 						id(n) >= ${startID}
 					WITH n`;
 	}
-	// if(pvm_version == 2){
-	// 	query = `MATCH (n:${lab}) RETURN n Limit 100`;
-	// }
-	// else{
-	query = `MATCH (n)
-			${idQuery}
-			WHERE 
-				${JSON.stringify(lab)} is Null
-				OR
-				${labelQuery}
-			WITH n
-			WHERE
-				${JSON.stringify(name)} is Null
-				OR
-				${JSON.stringify(name)} = ''
-				OR
-				any(name in n.name WHERE name CONTAINS ${JSON.stringify(name)})
-				OR
-				n.cmdline CONTAINS ${JSON.stringify(name)}
-			WITH n
-			WHERE
-				${JSON.stringify(host)} is Null
-				OR
-				${JSON.stringify(host)} = ''
-				OR
-				(
-					exists(n.host)
-					AND
-					n.host = ${JSON.stringify(host)}
-				)
-				OR
-				n.uuid = ${JSON.stringify(host)}
-			WITH n
-			MATCH (m:Machine)
-			WHERE
-				(
-					n:Conn
-					AND
+	if(pvm_version == 2){
+		query = `MATCH (n) WHERE ${labelQuery} AND id(n) >= ${startID} RETURN ${returnQuery}`;
+	}
+	else {
+		query = `MATCH (n)
+				${idQuery}
+				WHERE 
+					${JSON.stringify(lab)} is Null
+					OR
+					${labelQuery}
+				WITH n
+				WHERE
+					${JSON.stringify(name)} is Null
+					OR
+					${JSON.stringify(name)} = ''
+					OR
+					any(name in n.name WHERE name CONTAINS ${JSON.stringify(name)})
+					OR
+					n.cmdline CONTAINS ${JSON.stringify(name)}
+				WITH n
+				WHERE
+					${JSON.stringify(host)} is Null
+					OR
+					${JSON.stringify(host)} = ''
+					OR
 					(
-						n.client_ip=~${JSON.stringify(local_ip)}
-						OR
-						n.server_ip=~${JSON.stringify(local_ip)}
-						OR
-						(
-							n.type = 'Pipe'
-							AND
-							${JSON.stringify(local_ip)} = '.*?'
-						)
+						exists(n.host)
+						AND
+						n.host = ${JSON.stringify(host)}
 					)
-					AND
+					OR
+					n.uuid = ${JSON.stringify(host)}
+				WITH n
+				MATCH (m:Machine)
+				WHERE
 					(
-						n.client_port=~${JSON.stringify(local_port)}
-						OR
-						n.server_port=~${JSON.stringify(local_port)}
-						OR
+						n:Conn
+						AND
 						(
-							n.type = 'Pipe'
-							AND
-							${JSON.stringify(local_port)} = '.*?'
-						)
-					)
-					AND
-					(
-						n.server_ip=~${JSON.stringify(remote_ip)}
-						OR
-						n.client_ip=~${JSON.stringify(remote_ip)}
-						OR
-						(
-							n.type = 'Pipe'
-							AND
-							${JSON.stringify(remote_ip)} = '.*?'
-						)
-					)
-					AND
-					(
-						n.server_port=~${JSON.stringify(remote_port)}
-						OR
-						n.client_port=~${JSON.stringify(remote_port)}
-						OR
-						(
-							n.type = 'Pipe'
-							AND
-							${JSON.stringify(remote_port)} = '.*?'
-						)
-					)
-				)
-				OR
-				(
-					NOT n:Conn
-					AND
-					(
-						NOT n:Socket
-						OR
-						(
-							n:Socket
-							AND
-							any(name in n.name
-							WHERE name =~ (${JSON.stringify(remote_ip)}+':?'+${JSON.stringify(remote_port)}))
-							AND
+							n.client_ip=~${JSON.stringify(local_ip)}
+							OR
+							n.server_ip=~${JSON.stringify(local_ip)}
+							OR
 							(
-								${JSON.stringify(local_ip)} = ".*?"
-								OR
+								n.type = 'Pipe'
+								AND
+								${JSON.stringify(local_ip)} = '.*?'
+							)
+						)
+						AND
+						(
+							n.client_port=~${JSON.stringify(local_port)}
+							OR
+							n.server_port=~${JSON.stringify(local_port)}
+							OR
+							(
+								n.type = 'Pipe'
+								AND
+								${JSON.stringify(local_port)} = '.*?'
+							)
+						)
+						AND
+						(
+							n.server_ip=~${JSON.stringify(remote_ip)}
+							OR
+							n.client_ip=~${JSON.stringify(remote_ip)}
+							OR
+							(
+								n.type = 'Pipe'
+								AND
+								${JSON.stringify(remote_ip)} = '.*?'
+							)
+						)
+						AND
+						(
+							n.server_port=~${JSON.stringify(remote_port)}
+							OR
+							n.client_port=~${JSON.stringify(remote_port)}
+							OR
+							(
+								n.type = 'Pipe'
+								AND
+								${JSON.stringify(remote_port)} = '.*?'
+							)
+						)
+					)
+					OR
+					(
+						NOT n:Conn
+						AND
+						(
+							NOT n:Socket
+							OR
+							(
+								n:Socket
+								AND
+								any(name in n.name
+								WHERE name =~ (${JSON.stringify(remote_ip)}+':?'+${JSON.stringify(remote_port)}))
+								AND
 								(
-									m.uuid = n.host
-									AND
-									any(l_ip in m.ips
-									WHERE l_ip = ${JSON.stringify(local_ip)})
+									${JSON.stringify(local_ip)} = ".*?"
+									OR
+									(
+										m.uuid = n.host
+										AND
+										any(l_ip in m.ips
+										WHERE l_ip = ${JSON.stringify(local_ip)})
+									)
 								)
 							)
 						)
 					)
-				)
-			RETURN ${returnQuery}`;
-	//}
+				RETURN ${returnQuery}`;
+	}
 	let session = driver.session();
 	session.run(query)
 	 .then(result => {
 		session.close();
+		//console.log(result);
 		let nodes = [];
 		if(countOnly){
 			fn(result.get('n'));
@@ -548,6 +556,20 @@ export function get_nodes(node_type=null,
 		fn(nodes);
 	 }, function(error) {
 		neo4jError(error, session, "get_nodes");
+	});
+}
+
+export function getTypeLabels(fn){
+	let session = driver.session();
+	session.run(`CALL db.labels()`)
+	.then(result => {
+		let types = [];
+		result.records.forEach(function(record){
+			types = types.concat(record.get('label'));
+		})
+		fn(types);
+	}, function(error) {
+		neo4jError(error, session, "getTypeLabels");
 	});
 }
 
@@ -567,6 +589,7 @@ const neo4jQueries ={
 	successors_query,
 	get_detail_id,
 	get_nodes,
+	getTypeLabels,
 }
 
 export default neo4jQueries;

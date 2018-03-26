@@ -12,6 +12,8 @@ import machine_external from './img/machine-external.svg';
 import pipe from './img/pipe.png';
 import socket from './img/socket.png';
 
+var pvm_version = null;
+var PVMvLexicon = null;
 
 //
 // Create a new graph.
@@ -387,6 +389,7 @@ function load_graph_style(graphs) {
 // really appropriate to serve from OPUS/Neo4j.
 //
 export function node_metadata(node) {
+	//console.log(node);
 	let metadata = null;
 	let timestamp = null;
 	switch (node.type) {
@@ -442,7 +445,7 @@ export function node_metadata(node) {
 		case 'file-version':
 			metadata = {
 				icon: 'file-o',
-				label: node.name.join(' / '),
+				label: parseNodeName(node.name),
 			};
 			timestamp = node['timestamp'];
 			break;
@@ -458,7 +461,7 @@ export function node_metadata(node) {
 		case 'socket-version':
 			metadata = {
 				icon: 'plug',
-				label: node.name.join(' / '),
+				label: parseNodeName(node[PVMvLexicon.socket_name]),
 			};
 			timestamp = node['timestamp'];
 			break;
@@ -491,6 +494,29 @@ export function node_metadata(node) {
 	return metadata;
 }
 
+export function setPVMVersion(PVMv){
+	pvm_version = PVMv;
+	switch(pvm_version['low']){
+		case(1):
+			PVMvLexicon = {'socket_name' : 'name'};
+			break;
+		case(2):
+			PVMvLexicon = {'socket_name' : 'ip'};
+			break;
+		default:
+			console.log('unknown pvm_version in graphing.js setPVMVersion');
+	}
+}
+
+function parseNodeName(name){
+	if(Array.isArray(name)){
+		return name.join(' / ');
+	}
+	else{
+		return name;
+	}
+}
+
 const graphing ={
 	save,
 	node_metadata,
@@ -500,6 +526,7 @@ const graphing ={
 	add_node_batch,
 	create,
 	add_edge,
+	setPVMVersion,
 }
 
 export default graphing;

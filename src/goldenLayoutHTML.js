@@ -3,13 +3,14 @@ import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.
 import './../node_modules/golden-layout/src/css/goldenlayout-base.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
 
+//var typeOptions = '';
 var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 								<div class="row header formBox" id="formBox">
 									<label for="filterNodeType">&nbsp;Type</label>
 									<div>
 										&nbsp;<select id="filterNodeType">
 											<option></option>
-											<option>connection</option>
+					 						<option>connection</option>
 											<option>file-version</option>
 											<option>pipe-endpoint</option>
 											<option>process</option>
@@ -17,7 +18,7 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 											<option>socket-version</option>
 											<option>machine</option>
 											<option>global-only</option>
-										</select>
+					 					</select>
 									</div>
 									<label for="filterName">&nbsp;Name</label>
 									<div>
@@ -149,12 +150,44 @@ export function addNodeSearchsheet(goldenlayout, fn){
 	goldenlayout.emit(`NodeSearchsheetContainerCreated`, fn);
 }
 
+// export function setTypeOptions(types){
+// 	types.forEach(function(type){
+// 		switch(type){
+// 			case('Conn'):
+// 				typeOptions = `<option>connection</option>`;
+// 			break;
+// 			case("File"):
+// 				typeOptions = `<option>file-version</option>`;
+// 			break;
+// 			case("Pipe"):
+// 				typeOptions = `<option>pipe-endpoint</option>`;
+// 			break;
+// 			case("Process"):
+// 				typeOptions = `<option>process</option>`;
+// 			break;
+// 			case('Meta'):
+// 				typeOptions = `<option>process-meta</option>`;
+// 			break;
+// 			case("Socket"):
+// 				typeOptions = `<option>socket-version</option>`;
+// 			break;
+// 			case('Machine'):
+// 				typeOptions = `<option>machine</option>`;
+// 			break;
+// 			case('Global'):
+// 				typeOptions = `<option>global-only</option>`;
+// 			break;
+// 		}
+// 	})
+// }
+
 const goldenLayoutHTML = {
 	intiGoldenLayoutHTML,
 	incrementWorksheetCount,
 	getWorksheetCount,
 	addWorksheet,
 	addNodeSearchsheet,
+	//setTypeOptions,
 }
 
 export default goldenLayoutHTML;
