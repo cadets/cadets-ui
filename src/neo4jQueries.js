@@ -88,7 +88,7 @@ export function cmd_query(id, fn){
 export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 								process_meta=true, isOverFlow=false, limit=-1, startID = 0){
 	get_neighbours_id_batch([parseInt(id)], fn, files, sockets, pipes, 
-							process_meta, isOverFlow, limit, startID,);
+							process_meta, isOverFlow, limit, startID,true);
 }
 
 export function get_neighbours_id_batch(ids,
@@ -99,10 +99,10 @@ export function get_neighbours_id_batch(ids,
 										process_meta=true,
 										isOverFlow=false,
 										limit=-1,
-										startID = 0,){
+										startID = 0,
+										includeRoot_node=false){
 	let session = driver.session();
 	let neighbours;
-	let root_node;
 	let m_nodes;
 	let m_qry;
 	let neighbour_nodes = [];
@@ -138,14 +138,15 @@ export function get_neighbours_id_batch(ids,
 				id(s) IN ${JSON.stringify(ids)}
 				AND
 				any(lab in labels(d) WHERE lab IN ${JSON.stringify(matchers)})
-				RETURN DISTINCT e, d
+				RETURN DISTINCT s, e, d
 				${limitQuery}`)
 
 	.then(result => {
 		neighbours = result.records;
 		if (neighbours.length){
-			// root_node = neo4jParser.parseNeo4jNode(neighbours[0].get('s'));
-			// neighbour_nodes = neighbour_nodes.concat(root_node);
+			if(includeRoot_node){
+				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(neighbours[0].get('s')));
+			}
 			for(let row in neighbours){
 				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(neighbours[row].get('d')));
 				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(neighbours[row].get('e')));
