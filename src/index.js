@@ -721,6 +721,8 @@ function showInspectorNextPrevious(){
 
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
+			result.nodes.splice(0, 1);
+
 			inspector.graph.remove('node');
 
 			graphingAPI.add_node(inspectee, inspector.graph);
