@@ -52,11 +52,23 @@ export function neo4jLogin(eventE){
 }
 
 export function file_read_query(id, fn){
+	let query = '';
+	switch(parseInt(pvm_version)){
+		case(1):
+			query = `MATCH (n:Process)<-[e:PROC_OBJ]-(c:File)
+							WHERE id(n) = ${id} AND
+								e.state in ['BIN', 'READ', 'RaW']
+							RETURN c`;
+			break;
+		case(2):
+			query = `MATCH (n:Process)<-[]-(c:File)
+							WHERE id(n) = ${id}
+							RETURN c`;
+			break;
+		default:
+	}
 	let session = driver.session();
-	session.run(`MATCH (n:Process)<-[e:PROC_OBJ]-(c:File)
-						WHERE id(n) = ${id} AND
-							e.state in ['BIN', 'READ', 'RaW']
-						RETURN c`)
+	session.run(query)
 	.then(result => {
 		session.close();
 		if (result.length){
@@ -74,10 +86,22 @@ export function file_read_query(id, fn){
 }
 
 export function cmd_query(id, fn){
-	let session = driver.session();
-	session.run(`MATCH (n:Process)<-[:PROC_PARENT]-(c:Process) 
+	let query = '';
+	switch(parseInt(pvm_version)){
+		case(1):
+			query = `MATCH (n:Process)<-[:PROC_PARENT]-(c:Process) 
 						WHERE id(n) = ${id} 
-						RETURN c ORDER BY c.timestamp`)
+					RETURN c ORDER BY c.timestamp`;
+			break;
+		case(2):
+			query = `MATCH (n:Process)<-[]-(c:Process) 
+						WHERE id(n) = ${id} 
+					RETURN c`;
+			break;
+		default:
+	}
+	let session = driver.session();
+	session.run(query)
 	.then(result => {
 		session.close();
 		let cmds = [];
