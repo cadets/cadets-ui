@@ -117,7 +117,7 @@ export function cmd_query(id, fn){
 export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 								process_meta=true, isOverFlow=false, limit=-1, startID = 0){
 	get_neighbours_id_batch([parseInt(id)], fn, files, sockets, pipes, 
-							process_meta, isOverFlow, limit, startID,true);
+							process_meta, isOverFlow, limit, startID);
 }
 
 export function get_neighbours_id_batch(ids,
@@ -128,15 +128,14 @@ export function get_neighbours_id_batch(ids,
 										process_meta=true,
 										isOverFlow=false,
 										limit=-1,
-										startID = 0,
-										includeRoot_node=false){
+										startID = 0){
 	let session = driver.session();
 	let root_node;
 	let neighbour_nodes = [];
 	let neighbour_edges = [];
 	let matchers = ["Machine", "Process", "Conn"];
 	if (files){
-		matchers = matchers.concat('File');
+		matchers = matchers.concat(['File', 'EditSession']);
 	}
 	if (sockets){
 		matchers = matchers.concat('Socket');
@@ -172,17 +171,11 @@ export function get_neighbours_id_batch(ids,
 	.then(result => {
 		let neighbours = result.records;
 		if (neighbours.length){
-			if(includeRoot_node){
-				root_node = neo4jParser.parseNeo4jNode(neighbours[0].get('s'));
-			}
+			root_node = neo4jParser.parseNeo4jNode(neighbours[0].get('s'));
 			neighbours.forEach(function(row){
 				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(row.get('d')));
 				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(row.get('e')));
 			});
-			// for(let row in neighbours){
-			// 	neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(neighbours[row].get('d')));
-			// 	neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(neighbours[row].get('e')));
-			// }
 		}
 		if (sockets){
 			session.run(`MATCH (skt:Socket), (mch:Machine)
@@ -413,7 +406,8 @@ export function get_nodes(node_type=null,
 					'process-meta': 'Meta',
 					'connection': 'Conn',
 					'file-version': 'File',
-					'global-only': 'Global'};
+					'global-only': 'Global',
+					'edit-session': 'EditSession'};
 	let labelQuery;
 	if  (!(node_type in node_labels)){
 		lab = "Null";

@@ -46,9 +46,16 @@ export function parseNeo4jNode(o){
 		}
 		data.type= "connection";
 	}
-	 else{
+	 else if (labels.indexOf('File') > -1){
 		data.type = "file-version";
 		data = concatDictionary( data, o['properties']);
+	}
+	else if (labels.indexOf('EditSession') > -1){
+		data.type = "edit-session";
+		data = concatDictionary( data, o['properties']);
+	}
+	else{
+		console.log('neo4jParser.js - parseNeo4jNode func does not recognize label');
 	}
 	// mchs.forEach(function(mch){
 	// //for(mch in mchs){

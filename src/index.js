@@ -721,7 +721,7 @@ function showInspectorNextPrevious(){
 
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
-			//result.nodes.splice(0, 1);
+
 
 			inspector.graph.remove('node');
 
@@ -733,13 +733,6 @@ function showInspectorNextPrevious(){
 				graphingAPI.add_node(n, inspector.graph);
 
 				let meta = graphingAPI.node_metadata(n);
-				// inspector.neighbours.append(`
-				// 	<tr>
-				// 		<td><a onclick="import_into_worksheet(${n.id})" style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
-				// 		<td><a onclick="import_into_worksheet(${n.id})">${meta.label}</a></td>
-				// 	</tr>
-				// `);
-
 
 				let table = document.getElementById("neighbour-detail");
 
