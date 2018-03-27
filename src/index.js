@@ -5,6 +5,7 @@ import cytoscape from './../node_modules/cytoscape/dist/cytoscape.min.js';
 import cxtmenu from './../node_modules/cytoscape-cxtmenu/cytoscape-cxtmenu.js';
 import moment from './../node_modules/moment/moment.js';
 import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.js';
+import events from './../node_modules/events/events.js';
 
 //import './../node_modules/hashids/dist/hashids.min.js';
 import dagre from './../node_modules/cytoscape-dagre/cytoscape-dagre.js';
@@ -19,6 +20,7 @@ import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
 var graphingAPI = require('./graphing.js');
 var neo4jQueries = require('./neo4jQueries.js');
 var goldenLayoutHTML = require('./goldenLayoutHTML.js');
+var eventEmitter = new events.EventEmitter();
 
 cytoscape.use( cxtmenu );
 cytoscape.use( dagre );
@@ -224,7 +226,7 @@ workSheetLayout.init();
 
 workSheetLayout.on('initialised', function(){
 	if(document.getElementById("NodeSearchsheet") != null){
-		neo4jQueries.neo4jLogin();
+		neo4jQueries.neo4jLogin(eventEmitter);
 		$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 	}
 	if(document.getElementById("inspectorGraph") != null){
@@ -272,6 +274,10 @@ window.onresize = function(){
 }
 
 document.body.onmousemove = findMouseCoords;
+
+eventEmitter.on('pvm_version_set', function(pvm_version){
+	graphingAPI.setPVMVersion(pvm_version);
+})
 
 //Main Events end
 
@@ -457,7 +463,6 @@ function toggle_node_importance(id, excludeWorksheet = -1) {
 			}
 		}
 	});
-
 }
 
 //
@@ -615,7 +620,6 @@ function showNodeListNextPrevious(){
 							overFlowVars['nodeList'][`IDStart`],
 							false,
 		function(result) {
-
 			let nodelist = $('#nodelist');
 			nodelist.empty();
 
@@ -717,7 +721,8 @@ function showInspectorNextPrevious(){
 
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
-			result.nodes.splice(0, 1);
+
+
 			inspector.graph.remove('node');
 
 			graphingAPI.add_node(inspectee, inspector.graph);
@@ -728,13 +733,6 @@ function showInspectorNextPrevious(){
 				graphingAPI.add_node(n, inspector.graph);
 
 				let meta = graphingAPI.node_metadata(n);
-				// inspector.neighbours.append(`
-				// 	<tr>
-				// 		<td><a onclick="import_into_worksheet(${n.id})" style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
-				// 		<td><a onclick="import_into_worksheet(${n.id})">${meta.label}</a></td>
-				// 	</tr>
-				// `);
-
 
 				let table = document.getElementById("neighbour-detail");
 
@@ -866,7 +864,7 @@ function import_neighbours_into_worksheetAsync(id){
 //
 function import_neighbours_into_worksheet(id) {
 	get_neighbours(id, function(result) {
-		import_batch_into_worksheet(result.nodes);
+		import_batch_into_worksheet(result.nodes.concat(result.focusNode));
 	});
 }
 
@@ -1004,7 +1002,6 @@ function if_DOM_IDExsitsRemove(id){
 
 function updateOverFlow(name, results){
 	if(results.length <= 0){return;}
-	overFlowVars[name][`IDStart`] = results[0].id;
 	overFlowVars[name][`IDNextStart`] = results[results.length-1].id;
 	let length = results.length;
 	if(results.length > overFlowVars[name][`DisplayAmount`]){
@@ -1060,7 +1057,7 @@ function getPreviousNodes(name){
 }
 
 function getNextNodes(name){
-	if(overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
+	if(//overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
 		overFlowVars[name][`IDNextStart`] != overFlowVars[name][`IDEnd`] && 
 		!UILock){
 		UILock = true;

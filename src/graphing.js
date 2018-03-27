@@ -7,11 +7,14 @@ import moment from './../node_modules/moment/moment.js';
 import connection from './img/connection.png';
 import proc from './img/proc.png';
 import file_version from './img/file-version.png';
+import edit_session from './img/edit-session.png';
 import cadets_machine from './img/cadets-machine.svg';
 import machine_external from './img/machine-external.svg';
 import pipe from './img/pipe.png';
 import socket from './img/socket.png';
 
+var pvm_version = null;
+var PVMvLexicon = null;
 
 //
 // Create a new graph.
@@ -41,6 +44,7 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 	let nodesToHighLight = [];
 	nodes.forEach(function(data){
 		// Have we already imported this node?
+
 		if (!graph.nodes(`[id="${data.id}"]`).empty()) {
 			return;
 		}
@@ -48,7 +52,7 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 		// When importing things with abstract containers (e.g., file versions),
 		// draw a compound node to show the abstraction and simplify the versions.
 		if (data.uuid && (
-				[ 'file-version', 'pipe-endpoint', 'socket-version', ].indexOf(data.type)
+				[ 'file-version', 'pipe-endpoint', 'socket-version', 'edit-session'].indexOf(data.type)
 					!= -1
 				)) {
 			let compound = graph.nodes(`[id="${data.uuid}"]`);
@@ -311,6 +315,20 @@ function load_graph_style(graphs) {
 				background-opacity: 0;
 				border-width: 0; }
 
+			node.edit {
+				background-color: #dc9;
+				background-opacity: 0.25;
+				border-color: #633;
+				color: #633; }
+
+			node.edit-session {
+				shape: rectangle;
+				content: '';
+				text-opacity: 0;
+				background-image: ${edit_session};
+				background-opacity: 0;
+				border-width: 0; }
+
 			node.machine {
 				font-size: 48pt;
 				text-valign: top;
@@ -442,7 +460,23 @@ export function node_metadata(node) {
 		case 'file-version':
 			metadata = {
 				icon: 'file-o',
-				label: node.name.join(' / '),
+				label: parseNodeName(node.name),
+			};
+			timestamp = node['timestamp'];
+			break;
+
+		case 'edit':
+			metadata = {
+				icon: 'file-o',
+				label: Array(node.names).join(' '),
+			};
+			timestamp = node['timestamp'];
+			break;
+
+		case 'edit-session':
+			metadata = {
+				icon: 'file-o',
+				label: parseNodeName(node.name),
 			};
 			timestamp = node['timestamp'];
 			break;
@@ -458,7 +492,7 @@ export function node_metadata(node) {
 		case 'socket-version':
 			metadata = {
 				icon: 'plug',
-				label: node.name.join(' / '),
+				label: parseNodeName(node[PVMvLexicon.socket_name]),
 			};
 			timestamp = node['timestamp'];
 			break;
@@ -491,6 +525,29 @@ export function node_metadata(node) {
 	return metadata;
 }
 
+export function setPVMVersion(PVMv){
+	pvm_version = PVMv;
+	switch(pvm_version['low']){
+		case(1):
+			PVMvLexicon = {'socket_name' : 'name'};
+			break;
+		case(2):
+			PVMvLexicon = {'socket_name' : 'ip'};
+			break;
+		default:
+			console.log('unknown pvm_version in graphing.js setPVMVersion');
+	}
+}
+
+function parseNodeName(name){
+	if(Array.isArray(name)){
+		return name.join(' / ');
+	}
+	else{
+		return name;
+	}
+}
+
 const graphing ={
 	save,
 	node_metadata,
@@ -500,6 +557,7 @@ const graphing ={
 	add_node_batch,
 	create,
 	add_edge,
+	setPVMVersion,
 }
 
 export default graphing;
