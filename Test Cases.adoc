@@ -1,10 +1,10 @@
-#CADETS UI Test Cases
+# CADETS UI Test Cases
 
 These test cases are checked before a merge into the master branch.
 
-##Test Cases
+## Test Cases
 
-###Title: Login – Authenticate Successfully on http://localhost:8080/ or https://allendale.engr.mun.ca/cadets-ui/
+### Title: Login – Authenticate Successfully on http://localhost:8080/ or https://allendale.engr.mun.ca/cadets-ui/
 
 Description: A registered neo4j user should be able to successfully login at http://localhost:8080/ or https://allendale.engr.mun.ca/cadets-ui/
 
@@ -23,7 +23,7 @@ Expected Result: The vex form should disappear and no error should pop up
 
 
 
-###Title: Open New Worksheet – Using the 'Open New Worksheet' button
+### Title: Open New Worksheet – Using the 'Open New Worksheet' button
 
 Description: Pressing the 'Open New Worksheet' button a new worksheet will open
 
@@ -39,7 +39,7 @@ Expected Result: a new worksheet will open titled 'Worksheet_#' the number shoul
 
 
 
-###Title: Close/Open NodeSearchsheet – Using the 'Close/Open NodeSearchsheet' button
+### Title: Close/Open NodeSearchsheet – Using the 'Close/Open NodeSearchsheet' button
 
 Description: Pressing the 'Close/Open NodeSearchsheet' button the NodeSearchsheet will close then open
 
@@ -56,7 +56,7 @@ Expected Result: the NodeSearchsheet will close then the NodeSearchsheet will op
 
 
 
-###Title: Close worksheet – using the 'x' button
+### Title: Close worksheet – using the 'x' button
 
 Description: Pressing the 'x' button the corresponding worksheet will close
 
@@ -72,7 +72,7 @@ Expected Result: the corresponding worksheet will close
 
 
 
-###Title: Moving tabs – rearranging the layout
+### Title: Moving tabs – rearranging the layout
 
 Description: Make sure layout is dynamic
 
@@ -88,7 +88,7 @@ Expected Result: everything will stay the same except the location and size of t
 
 
 
-###Title: NodeSearchsheet formbox test – querying different values
+### Title: NodeSearchsheet formbox test – querying different values
 
 Description: See if changing data in the NodeSearchsheet formbox will change nodes displayed in the NodeSearchsheet's nodeList
 
@@ -105,7 +105,7 @@ Expected Result: nodes in nodeList should have the properties chosen in the Node
 
 
 
-###Title: NodeSearchsheet overflow spawning – 
+### Title: NodeSearchsheet overflow spawning – 
 
 Description: See if NodeSearchsheet's overflow logic spawns
 
@@ -121,7 +121,7 @@ Expected Result: the 'Next # nodes' and 'Previous # nodes' buttons will spawn
 
 
 
-###Title: NodeSearchsheet overflow logic – using the 'Next/Previous # nodes' button
+### Title: NodeSearchsheet overflow logic – using the 'Next/Previous # nodes' button
 
 Description: See if NodeSearchsheet's overflow logic works
 
@@ -138,7 +138,7 @@ Expected Result: different nodes will appear in NodeSearchsheet's nodeList then 
 
 
 
-###Title: Choose node from nodeList – inspect using the nodeList
+### Title: Choose node from nodeList – inspect using the nodeList
 
 Description: See if NodeSearchsheet's nodeList will inspect nodes
 
@@ -154,7 +154,7 @@ Expected Result: in the Inspector window the corresponding node will appear with
 
 
 
-###Title: The Details tab – using the Details window
+### Title: The Details tab – using the Details window
 
 Description: See if properties are displayed in the Details window
 
@@ -170,7 +170,7 @@ Expected Result: all properties will be displayed in the Details window
 
 
 
-###Title: The Neighbours tab – using the Neighbours window
+### Title: The Neighbours tab – using the Neighbours window
 
 Description: See if the inspectee Neighbours are shown in the Neighbour’s windows node list
 
@@ -186,7 +186,7 @@ Expected Result: all inspectee neighbours will be displayed in the Neighbours wi
 
 
 
-###Title: The Neighbours tab selection – selecting nodes from the Neighbours window
+### Title: The Neighbours tab selection – selecting nodes from the Neighbours window
 
 Description: See if the inspectee Neighbours are importable to worksheets
 
@@ -207,7 +207,7 @@ Expected Result: the correct node will appear in worksheet_0 then worksheet_1 wi
 
 
 
-###Title: Inspector filters – selecting different filters
+### Title: Inspector filters – selecting different filters
 
 Description: See if the inspector will filter the inspectee neighbours correctly
 
@@ -223,7 +223,7 @@ Expected Result: the correct nodes will appear in the Inspector window with the 
 
 
 
-###Title: Inspector overflow spawns – 
+### Title: Inspector overflow spawns – 
 
 Description: See if Inspector overflow logic spawns
 
@@ -239,7 +239,7 @@ Expected Result: the 'Next # nodes' and 'Previous # nodes' buttons will spawn ri
 
 
 
-###Title: Inspector overflow next/previous – using the 'Next/Previous # nodes' buttons
+### Title: Inspector overflow next/previous – using the 'Next/Previous # nodes' buttons
 
 Description: See if Inspector overflow logic works
 
@@ -256,7 +256,7 @@ Expected Result: different nodes will appear in the inspector window then the fi
 
 
 
-###Title: Inspect back and forward – using the '<-' and the '->'
+### Title: Inspect back and forward – using the '<-' and the '->'
 
 Description: See if Inspector can go back to last inspectee and forward to the backed inspectee
 
@@ -274,7 +274,7 @@ Expected Result: the previous inspectee will appear to in the Inspector window t
 
 
 
-###Title: Inspector 'Inspect' button – inspect using the Inspector
+### Title: Inspector 'Inspect' button – inspect using the Inspector
 
 Description: See if Inspector's 'Inspect' button will inspect nodes
 
@@ -291,7 +291,7 @@ Expected Result: in the inspector window the corresponding node will appear with
 
 
 
-###Title: Inspector 'Import and Inspect', 'Import Neighbours' and 'Import Node' button – Using the Inspector
+### Title: Inspector 'Import and Inspect', 'Import Neighbours' and 'Import Node' button – Using the Inspector
 
 Description: See if Inspector's 'Inspect buttons will function
 
@@ -316,7 +316,7 @@ Expected Result: for the 'Import Node' button the selected node will appear in t
 
 
 
-###Title: save – save the correct worksheet
+### Title: save – save the correct worksheet
 
 Description: See if the save button will work
 
@@ -335,7 +335,7 @@ Expected Result: the file will save to the user's default download location as a
 
 
 
-###Title: load – load the correct worksheet
+### Title: load – load the correct worksheet
 
 Description: See if the load button will work
 
@@ -352,7 +352,7 @@ Expected Result: the selected .json file will load in worksheet_0
 
 
 
-###Title: layouts – test the different layouts
+### Title: layouts – test the different layouts
 
 Description: See if the Dagre and Cose button will work
 
@@ -372,7 +372,7 @@ Expected Result: the graph will arrange themselves in the Dagre layout format th
 
 
 
-###Title: highlight – test the worksheet's highlight button
+### Title: highlight – test the worksheet's highlight button
 
 Description: See if the 'highlight' button will work
 
@@ -394,7 +394,7 @@ Expected Result: the node in worksheet_0 and worksheet_1 will get the 'important
 
 
 
-###Title: worksheet 'Commands' and 'Files read' – 
+### Title: worksheet 'Commands' and 'Files read' – 
 
 Description: See if the 'Commands' and 'Files read' buttons will work
 
@@ -418,7 +418,7 @@ Expected Result: a vex window will appear with a list of the files or commands t
 
 
 
-###Title: worksheet inspect – test worksheet's 'inspect' button
+### Title: worksheet inspect – test worksheet's 'inspect' button
 
 Description: See if worksheet's 'inspect' button will work
 
@@ -437,7 +437,7 @@ Expected Result: the node in worksheet_0 that was inspected will show up in the 
 
 
 
-###Title: worksheet 'Remove' and 'Remove neighbours' – 
+### Title: worksheet 'Remove' and 'Remove neighbours' – 
 
 Description: See if worksheet's 'Remove' and 'Remove neighbours' buttons will work
 
@@ -457,7 +457,7 @@ Expected Result: the selected node will disappear then the selected node and its
 
 
 
-###Title: worksheet 'Import neighbour' – 
+### Title: worksheet 'Import neighbour' – 
 
 Description: See if worksheet's 'Import neighbour' buttons will work
 
@@ -476,7 +476,7 @@ Expected Result: the selected node's neighbours will show up in worksheet_0
 
 
 
-###Title: worksheet 'Import successors' – 
+### Title: worksheet 'Import successors' – 
 
 Description: See if worksheet's 'Import successors' buttons will work
 
@@ -495,7 +495,7 @@ Expected Result: the selected node's successors will show up in worksheet_0
 
 
 
-###Title: PVMv1 and PVMv2 – 
+### Title: PVMv1 and PVMv2 – 
 
 Description: run tests on both PVMv1 and PVMv2 data
 
