@@ -721,13 +721,15 @@ function showInspectorNextPrevious(){
 
 		// Display the node's immediate connections in the inspector "Graph" panel.
 		get_neighbours(id, function(result) {
-			result.nodes.splice(0, 1);
+			//result.nodes.splice(0, 1);
 
 			inspector.graph.remove('node');
 
 			graphingAPI.add_node(inspectee, inspector.graph);
 
+			console.log(`${overFlowVars.inspector.IDStart}`);
 			updateOverFlow('inspector', result.nodes);
+			console.log(`${overFlowVars.inspector.IDStart} ${overFlowVars.inspector.IDEnd} ${overFlowVars.inspector.IDNextStart}`);
 
 			for (let n of result.nodes) {
 				graphingAPI.add_node(n, inspector.graph);
@@ -871,7 +873,7 @@ function import_neighbours_into_worksheetAsync(id){
 //
 function import_neighbours_into_worksheet(id) {
 	get_neighbours(id, function(result) {
-		import_batch_into_worksheet(result.nodes);
+		import_batch_into_worksheet(result.nodes.concat(result.focusNode));
 	});
 }
 
@@ -1009,7 +1011,6 @@ function if_DOM_IDExsitsRemove(id){
 
 function updateOverFlow(name, results){
 	if(results.length <= 0){return;}
-	overFlowVars[name][`IDStart`] = results[0].id;
 	overFlowVars[name][`IDNextStart`] = results[results.length-1].id;
 	let length = results.length;
 	if(results.length > overFlowVars[name][`DisplayAmount`]){
@@ -1065,9 +1066,11 @@ function getPreviousNodes(name){
 }
 
 function getNextNodes(name){
-	if(overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
+	console.log(`${overFlowVars[name][`IDNextStart`]} ${overFlowVars[name][`IDEnd`]}`);
+	if(//overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
 		overFlowVars[name][`IDNextStart`] != overFlowVars[name][`IDEnd`] && 
 		!UILock){
+		console.log("something");
 		UILock = true;
 		overFlowVars[name][`LastLowestShownIDs`] = overFlowVars[name][`LastLowestShownIDs`].concat(overFlowVars[name][`IDStart`]);
 		overFlowVars[name][`IDStart`] = overFlowVars[name][`IDNextStart`];

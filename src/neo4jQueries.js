@@ -131,9 +131,7 @@ export function get_neighbours_id_batch(ids,
 										startID = 0,
 										includeRoot_node=false){
 	let session = driver.session();
-	let neighbours;
-	let m_nodes;
-	let m_qry;
+	let root_node;
 	let neighbour_nodes = [];
 	let neighbour_edges = [];
 	let matchers = ["Machine", "Process", "Conn"];
@@ -157,8 +155,9 @@ export function get_neighbours_id_batch(ids,
 	if(limit != -1 && isOverFlow){
 		limitQuery = `Limit ${limit}`;
 	}
+	//console.log(`${startID} ${isOverFlow}`);
 	if(startID != -1 && isOverFlow){
-		startQuery =`id(d) <= ${startID}
+		startQuery =`id(d) >= ${startID}
 					AND`;
 	}
 	session.run(`MATCH (s)-[e]-(d)
@@ -168,18 +167,23 @@ export function get_neighbours_id_batch(ids,
 				AND
 				any(lab in labels(d) WHERE lab IN ${JSON.stringify(matchers)})
 				RETURN DISTINCT s, e, d
+				ORDER BY id(d)
 				${limitQuery}`)
 
 	.then(result => {
-		neighbours = result.records;
+		let neighbours = result.records;
 		if (neighbours.length){
 			if(includeRoot_node){
-				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(neighbours[0].get('s')));
+				root_node = neo4jParser.parseNeo4jNode(neighbours[0].get('s'));
 			}
-			for(let row in neighbours){
-				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(neighbours[row].get('d')));
-				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(neighbours[row].get('e')));
-			}
+			neighbours.forEach(function(row){
+				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(row.get('d')));
+				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(row.get('e')));
+			});
+			// for(let row in neighbours){
+			// 	neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(neighbours[row].get('d')));
+			// 	neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(neighbours[row].get('e')));
+			// }
 		}
 		if (sockets){
 			session.run(`MATCH (skt:Socket), (mch:Machine)
@@ -213,7 +217,8 @@ export function get_neighbours_id_batch(ids,
 					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('skt')));
 					neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(m_links));
 				});
-				fn({nodes: neighbour_nodes,
+				fn({focusNode: root_node,
+					nodes: neighbour_nodes,
 					edges: neighbour_edges});
 			}, function(error) {
 				neo4jError(error, session, "get_neighbours_id");
@@ -221,7 +226,8 @@ export function get_neighbours_id_batch(ids,
 		}
 		else{
 			session.close();
-			fn({nodes: neighbour_nodes,
+			fn({focusNode: root_node,
+				nodes: neighbour_nodes,
 				edges: neighbour_edges});
 		}
 	}, function(error) {
@@ -229,138 +235,138 @@ export function get_neighbours_id_batch(ids,
 	});
 }
 
-export function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=true, process_meta=true, fn){
-	let matchers = [];
-	// matchers = matchers.concat("Process");
-	// matchers = matchers.concat("Conn");
-	// matchers = matchers.concat("Machine");
-	if (files){
-		matchers = matchers.concat('File');
-	}
-	if (sockets){
-		matchers = matchers.concat('Socket');
-	}
-	if (pipes){
-		matchers = matchers.concat('Pipe');
-	}
-	if (files && sockets && pipes){
-		matchers = matchers.concat('Global');
-	}
-	let process_obj;
-	let session = driver.session();
-	get_detail_id(dbid, function(result) {
+// export function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=true, process_meta=true, fn){
+// 	let matchers = [];
+// 	// matchers = matchers.concat("Process");
+// 	// matchers = matchers.concat("Conn");
+// 	// matchers = matchers.concat("Machine");
+// 	if (files){
+// 		matchers = matchers.concat('File');
+// 	}
+// 	if (sockets){
+// 		matchers = matchers.concat('Socket');
+// 	}
+// 	if (pipes){
+// 		matchers = matchers.concat('Pipe');
+// 	}
+// 	if (files && sockets && pipes){
+// 		matchers = matchers.concat('Global');
+// 	}
+// 	let process_obj;
+// 	let session = driver.session();
+// 	get_detail_id(dbid, function(result) {
 
-		if (result[0] == null){
-			console.log(404);
-		}
-		process_obj = result[0];
-		//process_obj = result[0].splice(0,max_depth-1);//[(max_depth, result[0])];
-		//while (process_obj.length){
-		//	nodes = nodes.concat(cur);
-			if (process_obj.labels.indexOf('Global') > -1){
-				session.run(`MATCH (cur:Global)-[e]->(n:Process)
-							WHERE
-								id(cur)=${dbid}
-								AND
-								e.state in ['BIN', 'READ', 'RaW', 'CLIENT', 'SERVER']
-							RETURN n, e
-							UNION
-							MATCH (cur:Global)<-[e]-(n:Global)
-							WHERE
-								id(cur)=${dbid}
-								AND
-								NOT ${JSON.stringify(matchers)} is Null
-								AND
-								any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
-							RETURN n, e
-							UNION
-							MATCH (cur:Global)-[e]-(n:Conn)
-							WHERE id(cur)=${dbid}
-							RETURN n, e`)
-				.then(result => {
-					session.close();
-					findEdges(dbid, result.records, fn);
-				}, function(error) {
-					neo4jError(error, session, "successors_query");
-				});
-			}
-			else if (process_obj.labels.indexOf('Process') > -1){
-				session.run(`MATCH (cur:Process)<-[e]-(n:Global)
-							WHERE
-								id(cur)=${dbid}
-								AND
-								e.state in ['WRITE', 'RaW', 'CLIENT', 'SERVER']
-								AND
-								NOT ${JSON.stringify(matchers)} is Null
-								AND
-								any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
-								RETURN n, e
-							UNION
-							MATCH (cur:Process)<-[e]-(n:Process)
-							WHERE id(cur)=${dbid}
-							RETURN n, e`)
-				.then(result => {
-					session.close();
-					findEdges(dbid, result.records, fn);
-				}, function(error) {
-					neo4jError(error, session, "successors_query");
-				});
-			}
-			else if (process_obj.labels.indexOf('Conn') > -1 ){
-				session.run(`MATCH (cur:Conn)-[e]-(n:Global)
-							WHERE
-								id(cur)=${dbid}
-								AND
-								NOT ${JSON.stringify(matchers)} is Null
-								AND
-								any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
-							RETURN n, e`)
-				.then(result => {
-					session.close();
-					findEdges(dbid, result.records, fn);
-				}, function(error) {
-					neo4jError(error, session, "successors_query");
-				});
-			}
-			// if (neighbours == null){
-			// 	continue;
+// 		if (result[0] == null){
+// 			console.log(404);
 // 		}
-			// for (row in neighbours){
-			// 	if ((row['n'] in nodes) != null || 
-			// 		(row['n'] in process_obj.filter( d < (cur_depth - 1)))){
-			// 		continue;
+// 		process_obj = result[0];
+// 		//process_obj = result[0].splice(0,max_depth-1);//[(max_depth, result[0])];
+// 		//while (process_obj.length){
+// 		//	nodes = nodes.concat(cur);
+// 			if (process_obj.labels.indexOf('Global') > -1){
+// 				session.run(`MATCH (cur:Global)-[e]->(n:Process)
+// 							WHERE
+// 								id(cur)=${dbid}
+// 								AND
+// 								e.state in ['BIN', 'READ', 'RaW', 'CLIENT', 'SERVER']
+// 							RETURN n, e
+// 							UNION
+// 							MATCH (cur:Global)<-[e]-(n:Global)
+// 							WHERE
+// 								id(cur)=${dbid}
+// 								AND
+// 								NOT ${JSON.stringify(matchers)} is Null
+// 								AND
+// 								any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
+// 							RETURN n, e
+// 							UNION
+// 							MATCH (cur:Global)-[e]-(n:Conn)
+// 							WHERE id(cur)=${dbid}
+// 							RETURN n, e`)
+// 				.then(result => {
+// 					session.close();
+// 					findEdges(dbid, result.records, fn);
+// 				}, function(error) {
+// 					neo4jError(error, session, "successors_query");
+// 				});
 // 			}
-			// 	if (cur_depth > 0){
-			// 		process_obj = process_obj.concat((cur_depth - 1, row['n']));
+// 			else if (process_obj.labels.indexOf('Process') > -1){
+// 				session.run(`MATCH (cur:Process)<-[e]-(n:Global)
+// 							WHERE
+// 								id(cur)=${dbid}
+// 								AND
+// 								e.state in ['WRITE', 'RaW', 'CLIENT', 'SERVER']
+// 								AND
+// 								NOT ${JSON.stringify(matchers)} is Null
+// 								AND
+// 								any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
+// 								RETURN n, e
+// 							UNION
+// 							MATCH (cur:Process)<-[e]-(n:Process)
+// 							WHERE id(cur)=${dbid}
+// 							RETURN n, e`)
+// 				.then(result => {
+// 					session.close();
+// 					findEdges(dbid, result.records, fn);
+// 				}, function(error) {
+// 					neo4jError(error, session, "successors_query");
+// 				});
 // 			}
+// 			else if (process_obj.labels.indexOf('Conn') > -1 ){
+// 				session.run(`MATCH (cur:Conn)-[e]-(n:Global)
+// 							WHERE
+// 								id(cur)=${dbid}
+// 								AND
+// 								NOT ${JSON.stringify(matchers)} is Null
+// 								AND
+// 								any(lab in labels(n) WHERE lab IN ${JSON.stringify(matchers)})
+// 							RETURN n, e`)
+// 				.then(result => {
+// 					session.close();
+// 					findEdges(dbid, result.records, fn);
+// 				}, function(error) {
+// 					neo4jError(error, session, "successors_query");
+// 				});
 // 			}
+// 			// if (neighbours == null){
+// 			// 	continue;
+// // 		}
+// 			// for (row in neighbours){
+// 			// 	if ((row['n'] in nodes) != null || 
+// 			// 		(row['n'] in process_obj.filter( d < (cur_depth - 1)))){
+// 			// 		continue;
+// // 			}
+// 			// 	if (cur_depth > 0){
+// 			// 		process_obj = process_obj.concat((cur_depth - 1, row['n']));
+// // 			}
+// // 			}
+// // }
+// 	}, false);
 // }
-	}, false);
-}
 
-function findEdges(curId, neighbours, fn){
-		let session = driver.session();
-		let ids = [];
-		let nodes = [];
-		neighbours.forEach(function (record) 
-		{
-			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
-			ids = ids.concat(record.get('n')['identity']['low']);
-		});
-		session.run(`MATCH (a)-[e]-(b) WHERE id(a) = ${curId} AND id(b) IN ${JSON.stringify(ids)} RETURN DISTINCT e`)
-		.then(result => {
-			session.close();
-			let edges = [];
-			result.records.forEach(function (record) 
-			{
-				edges = edges.concat(neo4jParser.parseNeo4jEdge(record.get('e')));
-			});
-			fn({'nodes': nodes,
-				'edges': edges});
-			}, function(error) {
-				neo4jError(error, session, "findEdges");
-			});
-}
+// function findEdges(curId, neighbours, fn){
+// 		let session = driver.session();
+// 		let ids = [];
+// 		let nodes = [];
+// 		neighbours.forEach(function (record) 
+// 		{
+// 			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
+// 			ids = ids.concat(record.get('n')['identity']['low']);
+// 		});
+// 		session.run(`MATCH (a)-[e]-(b) WHERE id(a) = ${curId} AND id(b) IN ${JSON.stringify(ids)} RETURN DISTINCT e`)
+// 		.then(result => {
+// 			session.close();
+// 			let edges = [];
+// 			result.records.forEach(function (record) 
+// 			{
+// 				edges = edges.concat(neo4jParser.parseNeo4jEdge(record.get('e')));
+// 			});
+// 			fn({'nodes': nodes,
+// 				'edges': edges});
+// 			}, function(error) {
+// 				neo4jError(error, session, "findEdges");
+// 			});
+// }
 
 export function get_detail_id(id, fn, parse=true){
 	get_batch_detail_id([parseInt(id)], fn, parse=true);
@@ -609,7 +615,7 @@ const neo4jQueries ={
 	cmd_query,
 	get_neighbours_id,
 	get_neighbours_id_batch,
-	successors_query,
+	//successors_query,
 	get_detail_id,
 	get_nodes,
 	getTypeLabels,
