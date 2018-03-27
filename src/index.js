@@ -727,9 +727,7 @@ function showInspectorNextPrevious(){
 
 			graphingAPI.add_node(inspectee, inspector.graph);
 
-			console.log(`${overFlowVars.inspector.IDStart}`);
 			updateOverFlow('inspector', result.nodes);
-			console.log(`${overFlowVars.inspector.IDStart} ${overFlowVars.inspector.IDEnd} ${overFlowVars.inspector.IDNextStart}`);
 
 			for (let n of result.nodes) {
 				graphingAPI.add_node(n, inspector.graph);
@@ -1066,11 +1064,9 @@ function getPreviousNodes(name){
 }
 
 function getNextNodes(name){
-	console.log(`${overFlowVars[name][`IDNextStart`]} ${overFlowVars[name][`IDEnd`]}`);
 	if(//overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
 		overFlowVars[name][`IDNextStart`] != overFlowVars[name][`IDEnd`] && 
 		!UILock){
-		console.log("something");
 		UILock = true;
 		overFlowVars[name][`LastLowestShownIDs`] = overFlowVars[name][`LastLowestShownIDs`].concat(overFlowVars[name][`IDStart`]);
 		overFlowVars[name][`IDStart`] = overFlowVars[name][`IDNextStart`];

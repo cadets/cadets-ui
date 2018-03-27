@@ -389,7 +389,6 @@ function load_graph_style(graphs) {
 // really appropriate to serve from OPUS/Neo4j.
 //
 export function node_metadata(node) {
-	//console.log(node);
 	let metadata = null;
 	let timestamp = null;
 	switch (node.type) {

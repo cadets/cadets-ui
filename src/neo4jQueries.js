@@ -155,7 +155,6 @@ export function get_neighbours_id_batch(ids,
 	if(limit != -1 && isOverFlow){
 		limitQuery = `Limit ${limit}`;
 	}
-	//console.log(`${startID} ${isOverFlow}`);
 	if(startID != -1 && isOverFlow){
 		startQuery =`id(d) >= ${startID}
 					AND`;
@@ -571,7 +570,6 @@ export function get_nodes(node_type=null,
 	session.run(query)
 	 .then(result => {
 		session.close();
-		//console.log(result);
 		let nodes = [];
 		if(countOnly){
 			fn(result.get('n'));
