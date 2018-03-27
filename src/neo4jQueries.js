@@ -8,11 +8,9 @@ var neo4jParser = require('./neo4jParser.js');
 var neo4j = require('./../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js').v1;
 var driver = null;
 var pvm_version = null;
-var eventEmitter = null;
 
 
 export function neo4jLogin(eventE){
-	eventEmitter = eventE;
 	vex.dialog.open({
 		message: 'Enter your Neo4j username and password:',
 		input: [
@@ -25,7 +23,7 @@ export function neo4jLogin(eventE){
     	className: 'vex-theme-wireframe',
 		callback: function (data) {
 			if (!data) {
-				neo4jLogin();
+				neo4jLogin(eventE);
 			} else {//bolt://localhost
 				driver = neo4j.driver("bolt://localhost:7687/", neo4j.auth.basic(data.username, data.password));
 				let session = driver.session();
@@ -35,7 +33,7 @@ export function neo4jLogin(eventE){
 						if(result.records.length > 0){
 							pvm_version = result.records[0].get("n").properties.pvm_version
 							neo4jParser.pvm_version = pvm_version;
-							eventEmitter.emit('pvm_version_set', pvm_version);
+							eventE.emit('pvm_version_set', pvm_version);
 							if(pvm_version == null){
 								vex.dialog.alert({message: "DataBase does not contain PVM version data.",
 										className: 'vex-theme-wireframe'});
@@ -43,7 +41,7 @@ export function neo4jLogin(eventE){
 						}
 					},
 					function(error) {
-						neo4jLogin();
+						neo4jLogin(eventE);
 						neo4jError(error, session, "neo4jLogin");
 					});
 			}
@@ -326,17 +324,17 @@ export function successors_query(dbid, max_depth=4, files=true, sockets=true, pi
 			}
 			// if (neighbours == null){
 			// 	continue;
-			// }
+// 		}
 			// for (row in neighbours){
 			// 	if ((row['n'] in nodes) != null || 
 			// 		(row['n'] in process_obj.filter( d < (cur_depth - 1)))){
 			// 		continue;
-			// 	}
+// 			}
 			// 	if (cur_depth > 0){
 			// 		process_obj = process_obj.concat((cur_depth - 1, row['n']));
-			// 	}
-			// }
-		//}
+// 			}
+// 			}
+// }
 	}, false);
 }
 

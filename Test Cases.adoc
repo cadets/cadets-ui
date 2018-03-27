@@ -1,0 +1,510 @@
+#CADETS UI Test Cases
+
+These test cases are checked before a merge into the master branch.
+
+##Test Cases
+
+###Title: Login – Authenticate Successfully on http://localhost:8080/ or https://allendale.engr.mun.ca/cadets-ui/
+
+Description: A registered neo4j user should be able to successfully login at http://localhost:8080/ or https://allendale.engr.mun.ca/cadets-ui/
+
+Precondition: the user must already be registered with the local neo4j server
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- Navigate to http://localhost:8080/ or https://allendale.engr.mun.ca/cadets-ui/
+- In the ’Username’ field, enter the users registered Username.
+- In the ’Password’ field, enter the users registered Password.
+- Click ‘Login’
+
+Expected Result: The vex form should disappear and no error should pop up
+
+
+
+###Title: Open New Worksheet – Using the 'Open New Worksheet' button
+
+Description: Pressing the 'Open New Worksheet' button a new worksheet will open
+
+Precondition: the user must already pass the 'Login' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- press the 'Open New Worksheet' button located in the header bar
+
+Expected Result: a new worksheet will open titled 'Worksheet_#' the number should be one higher than the last worksheet
+
+
+
+###Title: Close/Open NodeSearchsheet – Using the 'Close/Open NodeSearchsheet' button
+
+Description: Pressing the 'Close/Open NodeSearchsheet' button the NodeSearchsheet will close then open
+
+Precondition: the user must already pass the 'Login' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- press the 'Close NodeSearchsheet' button located in the header bar
+- press the 'Open NodeSearchsheet' button located in the header bar
+
+Expected Result: the NodeSearchsheet will close then the NodeSearchsheet will open
+
+
+
+###Title: Close worksheet – using the 'x' button
+
+Description: Pressing the 'x' button the corresponding worksheet will close
+
+Precondition: the user must already pass the 'Login' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- press the 'x' button located in the top part of a worksheet in the tab
+
+Expected Result: the corresponding worksheet will close
+
+
+
+###Title: Moving tabs – rearranging the layout
+
+Description: Make sure layout is dynamic
+
+Precondition: the user must already pass the 'Login' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- Drag tabs around and release it in a different location
+
+Expected Result: everything will stay the same except the location and size of the windows
+
+
+
+###Title: NodeSearchsheet formbox test – querying different values
+
+Description: See if changing data in the NodeSearchsheet formbox will change nodes displayed in the NodeSearchsheet's nodeList
+
+Precondition: the user must already pass the 'Login' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- Select a type
+- Then try different data in the form box
+
+Expected Result: nodes in nodeList should have the properties chosen in the NodeSearchsheet's formbox
+
+
+
+###Title: NodeSearchsheet overflow spawning – 
+
+Description: See if NodeSearchsheet's overflow logic spawns
+
+Precondition: the user must already pass the 'NodeSearchsheet formbox test' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- the current NodeSearchsheet formbox must result in more nodes then overFlowVars['nodeList']['DisplayAmount']
+
+Expected Result: the 'Next # nodes' and 'Previous # nodes' buttons will spawn
+
+
+
+###Title: NodeSearchsheet overflow logic – using the 'Next/Previous # nodes' button
+
+Description: See if NodeSearchsheet's overflow logic works
+
+Precondition: the user must already pass the 'NodeSearchsheet overflow spawning' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- Then press the 'Next # nodes' button
+- Then press the 'Previous # nodes' button
+
+Expected Result: different nodes will appear in NodeSearchsheet's nodeList then the first nodes should reappear in NodeSearchsheet's nodeList
+
+
+
+###Title: Choose node from nodeList – inspect using the nodeList
+
+Description: See if NodeSearchsheet's nodeList will inspect nodes
+
+Precondition: the user must already pass the 'NodeSearchsheet formbox test' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- click a node in the NodeSearchsheet's nodeList
+
+Expected Result: in the Inspector window the corresponding node will appear with the correct neighbours
+
+
+
+###Title: The Details tab – using the Details window
+
+Description: See if properties are displayed in the Details window
+
+Precondition: the user must already pass the 'Choose node from nodeList' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- click the Details tab located at the top of the Inspector window
+
+Expected Result: all properties will be displayed in the Details window
+
+
+
+###Title: The Neighbours tab – using the Neighbours window
+
+Description: See if the inspectee Neighbours are shown in the Neighbour’s windows node list
+
+Precondition: the user must already pass the 'Choose node from nodeList' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- click the Neighbours tab located at the top of the Inspector window
+
+Expected Result: all inspectee neighbours will be displayed in the Neighbours window
+
+
+
+###Title: The Neighbours tab selection – selecting nodes from the Neighbours window
+
+Description: See if the inspectee Neighbours are importable to worksheets
+
+Precondition: the user must already pass the 'the Neighbours tab' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- press a node in the Neighbours windows nodeList
+- select Worksheet_0
+- press a different node in the Neighbours windows nodeList
+- select New Worksheet
+- press a different node in the Neighbours windows nodeList
+- select Worksheet_1
+
+Expected Result: the correct node will appear in worksheet_0 then worksheet_1 will open with the second node within it in then the third node will appear in worksheet_1
+
+
+
+###Title: Inspector filters – selecting different filters
+
+Description: See if the inspector will filter the inspectee neighbours correctly
+
+Precondition: the user must already pass the 'Choose node from nodeList' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- select different filters combinations located at the bottom of the Inspector window
+
+Expected Result: the correct nodes will appear in the Inspector window with the correct edges
+
+
+
+###Title: Inspector overflow spawns – 
+
+Description: See if Inspector overflow logic spawns
+
+Precondition: the user must already pass the 'Choose node from nodeList' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- the current inspectee must result in more nodes then overFlowVars['inspector']['DisplayAmount']
+
+Expected Result: the 'Next # nodes' and 'Previous # nodes' buttons will spawn right under the '<-' and the '->'
+
+
+
+###Title: Inspector overflow next/previous – using the 'Next/Previous # nodes' buttons
+
+Description: See if Inspector overflow logic works
+
+Precondition: the user must already pass the 'Inspector overflow spawns' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- click the 'Next # nodes' button
+- click the 'Previous # nodes' button
+
+Expected Result: different nodes will appear in the inspector window then the first nodes will reappear
+
+
+
+###Title: Inspect back and forward – using the '<-' and the '->'
+
+Description: See if Inspector can go back to last inspectee and forward to the backed inspectee
+
+Precondition: the user must already pass the 'Choose node from nodeList' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- At leased two different nodes have been inspected
+- press the '<-' button located at the top of the Inspector window
+- press the '->' button located at the top of the Inspector window
+
+Expected Result: the previous inspectee will appear to in the Inspector window then the first inspectee will appear in the inspector window
+
+
+
+###Title: Inspector 'Inspect' button – inspect using the Inspector
+
+Description: See if Inspector's 'Inspect' button will inspect nodes
+
+Precondition: the user must already pass the 'Choose node from nodeList’ test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- In the Inspector window right press a node other than the inspectee
+- select the 'Inspect' option
+
+Expected Result: in the inspector window the corresponding node will appear with the correct neighbours
+
+
+
+###Title: Inspector 'Import and Inspect', 'Import Neighbours' and 'Import Node' button – Using the Inspector
+
+Description: See if Inspector's 'Inspect buttons will function
+
+Precondition: the user must already pass the 'Choose node from nodeList’ test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- In the Inspector window right press a node
+- press the 'import Node' option
+- select 'Worksheet_0'
+- In the Inspector window right press a node
+- press the 'import Node' option
+- select 'New Worksheet'
+- In the Inspector window right press a different node
+- press the 'import Node' option
+- select' 'Worksheet_1'
+- redo these steps with both 'Import and Inspect' and 'Import Neighbours' button
+
+Expected Result: for the 'Import Node' button the selected node will appear in the selected worksheet and connect to all neighbour nodes that are already in the worksheet with edges. for the 'Import and Inspect' button the selected node with both show up in the in the Inspector with its neighbours and import in to correct worksheet. for the 'Import Neighbour' button the selected node and its neighbours will be imported into the selected worksheet
+
+
+
+###Title: save – save the correct worksheet
+
+Description: See if the save button will work
+
+Precondition: the user must already pass the 'Choose node from nodeList’ test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- In the Inspector window right press a node
+- press the 'Import Neighbours' option
+- select Worksheet_0
+- in the bottom of worksheet_0 enter a valid file name into the textbox with 'File name' currently in it then press the save button located in the bottom of worksheet_0
+
+Expected Result: the file will save to the user's default download location as a .json file
+
+
+
+###Title: load – load the correct worksheet
+
+Description: See if the load button will work
+
+Precondition: the user must already pass the 'save' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- press the load button located in the bottom of worksheet_0
+- select the previously saved .json file
+
+Expected Result: the selected .json file will load in worksheet_0
+
+
+
+###Title: layouts – test the different layouts
+
+Description: See if the Dagre and Cose button will work
+
+Precondition: the user must already pass the 'Choose node from nodeList’ test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- In the Inspector window right press a node
+- press the 'Import Neighbours' option
+- select Worksheet_0
+- press the 'Dagre' button
+- press the 'Cose' button
+
+Expected Result: the graph will arrange themselves in the Dagre layout format then the Cose layout format
+
+
+
+###Title: highlight – test the worksheet's highlight button
+
+Description: See if the 'highlight' button will work
+
+Precondition: the user must already pass the 'Choose node from nodeList’ test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- In the Inspector window right press a node
+- press the 'Import Node' option
+- select Worksheet_0
+- In the Inspector window right press the same node
+- press the 'Import Node' option
+- select Worksheet_1
+- in worksheet_0 right press and select the highlight option
+
+Expected Result: the node in worksheet_0 and worksheet_1 will get the 'important' class
+
+
+
+###Title: worksheet 'Commands' and 'Files read' – 
+
+Description: See if the 'Commands' and 'Files read' buttons will work
+
+Precondition: the user must already pass the 'Choose node from nodeList’ test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- make sure the inspectee in the inspector is a process and points to a different process as well when the file filter is selected it should point to a file also
+- In the Inspector window right press the inspectee
+- press the 'Import Node' option
+- select Worksheet_0
+- in worksheet_0 right press the node and select the 'Files read' option
+- click a node then select 'worksheet_0'
+- click a different node then select 'New Worksheet'
+- click a different node then select 'worksheet_1'
+- then repeat but with the 'Commands' option
+
+Expected Result: a vex window will appear with a list of the files or commands then the selected node with be inspected and imported into the selected worksheet
+
+
+
+###Title: worksheet inspect – test worksheet's 'inspect' button
+
+Description: See if worksheet's 'inspect' button will work
+
+Precondition: the user must already pass the 'Choose node from nodeList’ test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- In the Inspector window right press a node that isn't the inspectee
+- press the 'Import Node' option
+- select Worksheet_0
+- in worksheet_0 right press the node and select 'Inspect'
+
+Expected Result: the node in worksheet_0 that was inspected will show up in the Inspector with the correct neighbours
+
+
+
+###Title: worksheet 'Remove' and 'Remove neighbours' – 
+
+Description: See if worksheet's 'Remove' and 'Remove neighbours' buttons will work
+
+Precondition: the user must already pass the 'Choose node from nodeList’ test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- In the Inspector window right press the inspectee
+- press the 'Import Neighbours' option
+- select Worksheet_0
+- in worksheet_0 right press a node that wasn't the inspectee and select 'Remove' option and select worksheet_0
+- in worksheet_0 right press the inspectee and select 'Remove Neighbours' option and select worksheet_0
+
+Expected Result: the selected node will disappear then the selected node and its neighbours will disappear
+
+
+
+###Title: worksheet 'Import neighbour' – 
+
+Description: See if worksheet's 'Import neighbour' buttons will work
+
+Precondition: the user must already pass the 'Choose node from nodeList’ test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- In the Inspector window right press the inspectee
+- press the 'Import Node' option
+- select Worksheet_0
+- in worksheet_0 right press the node and select 'Import neighbour' option and select worksheet_0
+
+Expected Result: the selected node's neighbours will show up in worksheet_0
+
+
+
+###Title: worksheet 'Import successors' – 
+
+Description: See if worksheet's 'Import successors' buttons will work
+
+Precondition: the user must already pass the 'Choose node from nodeList’ test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- In the Inspector window right press the inspectee
+- press the 'Import Node' option
+- select Worksheet_0
+- in worksheet_0 right press the node and select 'Import successors' option and select worksheet_0
+
+Expected Result: the selected node's successors will show up in worksheet_0
+
+
+
+###Title: PVMv1 and PVMv2 – 
+
+Description: run tests on both PVMv1 and PVMv2 data
+
+Precondition: the user must already pass the 'Login' test case
+
+Assumption: a local neo4j server must be running and a supported browser is being used
+
+Test Steps:
+
+- run all test cases with both data sets
+
+Expected Result: all test cases should pass
