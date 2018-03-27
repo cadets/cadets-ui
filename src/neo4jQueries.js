@@ -447,7 +447,18 @@ export function get_nodes(node_type=null,
 					WITH n`;
 	}
 	if(pvm_version == 2){
-		query = `MATCH (n) WHERE ${labelQuery} AND id(n) >= ${startID} RETURN ${returnQuery}`;
+		query = `MATCH (n) WHERE ${labelQuery} AND id(n) >= ${startID}
+				WITH n
+				WHERE
+					${JSON.stringify(name)} is Null
+					OR
+					${JSON.stringify(name)} = ''
+					OR
+					any(name in n.name WHERE name CONTAINS ${JSON.stringify(name)})
+					OR
+					n.cmdline CONTAINS ${JSON.stringify(name)}
+				WITH n 
+				RETURN ${returnQuery}`;
 	}
 	else {
 		query = `MATCH (n)
