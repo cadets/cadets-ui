@@ -465,43 +465,36 @@ function toggle_node_importance(id, excludeWorksheet = -1) {
 	});
 }
 
-//
-// Define what it means to show "successors" to a node.
-//
-function successors(id) {
-	let graph = worksheets[`${selectedWorksheet}`].graph;
+// //
+// // Import successor nodes into selected worksheet 
+// //
+// function successors(id) {
+// 	let graph = worksheets[`${selectedWorksheet}`].graph;
 
-	// Display the node's details in the inspector "Details" panel.
-	get_successors(id, function(result) {
+// 	get_successors(id, function(result) {
 
-		let position = {
-			x: graph.width() / 2,
-			y: graph.height() / 2,
-		};
+// 		let position = {
+// 			x: graph.width() / 2,
+// 			y: graph.height() / 2,
+// 		};
 
-		for (let n of result.nodes) {
-			graphingAPI.add_node(n, graph, position, highlightedIDs);
-		}
+// 		graphingAPI.add_node_batch(result.nodes, graph, position, highlightedIDs);
+// 		graphingAPI.add_edge_batch(result.edges, graph);
+// 	});
+// }
 
-		let elements = graph.elements();
-		for (let e of result.edges) {
-			graphingAPI.add_edge(e, graph);
-		}
-	});
-}
-
-//
-// Fetch successors to a node, based on some user-specified filters.
-//
-function get_successors(id, fn) {
-	return neo4jQueries.successors_query(id,
-										100,
-										inspectFiles,
-										inspectSockets,
-										inspectPipes,
-										inspectProcessMeta,
-										fn);
-}
+// //
+// // Fetch successors to a node, based on some user-specified filters.
+// //
+// function get_successors(id, fn) {
+// 	return neo4jQueries.successors_query(id,
+// 										100,
+// 										inspectFiles,
+// 										inspectSockets,
+// 										inspectPipes,
+// 										inspectProcessMeta,
+// 										fn);
+// }
 
 //Worksheet Functions end
 
@@ -748,12 +741,8 @@ function showInspectorNextPrevious(){
 								<td><a>${meta.label}</a></td>
 								`);
 			}
-			for (let e of result.edges) {
-				if(inspector.graph.$id( e.source ).length > 0 && inspector.graph.$id( e.target ).length > 0){
-					graphingAPI.add_edge(e, inspector.graph);
-				}
-			}
-			let n = inspector.graph.elements().nodes(`[id="${id}"]`);
+			graphingAPI.add_edge_batch(result.edges, inspector.graph);
+			let n = inspector.graph.$id(id);
 			if (n.empty()) {
 				n = inspector.graph.elements().nodes(`[uuid="${id}"]`);
 			}
@@ -836,12 +825,7 @@ function import_batch_into_worksheet(nodes) {
 	};
 	graphingAPI.add_node_batch(nodes, graph, position, highlightedIDs);
 	get_neighbours_batch(ids, function(result) {
-	
-		for (let edge of result.edges) {
-			if(graph.$id( edge.source ).length > 0 && graph.$id( edge.target ).length > 0){
-				graphingAPI.add_edge(edge, graph);
-			}
-		}
+		graphingAPI.add_edge_batch(result.edges, graph);
 	});
 }
 

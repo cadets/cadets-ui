@@ -34,8 +34,7 @@ export function create(container) {
 // Add a node to a graph.
 //
 export function add_node(data, graph, renderedPosition = null, highLightedIDs = []) {
-	let nodes = [data];
-	add_node_batch(nodes, graph, renderedPosition = null, highLightedIDs = []);
+	add_node_batch([data], graph, renderedPosition = null, highLightedIDs = []);
 }
 
 
@@ -112,27 +111,27 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 }
 
 export function add_edge(data, graph) {
-	// Have we already imported this edge?
-	if (!graph.edges(`#${data.id}`).empty()) {
-		return;
-	}
+	add_edge_batch([data], graph);
+}
 
-	// If the target is explicitly marked as something we read from
-	// (e.g., the by-convention read-from pipe), reverse the edge's direction.
-	let source = graph.nodes(`[id="${data.source}"]`);
-	let target = graph.nodes(`[id="${data.target}"]`);
+export function add_edge_batch(edges, graph){
+	let processEdges = [];
+	edges.forEach(function(edge){
+		let source = graph.$id( edge.source );
+		let target = graph.$id( edge.target );
 
-	if (source.data() && source.data().type == 'process'
-		&& target.data() && target.data().end == 'R') {
-		let tmp = data.source;
-		data.source = data.target;
-		data.target = tmp;
-	}
+		if (!graph.$id( edge.id ).empty() || source.empty() || target.empty()) {return;}
 
-	graph.add({
-		classes: data.type,
-		data: data,
+		// If the target is explicitly marked as something we read from
+		// (e.g., the by-convention read-from pipe), reverse the edge's direction.
+		if (source.data().type == 'process' && target.data().end == 'R') {
+			let swap = edge.source;
+			edge.source = edge.target;
+			edge.target = swap;
+		}
+		processEdges = processEdges.concat({classes: edge.type, data: edge,});
 	});
+	graph.add(processEdges);
 }
 
 //
@@ -557,6 +556,7 @@ const graphing ={
 	add_node_batch,
 	create,
 	add_edge,
+	add_edge_batch,
 	setPVMVersion,
 }
 
