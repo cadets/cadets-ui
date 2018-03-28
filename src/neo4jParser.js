@@ -54,8 +54,12 @@ export function parseNeo4jNode(o){
 		data.type = "edit-session";
 		data = concatDictionary( data, o['properties']);
 	}
+	 else if (labels.indexOf('Global') > -1){
+		data.type = "global";
+		data = concatDictionary( data, o['properties']);
+	}
 	else{
-		console.log('neo4jParser.js - parseNeo4jNode func does not recognize label');
+		console.log(`neo4jParser.js - parseNeo4jNode func does not recognize label ${labels}`);
 	}
 	// mchs.forEach(function(mch){
 	// //for(mch in mchs){

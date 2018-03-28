@@ -258,7 +258,7 @@ function load_graph_style(graphs) {
 
 			node {
 				content: data(label);
-				font-family: Avenir, Helvetica Neue, Helvetica, sans-serif;
+				font-family: Inconsolata, Source Code Pro, Consolas, monospace;
 				border-style: solid;
 				border-width: 2;
 				color: black;
@@ -297,8 +297,7 @@ function load_graph_style(graphs) {
 				shape: ellipse;
 				background-color: #333;
 				background-image: ${proc};
-				border-color: #333;
-				font-family: Inconsolata, Source Code Pro, Consolas, monospace; }
+				border-color: #333; }
 
 			node.file {
 				background-color: #dc9;
@@ -327,6 +326,9 @@ function load_graph_style(graphs) {
 				background-image: ${edit_session};
 				background-opacity: 0;
 				border-width: 0; }
+
+			node.global {
+				shape: triangle; }
 
 			node.machine {
 				font-size: 48pt;
@@ -480,6 +482,14 @@ export function node_metadata(node) {
 			timestamp = node['timestamp'];
 			break;
 
+		case 'global':
+			metadata = {
+				icon: 'file-o',
+				label: parseNodeName(node.name),
+			};
+			timestamp = node['timestamp'];
+			break;
+
 		case 'process-meta':
 			metadata = {
 				icon: 'terminal',
@@ -503,6 +513,7 @@ export function node_metadata(node) {
 			break;
 
 	default:
+		console.log(node);
 		console.log('unknown node type: ' + node.type);
 		return {
 			icon: 'question',

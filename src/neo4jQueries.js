@@ -169,6 +169,7 @@ export function get_neighbours_id_batch(ids,
 				${limitQuery}`)
 
 	.then(result => {
+		session.close();
 		let neighbours = result.records;
 		if (neighbours.length){
 			root_node = neo4jParser.parseNeo4jNode(neighbours[0].get('s'));
@@ -178,46 +179,15 @@ export function get_neighbours_id_batch(ids,
 			});
 		}
 		if (sockets){
-			session.run(`MATCH (skt:Socket), (mch:Machine)
-						WHERE 
-						mch.external
-						AND 
-						id(skt) IN ${JSON.stringify(ids)}
-						AND 
-						split(skt.name[0], ":")[0] in mch.ips
-						RETURN skt, mch
-						UNION
-						MATCH (skt:Socket), (mch:Machine)
-						WHERE 
-						mch.external
-						AND 
-						id(mch) IN ${JSON.stringify(ids)}
-						AND
-						split(skt.name[0], ":")[0] in mch.ips
-						RETURN DISTINCT skt, mch`)
-			.then(result => {
-				session.close();
-				if(result.records.length > 0){
-					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(result.records[0].get('mch')));
-				}
-				result.records.forEach(function (record){
-					let m_links = {'type' : 'comm'};
-					m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
-					m_links.properties = {'state' : null}; 
-					m_links.start = {'low' : record.get('skt')['identity']['low']};
-					m_links.end = {'low' : record.get('mch')['identity']['low']};
-					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('skt')));
-					neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(m_links));
-				});
+			getMachineSocketConnections(ids, function(elements){
+				neighbour_nodes = neighbour_nodes.concat(elements.nodes);
+				neighbour_edges = neighbour_edges.concat(elements.edges);
 				fn({focusNode: root_node,
 					nodes: neighbour_nodes,
 					edges: neighbour_edges});
-			}, function(error) {
-				neo4jError(error, session, "get_neighbours_id");
 			});
 		}
 		else{
-			session.close();
 			fn({focusNode: root_node,
 				nodes: neighbour_nodes,
 				edges: neighbour_edges});
@@ -359,6 +329,66 @@ export function get_neighbours_id_batch(ids,
 // 				neo4jError(error, session, "findEdges");
 // 			});
 // }
+
+export function get_all_edges_batch(ids, fn){
+	let session = driver.session();
+	session.run(`MATCH (a)-[e]-() WHERE id(a) IN ${JSON.stringify(ids)} RETURN DISTINCT e`)
+	.then(result => {
+		session.close();
+		let edges = [];
+		result.records.forEach(function (record) 
+		{
+			edges = edges.concat(neo4jParser.parseNeo4jEdge(record.get('e')));
+		});
+		getMachineSocketConnections(ids, function(elements){
+			fn(edges.concat(elements.edges));
+		});
+		}, function(error) {
+			neo4jError(error, session, "get_all_edges_batch");
+		});
+}
+
+function getMachineSocketConnections(ids, fn){
+	let session = driver.session();
+	session.run(`MATCH (skt:Socket), (mch:Machine)
+				WHERE 
+				mch.external
+				AND 
+				id(skt) IN ${JSON.stringify(ids)}
+				AND 
+				split(skt.name[0], ":")[0] in mch.ips
+				RETURN skt, mch
+				UNION
+				MATCH (skt:Socket), (mch:Machine)
+				WHERE 
+				mch.external
+				AND 
+				id(mch) IN ${JSON.stringify(ids)}
+				AND
+				split(skt.name[0], ":")[0] in mch.ips
+				RETURN DISTINCT skt, mch`)
+	.then(result => {
+		session.close();
+		let neighbour_nodes = [];
+		let neighbour_edges = [];
+		if(result.records.length > 0){
+			neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(result.records[0].get('mch')));
+		}
+		result.records.forEach(function (record){
+			let m_links = {'type' : 'comm'};
+			m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
+			m_links.properties = {'state' : null}; 
+			m_links.start = {'low' : record.get('skt')['identity']['low']};
+			m_links.end = {'low' : record.get('mch')['identity']['low']};
+			neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('skt')));
+			neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(m_links));
+		});
+		fn({'nodes': neighbour_nodes,
+			'edges': neighbour_edges});
+	}, function(error) {
+		neo4jError(error, session, "get_neighbours_id");
+	});
+}
 
 export function get_detail_id(id, fn, parse=true){
 	get_batch_detail_id([parseInt(id)], fn, parse=true);
@@ -602,7 +632,7 @@ const neo4jQueries ={
 	cmd_query,
 	get_neighbours_id,
 	get_neighbours_id_batch,
-	//successors_query,
+	get_all_edges_batch,
 	get_detail_id,
 	get_nodes,
 	getTypeLabels,
