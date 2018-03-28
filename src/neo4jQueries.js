@@ -446,131 +446,115 @@ export function get_nodes(node_type=null,
 						id(n) >= ${startID}
 					WITH n`;
 	}
-	if(pvm_version == 2){
-		query = `MATCH (n) WHERE ${labelQuery} AND id(n) >= ${startID}
-				WITH n
-				WHERE
-					${JSON.stringify(name)} is Null
-					OR
-					${JSON.stringify(name)} = ''
-					OR
-					any(name in n.name WHERE name CONTAINS ${JSON.stringify(name)})
-					OR
-					n.cmdline CONTAINS ${JSON.stringify(name)}
-				WITH n 
-				RETURN ${returnQuery}`;
-	}
-	else {
-		query = `MATCH (n)
-				${idQuery}
-				WHERE 
-					${JSON.stringify(lab)} is Null
-					OR
-					${labelQuery}
-				WITH n
-				WHERE
-					${JSON.stringify(name)} is Null
-					OR
-					${JSON.stringify(name)} = ''
-					OR
-					any(name in n.name WHERE name CONTAINS ${JSON.stringify(name)})
-					OR
-					n.cmdline CONTAINS ${JSON.stringify(name)}
-				WITH n
-				WHERE
-					${JSON.stringify(host)} is Null
-					OR
-					${JSON.stringify(host)} = ''
-					OR
+	query = `MATCH (n)
+			${idQuery}
+			WHERE 
+				${JSON.stringify(lab)} is Null
+				OR
+				${labelQuery}
+			WITH n
+			WHERE
+				${JSON.stringify(name)} is Null
+				OR
+				${JSON.stringify(name)} = ''
+				OR
+				any(name in n.name WHERE name CONTAINS ${JSON.stringify(name)})
+				OR
+				n.cmdline CONTAINS ${JSON.stringify(name)}
+			WITH n
+			WHERE
+				${JSON.stringify(host)} is Null
+				OR
+				${JSON.stringify(host)} = ''
+				OR
+				(
+					exists(n.host)
+					AND
+					n.host = ${JSON.stringify(host)}
+				)
+				OR
+				n.uuid = ${JSON.stringify(host)}
+			WITH n
+			OPTIONAL MATCH (m:Machine)
+			WHERE
+				(
+					n:Conn
+					AND
 					(
-						exists(n.host)
-						AND
-						n.host = ${JSON.stringify(host)}
-					)
-					OR
-					n.uuid = ${JSON.stringify(host)}
-				WITH n
-				MATCH (m:Machine)
-				WHERE
-					(
-						n:Conn
-						AND
+						n.client_ip=~${JSON.stringify(local_ip)}
+						OR
+						n.server_ip=~${JSON.stringify(local_ip)}
+						OR
 						(
-							n.client_ip=~${JSON.stringify(local_ip)}
-							OR
-							n.server_ip=~${JSON.stringify(local_ip)}
-							OR
-							(
-								n.type = 'Pipe'
-								AND
-								${JSON.stringify(local_ip)} = '.*?'
-							)
-						)
-						AND
-						(
-							n.client_port=~${JSON.stringify(local_port)}
-							OR
-							n.server_port=~${JSON.stringify(local_port)}
-							OR
-							(
-								n.type = 'Pipe'
-								AND
-								${JSON.stringify(local_port)} = '.*?'
-							)
-						)
-						AND
-						(
-							n.server_ip=~${JSON.stringify(remote_ip)}
-							OR
-							n.client_ip=~${JSON.stringify(remote_ip)}
-							OR
-							(
-								n.type = 'Pipe'
-								AND
-								${JSON.stringify(remote_ip)} = '.*?'
-							)
-						)
-						AND
-						(
-							n.server_port=~${JSON.stringify(remote_port)}
-							OR
-							n.client_port=~${JSON.stringify(remote_port)}
-							OR
-							(
-								n.type = 'Pipe'
-								AND
-								${JSON.stringify(remote_port)} = '.*?'
-							)
+							n.type = 'Pipe'
+							AND
+							${JSON.stringify(local_ip)} = '.*?'
 						)
 					)
-					OR
+					AND
 					(
-						NOT n:Conn
-						AND
+						n.client_port=~${JSON.stringify(local_port)}
+						OR
+						n.server_port=~${JSON.stringify(local_port)}
+						OR
 						(
-							NOT n:Socket
-							OR
+							n.type = 'Pipe'
+							AND
+							${JSON.stringify(local_port)} = '.*?'
+						)
+					)
+					AND
+					(
+						n.server_ip=~${JSON.stringify(remote_ip)}
+						OR
+						n.client_ip=~${JSON.stringify(remote_ip)}
+						OR
+						(
+							n.type = 'Pipe'
+							AND
+							${JSON.stringify(remote_ip)} = '.*?'
+						)
+					)
+					AND
+					(
+						n.server_port=~${JSON.stringify(remote_port)}
+						OR
+						n.client_port=~${JSON.stringify(remote_port)}
+						OR
+						(
+							n.type = 'Pipe'
+							AND
+							${JSON.stringify(remote_port)} = '.*?'
+						)
+					)
+				)
+				OR
+				(
+					NOT n:Conn
+					AND
+					(
+						NOT n:Socket
+						OR
+						(
+							n:Socket
+							AND
+							any(name in n.name
+							WHERE name =~ (${JSON.stringify(remote_ip)}+':?'+${JSON.stringify(remote_port)}))
+							AND
 							(
-								n:Socket
-								AND
-								any(name in n.name
-								WHERE name =~ (${JSON.stringify(remote_ip)}+':?'+${JSON.stringify(remote_port)}))
-								AND
+								${JSON.stringify(local_ip)} = ".*?"
+								OR
 								(
-									${JSON.stringify(local_ip)} = ".*?"
-									OR
-									(
-										m.uuid = n.host
-										AND
-										any(l_ip in m.ips
-										WHERE l_ip = ${JSON.stringify(local_ip)})
-									)
+									m.uuid = n.host
+									AND
+									any(l_ip in m.ips
+									WHERE l_ip = ${JSON.stringify(local_ip)})
 								)
 							)
 						)
 					)
-				RETURN ${returnQuery}`;
-	}
+				)
+			RETURN ${returnQuery}`;
 	let session = driver.session();
 	session.run(query)
 	 .then(result => {
