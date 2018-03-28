@@ -38,13 +38,17 @@ export function add_node(data, graph, renderedPosition = null, highLightedIDs = 
 }
 
 
-export function add_node_batch(nodes, graph, renderedPosition = null, highLightedIDs = []) {
+export function add_node_batch(nodes, graph, renderedPosition = null, highLightedIDs = [], fn=null ) {
 	let parsedNodes = [];
 	let nodesToHighLight = [];
 	nodes.forEach(function(data){
+
+		if(fn != null){
+			fn(data);
+		}
 		// Have we already imported this node?
 
-		if (!graph.nodes(`[id="${data.id}"]`).empty()) {
+		if (!graph.$id(data.id).empty()) {
 			return;
 		}
 
@@ -54,7 +58,7 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 				[ 'file-version', 'pipe-endpoint', 'socket-version', 'edit-session'].indexOf(data.type)
 					!= -1
 				)) {
-			let compound = graph.nodes(`[id="${data.uuid}"]`);
+			let compound = graph.$id(data.uuid);
 			let type = data.type.substr(0, 4);
 
 			let name = data.name;
@@ -64,7 +68,7 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 
 			// Add file descriptors if we have them.
 			if (data.fds) {
-				for(let fd in data.fds){
+				for(let fd of data.fds){
 					name = name.concat('FD ' + fd)
 				}
 			}
@@ -513,8 +517,8 @@ export function node_metadata(node) {
 			break;
 
 	default:
+		console.log(`unknown node type In graphing.js - node_metadata node data:`);
 		console.log(node);
-		console.log('unknown node type: ' + node.type);
 		return {
 			icon: 'question',
 			label: 'unknown',
@@ -545,7 +549,7 @@ export function setPVMVersion(PVMv){
 			PVMvLexicon = {'socket_name' : 'ip'};
 			break;
 		default:
-			console.log('unknown pvm_version in graphing.js setPVMVersion');
+			console.log(`unknown pvm_version: ${PVMv} in graphing.js setPVMVersion`);
 	}
 }
 

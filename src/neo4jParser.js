@@ -72,8 +72,7 @@ export function parseNeo4jNode(o){
 	// });
 	// // Calculate a short, easily-compared hash of something unique
 	// // (database ID if we don't have a UUID)
-	let unique = o['uuid'] ? o['uuid'] : data['id'];
-	data['hash'] = unique
+	data['hash'] = o['uuid'] ? o['uuid'] : data['id'];
 	// data['hash'] = short_hash(unique);
 	return data;
 }

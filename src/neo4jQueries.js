@@ -24,7 +24,7 @@ export function neo4jLogin(eventE){
 		callback: function (data) {
 			if (!data) {
 				neo4jLogin(eventE);
-			} else {//bolt://localhost
+			} else {
 				driver = neo4j.driver("bolt://localhost:7687/", neo4j.auth.basic(data.username, data.password));
 				let session = driver.session();
 					session.run(`MATCH (n:DBInfo) RETURN n`)
@@ -171,30 +171,39 @@ export function get_neighbours_id_batch(ids,
 	.then(result => {
 		session.close();
 		let neighbours = result.records;
-		if (neighbours.length){
-			root_node = neo4jParser.parseNeo4jNode(neighbours[0].get('s'));
+		if (neighbours.length != 0){
 			neighbours.forEach(function(row){
 				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(row.get('d')));
 				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(row.get('e')));
 			});
-		}
-		if (sockets){
-			getMachineSocketConnections(ids, function(elements){
-				neighbour_nodes = neighbour_nodes.concat(elements.nodes);
-				neighbour_edges = neighbour_edges.concat(elements.edges);
-				fn({focusNode: root_node,
-					nodes: neighbour_nodes,
-					edges: neighbour_edges});
-			});
+			get_neighbours_id_batch_end(neighbour_nodes, neighbour_edges, ids, 
+										sockets, fn, neo4jParser.parseNeo4jNode(neighbours[0].get('s')));
 		}
 		else{
-			fn({focusNode: root_node,
-				nodes: neighbour_nodes,
-				edges: neighbour_edges});
+			get_batch_detail_id(ids, function(nodes){
+				get_neighbours_id_batch_end(neighbour_nodes, neighbour_edges, ids, sockets, fn, nodes[0]);
+			});
 		}
 	}, function(error) {
 		neo4jError(error, session, "get_neighbours_id");
 	});
+}
+
+function get_neighbours_id_batch_end(neighbour_nodes, neighbour_edges, ids, sockets, fn, root_node){
+	if (sockets){
+		getMachineSocketConnections(ids, function(elements){
+			neighbour_nodes = neighbour_nodes.concat(elements.nodes);
+			neighbour_edges = neighbour_edges.concat(elements.edges);
+			fn({focusNode: root_node,
+				nodes: neighbour_nodes,
+				edges: neighbour_edges});
+		});
+	}
+	else{
+		fn({focusNode: root_node,
+			nodes: neighbour_nodes,
+			edges: neighbour_edges});
+	}
 }
 
 // export function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=true, process_meta=true, fn){
@@ -465,7 +474,6 @@ export function get_nodes(node_type=null,
 	}
 	let returnQuery;
 	let idQuery = ``;
-	let query;
 	if(countOnly == true){
 		returnQuery = 'DISTINCT count(n)';
 	}
@@ -476,7 +484,7 @@ export function get_nodes(node_type=null,
 						id(n) >= ${startID}
 					WITH n`;
 	}
-	query = `MATCH (n)
+	let query = `MATCH (n)
 			${idQuery}
 			WHERE 
 				${JSON.stringify(lab)} is Null

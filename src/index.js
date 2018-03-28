@@ -479,7 +479,6 @@ function remove_neighbours_from_worksheet(id) {
 }
 
 function toggle_node_importance(id, excludeWorksheet = -1) {
-	let nodes = [];
 	let index = highlightedIDs.indexOf(id);
 	if(index >= 0){
 		highlightedIDs.splice(index, 1);
@@ -622,9 +621,7 @@ function showNodeListNextPrevious(){
 			for (let node of result) {
 				let meta = graphingAPI.node_metadata(node);
 
-				let table = document.getElementById("nodelist");
-
-				let row = table.insertRow(0);
+				let row = document.getElementById("nodelist").insertRow(0);
 				row.onclick = (function() {
 					inspectAsync(node.id);
 				});
@@ -663,23 +660,24 @@ function showInspectorNextPrevious(){
 	inspector.detail.empty();
 	inspector.neighbours.empty();
 
-	neo4jQueries.get_detail_id(id, function(result) {
-		let inspectee = result[0];
-		for (let prop in inspectee) {
-			if (prop == 'timestamp' || prop == 'meta_ts') {
-				inspectee[prop] =
-					moment.unix(inspectee[prop] / 1000000000).format();
+	// Display the node's immediate connections in the inspector "Graph" panel.
+	get_neighbours(id, true,
+		overFlowVars[`inspector`][`DisplayAmount`] + 1, 
+		overFlowVars['inspector'][`IDStart`], 
+		function(result) {
+			let inspectee = result.focusNode;
+			for (let prop in inspectee) {
+				if (prop == 'timestamp' || prop == 'meta_ts') {
+					inspectee[prop] =
+						moment.unix(inspectee[prop] / 1000000000).format();
+				}
+				inspector.detail.append(`
+					<tr>
+						<th>${prop}</th>
+						<td>${inspectee[prop]}</td>
+					</tr>
+				`)
 			}
-			inspector.detail.append(`
-				<tr>
-					<th>${prop}</th>
-					<td>${inspectee[prop]}</td>
-				</tr>
-			`)
-		}
-
-		// Display the node's immediate connections in the inspector "Graph" panel.
-		get_neighbours(id, function(result) {
 
 			inspector.graph.remove('node');
 
@@ -687,17 +685,13 @@ function showInspectorNextPrevious(){
 
 			updateOverFlow('inspector', result.nodes);
 
-			for (let n of result.nodes) {
-				graphingAPI.add_node(n, inspector.graph);
+			graphingAPI.add_node_batch(result.nodes, inspector.graph, null, [], function(node){
+				let meta = graphingAPI.node_metadata(node);
 
-				let meta = graphingAPI.node_metadata(n);
-
-				let table = document.getElementById("neighbour-detail");
-
-				let row = table.insertRow(0);
+				let row = document.getElementById("neighbour-detail").insertRow(0);
 				row.onclick = (function() {
 					openSubMenu(function(){
-						import_into_worksheet(n.id);
+						import_into_worksheet(node.id);
 					}, true, true);
 				});
 				let cell = row.insertCell(0);
@@ -705,7 +699,8 @@ function showInspectorNextPrevious(){
 								<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
 								<td><a>${meta.label}</a></td>
 								`);
-			}
+			});
+
 			graphingAPI.add_edge_batch(result.edges, inspector.graph);
 			let n = inspector.graph.$id(id);
 			if (n.empty()) {
@@ -725,12 +720,8 @@ function showInspectorNextPrevious(){
 				level: 1,
 				position: inspector.graph.inspectee.position(),
 			});
-		},
-		true,
-		overFlowVars[`inspector`][`DisplayAmount`] + 1,
-		overFlowVars['inspector'][`IDStart`],
-		);
-	});
+		}
+	);
 }
 
 function import_into_worksheetAsync(id){
@@ -749,7 +740,7 @@ function import_into_worksheet(id) {
 //
 // Fetch neighbours to a node, based on some user-specified filters.
 //
-function get_neighbours(id, fn, isOverFlow=false, displayAmount = -1, startID = 0) {
+function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, fn) {
 	return neo4jQueries.get_neighbours_id(id,
 										fn,	
 										inspectFiles,
@@ -765,23 +756,23 @@ function import_batch_into_worksheet(nodes) {
 	let graph = worksheets[`${selectedWorksheet}`].graph;
 	let ids = [];
 
-	nodes.forEach(function(node){
+	for(let node of nodes){
 		if (!graph.$id(node.id).empty()) {
 			nodes.splice(nodes.indexOf(node), 1);
 		}
 		else{
 			ids = ids.concat(node.id);
-		}
-	});
-	if(ids.length <= 0){return;}
 
-	if(ids.length >= maxImportLength){
-		vex.dialog.alert({
-			unsafeMessage: `Trying to import more nodes than the maxImportLength:${maxImportLength} allows!`,
-			className: 'vex-theme-wireframe'
-		});
-		return;
+			if(ids.length >= maxImportLength){
+				vex.dialog.alert({
+					unsafeMessage: `Trying to import more nodes than the maxImportLength:${maxImportLength} allows!`,
+					className: 'vex-theme-wireframe'
+				});
+				return;
+			}
+		}
 	}
+	if(ids.length <= 0){return;}
 
 	let position = {
 		x: graph.width() / 2,
@@ -801,7 +792,7 @@ function import_neighbours_into_worksheetAsync(id){
 // Add a node and all of its neighbours to the worksheet.
 //
 function import_neighbours_into_worksheet(id) {
-	get_neighbours(id, function(result) {
+	get_neighbours(id, false, -1, 0, function(result) {
 		import_batch_into_worksheet(result.nodes.concat(result.focusNode));
 	});
 }
@@ -855,8 +846,8 @@ function findMouseCoords(mouseEvent)
 	}
 	xpos -= obj_left;
 	ypos -= obj_top;
-	currMouseX = xpos;
-	currMouseY = ypos;
+	currMouseX = xpos;//setting global var
+	currMouseY = ypos;//setting global var
 }
 
 function removeEmptyParents(parents){
