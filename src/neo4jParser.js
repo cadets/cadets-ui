@@ -79,12 +79,14 @@ export function parseNeo4jNode(o){
 
 export function parseNeo4jEdge(o){
 	let id = -o['identity']['low'];				// This is negitive because it was sometimes conflicting 
-	let type_map = {'PROC_PARENT': 'parent'};	// with a nodes id which must be unique
-	type_map.PROC_OBJ = 'io';
-	type_map.META_PREV = 'proc-metadata';
-	type_map.PROC_OBJ_PREV = 'proc-change';
-	type_map.GLOB_OBJ_PREV = 'file-change';
-	type_map.COMM = 'comm';
+	let type_map = {'PROC_PARENT': 'parent',	// with a nodes id which must be unique
+					'PROC_OBJ': 'io',
+					'META_PREV': 'proc-metadata',
+					'PROC_OBJ_PREV': 'proc-change',
+					'GLOB_OBJ_PREV': 'file-change',
+					'COMM': 'comm',
+					'comm': 'comm',
+					'INF': 'inf'};
 	let state;
 	let src;
 	let dst;
@@ -122,11 +124,17 @@ export function parseNeo4jEdge(o){
 		src = o['end']['low'];
 		dst = o['start']['low'];
 	}
-
+	let type = "";
+	if(type_map[o['type']] == null){
+		console.log(`neo4jParser.js - parseNeo4jEdge edge type is not recognizd type: ${o['type']}`);
+	}
+	else{
+		type = type_map[o['type']];
+	}
 	return {'source': src,
 				'target': dst,
 				'id': id,
-				'type': type_map[o['type']],
+				'type': type,
 				'state': state};
 }
 

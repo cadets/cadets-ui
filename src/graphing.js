@@ -12,6 +12,14 @@ import cadets_machine from './img/cadets-machine.svg';
 import machine_external from './img/machine-external.svg';
 import pipe from './img/pipe.png';
 import socket from './img/socket.png';
+import FileNeonNBG from './img/FileNeonNBG.png';
+import editNeonNBG from './img/editNeonNBG.png';
+import procNeonNBG from './img/procNeonNBG.png';
+import pipeNeonNBG from './img/pipeNeonNBG.png';
+import SocketNeonNBG from './img/SocketNeonNBG.png';
+import connNeonNBG from './img/connNeonNBG.png';
+import machineNeonNBG from './img/machineNeonNBG.png';
+import cMachineNeonNBG from './img/cMachineNeonNBG.png';
 
 var pvm_version = null;
 var PVMvLexicon = null;
@@ -204,7 +212,7 @@ function load_graph_style(graphs) {
 	for (let g of graphs) {
 		g.style().fromString(
 			`core {
-				active-bg-color: #333; }
+				active-bg-color: #7a7a7a; }
 
 			edge {
 				curve-style: bezier;
@@ -216,7 +224,7 @@ function load_graph_style(graphs) {
 				text-halign: center;
 				text-valign: center;
 				text-outline-width: 2;
-				color: white; }
+				color: blue; }
 
 			edge.parent {
 				line-style: dotted;
@@ -260,19 +268,26 @@ function load_graph_style(graphs) {
 				line-color: #366;
 				text-outline-color: #366; }
 
+			edge.inf {
+				line-style: dotted;
+				target-arrow-color: #633;
+				mid-target-arrow-color: #633;
+				line-color: #633;
+				text-outline-color: #633; }
+
 			node {
 				content: data(label);
 				font-family: Inconsolata, Source Code Pro, Consolas, monospace;
 				border-style: solid;
 				border-width: 2;
-				color: black;
+				color: #e2e2e2;
 				text-outline-color: #eee;
 				text-outline-opacity: 0.9;
-				text-outline-width: 6;
+				text-outline-width: 0;
 				text-halign: center;
 				text-valign: bottom;
 				text-wrap: wrap;
-				text-max-width: 10em;
+				text-max-width: 8em;
 				height: 4em;
 				width: 4em;
 				background-fit: contain;
@@ -280,7 +295,7 @@ function load_graph_style(graphs) {
 				background-position-y: 0; }
 
 			node.important {
-				overlay-color: orange;
+				overlay-color: #996b00;
 				overlay-padding: 64;
 				overlay-opacity: 0.50; }
 				node:selected {
@@ -290,44 +305,43 @@ function load_graph_style(graphs) {
 
 			node.connection {
 				shape: rectangle;
-				background-image: ${connection};
-				background-color: white;
-				color: white;
-				text-background-opacity: 0;
-				text-outline-color: black;
-				text-outline-width: 3; }
+				background-image: ${connNeonNBG};
+				background-opacity: 0;
+				border-opacity: 0;
+				width: 135px;
+				height: 135px; }
 
 			node.process {
 				shape: ellipse;
-				background-color: #333;
-				background-image: ${proc};
-				border-color: #333; }
+				background-image: ${procNeonNBG};
+				background-opacity: 0;
+				border-opacity: 0;
+				width: 135px;
+				height: 135px; }
 
 			node.file {
-				background-color: #dc9;
+				background-color: #000;
 				background-opacity: 0.25;
-				border-color: #633;
-				color: #633; }
+				border-color: #633; }
 
 			node.file-version {
 				shape: rectangle;
 				content: '';
 				text-opacity: 0;
-				background-image: ${file_version};
+				background-image: ${FileNeonNBG};
 				background-opacity: 0;
 				border-width: 0; }
 
 			node.edit {
-				background-color: #dc9;
+				background-color: #000;
 				background-opacity: 0.25;
-				border-color: #633;
-				color: #633; }
+				border-color: #633; }
 
 			node.edit-session {
 				shape: rectangle;
 				content: '';
 				text-opacity: 0;
-				background-image: ${edit_session};
+				background-image: ${editNeonNBG};
 				background-opacity: 0;
 				border-width: 0; }
 
@@ -342,7 +356,7 @@ function load_graph_style(graphs) {
 				width: 180px;
 				height: 180px;
 				background-color: #eee;
-				background-image: ${cadets_machine};
+				background-image: ${cMachineNeonNBG};
 				background-fit: contain;
 				background-opacity: 0;
 				border-width: 0;
@@ -365,37 +379,35 @@ function load_graph_style(graphs) {
 			node.machine.external {
 				text-margin-y: 0.25em;
 				padding: 1em;
-				width: 80px;
-				height: 80px;
-				background-image: ${machine_external};
-				background-image-opacity: 1; }
+				background-image: ${machineNeonNBG};
+				width: 135px;
+				height: 135px; }
 
 			node.pipe {
 				content: data(label);
-				background-color: #076928;
+				background-color: #000;
 				background-opacity: 0.25;
-				border-color: #076928;
-				color: #076928; }
+				border-color: #076928; }
 
 			node.pipe-endpoint {
 				content: '';
 				font-size: 0;
 				text-opacity: 0;
 				shape: rectangle;
-				background-image: ${pipe};
+				background-image: ${pipeNeonNBG};
 				background-color: white;
 				background-opacity: 0;
 				border-width: 0; }
 
 			node.sock {
-				background-color: #999;
+				background-color: #000;
 				background-opacity: 0.5;
 				border-color: #999;
 				border-opacity: 1; }
 
 			node.socket-version {
 				shape: rectangle;
-				background-image: ${socket};
+				background-image: ${SocketNeonNBG};
 				background-fit: contain;
 				background-opacity: 0;
 				border-opacity: 0;

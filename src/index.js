@@ -958,7 +958,7 @@ function spawnOverFlow(name){
 	// overflowWarning.innerHTML = `<font size=+1>Only showing ${overFlowVars[name][`DisplayAmount`]} 
 	// nodes.<br></font>`;
 	let lastNodes = document.createElement("button");
-	lastNodes.className  = "bodyButton";
+	lastNodes.className  = "headerButton";
 	lastNodes.innerHTML = `previous ${overFlowVars[name][`DisplayAmount`]} nodes`;
 	lastNodes.onclick = function(){
 		getPreviousNodes(name);
@@ -966,7 +966,7 @@ function spawnOverFlow(name){
 	overflowWarning.appendChild(lastNodes);
 
 	let nextNodes = document.createElement("button");
-	nextNodes.className  = "bodyButton";
+	nextNodes.className  = "headerButton";
 	nextNodes.innerHTML = `Next ${overFlowVars[name][`DisplayAmount`]} nodes`;
 	nextNodes.onclick = function(){
 		getNextNodes(name);
