@@ -79,23 +79,6 @@ html, body {
 th,td{
 	padding: 8px;
 }
-.bodyButton{
-	background-color: #aaa;
-	box-shadow: 0 4px #888;
-	color: black;
-	border: none;
-	height: 55%;
-	border-radius: 15px;
-	outline:none;
-}
-.bodyButton:Hover{
-	background-color: #999;
-}
-.bodyButton:active {
-	background-color: #727272;
-	box-shadow: 0 2px #595959;
-	transform: translateY(2px);
-}
 .topOptions{
 	position: absolute;
 	top: 0%;

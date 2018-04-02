@@ -31,8 +31,8 @@ export function neo4jLogin(eventE){
 					.then(function(result) {
 						session.close();
 						if(result.records.length > 0){
-							pvm_version = result.records[0].get("n").properties.pvm_version
-							neo4jParser.pvm_version = pvm_version;
+							pvm_version = result.records[0].get("n").properties.pvm_version;
+							neo4jParser.setPVMv(pvm_version);
 							eventE.emit('pvm_version_set', pvm_version);
 							if(pvm_version == null){
 								vex.dialog.alert({message: "DataBase does not contain PVM version data.",

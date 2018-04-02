@@ -81,11 +81,12 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 				}
 			}
 
+
 			if (compound.empty()) {
 				add_node({
 					id: data.uuid,
 					type: type,
-					label: Array.from(name).join(', '),
+					label: parseNodeName(name, ', '),
 					names: name,
 					'parent': data['parent'],
 				}, graph, renderedPosition);
@@ -565,9 +566,9 @@ export function setPVMVersion(PVMv){
 	}
 }
 
-function parseNodeName(name){
+function parseNodeName(name, joiner=' / '){
 	if(Array.isArray(name)){
-		return name.join(' / ');
+		return name.join(joiner);
 	}
 	else{
 		return name;

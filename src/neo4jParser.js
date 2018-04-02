@@ -6,6 +6,11 @@ export function parseNeo4jNode(o){
 	if (labels.indexOf('Socket') > -1){
 		data.type = "socket-version";
 		data = concatDictionary( data, o['properties']);
+		switch(pvm_version){
+			case(2):
+				data.name = data.ip;
+				break;
+		}
 	}
 	else if (labels.indexOf('Pipe') > -1){
 		data.type = "pipe-endpoint";
@@ -79,7 +84,7 @@ export function parseNeo4jNode(o){
 
 export function parseNeo4jEdge(o){
 	let id = -o['identity']['low'];				// This is negitive because it was sometimes conflicting 
-	let type_map = {'PROC_PARENT': 'parent',	// with a nodes id which must be unique
+	let type_map = {'PROC_PARENT': 'parent',	// with a node's id which must be unique
 					'PROC_OBJ': 'io',
 					'META_PREV': 'proc-metadata',
 					'PROC_OBJ_PREV': 'proc-change',
@@ -142,9 +147,14 @@ function concatDictionary(a, b){
 	return Object.assign({}, a, b);
 }
 
+export function setPVMv(PVMV){
+	pvm_version = PVMV.low;
+}
+
 const neo4jParser ={
 	parseNeo4jNode,
 	parseNeo4jEdge,
+	setPVMv,
 }
 
 export default neo4jParser;
