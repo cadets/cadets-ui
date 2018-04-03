@@ -6,6 +6,13 @@ export function parseNeo4jNode(o){
 	if (labels.indexOf('Socket') > -1){
 		data.type = "socket-version";
 		data = concatDictionary( data, o['properties']);
+		switch(pvm_version){
+			case(2):
+				if(data.ip != ''){
+					data.name = data.ip;
+				}
+				break;
+		}
 	}
 	else if (labels.indexOf('Pipe') > -1){
 		data.type = "pipe-endpoint";
@@ -54,8 +61,12 @@ export function parseNeo4jNode(o){
 		data.type = "edit-session";
 		data = concatDictionary( data, o['properties']);
 	}
+	 else if (labels.indexOf('Global') > -1){
+		data.type = "global";
+		data = concatDictionary( data, o['properties']);
+	}
 	else{
-		console.log('neo4jParser.js - parseNeo4jNode func does not recognize label');
+		console.log(`neo4jParser.js - parseNeo4jNode func does not recognize label ${labels}`);
 	}
 	// mchs.forEach(function(mch){
 	// //for(mch in mchs){
@@ -68,20 +79,21 @@ export function parseNeo4jNode(o){
 	// });
 	// // Calculate a short, easily-compared hash of something unique
 	// // (database ID if we don't have a UUID)
-	let unique = o['uuid'] ? o['uuid'] : data['id'];
-	data['hash'] = unique
+	data['hash'] = o['uuid'] ? o['uuid'] : data['id'];
 	// data['hash'] = short_hash(unique);
 	return data;
 }
 
 export function parseNeo4jEdge(o){
 	let id = -o['identity']['low'];				// This is negitive because it was sometimes conflicting 
-	let type_map = {'PROC_PARENT': 'parent'};	// with a nodes id which must be unique
-	type_map.PROC_OBJ = 'io';
-	type_map.META_PREV = 'proc-metadata';
-	type_map.PROC_OBJ_PREV = 'proc-change';
-	type_map.GLOB_OBJ_PREV = 'file-change';
-	type_map.COMM = 'comm';
+	let type_map = {'PROC_PARENT': 'parent',	// with a node's id which must be unique
+					'PROC_OBJ': 'io',
+					'META_PREV': 'proc-metadata',
+					'PROC_OBJ_PREV': 'proc-change',
+					'GLOB_OBJ_PREV': 'file-change',
+					'COMM': 'comm',
+					'comm': 'comm',
+					'INF': 'inf'};
 	let state;
 	let src;
 	let dst;
@@ -119,11 +131,17 @@ export function parseNeo4jEdge(o){
 		src = o['end']['low'];
 		dst = o['start']['low'];
 	}
-
+	let type = "";
+	if(type_map[o['type']] == null){
+		console.log(`neo4jParser.js - parseNeo4jEdge edge type is not recognizd type: ${o['type']}`);
+	}
+	else{
+		type = type_map[o['type']];
+	}
 	return {'source': src,
 				'target': dst,
 				'id': id,
-				'type': type_map[o['type']],
+				'type': type,
 				'state': state};
 }
 
@@ -131,9 +149,14 @@ function concatDictionary(a, b){
 	return Object.assign({}, a, b);
 }
 
+export function setPVMv(PVMV){
+	pvm_version = PVMV.low;
+}
+
 const neo4jParser ={
 	parseNeo4jNode,
 	parseNeo4jEdge,
+	setPVMv,
 }
 
 export default neo4jParser;

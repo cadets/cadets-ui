@@ -27,6 +27,8 @@ cytoscape.use( dagre );
 cytoscape.use( cose_bilkent );
 
 //Build Html document
+const GUI_VERSION = 'v0.4.0-release';
+let PVM_VERSION = '';
 
 let element = htmlBody();
 document.body.appendChild(element);
@@ -101,8 +103,7 @@ var maxImportLength = 500;//The max number of nodes that can be imported into a 
 
 var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
 
-var worksheetChildCxtMenu = ( 
-{
+var worksheetChildCxtMenu = ({
 	menuRadius: 140,
 	separatorWidth: 5,
 	selector: 'node:childless',
@@ -166,8 +167,7 @@ var worksheetChildCxtMenu = (
 	]
 });
 
-var worksheetParentCxtMenu = ( 
-{
+var worksheetParentCxtMenu = ({
 	menuRadius: 70,
 	separatorWidth: 0,
 	selector: 'node:parent',
@@ -183,7 +183,44 @@ var worksheetParentCxtMenu = (
 	]
 });
 
+var inspectorChildCxtMenu = ({
+		selector: 'node:childless',
+		commands: [
+			{
+				content: 'Import node',
+				select: function(ele){
+					openSubMenu(function(){
+						import_into_worksheetAsync(ele.data('id'));
+					});
+				}
+			},
+			{
+				content: 'Import neighbours',
+				select: function(ele){
+					openSubMenu(function(){
+						import_neighbours_into_worksheetAsync(ele.data('id'));
+					});
+				}
+			},
+			{
+				content: 'Inspect',
+				select: function(ele){
+					inspectAsync(ele.data("id"));
+				}
+			},
+			{
+				content: 'Import and Inspect',
+				select: function(ele){
+					openSubMenu(function(){
+						inspect_and_import(ele.data('id'));
+					});
+				}
+			},
+		]
+	});
+
 var worksheetCxtMenus = [worksheetChildCxtMenu, worksheetParentCxtMenu];
+var inspectorCxtMenus = [inspectorChildCxtMenu];
 
 //Global variables end
 
@@ -251,6 +288,16 @@ workSheetLayout.on('initialised', function(){
 		}
 	};
 
+	document.getElementById(`dropdownOptions`).onclick = function () {
+		let menu = document.getElementById(`optionMenu`);
+		if (menu.style.display === "none") {
+			menu.style.display = "block";
+		} else {
+			menu.style.display = "none";
+		}
+		workSheetLayout.updateSize();
+	};
+
 	// document.getElementById(`loadWorksheet`).onclick = function () {
 	// 	addNewWorksheet();
 	// 	graphingAPI.load(this.files[0], worksheets[`${getWorksheetCount() -1}`].graph, worksheetChildCxtMenu);
@@ -276,7 +323,8 @@ window.onresize = function(){
 document.body.onmousemove = findMouseCoords;
 
 eventEmitter.on('pvm_version_set', function(pvm_version){
-	graphingAPI.setPVMVersion(pvm_version);
+	PVM_VERSION = pvm_version;
+	graphingAPI.setPVMVersion(PVM_VERSION);
 })
 
 //Main Events end
@@ -444,7 +492,6 @@ function remove_neighbours_from_worksheet(id) {
 }
 
 function toggle_node_importance(id, excludeWorksheet = -1) {
-	let nodes = [];
 	let index = highlightedIDs.indexOf(id);
 	if(index >= 0){
 		highlightedIDs.splice(index, 1);
@@ -465,43 +512,36 @@ function toggle_node_importance(id, excludeWorksheet = -1) {
 	});
 }
 
-//
-// Define what it means to show "successors" to a node.
-//
-function successors(id) {
-	let graph = worksheets[`${selectedWorksheet}`].graph;
+// //
+// // Import successor nodes into selected worksheet 
+// //
+// function successors(id) {
+// 	let graph = worksheets[`${selectedWorksheet}`].graph;
 
-	// Display the node's details in the inspector "Details" panel.
-	get_successors(id, function(result) {
+// 	get_successors(id, function(result) {
 
-		let position = {
-			x: graph.width() / 2,
-			y: graph.height() / 2,
-		};
+// 		let position = {
+// 			x: graph.width() / 2,
+// 			y: graph.height() / 2,
+// 		};
 
-		for (let n of result.nodes) {
-			graphingAPI.add_node(n, graph, position, highlightedIDs);
-		}
+// 		graphingAPI.add_node_batch(result.nodes, graph, position, highlightedIDs);
+// 		graphingAPI.add_edge_batch(result.edges, graph);
+// 	});
+// }
 
-		let elements = graph.elements();
-		for (let e of result.edges) {
-			graphingAPI.add_edge(e, graph);
-		}
-	});
-}
-
-//
-// Fetch successors to a node, based on some user-specified filters.
-//
-function get_successors(id, fn) {
-	return neo4jQueries.successors_query(id,
-										100,
-										inspectFiles,
-										inspectSockets,
-										inspectPipes,
-										inspectProcessMeta,
-										fn);
-}
+// //
+// // Fetch successors to a node, based on some user-specified filters.
+// //
+// function get_successors(id, fn) {
+// 	return neo4jQueries.successors_query(id,
+// 										100,
+// 										inspectFiles,
+// 										inspectSockets,
+// 										inspectPipes,
+// 										inspectProcessMeta,
+// 										fn);
+// }
 
 //Worksheet Functions end
 
@@ -517,47 +557,9 @@ function createInspector(){
 	};
 	inspector.graph.inspectee = null;
 
-	inspectorContainer.on('resize', function(){
-		refreshGraph(inspector.graph);
-	});
-
 	setRefreshGraphOnElementShow('inspectorGraph', inspector.graph);
 
-	inspectorGraph.cxtmenu({
-		selector: 'node:childless',
-		commands: [
-			{
-				content: 'Import node',
-				select: function(ele){
-					openSubMenu(function(){
-						import_into_worksheetAsync(ele.data('id'));
-					});
-				}
-			},
-			{
-				content: 'Import neighbours',
-				select: function(ele){
-					openSubMenu(function(){
-						import_neighbours_into_worksheetAsync(ele.data('id'));
-					});
-				}
-			},
-			{
-				content: 'Inspect',
-				select: function(ele){
-					inspectAsync(ele.data("id"));
-				}
-			},
-			{
-				content: 'Import and Inspect',
-				select: function(ele){
-					openSubMenu(function(){
-						inspect_and_import(ele.data('id'));
-					});
-				}
-			},
-		]
-	});
+	setInspectorCxtMenu();
 
 	$('input[id *= "inspect"]').on('change', function() {
 		workSheetLayout.eventHub.emit('updateInspectTargets',
@@ -569,6 +571,10 @@ function createInspector(){
 		if (inspector.graph.inspectee != null) {
 			inspect_node(inspector.graph.inspectee.id());
 		}
+	});
+
+	inspectorContainer.on('resize', function(){
+		refreshGraph(inspector.graph);
 	});
 
 	document.getElementById(`inspectLast`).onclick = function () {
@@ -623,29 +629,12 @@ function showNodeListNextPrevious(){
 			let nodelist = $('#nodelist');
 			nodelist.empty();
 
-			let current_uuid = null;
-			let colour = 0;
-
 			updateOverFlow('nodeList', result);
 
 			for (let node of result) {
 				let meta = graphingAPI.node_metadata(node);
 
-				if (node.uuid != current_uuid) {
-					colour += 1;
-					current_uuid = node.uuid;
-				}
-
-				// nodelist.append(`
-				// 	<tr class="${rowColour(colour)}">
-				// 		<td><a onclick="inspect_node(${node.id});" style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
-				// 		<td>${meta.timestamp}</td>
-				// 		<td><a onclick="inspect_node(${node.id});">${meta.label}</a></td>
-				// 	</tr>`);
-
-				let table = document.getElementById("nodelist");
-
-				let row = table.insertRow(0);
+				let row = document.getElementById("nodelist").insertRow(0);
 				row.onclick = (function() {
 					inspectAsync(node.id);
 				});
@@ -659,21 +648,20 @@ function showNodeListNextPrevious(){
 	);
 }
 
-function rowColour(n) {
-	switch (n % 6) {
-	case 1:
-		return 'active';
-	case 2:
-		return 'info';
-	case 3:
-		return '';
-	case 4:
-		return 'warning';
-	case 5:
-		return 'active';
-	case 0:
-		return 'success';
-	}
+function getNodeCount(fn){
+	neo4jQueries.get_nodes($('#filterNodeType').val(),
+							$('#filterName').val(),
+							$('#filterHost').val(),
+							$('#filterLocalIp').val(),
+							$('#filterLocalPort').val(),
+							$('#filterRemoteIp').val(), 
+							$('#filterRemotePort').val(),
+							0,0,
+							true,
+		function(result) {
+			fn(result);
+		}
+	);
 }
 
 //NodeSearchsheet Functions end
@@ -687,7 +675,7 @@ function inspectAsync(id){
 }
 
 //
-// Define what it means to "inspect" a node. 
+// Displays the selected node and neighbours in the Inspector window
 //
 function inspect_node(id) {
 	removeOverFlow('inspector');
@@ -698,30 +686,27 @@ function inspect_node(id) {
 function showInspectorNextPrevious(){
 	let id = overFlowVars['inspector'][`inspectee`];
 
-	// Display the node's details in the inspector "Details" panel.
-	let inspectee;
-
 	inspector.detail.empty();
 	inspector.neighbours.empty();
 
-	neo4jQueries.get_detail_id(id, function(result) {
-		for (let property in result[0]) {
-			if (property == 'timestamp' || property == 'meta_ts') {
-				result[0][property] =
-					moment.unix(result[0][property] / 1000000000).format();
+	// Display the node's immediate connections in the inspector "Graph" panel.
+	get_neighbours(id, true,
+		overFlowVars[`inspector`][`DisplayAmount`] + 1, 
+		overFlowVars['inspector'][`IDStart`], 
+		function(result) {
+			let inspectee = result.focusNode;
+			for (let prop in inspectee) {
+				if (prop == 'timestamp' || prop == 'meta_ts') {
+					inspectee[prop] =
+						moment.unix(inspectee[prop] / 1000000000).format();
+				}
+				inspector.detail.append(`
+					<tr>
+						<th>${prop}</th>
+						<td>${inspectee[prop]}</td>
+					</tr>
+				`)
 			}
-			inspector.detail.append(`
-				<tr>
-					<th>${property}</th>
-					<td>${result[0][property]}</td>
-				</tr>
-			`)
-		}
-		inspectee = result[0];
-
-		// Display the node's immediate connections in the inspector "Graph" panel.
-		get_neighbours(id, function(result) {
-
 
 			inspector.graph.remove('node');
 
@@ -729,17 +714,13 @@ function showInspectorNextPrevious(){
 
 			updateOverFlow('inspector', result.nodes);
 
-			for (let n of result.nodes) {
-				graphingAPI.add_node(n, inspector.graph);
+			graphingAPI.add_node_batch(result.nodes, inspector.graph, null, [], function(node){
+				let meta = graphingAPI.node_metadata(node);
 
-				let meta = graphingAPI.node_metadata(n);
-
-				let table = document.getElementById("neighbour-detail");
-
-				let row = table.insertRow(0);
+				let row = document.getElementById("neighbour-detail").insertRow(0);
 				row.onclick = (function() {
 					openSubMenu(function(){
-						import_into_worksheet(n.id);
+						import_into_worksheet(node.id);
 					}, true, true);
 				});
 				let cell = row.insertCell(0);
@@ -747,13 +728,10 @@ function showInspectorNextPrevious(){
 								<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
 								<td><a>${meta.label}</a></td>
 								`);
-			}
-			for (let e of result.edges) {
-				if(inspector.graph.$id( e.source ).length > 0 && inspector.graph.$id( e.target ).length > 0){
-					graphingAPI.add_edge(e, inspector.graph);
-				}
-			}
-			let n = inspector.graph.elements().nodes(`[id="${id}"]`);
+			});
+
+			graphingAPI.add_edge_batch(result.edges, inspector.graph);
+			let n = inspector.graph.$id(id);
 			if (n.empty()) {
 				n = inspector.graph.elements().nodes(`[uuid="${id}"]`);
 			}
@@ -771,12 +749,8 @@ function showInspectorNextPrevious(){
 				level: 1,
 				position: inspector.graph.inspectee.position(),
 			});
-		},
-		true,
-		overFlowVars[`inspector`][`DisplayAmount`] + 1,
-		overFlowVars['inspector'][`IDStart`],
-		);
-	});
+		}
+	);
 }
 
 function import_into_worksheetAsync(id){
@@ -787,7 +761,6 @@ function import_into_worksheetAsync(id){
 // How to import a node into the worksheet
 //
 function import_into_worksheet(id) {
-	let nodes = [];
 	neo4jQueries.get_detail_id(id, function(result) {
 		import_batch_into_worksheet(result);
 	});
@@ -796,7 +769,7 @@ function import_into_worksheet(id) {
 //
 // Fetch neighbours to a node, based on some user-specified filters.
 //
-function get_neighbours(id, fn, isOverFlow=false, displayAmount = -1, startID = 0) {
+function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, fn) {
 	return neo4jQueries.get_neighbours_id(id,
 										fn,	
 										inspectFiles,
@@ -812,22 +785,22 @@ function import_batch_into_worksheet(nodes) {
 	let graph = worksheets[`${selectedWorksheet}`].graph;
 	let ids = [];
 
-
-	if(nodes.length >= maxImportLength){
-		vex.dialog.alert({
-			unsafeMessage: `Trying to import more nodes than the maxImportLength:${maxImportLength} allows!`,
-			className: 'vex-theme-wireframe'
-		});
-		return;
-	}
-
-	nodes.forEach(function(node){
+	for(let node of nodes){
 		if (!graph.$id(node.id).empty()) {
-			let index = nodes.indexOf(node);
-			nodes.splice(index, 1);
+			nodes.splice(nodes.indexOf(node), 1);
 		}
-		ids = ids.concat(node.id);
-	});
+		else{
+			ids = ids.concat(node.id);
+
+			if(ids.length >= maxImportLength){
+				vex.dialog.alert({
+					unsafeMessage: `Trying to import more nodes than the maxImportLength:${maxImportLength} allows!`,
+					className: 'vex-theme-wireframe'
+				});
+				return;
+			}
+		}
+	}
 	if(ids.length <= 0){return;}
 
 	let position = {
@@ -835,24 +808,9 @@ function import_batch_into_worksheet(nodes) {
 		y: graph.height() / 2,
 	};
 	graphingAPI.add_node_batch(nodes, graph, position, highlightedIDs);
-	get_neighbours_batch(ids, function(result) {
-	
-		for (let edge of result.edges) {
-			if(graph.$id( edge.source ).length > 0 && graph.$id( edge.target ).length > 0){
-				graphingAPI.add_edge(edge, graph);
-			}
-		}
+	neo4jQueries.get_all_edges_batch(ids, function(edges){
+		graphingAPI.add_edge_batch(edges, graph);
 	});
-}
-
-function get_neighbours_batch(ids, fn) {
-	return neo4jQueries.get_neighbours_id_batch(ids,
-										fn,	
-										inspectFiles,
-										inspectSockets,
-										inspectPipes,
-										inspectProcessMeta
-										);
 }
 
 function import_neighbours_into_worksheetAsync(id){
@@ -863,7 +821,7 @@ function import_neighbours_into_worksheetAsync(id){
 // Add a node and all of its neighbours to the worksheet.
 //
 function import_neighbours_into_worksheet(id) {
-	get_neighbours(id, function(result) {
+	get_neighbours(id, false, -1, 0, function(result) {
 		import_batch_into_worksheet(result.nodes.concat(result.focusNode));
 	});
 }
@@ -880,6 +838,11 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 							<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 							<button type="button" class="headerButton" id="toggleNodeSearchsheet">Close NodeSearchsheet</button>
+							<button type="button" class="headerButton" id="dropdownOptions">Options</button>
+							<div class="optionMenu" id="optionMenu">
+								<h2>Options</h2>
+								<font>GUI_Version: ${GUI_VERSION}</font>
+							</div>
 						</div>
 						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>`;
 
@@ -917,8 +880,8 @@ function findMouseCoords(mouseEvent)
 	}
 	xpos -= obj_left;
 	ypos -= obj_top;
-	currMouseX = xpos;
-	currMouseY = ypos;
+	currMouseX = xpos;//setting global var
+	currMouseY = ypos;//setting global var
 }
 
 function removeEmptyParents(parents){
@@ -1029,7 +992,7 @@ function spawnOverFlow(name){
 	// overflowWarning.innerHTML = `<font size=+1>Only showing ${overFlowVars[name][`DisplayAmount`]} 
 	// nodes.<br></font>`;
 	let lastNodes = document.createElement("button");
-	lastNodes.className  = "bodyButton";
+	lastNodes.className  = "headerButton";
 	lastNodes.innerHTML = `previous ${overFlowVars[name][`DisplayAmount`]} nodes`;
 	lastNodes.onclick = function(){
 		getPreviousNodes(name);
@@ -1037,7 +1000,7 @@ function spawnOverFlow(name){
 	overflowWarning.appendChild(lastNodes);
 
 	let nextNodes = document.createElement("button");
-	nextNodes.className  = "bodyButton";
+	nextNodes.className  = "headerButton";
 	nextNodes.innerHTML = `Next ${overFlowVars[name][`DisplayAmount`]} nodes`;
 	nextNodes.onclick = function(){
 		getNextNodes(name);
@@ -1100,6 +1063,10 @@ function removeNode(ele){
 	let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
 	node.remove();
 	removeEmptyParents(node.parents());
+}
+
+function setInspectorCxtMenu(){
+	setGraphCxtMenu(inspector.graph, inspectorCxtMenus);
 }
 
 function setWorksheetCxtMenu(index){

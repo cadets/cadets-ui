@@ -8,7 +8,7 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 								<div class="row header formBox" id="formBox">
 									<label for="filterNodeType">&nbsp;Type</label>
 									<div>
-										&nbsp;<select id="filterNodeType">
+										&nbsp;<select id="filterNodeType" class="darkTextBox">
 											<option></option>
 					 						<option>connection</option>
 											<option>file-version</option>
@@ -23,18 +23,18 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 									</div>
 									<label for="filterName">&nbsp;Name</label>
 									<div>
-										&nbsp;<input id="filterName"/>
+										&nbsp;<input id="filterName" size="18.5" class="darkTextBox leftPadding"/>
 									</div>
 									<label for="filterHost">&nbsp;Host</label>
 									<div>
-										&nbsp;<input id="filterHost"/>
+										&nbsp;<input id="filterHost" size="18.5" class="darkTextBox leftPadding"/>
 									</div>
 									<label for="filterTuple">&nbsp;TCP</label>
 									<div id="filterTuple">
-										&nbsp;<input id="filterLocalIp" size="10"/>
-										<input id="filterLocalPort" size="3"/>&nbsp;L<br/>
-										&nbsp;<input id="filterRemoteIp" size="10"/>
-										<input id="filterRemotePort" size="3"/>&nbsp;R
+										&nbsp;<input id="filterLocalIp" size="10" class="darkTextBox leftPadding"/>
+										<input id="filterLocalPort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;L<br/>
+										&nbsp;<input id="filterRemoteIp" size="10" class="darkTextBox leftPadding"/>
+										<input id="filterRemotePort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;R
 									</div>
 								</div>
 								<div class="row content scrollable">
@@ -46,14 +46,14 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 
 var inspectorHtml = `<div class="sheet" id="inspectorGraph"></div>
 					<div class="topOptions" id="inspectorHeader">
-						<button type="button" class="bodyButton" id="inspectLast">🡐</button>
-						<button type="button" class="bodyButton" id="inspectForward">🡒</button>
+						<button type="button" class="headerButton" id="inspectLast">🡐</button>
+						<button type="button" class="headerButton" id="inspectForward">🡒</button>
 					</div>
 					<div class="bottomOptions">
-						<input type="checkbox" id="inspectFiles">Files</input>
-						<input type="checkbox" id="inspectSockets">Sockets</input>
-						<input type="checkbox" id="inspectPipes">Pipes</input>
-						<input type="checkbox" id="inspectProcessMeta">ProcessMetaData</input>
+						<input type="checkbox" id="inspectFiles" class="darkTextBox">Files</input>
+						<input type="checkbox" id="inspectSockets" class="darkTextBox">Sockets</input>
+						<input type="checkbox" id="inspectPipes" class="darkTextBox">Pipes</input>
+						<input type="checkbox" id="inspectProcessMeta" class="darkTextBox">ProcessMetaData</input>
 					</div>`;
 
 var DetailsHtml = `<div class="sheet scrollable">
@@ -111,11 +111,11 @@ function getWorksheetHtml(){
 				<div class="sheet" id="worksheetGraph${index}"></div>
 				<div class="bottomOptions">
 					<input id="loadGraph${index}" name="file" type="file" style="display: none">
-					<button class="bodyButton" onclick="document.getElementById('loadGraph${index}').click();">Load</button>
-					<button type="button" class="bodyButton" id="saveGraph${index}">Save</button>
-					<input id="saveFilename${index}" name="saveFilename" type="text" placeholder="File name""></input>
-					<button type="button" class="bodyButton" id="reDagre${index}">Dagre</button>
-					<button type="button" class="bodyButton" id="reCose-Bilkent${index}">Cose</button>
+					<button class="headerButton" onclick="document.getElementById('loadGraph${index}').click();">Load</button>
+					<button type="button" class="headerButton" id="saveGraph${index}">Save</button>
+					<input id="saveFilename${index}" class="darkWorksheetTextBox leftPadding" name="saveFilename" type="text" placeholder="File name""></input>
+					<button type="button" class="headerButton" id="reDagre${index}">Dagre</button>
+					<button type="button" class="headerButton" id="reCose-Bilkent${index}">Cose</button>
 				</div>
 			</div>`;
 }

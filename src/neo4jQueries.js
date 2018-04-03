@@ -24,15 +24,15 @@ export function neo4jLogin(eventE){
 		callback: function (data) {
 			if (!data) {
 				neo4jLogin(eventE);
-			} else {//bolt://localhost
+			} else {
 				driver = neo4j.driver("bolt://localhost:7687/", neo4j.auth.basic(data.username, data.password));
 				let session = driver.session();
 					session.run(`MATCH (n:DBInfo) RETURN n`)
 					.then(function(result) {
 						session.close();
 						if(result.records.length > 0){
-							pvm_version = result.records[0].get("n").properties.pvm_version
-							neo4jParser.pvm_version = pvm_version;
+							pvm_version = result.records[0].get("n").properties.pvm_version;
+							neo4jParser.setPVMv(pvm_version);
 							eventE.emit('pvm_version_set', pvm_version);
 							if(pvm_version == null){
 								vex.dialog.alert({message: "DataBase does not contain PVM version data.",
@@ -64,6 +64,7 @@ export function file_read_query(id, fn){
 							RETURN c`;
 			break;
 		default:
+			console.log(`neo4jQueries.js - file_read_query pvm_version:${pvm_version} not implemented`);
 	}
 	let session = driver.session();
 	session.run(query)
@@ -97,6 +98,7 @@ export function cmd_query(id, fn){
 					RETURN c`;
 			break;
 		default:
+			console.log(`neo4jQueries.js - cmd_query pvm_version:${pvm_version} not implemented`);
 	}
 	let session = driver.session();
 	session.run(query)
@@ -169,62 +171,41 @@ export function get_neighbours_id_batch(ids,
 				${limitQuery}`)
 
 	.then(result => {
+		session.close();
 		let neighbours = result.records;
-		if (neighbours.length){
-			root_node = neo4jParser.parseNeo4jNode(neighbours[0].get('s'));
+		if (neighbours.length != 0){
 			neighbours.forEach(function(row){
 				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(row.get('d')));
 				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(row.get('e')));
 			});
-		}
-		if (sockets){
-			session.run(`MATCH (skt:Socket), (mch:Machine)
-						WHERE 
-						mch.external
-						AND 
-						id(skt) IN ${JSON.stringify(ids)}
-						AND 
-						split(skt.name[0], ":")[0] in mch.ips
-						RETURN skt, mch
-						UNION
-						MATCH (skt:Socket), (mch:Machine)
-						WHERE 
-						mch.external
-						AND 
-						id(mch) IN ${JSON.stringify(ids)}
-						AND
-						split(skt.name[0], ":")[0] in mch.ips
-						RETURN DISTINCT skt, mch`)
-			.then(result => {
-				session.close();
-				if(result.records.length > 0){
-					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(result.records[0].get('mch')));
-				}
-				result.records.forEach(function (record){
-					let m_links = {'type' : 'comm'};
-					m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
-					m_links.properties = {'state' : null}; 
-					m_links.start = {'low' : record.get('skt')['identity']['low']};
-					m_links.end = {'low' : record.get('mch')['identity']['low']};
-					neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('skt')));
-					neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(m_links));
-				});
-				fn({focusNode: root_node,
-					nodes: neighbour_nodes,
-					edges: neighbour_edges});
-			}, function(error) {
-				neo4jError(error, session, "get_neighbours_id");
-			});
+			get_neighbours_id_batch_end(neighbour_nodes, neighbour_edges, ids, 
+										sockets, fn, neo4jParser.parseNeo4jNode(neighbours[0].get('s')));
 		}
 		else{
-			session.close();
-			fn({focusNode: root_node,
-				nodes: neighbour_nodes,
-				edges: neighbour_edges});
+			get_batch_detail_id(ids, function(nodes){
+				get_neighbours_id_batch_end(neighbour_nodes, neighbour_edges, ids, sockets, fn, nodes[0]);
+			});
 		}
 	}, function(error) {
 		neo4jError(error, session, "get_neighbours_id");
 	});
+}
+
+function get_neighbours_id_batch_end(neighbour_nodes, neighbour_edges, ids, sockets, fn, root_node){
+	if (sockets){
+		getMachineSocketConnections(ids, function(elements){
+			neighbour_nodes = neighbour_nodes.concat(elements.nodes);
+			neighbour_edges = neighbour_edges.concat(elements.edges);
+			fn({focusNode: root_node,
+				nodes: neighbour_nodes,
+				edges: neighbour_edges});
+		});
+	}
+	else{
+		fn({focusNode: root_node,
+			nodes: neighbour_nodes,
+			edges: neighbour_edges});
+	}
 }
 
 // export function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=true, process_meta=true, fn){
@@ -360,6 +341,66 @@ export function get_neighbours_id_batch(ids,
 // 			});
 // }
 
+export function get_all_edges_batch(ids, fn){
+	let session = driver.session();
+	session.run(`MATCH (a)-[e]-() WHERE id(a) IN ${JSON.stringify(ids)} RETURN DISTINCT e`)
+	.then(result => {
+		session.close();
+		let edges = [];
+		result.records.forEach(function (record) 
+		{
+			edges = edges.concat(neo4jParser.parseNeo4jEdge(record.get('e')));
+		});
+		getMachineSocketConnections(ids, function(elements){
+			fn(edges.concat(elements.edges));
+		});
+		}, function(error) {
+			neo4jError(error, session, "get_all_edges_batch");
+		});
+}
+
+function getMachineSocketConnections(ids, fn){
+	let session = driver.session();
+	session.run(`MATCH (skt:Socket), (mch:Machine)
+				WHERE 
+				mch.external
+				AND 
+				id(skt) IN ${JSON.stringify(ids)}
+				AND 
+				split(skt.name[0], ":")[0] in mch.ips
+				RETURN skt, mch
+				UNION
+				MATCH (skt:Socket), (mch:Machine)
+				WHERE 
+				mch.external
+				AND 
+				id(mch) IN ${JSON.stringify(ids)}
+				AND
+				split(skt.name[0], ":")[0] in mch.ips
+				RETURN DISTINCT skt, mch`)
+	.then(result => {
+		session.close();
+		let neighbour_nodes = [];
+		let neighbour_edges = [];
+		if(result.records.length > 0){
+			neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(result.records[0].get('mch')));
+		}
+		result.records.forEach(function (record){
+			let m_links = {'type' : 'comm'};
+			m_links.identity = {'low' : record.get('skt')['identity']['low'] + record.get('mch')['identity']['low']};
+			m_links.properties = {'state' : null}; 
+			m_links.start = {'low' : record.get('skt')['identity']['low']};
+			m_links.end = {'low' : record.get('mch')['identity']['low']};
+			neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(record.get('skt')));
+			neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(m_links));
+		});
+		fn({'nodes': neighbour_nodes,
+			'edges': neighbour_edges});
+	}, function(error) {
+		neo4jError(error, session, "get_neighbours_id");
+	});
+}
+
 export function get_detail_id(id, fn, parse=true){
 	get_batch_detail_id([parseInt(id)], fn, parse=true);
 }
@@ -435,9 +476,8 @@ export function get_nodes(node_type=null,
 	}
 	let returnQuery;
 	let idQuery = ``;
-	let query;
 	if(countOnly == true){
-		returnQuery = 'DISTINCT count(n)';
+		returnQuery = 'DISTINCT count(n) AS cnt';
 	}
 	else{
 		returnQuery = `DISTINCT n
@@ -446,146 +486,130 @@ export function get_nodes(node_type=null,
 						id(n) >= ${startID}
 					WITH n`;
 	}
-	if(pvm_version == 2){
-		query = `MATCH (n) WHERE ${labelQuery} AND id(n) >= ${startID}
-				WITH n
-				WHERE
-					${JSON.stringify(name)} is Null
-					OR
-					${JSON.stringify(name)} = ''
-					OR
-					any(name in n.name WHERE name CONTAINS ${JSON.stringify(name)})
-					OR
-					n.cmdline CONTAINS ${JSON.stringify(name)}
-				WITH n 
-				RETURN ${returnQuery}`;
-	}
-	else {
-		query = `MATCH (n)
-				${idQuery}
-				WHERE 
-					${JSON.stringify(lab)} is Null
-					OR
-					${labelQuery}
-				WITH n
-				WHERE
-					${JSON.stringify(name)} is Null
-					OR
-					${JSON.stringify(name)} = ''
-					OR
-					any(name in n.name WHERE name CONTAINS ${JSON.stringify(name)})
-					OR
-					n.cmdline CONTAINS ${JSON.stringify(name)}
-				WITH n
-				WHERE
-					${JSON.stringify(host)} is Null
-					OR
-					${JSON.stringify(host)} = ''
-					OR
+	let query = `MATCH (n)
+			${idQuery}
+			WHERE 
+				${JSON.stringify(lab)} is Null
+				OR
+				${labelQuery}
+			WITH n
+			WHERE
+				${JSON.stringify(name)} is Null
+				OR
+				${JSON.stringify(name)} = ''
+				OR
+				any(name in n.name WHERE name CONTAINS ${JSON.stringify(name)})
+				OR
+				n.cmdline CONTAINS ${JSON.stringify(name)}
+			WITH n
+			WHERE
+				${JSON.stringify(host)} is Null
+				OR
+				${JSON.stringify(host)} = ''
+				OR
+				(
+					exists(n.host)
+					AND
+					n.host = ${JSON.stringify(host)}
+				)
+				OR
+				n.uuid = ${JSON.stringify(host)}
+			WITH n
+			OPTIONAL MATCH (m:Machine)
+			WHERE
+				(
+					n:Conn
+					AND
 					(
-						exists(n.host)
-						AND
-						n.host = ${JSON.stringify(host)}
-					)
-					OR
-					n.uuid = ${JSON.stringify(host)}
-				WITH n
-				MATCH (m:Machine)
-				WHERE
-					(
-						n:Conn
-						AND
+						n.client_ip=~${JSON.stringify(local_ip)}
+						OR
+						n.server_ip=~${JSON.stringify(local_ip)}
+						OR
 						(
-							n.client_ip=~${JSON.stringify(local_ip)}
-							OR
-							n.server_ip=~${JSON.stringify(local_ip)}
-							OR
-							(
-								n.type = 'Pipe'
-								AND
-								${JSON.stringify(local_ip)} = '.*?'
-							)
-						)
-						AND
-						(
-							n.client_port=~${JSON.stringify(local_port)}
-							OR
-							n.server_port=~${JSON.stringify(local_port)}
-							OR
-							(
-								n.type = 'Pipe'
-								AND
-								${JSON.stringify(local_port)} = '.*?'
-							)
-						)
-						AND
-						(
-							n.server_ip=~${JSON.stringify(remote_ip)}
-							OR
-							n.client_ip=~${JSON.stringify(remote_ip)}
-							OR
-							(
-								n.type = 'Pipe'
-								AND
-								${JSON.stringify(remote_ip)} = '.*?'
-							)
-						)
-						AND
-						(
-							n.server_port=~${JSON.stringify(remote_port)}
-							OR
-							n.client_port=~${JSON.stringify(remote_port)}
-							OR
-							(
-								n.type = 'Pipe'
-								AND
-								${JSON.stringify(remote_port)} = '.*?'
-							)
+							n.type = 'Pipe'
+							AND
+							${JSON.stringify(local_ip)} = '.*?'
 						)
 					)
-					OR
+					AND
 					(
-						NOT n:Conn
-						AND
+						n.client_port=~${JSON.stringify(local_port)}
+						OR
+						n.server_port=~${JSON.stringify(local_port)}
+						OR
 						(
-							NOT n:Socket
-							OR
+							n.type = 'Pipe'
+							AND
+							${JSON.stringify(local_port)} = '.*?'
+						)
+					)
+					AND
+					(
+						n.server_ip=~${JSON.stringify(remote_ip)}
+						OR
+						n.client_ip=~${JSON.stringify(remote_ip)}
+						OR
+						(
+							n.type = 'Pipe'
+							AND
+							${JSON.stringify(remote_ip)} = '.*?'
+						)
+					)
+					AND
+					(
+						n.server_port=~${JSON.stringify(remote_port)}
+						OR
+						n.client_port=~${JSON.stringify(remote_port)}
+						OR
+						(
+							n.type = 'Pipe'
+							AND
+							${JSON.stringify(remote_port)} = '.*?'
+						)
+					)
+				)
+				OR
+				(
+					NOT n:Conn
+					AND
+					(
+						NOT n:Socket
+						OR
+						(
+							n:Socket
+							AND
+							any(name in n.name
+							WHERE name =~ (${JSON.stringify(remote_ip)}+':?'+${JSON.stringify(remote_port)}))
+							AND
 							(
-								n:Socket
-								AND
-								any(name in n.name
-								WHERE name =~ (${JSON.stringify(remote_ip)}+':?'+${JSON.stringify(remote_port)}))
-								AND
+								${JSON.stringify(local_ip)} = ".*?"
+								OR
 								(
-									${JSON.stringify(local_ip)} = ".*?"
-									OR
-									(
-										m.uuid = n.host
-										AND
-										any(l_ip in m.ips
-										WHERE l_ip = ${JSON.stringify(local_ip)})
-									)
+									m.uuid = n.host
+									AND
+									any(l_ip in m.ips
+									WHERE l_ip = ${JSON.stringify(local_ip)})
 								)
 							)
 						)
 					)
-				RETURN ${returnQuery}`;
-	}
+				)
+			RETURN ${returnQuery}`;
 	let session = driver.session();
 	session.run(query)
 	 .then(result => {
 		session.close();
 		let nodes = [];
 		if(countOnly){
-			fn(result.get('n'));
+			fn(result.records[0].get('cnt')['low']);
 		}
 		else{
 			result.records.forEach(function (record) 
 			{
 				nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
 			});
+			fn(nodes);
 		}
-		fn(nodes);
 	 }, function(error) {
 		neo4jError(error, session, "get_nodes");
 	});
@@ -618,7 +642,7 @@ const neo4jQueries ={
 	cmd_query,
 	get_neighbours_id,
 	get_neighbours_id_batch,
-	//successors_query,
+	get_all_edges_batch,
 	get_detail_id,
 	get_nodes,
 	getTypeLabels,

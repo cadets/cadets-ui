@@ -1,5 +1,6 @@
 html, body {
-	background-color: black;
+	color: #e2e2e2; 
+	background-color: #121212;
 	height: 100%;
 	width: 100%;
 	margin: 0;
@@ -16,12 +17,12 @@ html, body {
 	flex: 1 1 auto;
 }
 .fillHeader{
-	color: white;
-	background-color: black;
+	background-color: #232323;
 	width: 100%;
 	position: relative;
 	top: 0%;
 	left: 0%;
+	padding-bottom: 5px;
 }
 .headerButtons{
 	height: 100%;
@@ -32,25 +33,23 @@ html, body {
  .headerButton{
 	transition-duration: 0.5s;
 	font-size: 20px;
-	background-color: black;
-	color: white;
-	border: black;
+	background-color: #343434;
+	border: #343434;
+	color: #717171;
 	outline:none;
+	border-radius: 2px;
  }
  .headerButton:Hover{
-	font-size: 20px;
-	background-color: white;
-	color: black;
-	border: white;
+	color: #9e9e9e;
  }
 .sheet{
-	background-color: #c1c1c1;
+	/*background-color: #303030;*/
 	width: 100%;
 	height: 100%;
 }
 .formBox{
 	background-color: black;
-	color: white;
+	color: #7f7f7f;
 	width: 100%;
 	top: 0%;
 	left: 0%;
@@ -74,27 +73,11 @@ html, body {
 }
 .table, th, td {
 	border: 1px solid black;
+	border-color: #2e2e2e;
 	border-collapse: collapse;
 }
 th,td{
 	padding: 8px;
-}
-.bodyButton{
-	box-shadow: 0 4px #999;
-	background-color: #eee;
-	color: black;
-	border: none;
-	height: 55%;
-	border-radius: 15px;
-	outline:none;
-}
-.bodyButton:Hover{
-	background-color: #dfdfdf;
-}
-.bodyButton:active {
-	background-color: #ddd;
-	box-shadow: 0 2px #666;
-	transform: translateY(2px);
 }
 .topOptions{
 	position: absolute;
@@ -103,14 +86,31 @@ th,td{
 	padding: 2%
 }
 .bottomOptions{
+	color: #7f7f7f;
 	position: absolute;
 	bottom: 0%;
 	left: 0%;
 	padding: 2%
 }
+.darkTextBox{
+	border: 0px;
+	background-color: #303030;
+	color: #c6c6c6;
+	size:2;
+}
+.leftPadding{
+	padding-left: 5px
+}
+.darkWorksheetTextBox{
+	height: 22px;
+	border: 0px;
+	border-color: #343434;
+	background-color: #121212;
+	color: #e2e2e2;
+	size:2;
+}
 .dropdown {
     position: relative;
-    /*display: inline-block;*/
 }
 .dropdown-content {
     position: absolute;
@@ -126,3 +126,7 @@ th,td{
     display: block;
 }
 .dropdown-content a:hover {background-color: #ddd}
+
+.optionMenu{
+	display: none;
+}
