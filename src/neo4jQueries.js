@@ -64,6 +64,7 @@ export function file_read_query(id, fn){
 							RETURN c`;
 			break;
 		default:
+			console.log(`neo4jQueries.js - file_read_query pvm_version:${pvm_version} not implemented`);
 	}
 	let session = driver.session();
 	session.run(query)
@@ -97,6 +98,7 @@ export function cmd_query(id, fn){
 					RETURN c`;
 			break;
 		default:
+			console.log(`neo4jQueries.js - cmd_query pvm_version:${pvm_version} not implemented`);
 	}
 	let session = driver.session();
 	session.run(query)

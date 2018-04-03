@@ -54,48 +54,68 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 		if(fn != null){
 			fn(data);
 		}
-		// Have we already imported this node?
 
+		// Have we already imported this node?
 		if (!graph.$id(data.id).empty()) {
 			return;
 		}
 
 		// When importing things with abstract containers (e.g., file versions),
 		// draw a compound node to show the abstraction and simplify the versions.
-		if (data.uuid && (
-				[ 'file-version', 'pipe-endpoint', 'socket-version', 'edit-session'].indexOf(data.type)
-					!= -1
-				)) {
+		if (data.uuid && (['file-version', 'pipe-endpoint', 'socket-version', 'edit-session'].indexOf(data.type) != -1)) {
 			let compound = graph.$id(data.uuid);
 			let type = data.type.substr(0, 4);
 
-			let name = data.name;
+			let name = [];
+			if(data.name){
+				name = name.concat(data.name);
+			}
 			if (name == null) {
 				name = new Set().add(data.hash);
 			}
-
 			// Add file descriptors if we have them.
-			if (data.fds) {
-				for(let fd of data.fds){
-					name = name.concat('FD ' + fd)
-				}
+			switch(pvm_version.low){
+				case(1):
+					if (data.fds) {
+						for(let fd of data.fds){
+							name = name.concat('FD ' + fd);
+						}
+					}
+					break;
+				case(2):
+					if(data.fd){
+						name = name.concat('FD ' + data.fd);
+					}
+					break;
+				default:
+					console.log(`graphing.js - add_node_batch pvm_version:${pvm_version} not implemented for file descriptors`);
 			}
-
 
 			if (compound.empty()) {
 				add_node({
 					id: data.uuid,
 					type: type,
-					label: parseNodeName(name, ', '),
+					label: parseNodeName(name, '\n'),
 					names: name,
 					'parent': data['parent'],
 				}, graph, renderedPosition);
 			} else {
 				let existing = compound.data();
-				existing.names = new Set([...existing.names, ...name]);
-				existing.label = Array.from(existing.names).join(' ');
+				switch(pvm_version.low){
+					case(1):
+						existing.names = new Set([...existing.names, ...name]);
+						existing.label = Array.from(existing.names).join(' ');
+						break;
+					case(2):
+						if(!existing.names.indexOf(name)){
+							existing.names = existing.names.concat(name);
+						}
+						existing.label = existing.names;
+						break;
+					default:
+						console.log(`graphing.js - add_node_batch pvm_version:${pvm_version} not implemented`);
+				}
 			}
-
 			data['parent'] = data.uuid;
 		}
 

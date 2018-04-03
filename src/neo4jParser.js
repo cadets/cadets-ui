@@ -8,7 +8,9 @@ export function parseNeo4jNode(o){
 		data = concatDictionary( data, o['properties']);
 		switch(pvm_version){
 			case(2):
-				data.name = data.ip;
+				if(data.ip != ''){
+					data.name = data.ip;
+				}
 				break;
 		}
 	}
