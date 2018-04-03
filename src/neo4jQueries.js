@@ -477,7 +477,7 @@ export function get_nodes(node_type=null,
 	let returnQuery;
 	let idQuery = ``;
 	if(countOnly == true){
-		returnQuery = 'DISTINCT count(n)';
+		returnQuery = 'DISTINCT count(n) AS cnt';
 	}
 	else{
 		returnQuery = `DISTINCT n
@@ -601,15 +601,15 @@ export function get_nodes(node_type=null,
 		session.close();
 		let nodes = [];
 		if(countOnly){
-			fn(result.get('n'));
+			fn(result.records[0].get('cnt')['low']);
 		}
 		else{
 			result.records.forEach(function (record) 
 			{
 				nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
 			});
+			fn(nodes);
 		}
-		fn(nodes);
 	 }, function(error) {
 		neo4jError(error, session, "get_nodes");
 	});

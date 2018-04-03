@@ -27,7 +27,7 @@ cytoscape.use( dagre );
 cytoscape.use( cose_bilkent );
 
 //Build Html document
-const GUI_VERSION = 'v0.3.0';
+const GUI_VERSION = 'v0.4.0-release';
 let PVM_VERSION = '';
 
 let element = htmlBody();
@@ -644,6 +644,22 @@ function showNodeListNextPrevious(){
 									<td><a>${meta.label}</a></td>
 								`);
 			}
+		}
+	);
+}
+
+function getNodeCount(fn){
+	neo4jQueries.get_nodes($('#filterNodeType').val(),
+							$('#filterName').val(),
+							$('#filterHost').val(),
+							$('#filterLocalIp').val(),
+							$('#filterLocalPort').val(),
+							$('#filterRemoteIp').val(), 
+							$('#filterRemotePort').val(),
+							0,0,
+							true,
+		function(result) {
+			fn(result);
 		}
 	);
 }
