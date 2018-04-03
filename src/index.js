@@ -27,6 +27,8 @@ cytoscape.use( dagre );
 cytoscape.use( cose_bilkent );
 
 //Build Html document
+const GUI_VERSION = 'v0.3.0';
+let PVM_VERSION = '';
 
 let element = htmlBody();
 document.body.appendChild(element);
@@ -286,6 +288,16 @@ workSheetLayout.on('initialised', function(){
 		}
 	};
 
+	document.getElementById(`dropdownOptions`).onclick = function () {
+		let menu = document.getElementById(`optionMenu`);
+		if (menu.style.display === "none") {
+			menu.style.display = "block";
+		} else {
+			menu.style.display = "none";
+		}
+		workSheetLayout.updateSize();
+	};
+
 	// document.getElementById(`loadWorksheet`).onclick = function () {
 	// 	addNewWorksheet();
 	// 	graphingAPI.load(this.files[0], worksheets[`${getWorksheetCount() -1}`].graph, worksheetChildCxtMenu);
@@ -311,7 +323,8 @@ window.onresize = function(){
 document.body.onmousemove = findMouseCoords;
 
 eventEmitter.on('pvm_version_set', function(pvm_version){
-	graphingAPI.setPVMVersion(pvm_version);
+	PVM_VERSION = pvm_version;
+	graphingAPI.setPVMVersion(PVM_VERSION);
 })
 
 //Main Events end
@@ -809,6 +822,11 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 							<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 							<button type="button" class="headerButton" id="toggleNodeSearchsheet">Close NodeSearchsheet</button>
+							<button type="button" class="headerButton" id="dropdownOptions">Options</button>
+							<div class="optionMenu" id="optionMenu">
+								<h2>Options</h2>
+								<font>GUI_Version: ${GUI_VERSION}</font>
+							</div>
 						</div>
 						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>`;
 

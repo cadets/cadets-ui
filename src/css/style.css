@@ -126,3 +126,7 @@ th,td{
     display: block;
 }
 .dropdown-content a:hover {background-color: #ddd}
+
+.optionMenu{
+	display: none;
+}
