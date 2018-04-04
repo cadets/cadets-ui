@@ -27,7 +27,7 @@ cytoscape.use( dagre );
 cytoscape.use( cose_bilkent );
 
 //Build Html document
-const GUI_VERSION = 'v0.4.0-release';
+const GUI_VERSION = 'v0.5.0-dev';
 let PVM_VERSION = '';
 
 let element = htmlBody();
@@ -90,12 +90,12 @@ var neighboursContainer;
 
 
 let UILock = false;//for overFlow ui lock
-var overFlowVars = {'nodeList':{'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'DisplayAmount':100, 
-					'LastLowestShownIDs':[], 'func':showNodeListNextPrevious, 'OverflowWarning':false,
-					'overFlowEle':'nodeListOverflowWarning', 'appendTo':'formBox'},
-					'inspector':{'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'DisplayAmount':25, 
-					'LastLowestShownIDs':[], 'func':showInspectorNextPrevious, 'OverflowWarning':false,
-					'overFlowEle':'inspectorOverflowWarning', 'appendTo':'inspectorHeader', 'inspectee':-1}};
+var overFlowVars = {'nodeList':{'DisplayAmount':100, 'func':showNodeListNextPrevious, 'appendTo':'formBox', 'cntFunc': getNodeCount,
+					'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'LastLowestShownIDs':[], 'OverflowWarning':false,
+					'totalCount': '', 'startDisplayNum': 1, 'currDisplayAmount': 0},
+					'inspector':{'DisplayAmount':25, 'func':showInspectorNextPrevious, 'appendTo':'inspectorHeader', 'cntFunc':null,
+					'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'LastLowestShownIDs':[], 'OverflowWarning':false,
+					'totalCount': '', 'startDisplayNum': 1, 'currDisplayAmount': 0, 'inspectee':-1}};
 
 
 var limitNodesForDagre = 100;//The max number of nodes the inspector will use the Dagre layout
@@ -971,28 +971,51 @@ function updateOverFlow(name, results){
 		results.splice(results.length-1, 1);
 	}
 	overFlowVars[name][`IDEnd`] = results[results.length-1].id;
-
+	overFlowVars[name]['currDisplayAmount'] = results.length;
 	if(length > overFlowVars[name][`DisplayAmount`] && !overFlowVars[name][`OverflowWarning`]){
 		spawnOverFlow(name);
 	}
 }
 
 function removeOverFlow(name){
-	if_DOM_IDExsitsRemove(overFlowVars[name][`overFlowEle`]);
+	if_DOM_IDExsitsRemove(`${name}OverflowWarning`);
 	overFlowVars[name][`OverflowWarning`] = false;
 	overFlowVars[name][`IDStart`] = -1;
 	overFlowVars[name][`LastLowestShownIDs`] = [];
+	overFlowVars[name][`startDisplayNum`] = 1;
+	overFlowVars[name][`totalCount`] = '';
+}
+
+function updateOverFlowText(name){
+	if(overFlowVars[name][`cntFunc`] != null){
+		overFlowVars[name][`cntFunc`](function(cnt){
+			overFlowVars[name][`totalCount`] = cnt;
+			let node = document.getElementById(`${name}NodesShowing`);
+			let displayNum = overFlowVars[name][`startDisplayNum`];
+			let string =`Showing ${displayNum} - ${displayNum + overFlowVars[name]['currDisplayAmount'] -1} of ${overFlowVars[name][`totalCount`]}`;
+			node.innerHTML = string;
+		});
+	}
+	else{
+		let node = document.getElementById(`${name}NodesShowing`);
+		let displayNum = overFlowVars[name][`startDisplayNum`];
+		let string =`Showing ${displayNum} - ${displayNum + overFlowVars[name]['currDisplayAmount'] -1} of ${overFlowVars[name][`totalCount`]}`;
+		node.innerHTML = string;
+	}
 }
 
 function spawnOverFlow(name){
 	overFlowVars[name][`OverflowWarning`] = true;
 	let overflowWarning = document.createElement("div");
-	overflowWarning.id = overFlowVars[name][`overFlowEle`];
-	// overflowWarning.style.cssText = `color: red;`;
-	// overflowWarning.innerHTML = `<font size=+1>Only showing ${overFlowVars[name][`DisplayAmount`]} 
-	// nodes.<br></font>`;
+	overflowWarning.id = `${name}OverflowWarning`;
+
+	let warningText = document.createElement("div");
+	warningText.id  = `${name}NodesShowing`;
+	warningText.innerHTML = '';
+	overflowWarning.appendChild(warningText);
+
 	let lastNodes = document.createElement("button");
-	lastNodes.className  = "headerButton";
+	lastNodes.className = "headerButton";
 	lastNodes.innerHTML = `previous ${overFlowVars[name][`DisplayAmount`]} nodes`;
 	lastNodes.onclick = function(){
 		getPreviousNodes(name);
@@ -1008,6 +1031,7 @@ function spawnOverFlow(name){
 	overflowWarning.appendChild(nextNodes);
 
 	document.getElementById(overFlowVars[name][`appendTo`]).appendChild(overflowWarning);
+	updateOverFlowText(name);
 }
 
 function getPreviousNodes(name){
@@ -1015,10 +1039,13 @@ function getPreviousNodes(name){
 		UILock = true;
 		overFlowVars[name][`IDStart`] = overFlowVars[name][`LastLowestShownIDs`].pop();
 		overFlowVars[name][`func`]();
+		overFlowVars[name][`startDisplayNum`] -= overFlowVars[name][`DisplayAmount`];
+		updateOverFlowText(name);
 		UILock = false;
 	}
 }
 
+//var test = 0;
 function getNextNodes(name){
 	if(//overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
 		overFlowVars[name][`IDNextStart`] != overFlowVars[name][`IDEnd`] && 
@@ -1027,6 +1054,8 @@ function getNextNodes(name){
 		overFlowVars[name][`LastLowestShownIDs`] = overFlowVars[name][`LastLowestShownIDs`].concat(overFlowVars[name][`IDStart`]);
 		overFlowVars[name][`IDStart`] = overFlowVars[name][`IDNextStart`];
 		overFlowVars[name][`func`]();
+		overFlowVars[name][`startDisplayNum`] += overFlowVars[name][`DisplayAmount`];
+		updateOverFlowText(name);
 		UILock = false;
 	}
 }

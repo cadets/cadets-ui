@@ -477,7 +477,7 @@ export function get_nodes(node_type=null,
 	let returnQuery;
 	let idQuery = ``;
 	if(countOnly == true){
-		returnQuery = 'DISTINCT count(n) AS cnt';
+		returnQuery = 'count(DISTINCT n) AS cnt';
 	}
 	else{
 		returnQuery = `DISTINCT n
