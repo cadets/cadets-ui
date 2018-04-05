@@ -753,6 +753,16 @@ function showInspectorNextPrevious(){
 	);
 }
 
+function getInspectorCount(fn){
+	get_neighbours(id, false,
+		0, 0, 
+		function(result) {
+
+		},
+		true
+	);
+}
+
 function import_into_worksheetAsync(id){
 	workSheetLayout.eventHub.emit('import_into_worksheet', id);
 }
@@ -769,7 +779,7 @@ function import_into_worksheet(id) {
 //
 // Fetch neighbours to a node, based on some user-specified filters.
 //
-function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, fn) {
+function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, fn, countOnly = false) {
 	return neo4jQueries.get_neighbours_id(id,
 										fn,	
 										inspectFiles,
@@ -778,7 +788,8 @@ function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, f
 										inspectProcessMeta,
 										isOverFlow,
 										displayAmount,
-										startID);
+										startID,
+										countOnly);
 }
 
 function import_batch_into_worksheet(nodes) {

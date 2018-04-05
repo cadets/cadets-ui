@@ -128,6 +128,7 @@ export function parseNeo4jEdge(o){
 		dst = o['end']['low'];
 	}
 	else{
+		//console.log(o);
 		src = o['end']['low'];
 		dst = o['start']['low'];
 	}
