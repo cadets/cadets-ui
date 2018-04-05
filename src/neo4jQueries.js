@@ -39,7 +39,7 @@ export function neo4jLogin(eventE, fn){
 										className: 'vex-theme-wireframe'});
 							}
 							else{
-								vex.dialog.alert({message: 'Neo4j login successful.',
+								vex.dialog.alert({message: 'Neo4j successfully logged in.',
 								className: 'vex-theme-wireframe'});
 								fn();
 							}
