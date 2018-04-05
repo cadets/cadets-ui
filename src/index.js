@@ -93,7 +93,7 @@ let UILock = false;//for overFlow ui lock
 var overFlowVars = {'nodeList':{'DisplayAmount':100, 'func':showNodeListNextPrevious, 'appendTo':'formBox', 'cntFunc': getNodeCount,
 					'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'LastLowestShownIDs':[], 'OverflowWarning':false,
 					'totalCount': '', 'startDisplayNum': 1, 'currDisplayAmount': 0},
-					'inspector':{'DisplayAmount':25, 'func':showInspectorNextPrevious, 'appendTo':'inspectorHeader', 'cntFunc':null,
+					'inspector':{'DisplayAmount':5, 'func':showInspectorNextPrevious, 'appendTo':'inspectorHeader', 'cntFunc':getInspectorCount,
 					'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'LastLowestShownIDs':[], 'OverflowWarning':false,
 					'totalCount': '', 'startDisplayNum': 1, 'currDisplayAmount': 0, 'inspectee':-1}};
 
@@ -612,12 +612,11 @@ function inspect_and_import(id) {
 // Populate node list.
 //
 function update_nodelist() {
-	console.log('pass');
 	removeOverFlow(`nodeList`);
 	showNodeListNextPrevious();
 }
 
-function showNodeListNextPrevious(){
+function showNodeListNextPrevious(fn=null){
 	neo4jQueries.get_nodes($('#filterNodeType').val(),
 							$('#filterName').val(),
 							$('#filterHost').val(),
@@ -646,6 +645,9 @@ function showNodeListNextPrevious(){
 									<td>${meta.timestamp}</td>
 									<td><a>${meta.label}</a></td>
 								`);
+			}
+			if(fn != null){
+				fn();
 			}
 		}
 	);
@@ -686,7 +688,7 @@ function inspect_node(id) {
 	showInspectorNextPrevious();
 }
 
-function showInspectorNextPrevious(){
+function showInspectorNextPrevious(fn=null){
 	let id = overFlowVars['inspector'][`inspectee`];
 
 	inspector.detail.empty();
@@ -752,15 +754,18 @@ function showInspectorNextPrevious(){
 				level: 1,
 				position: inspector.graph.inspectee.position(),
 			});
+			if(fn != null){
+				fn();
+			}
 		}
 	);
 }
 
 function getInspectorCount(fn){
-	get_neighbours(id, false,
+	get_neighbours(overFlowVars['inspector'][`inspectee`], false,
 		0, 0, 
 		function(result) {
-
+			fn(result);
 		},
 		true
 	);
@@ -1052,10 +1057,11 @@ function getPreviousNodes(name){
 	if(overFlowVars[name][`LastLowestShownIDs`].length > 0 && !UILock){
 		UILock = true;
 		overFlowVars[name][`IDStart`] = overFlowVars[name][`LastLowestShownIDs`].pop();
-		overFlowVars[name][`func`]();
-		overFlowVars[name][`startDisplayNum`] -= overFlowVars[name][`DisplayAmount`];
-		updateOverFlowText(name);
-		UILock = false;
+		overFlowVars[name][`func`](function(){
+			overFlowVars[name][`startDisplayNum`] -= overFlowVars[name][`DisplayAmount`];
+			updateOverFlowText(name);
+			UILock = false;
+		});
 	}
 }
 
@@ -1067,10 +1073,11 @@ function getNextNodes(name){
 		UILock = true;
 		overFlowVars[name][`LastLowestShownIDs`] = overFlowVars[name][`LastLowestShownIDs`].concat(overFlowVars[name][`IDStart`]);
 		overFlowVars[name][`IDStart`] = overFlowVars[name][`IDNextStart`];
-		overFlowVars[name][`func`]();
-		overFlowVars[name][`startDisplayNum`] += overFlowVars[name][`DisplayAmount`];
-		updateOverFlowText(name);
-		UILock = false;
+		overFlowVars[name][`func`](function(){
+			overFlowVars[name][`startDisplayNum`] += overFlowVars[name][`DisplayAmount`];
+			updateOverFlowText(name);
+			UILock = false;
+		});
 	}
 }
 

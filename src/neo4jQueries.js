@@ -157,19 +157,21 @@ export function get_neighbours_id_batch(ids,
 	if (process_meta){
 		matchers = matchers.concat('Meta');
 	}
-	let countQuery = '';
+	let returnQuery = '';
 	let limitQuery = '';
 	let startQuery = '';
 	let socket_machine_query = '';
 	if(countOnly){
-		countQuery = 'count(d);'
+		returnQuery = 'count(DISTINCT s) as cnt'
 	}
 	else{
+		returnQuery = `DISTINCT d, e, s
+						ORDER BY id(s)`;
 		if(limit != -1 && isOverFlow){
 			limitQuery = `Limit ${limit}`;
 		}
 		if(startID != -1 && isOverFlow){
-			startQuery =`id(d) >= ${startID}
+			startQuery =`id(s) >= ${startID}
 						AND`;
 		}
 	}
@@ -177,7 +179,6 @@ export function get_neighbours_id_batch(ids,
 		socket_machine_query = `UNION
 								MATCH (s:Socket), (e), (d:Machine)
 								WHERE 
-								${startQuery}
 								s = e
 								AND
 								d.external
@@ -185,11 +186,10 @@ export function get_neighbours_id_batch(ids,
 								id(s) IN ${JSON.stringify(ids)}
 								AND 
 								split(s.name[0], ":")[0] in d.ips
-								RETURN DISTINCT s, e, d
+								RETURN ${returnQuery}
 								UNION
 								MATCH (s:Socket), (e), (d:Machine)
 								WHERE 
-								${startQuery}
 								s = e
 								AND
 								d.external
@@ -197,22 +197,29 @@ export function get_neighbours_id_batch(ids,
 								id(d) IN ${JSON.stringify(ids)}
 								AND
 								split(s.name[0], ":")[0] in d.ips
-								RETURN DISTINCT s, e, d`;
+								RETURN ${returnQuery}`;
 	}
-	session.run(`MATCH (s)-[e]-(d)
+	session.run(`MATCH (d)-[e]-(s)
 				WHERE 
 				${startQuery}
-				id(s) IN ${JSON.stringify(ids)}
+				id(d) IN ${JSON.stringify(ids)}
 				AND
-				any(lab in labels(d) WHERE lab IN ${JSON.stringify(matchers)})
-				RETURN DISTINCT s, e, d
+				any(lab in labels(s) WHERE lab IN ${JSON.stringify(matchers)})
+				RETURN ${returnQuery}
 				${socket_machine_query}
-				ORDER BY id(d)
 				${limitQuery}`)
 	.then(result => {
 		session.close();
+		if(countOnly){
+			let totalNodes = 0;
+			result.records.forEach(function(cnt){
+				totalNodes += cnt.get('cnt').low;
+			});
+			fn(totalNodes);
+			return;
+		}
 		let neighbours = result.records;
-		console.log(neighbours);
+		//console.log(neighbours);
 		let oneMachine = false;
 		neighbours.forEach(function(row){
 			if(row.get('e').start == null){
@@ -230,11 +237,11 @@ export function get_neighbours_id_batch(ids,
 			}
 			else{
 				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(row.get('e')));
-				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(row.get('d')));
+				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(row.get('s')));
 			}
 		});
-		console.log(neighbour_edges);
-		console.log(neighbour_nodes);
+		// console.log(neighbour_edges);
+		// console.log(neighbour_nodes);
 		get_batch_detail_id([ids[0]], function(nodes){
 			fn({focusNode: nodes[0],
 				nodes: neighbour_nodes,
