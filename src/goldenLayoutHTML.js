@@ -9,11 +9,10 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 									<label for="filterNodeType">&nbsp;Type</label>
 									<div>
 										&nbsp;<select id="filterNodeType" class="darkTextBox">
-											<option></option>
+											<option>process</option>
 					 						<option>connection</option>
 											<option>file-version</option>
 											<option>pipe-endpoint</option>
-											<option>process</option>
 											<option>process-meta</option>
 											<option>socket-version</option>
 											<option>machine</option>

@@ -263,7 +263,9 @@ workSheetLayout.init();
 
 workSheetLayout.on('initialised', function(){
 	if(document.getElementById("NodeSearchsheet") != null){
-		neo4jQueries.neo4jLogin(eventEmitter);
+		neo4jQueries.neo4jLogin(eventEmitter, function(){
+			update_nodelist();
+		});
 		$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 	}
 	if(document.getElementById("inspectorGraph") != null){
@@ -610,6 +612,7 @@ function inspect_and_import(id) {
 // Populate node list.
 //
 function update_nodelist() {
+	console.log('pass');
 	removeOverFlow(`nodeList`);
 	showNodeListNextPrevious();
 }

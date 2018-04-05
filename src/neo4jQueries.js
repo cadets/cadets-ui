@@ -10,7 +10,7 @@ var driver = null;
 var pvm_version = null;
 
 
-export function neo4jLogin(eventE){
+export function neo4jLogin(eventE, fn){
 	vex.dialog.open({
 		message: 'Enter your Neo4j username and password:',
 		input: [
@@ -37,6 +37,11 @@ export function neo4jLogin(eventE){
 							if(pvm_version == null){
 								vex.dialog.alert({message: "DataBase does not contain PVM version data.",
 										className: 'vex-theme-wireframe'});
+							}
+							else{
+								vex.dialog.alert({message: 'Neo4j login successful.',
+								className: 'vex-theme-wireframe'});
+								fn();
 							}
 						}
 					},
