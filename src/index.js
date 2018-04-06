@@ -93,7 +93,7 @@ let UILock = false;//for overFlow ui lock
 var overFlowVars = {'nodeList':{'DisplayAmount':100, 'func':showNodeListNextPrevious, 'appendTo':'formBox', 'cntFunc': getNodeCount,
 					'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'LastLowestShownIDs':[], 'OverflowWarning':false,
 					'totalCount': '', 'startDisplayNum': 1, 'currDisplayAmount': 0},
-					'inspector':{'DisplayAmount':5, 'func':showInspectorNextPrevious, 'appendTo':'inspectorHeader', 'cntFunc':getInspectorCount,
+					'inspector':{'DisplayAmount':25, 'func':showInspectorNextPrevious, 'appendTo':'inspectorHeader', 'cntFunc':getInspectorCount,
 					'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'LastLowestShownIDs':[], 'OverflowWarning':false,
 					'totalCount': '', 'startDisplayNum': 1, 'currDisplayAmount': 0, 'inspectee':-1}};
 
@@ -719,6 +719,7 @@ function showInspectorNextPrevious(fn=null){
 
 			updateOverFlow('inspector', result.nodes);
 
+
 			graphingAPI.add_node_batch(result.nodes, inspector.graph, null, [], function(node){
 				let meta = graphingAPI.node_metadata(node);
 
@@ -1067,7 +1068,7 @@ function getPreviousNodes(name){
 
 //var test = 0;
 function getNextNodes(name){
-	if(//overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
+	if(overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
 		overFlowVars[name][`IDNextStart`] != overFlowVars[name][`IDEnd`] && 
 		!UILock){
 		UILock = true;

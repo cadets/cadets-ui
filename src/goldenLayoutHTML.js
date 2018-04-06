@@ -10,12 +10,12 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 									<div>
 										&nbsp;<select id="filterNodeType" class="darkTextBox">
 											<option>process</option>
+											<option>machine</option>
 					 						<option>connection</option>
 											<option>file-version</option>
 											<option>pipe-endpoint</option>
 											<option>process-meta</option>
 											<option>socket-version</option>
-											<option>machine</option>
 											<option>global-only</option>
 											<option>edit-session</option>
 					 					</select>
