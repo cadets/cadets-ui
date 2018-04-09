@@ -153,7 +153,7 @@ var worksheetChildCxtMenu = ({
 			select: function(ele){
 				openSubMenu(function(){
 					remove_neighbours_from_worksheet(ele.data("id"));
-				}, false);
+				}, false, true);
 			}
 		},
 		{
@@ -161,7 +161,7 @@ var worksheetChildCxtMenu = ({
 			select: function(ele){
 				openSubMenu(function(){
 					removeNode(ele);
-				}, false);
+				}, false, true);
 			}
 		},
 	]
@@ -177,7 +177,7 @@ var worksheetParentCxtMenu = ({
 			select: function(ele){
 				openSubMenu(function(){
 					removeNode(ele);
-				}, false);
+				}, false, true);
 			}
 		},
 	]
@@ -947,7 +947,7 @@ function setRefreshGraphOnElementShow(watchElement, graph){
 	observer.observe(targetNode,  { attributes: true, childList: true });
 }
 
-function openSubMenu(fn, isNewWorksheetOption = true, leftClickSpawn = false){
+function openSubMenu(fn, isNewWorksheetOption = true, isAllWorksheetOption=false, leftClickSpawn = false){
 	if_DOM_IDExsitsRemove("myDropdown");
 	let cxtSubMenu = document.createElement('div');
 	cxtSubMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
@@ -970,6 +970,17 @@ function openSubMenu(fn, isNewWorksheetOption = true, leftClickSpawn = false){
 			selectedWorksheet = getWorksheetCount();
 			addNewWorksheet()
 			fn();
+		});
+		cxtSubMenu.appendChild(SubMenuOption);
+	}
+	if(isAllWorksheetOption){
+		let SubMenuOption = document.createElement('a');
+		SubMenuOption.text = `All Worksheet`;
+		SubMenuOption.onclick =(function() {
+			for(let i in worksheets){
+				selectedWorksheet = i;
+				fn();
+			}
 		});
 		cxtSubMenu.appendChild(SubMenuOption);
 	}
@@ -1124,7 +1135,7 @@ function spawnVexList(ele, message, resultID, resultName, func){
 			file.onclick =(function() {
 				openSubMenu(function(){
 					inspect_and_importAsync(result[resultID]);
-				}, true, true);
+				}, true, false, true);
 			});
 			files.appendChild(file);
 		});
