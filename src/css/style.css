@@ -133,3 +133,18 @@ th,td{
 	z-index: 9999;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
+.hide{
+	display: none;
+}
+.formBoxAccordion{
+	background-color: #333;
+	color: #7f7f7f;
+	border: black;
+	transition-duration: 0.5s;
+	font-size: 15px;
+	outline:none;
+}
+.formBoxAccordion:Hover{
+	background-color: #444;
+ }
+ 

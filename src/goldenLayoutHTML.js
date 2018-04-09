@@ -24,16 +24,19 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 									<div>
 										&nbsp;<input id="filterName" size="18.5" class="darkTextBox leftPadding"/>
 									</div>
-									<label for="filterHost">&nbsp;Host</label>
-									<div>
-										&nbsp;<input id="filterHost" size="18.5" class="darkTextBox leftPadding"/>
-									</div>
-									<label for="filterTuple">&nbsp;TCP</label>
-									<div id="filterTuple">
-										&nbsp;<input id="filterLocalIp" size="10" class="darkTextBox leftPadding"/>
-										<input id="filterLocalPort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;L<br/>
-										&nbsp;<input id="filterRemoteIp" size="10" class="darkTextBox leftPadding"/>
-										<input id="filterRemotePort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;R
+									<button class="formBoxAccordion">Machine options</button>
+									<div class="hide">
+										<label for="filterHost">&nbsp;Host</label>
+										<div>
+											&nbsp;<input id="filterHost" size="18.5" class="darkTextBox leftPadding"/>
+										</div>
+										<label for="filterTuple">&nbsp;TCP</label>
+										<div id="filterTuple">
+											&nbsp;<input id="filterLocalIp" size="10" class="darkTextBox leftPadding"/>
+											<input id="filterLocalPort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;L<br/>
+											&nbsp;<input id="filterRemoteIp" size="10" class="darkTextBox leftPadding"/>
+											<input id="filterRemotePort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;R
+										</div>
 									</div>
 								</div>
 								<div class="row content scrollable">
