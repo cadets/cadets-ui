@@ -637,6 +637,8 @@ function showNodeListNextPrevious(fn=null){
 							$('#filterLocalPort').val(),
 							$('#filterRemoteIp').val(), 
 							$('#filterRemotePort').val(),
+							$('#filterfileNameStart').val(), 
+							$('#filterfileNum').val(),
 							overFlowVars[`nodeList`][`DisplayAmount`] + 1,
 							overFlowVars['nodeList'][`IDStart`],
 							false,
@@ -681,6 +683,8 @@ function getNodeCount(fn){
 							$('#filterLocalPort').val(),
 							$('#filterRemoteIp').val(), 
 							$('#filterRemotePort').val(),
+							$('#filterfileNameStart').val(), 
+							$('#filterfileNum').val(),
 							0,0,
 							true,
 		function(result) {

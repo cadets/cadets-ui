@@ -504,6 +504,8 @@ export function get_nodes(node_type=null,
 				local_port=null, 
 				remote_ip=null, 
 				remote_port=null, 
+				fileNameStart=null, 
+				fileNum=1,
 				limit='100',
 				startID = 0,
 				countOnly = false,
@@ -543,8 +545,12 @@ export function get_nodes(node_type=null,
 	if (remote_port == null || remote_port == ""){
 		remote_port = ".*?";
 	}
+	if(fileNum == ''){
+		fileNum = 1;
+	}
 	let returnQuery;
 	let idQuery = ``;
+	let fileCreatedQuery = ``;
 	if(countOnly == true){
 		returnQuery = 'count(DISTINCT n) AS cnt';
 	}
@@ -554,6 +560,15 @@ export function get_nodes(node_type=null,
 		idQuery = `WHERE 
 						id(n) >= ${startID}
 					WITH n`;
+	}
+	if(fileNameStart != null && fileNameStart != ''){
+		fileCreatedQuery=`MATCH (n)-[]-(d:File)
+				WHERE
+				d.name STARTS WITH ${JSON.stringify(fileNameStart)}
+				WITH n, count(*) as matchs
+				WHERE 
+				matchs >= ${fileNum}
+				WITH n`;
 	}
 	let query = `MATCH (n)
 			${idQuery}
@@ -584,6 +599,7 @@ export function get_nodes(node_type=null,
 				OR
 				n.uuid = ${JSON.stringify(host)}
 			WITH n
+			${fileCreatedQuery}
 			OPTIONAL MATCH (m:Machine)
 			WHERE
 				(

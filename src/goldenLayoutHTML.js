@@ -37,6 +37,13 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 											&nbsp;<input id="filterRemoteIp" size="10" class="darkTextBox leftPadding"/>
 											<input id="filterRemotePort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;R
 										</div>
+									</div><br>
+									<button class="formBoxAccordion">Creates files options</button>
+									<div class="hide">
+										<label for="filterfileNameStart">&nbsp;Start of connected file name:</label><br>
+										&nbsp;<input id="filterfileNameStart" size="18.5" class="darkTextBox leftPadding"/><br>
+										<label for="filterfileNum">&nbsp;Creates more files then:</label><br>
+										&nbsp;<input id="filterfileNum" size="18.5" class="darkTextBox leftPadding"/><br>
 									</div>
 								</div>
 								<div class="row content scrollable">
