@@ -646,18 +646,25 @@ function showNodeListNextPrevious(fn=null){
 
 			updateOverFlow('nodeList', result);
 
-			for (let node of result) {
-				let meta = graphingAPI.node_metadata(node);
-
+			if(result.length == 0){
 				let row = document.getElementById("nodelist").insertRow(0);
-				row.onclick = (function() {
-					inspectAsync(node.id);
-				});
 				let cell = row.insertCell(0);
-				cell.innerHTML = (`<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
-									<td>${meta.timestamp}</td>
-									<td><a>${meta.label}</a></td>
-								`);
+				cell.innerHTML = (`<td>No results found</td>`);
+			}
+			else{
+				for (let node of result) {
+					let meta = graphingAPI.node_metadata(node);
+
+					let row = document.getElementById("nodelist").insertRow(0);
+					row.onclick = (function() {
+						inspectAsync(node.id);
+					});
+					let cell = row.insertCell(0);
+					cell.innerHTML = (`<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
+										<td>${meta.timestamp}</td>
+										<td><a>${meta.label}</a></td>
+									`);
+				}
 			}
 			if(fn != null){
 				fn();
