@@ -97,7 +97,6 @@ var overFlowVars = {'nodeList':{'DisplayAmount':100, 'func':showNodeListNextPrev
 					'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'LastLowestShownIDs':[], 'OverflowWarning':false,
 					'totalCount': '', 'startDisplayNum': 1, 'currDisplayAmount': 0, 'inspectee':-1}};
 
-
 var limitNodesForDagre = 100;//The max number of nodes the inspector will use the Dagre layout
 var maxImportLength = 500;//The max number of nodes that can be imported into a worksheet in one action
 
@@ -639,6 +638,8 @@ function showNodeListNextPrevious(fn=null){
 							$('#filterRemotePort').val(),
 							$('#filterfileNameStart').val(), 
 							$('#filterfileNum').val(),
+							$('#filterstartDate').val(), 
+							$('#filterendDate').val(),
 							overFlowVars[`nodeList`][`DisplayAmount`] + 1,
 							overFlowVars['nodeList'][`IDStart`],
 							false,
@@ -685,6 +686,8 @@ function getNodeCount(fn){
 							$('#filterRemotePort').val(),
 							$('#filterfileNameStart').val(), 
 							$('#filterfileNum').val(),
+							$('#filterstartDate').val(), 
+							$('#filterendDate').val(),
 							0,0,
 							true,
 		function(result) {

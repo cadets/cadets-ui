@@ -1,5 +1,6 @@
 import $ from './../node_modules/jquery/dist/jquery.js';
 import vex from './../node_modules/vex-js/dist/js/vex.combined.min.js';
+import moment from './../node_modules/moment/moment.js';
 
 import './../node_modules/vex-js/dist/css/vex.css';
 import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
@@ -506,6 +507,8 @@ export function get_nodes(node_type=null,
 				remote_port=null, 
 				fileNameStart=null, 
 				fileNum=1,
+				startDate="", 
+				endDate="",
 				limit='100',
 				startID = 0,
 				countOnly = false,
@@ -570,6 +573,19 @@ export function get_nodes(node_type=null,
 				matchs >= ${fileNum}
 				WITH n`;
 	}
+	let startDateQuery = ``;
+	let endDateQuery = ``;
+	if(startDate != ""){
+		console.log(moment(startDate).unix());
+		startDateQuery =`WHERE 
+							n.timestamp >= ${moment(startDate).unix() * 1000000000}
+						WITH n`; 
+	}
+	if(endDate != ""){
+		endDateQuery =`WHERE 
+							n.timestamp <= ${moment(endDate).unix() * 1000000000}
+						WITH n`;
+	}
 	let query = `MATCH (n)
 			${idQuery}
 			WHERE 
@@ -599,6 +615,8 @@ export function get_nodes(node_type=null,
 				OR
 				n.uuid = ${JSON.stringify(host)}
 			WITH n
+			${startDateQuery}
+			${endDateQuery}
 			${fileCreatedQuery}
 			OPTIONAL MATCH (m:Machine)
 			WHERE
@@ -680,6 +698,7 @@ export function get_nodes(node_type=null,
 					)
 				)
 			RETURN ${returnQuery}`;
+			console.log(query);
 	let session = driver.session();
 	session.run(query)
 	 .then(result => {
