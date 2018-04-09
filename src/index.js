@@ -297,7 +297,6 @@ workSheetLayout.on('initialised', function(){
 		} else {
 			menu.style.display = "none";
 		}
-		workSheetLayout.updateSize();
 	};
 
 	// document.getElementById(`loadWorksheet`).onclick = function () {
@@ -858,14 +857,15 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 							<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 							<button type="button" class="headerButton" id="toggleNodeSearchsheet">Close NodeSearchsheet</button>
-							<button type="button" class="headerButton" id="dropdownOptions">Options</button>
-							<div class="optionMenu" id="optionMenu">
-								<h2>Options</h2>
-								<font>GUI_Version: ${GUI_VERSION}</font>
+							<div class="dropdown">
+								<button type="button" class="headerButton" id="dropdownOptions">Options</button>
+								<a class="optionMenu" id="optionMenu">
+									<h2>Options</h2>
+									<font>GUI_Version: ${GUI_VERSION}</font>
+								</a>
 							</div>
 						</div>
 						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>`;
-
 	return element;
 }
 
