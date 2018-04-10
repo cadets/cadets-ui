@@ -564,10 +564,10 @@ export function get_nodes(node_type=null,
 						id(n) >= ${startID}
 					WITH n`;
 	}
-	if(fileNameStart != null && fileNameStart != ''){
+	if(fileNameStart != null && fileNameStart != ''){//d.name CONTAINS ${JSON.stringify(fileNameStart)}
 		fileCreatedQuery=`MATCH (n)-[]-(d:File)
 				WHERE
-				d.name STARTS WITH ${JSON.stringify(fileNameStart)}
+				any(name in d.name WHERE name CONTAINS ${JSON.stringify(fileNameStart)})
 				WITH n, count(*) as matchs
 				WHERE 
 				matchs >= ${fileNum}
@@ -576,7 +576,6 @@ export function get_nodes(node_type=null,
 	let startDateQuery = ``;
 	let endDateQuery = ``;
 	if(startDate != ""){
-		console.log(moment(startDate).unix());
 		startDateQuery =`WHERE 
 							n.timestamp >= ${moment(startDate).unix() * 1000000000}
 						WITH n`; 
@@ -698,7 +697,6 @@ export function get_nodes(node_type=null,
 					)
 				)
 			RETURN ${returnQuery}`;
-			console.log(query);
 	let session = driver.session();
 	session.run(query)
 	 .then(result => {
