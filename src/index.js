@@ -622,6 +622,12 @@ function update_nodelist() {
 }
 
 function showNodeListNextPrevious(fn=null){
+	let nodelist = $('#nodelist');
+	nodelist.empty();
+	let row = document.getElementById("nodelist").insertRow(0);
+	let cell = row.insertCell(0);
+	cell.innerHTML = (`<td>Searching...</td>`);
+
 	neo4jQueries.get_nodes($('#filterNodeType').val(),
 							$('#filterName').val(),
 							$('#filterHost').val(),
@@ -637,25 +643,25 @@ function showNodeListNextPrevious(fn=null){
 							overFlowVars['nodeList'][`IDStart`],
 							false,
 		function(result) {
-			let nodelist = $('#nodelist');
+			nodelist = $('#nodelist');
 			nodelist.empty();
 
 			updateOverFlow('nodeList', result);
 
 			if(result.length == 0){
-				let row = document.getElementById("nodelist").insertRow(0);
-				let cell = row.insertCell(0);
+				row = document.getElementById("nodelist").insertRow(0);
+				cell = row.insertCell(0);
 				cell.innerHTML = (`<td>No results found</td>`);
 			}
 			else{
 				for (let node of result) {
 					let meta = graphingAPI.node_metadata(node);
 
-					let row = document.getElementById("nodelist").insertRow(0);
+					row = document.getElementById("nodelist").insertRow(0);
 					row.onclick = (function() {
 						inspectAsync(node.id);
 					});
-					let cell = row.insertCell(0);
+					cell = row.insertCell(0);
 					cell.innerHTML = (`<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
 										<td>${meta.timestamp}</td>
 										<td><a>${meta.label}</a></td>
