@@ -264,6 +264,7 @@ workSheetLayout.on('initialised', function(){
 	generateOptions();
 	if(document.getElementById("NodeSearchsheet") != null){
 		neo4jQueries.neo4jLogin(eventEmitter, function(){
+			connectNodeListAccordion();
 			update_nodelist();
 		});
 		$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
@@ -287,23 +288,10 @@ workSheetLayout.on('initialised', function(){
 		else{
 			document.getElementById("toggleNodeSearchsheet").innerHTML = "Close NodeSearchsheet";
 			goldenLayoutHTML.addNodeSearchsheet(workSheetLayout);
+			connectNodeListAccordion();
+			update_nodelist();
 		}
 	};
-
-	var acc = document.getElementsByClassName("formBoxAccordion");
-	var i;
-
-	for (i = 0; i < acc.length; i++) {
-	    acc[i].addEventListener("click", function() {
-	        //this.classList.toggle("active");
-	        var panel = this.nextElementSibling;
-	        if (panel.style.display === "block") {
-	            panel.style.display = "none";
-	        } else {
-	            panel.style.display = "block";
-	        }
-	    });
-	}
 
 	// document.getElementById(`loadWorksheet`).onclick = function () {
 	// 	addNewWorksheet();
@@ -695,6 +683,22 @@ function getNodeCount(fn){
 	);
 }
 
+function connectNodeListAccordion(){
+	let acc = document.getElementsByClassName("formBoxAccordion");
+
+	for (let i = 0; i < acc.length; i++) {
+	    acc[i].addEventListener("click", function() {
+	        //this.classList.toggle("active");
+	        var panel = this.nextElementSibling;
+	        if (panel.style.display === "block") {
+	            panel.style.display = "none";
+	        } else {
+	            panel.style.display = "block";
+	        }
+	    });
+	}
+}
+
 //NodeSearchsheet Functions end
 
 function inspectAsync(id){
@@ -758,7 +762,7 @@ function showInspectorNextPrevious(fn=null){
 				row.onclick = (function() {
 					openSubMenu(function(){
 						import_into_worksheet(node.id);
-					}, true, true);
+					}, true, false, true);
 				});
 				let cell = row.insertCell(0);
 				cell.innerHTML = (`
