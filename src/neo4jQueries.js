@@ -138,7 +138,6 @@ export function get_neighbours_id_batch(ids,
 										limit=-1,
 										startID = 0,
 										countOnly=false){
-	let session = driver.session();
 	let matchers = ["Machine", "Process", "Conn"];
 	if (files){
 		matchers = matchers.concat(['File', 'EditSession']);
@@ -201,14 +200,16 @@ export function get_neighbours_id_batch(ids,
 								split(s.name[0], ":")[0] in d.ips
 								RETURN ${returnQuery}`;
 	}
-	session.run(`MATCH (d)-[e]-(s)
+	let query = `MATCH (d)-[e]-(s)
 				WHERE 
 				${startQuery}
 				id(d) IN ${JSON.stringify(ids)}
 				AND
 				any(lab in labels(s) WHERE lab IN ${JSON.stringify(matchers)})
 				RETURN ${returnQuery}
-				${socket_machine_query}`)
+				${socket_machine_query}`;
+	let session = driver.session();
+	session.run(query)
 	.then(result => {
 		session.close();
 		if(countOnly){

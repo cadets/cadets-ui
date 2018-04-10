@@ -261,6 +261,7 @@ workSheetLayout.init();
 //Main Events
 
 workSheetLayout.on('initialised', function(){
+	generateOptions();
 	if(document.getElementById("NodeSearchsheet") != null){
 		neo4jQueries.neo4jLogin(eventEmitter, function(){
 			update_nodelist();
@@ -289,14 +290,6 @@ workSheetLayout.on('initialised', function(){
 		}
 	};
 
-	document.getElementById(`dropdownOptions`).onclick = function () {
-		let menu = document.getElementById(`optionMenu`);
-		if (menu.style.display === "none") {
-			menu.style.display = "block";
-		} else {
-			menu.style.display = "none";
-		}
-	};
 	var acc = document.getElementsByClassName("formBoxAccordion");
 	var i;
 
@@ -706,6 +699,11 @@ function inspectAsync(id){
 	workSheetLayout.eventHub.emit('inspect', id);
 }
 
+function refresh_inspect(){
+	if(overFlowVars['inspector'][`inspectee`] == -1){return;}
+	inspect_node(overFlowVars['inspector'][`inspectee`]);
+}
+
 //
 // Displays the selected node and neighbours in the Inspector window
 //
@@ -772,7 +770,7 @@ function showInspectorNextPrevious(fn=null){
 
 			// Only use the (somewhat expensive) dagre algorithm when the number of
 			// edges is small enough to be computationally zippy.
-			if (inspector.graph.edges.length < limitNodesForDagre) {
+			if (inspector.graph.edges().length <= limitNodesForDagre) {
 				graphingAPI.layout(inspector.graph, 'dagre');
 			} else {
 				graphingAPI.layout(inspector.graph, 'cose-bilkent');
@@ -839,7 +837,7 @@ function import_batch_into_worksheet(nodes) {
 		else{
 			ids = ids.concat(node.id);
 
-			if(ids.length >= maxImportLength){
+			if(ids.length > maxImportLength){
 				vex.dialog.alert({
 					unsafeMessage: `Trying to import more nodes than the maxImportLength:${maxImportLength} allows!`,
 					className: 'vex-theme-wireframe'
@@ -885,16 +883,78 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 							<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 							<button type="button" class="headerButton" id="toggleNodeSearchsheet">Close NodeSearchsheet</button>
-							<div class="dropdown">
-								<button type="button" class="headerButton" id="dropdownOptions">Options</button>
-								<a class="optionMenu" id="optionMenu">
-									<h2>Options</h2>
-									<font>GUI_Version: ${GUI_VERSION}</font>
-								</a>
-							</div>
+							<div class="dropdown" id="optionsForm"></div>
 						</div>
 						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>`;
 	return element;
+}
+
+function generateOptions(){
+	let optionsForm = document.getElementById('optionsForm');
+	let optionButton = document.createElement('button');
+	optionButton.className = 'headerButton';
+	optionButton.id = 'dropdownOptions';
+	optionButton.innerHTML = 'Options';
+	optionButton.onclick = (function(){
+		let menu = document.getElementById(`optionMenu`);
+		if (menu.style.display === "none") {
+			menu.style.display = "block";
+		} else {
+			menu.style.display = "none";
+		}
+	});
+	optionsForm.appendChild(optionButton);
+	attachOptionForm(optionsForm);
+}
+
+function attachOptionForm(optionsForm){
+	let optionMenu = document.getElementById('optionMenu');
+	if(optionMenu == null){
+		optionMenu = document.createElement('a');
+	}
+	optionMenu.className = 'optionMenu';
+	optionMenu.id = 'optionMenu';
+	optionMenu.innerHTML = `<h2>Options</h2>
+							<font>GUI_Version: ${GUI_VERSION}</font><br><br>
+							<label for="newNodeListDisplayAmount">Nodes shown in nodeList:</label><br>
+							<input id="newNodeListDisplayAmount" class="darkTextBox leftPadding" placeholder="${overFlowVars['nodeList']['DisplayAmount']}"></input><br>
+							<label for="newInspectorDisplayAmount">Neighbours shown in Inspector:</label><br>
+							<input id="newInspectorDisplayAmount" class="darkTextBox leftPadding" placeholder="${overFlowVars['inspector']['DisplayAmount']}"></input><br>
+							<label for="newMaxImportLength">Max amount of nodes importable:</label><br>
+							<input id="newMaxImportLength" class="darkTextBox leftPadding" placeholder="${maxImportLength}"></input><br>
+							<label for="newLimitNodesForDagre">Inspector edge limit for Dagre layout:</label><br>
+							<input id="newLimitNodesForDagre" class="darkTextBox leftPadding" placeholder="${limitNodesForDagre}"></input><br><br>`;
+
+	let optionSubmit = document.createElement('button');
+	optionSubmit.className = 'headerButton';
+	optionSubmit.id = 'optionSubmit';
+	optionSubmit.innerHTML = 'Submit';
+	optionSubmit.onclick = (function(){
+		if(testIfNumber($('#newNodeListDisplayAmount').val()) && $('#newNodeListDisplayAmount').val() > 0){
+			overFlowVars['nodeList']['DisplayAmount'] = parseInt($('#newNodeListDisplayAmount').val());
+		}
+		if(testIfNumber($('#newInspectorDisplayAmount').val()) && $('#newInspectorDisplayAmount').val() > 0){
+			overFlowVars['inspector']['DisplayAmount'] = parseInt($('#newInspectorDisplayAmount').val());
+		}
+		if(testIfNumber($('#newMaxImportLength').val()) && $('#newMaxImportLength').val() > 0){
+			maxImportLength = parseInt($('#newMaxImportLength').val());
+		}
+		if(testIfNumber($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
+			limitNodesForDagre = parseInt($('#newLimitNodesForDagre').val());
+		}
+		refresh_inspect();
+		update_nodelist();
+		document.getElementById('dropdownOptions').click();
+		attachOptionForm(optionsForm);
+	});
+	optionMenu.appendChild(optionSubmit);
+	optionsForm.appendChild(optionMenu);
+}
+
+function validOptionInput(varToSet, input){
+	if(testIfNumber(input) && input > 0){
+		varToSet = parseInt(input);
+	}
 }
 
 function refreshGraph(graph){
@@ -1105,7 +1165,6 @@ function getPreviousNodes(name){
 	}
 }
 
-//var test = 0;
 function getNextNodes(name){
 	if(overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
 		overFlowVars[name][`IDNextStart`] != overFlowVars[name][`IDEnd`] && 
