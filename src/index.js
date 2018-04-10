@@ -27,7 +27,7 @@ cytoscape.use( dagre );
 cytoscape.use( cose_bilkent );
 
 //Build Html document
-const GUI_VERSION = 'v0.4.0-release';
+const GUI_VERSION = 'v0.5.0-dev';
 let PVM_VERSION = '';
 
 let element = htmlBody();
@@ -90,13 +90,12 @@ var neighboursContainer;
 
 
 let UILock = false;//for overFlow ui lock
-var overFlowVars = {'nodeList':{'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'DisplayAmount':100, 
-					'LastLowestShownIDs':[], 'func':showNodeListNextPrevious, 'OverflowWarning':false,
-					'overFlowEle':'nodeListOverflowWarning', 'appendTo':'formBox'},
-					'inspector':{'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'DisplayAmount':25, 
-					'LastLowestShownIDs':[], 'func':showInspectorNextPrevious, 'OverflowWarning':false,
-					'overFlowEle':'inspectorOverflowWarning', 'appendTo':'inspectorHeader', 'inspectee':-1}};
-
+var overFlowVars = {'nodeList':{'DisplayAmount':100, 'func':showNodeListNextPrevious, 'appendTo':'formBox', 'cntFunc': getNodeCount,
+					'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'LastLowestShownIDs':[], 'OverflowWarning':false,
+					'totalCount': '', 'startDisplayNum': 1, 'currDisplayAmount': 0},
+					'inspector':{'DisplayAmount':25, 'func':showInspectorNextPrevious, 'appendTo':'inspectorHeader', 'cntFunc':getInspectorCount,
+					'IDStart':-1, 'IDEnd':-1, 'IDNextStart':-2, 'LastLowestShownIDs':[], 'OverflowWarning':false,
+					'totalCount': '', 'startDisplayNum': 1, 'currDisplayAmount': 0, 'inspectee':-1}};
 
 var limitNodesForDagre = 100;//The max number of nodes the inspector will use the Dagre layout
 var maxImportLength = 500;//The max number of nodes that can be imported into a worksheet in one action
@@ -153,7 +152,7 @@ var worksheetChildCxtMenu = ({
 			select: function(ele){
 				openSubMenu(function(){
 					remove_neighbours_from_worksheet(ele.data("id"));
-				}, false);
+				}, false, true);
 			}
 		},
 		{
@@ -161,7 +160,7 @@ var worksheetChildCxtMenu = ({
 			select: function(ele){
 				openSubMenu(function(){
 					removeNode(ele);
-				}, false);
+				}, false, true);
 			}
 		},
 	]
@@ -177,7 +176,7 @@ var worksheetParentCxtMenu = ({
 			select: function(ele){
 				openSubMenu(function(){
 					removeNode(ele);
-				}, false);
+				}, false, true);
 			}
 		},
 	]
@@ -262,8 +261,12 @@ workSheetLayout.init();
 //Main Events
 
 workSheetLayout.on('initialised', function(){
+	generateOptions();
 	if(document.getElementById("NodeSearchsheet") != null){
-		neo4jQueries.neo4jLogin(eventEmitter);
+		neo4jQueries.neo4jLogin(eventEmitter, function(){
+			connectNodeListAccordion();
+			update_nodelist();
+		});
 		$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 	}
 	if(document.getElementById("inspectorGraph") != null){
@@ -285,17 +288,9 @@ workSheetLayout.on('initialised', function(){
 		else{
 			document.getElementById("toggleNodeSearchsheet").innerHTML = "Close NodeSearchsheet";
 			goldenLayoutHTML.addNodeSearchsheet(workSheetLayout);
+			connectNodeListAccordion();
+			update_nodelist();
 		}
-	};
-
-	document.getElementById(`dropdownOptions`).onclick = function () {
-		let menu = document.getElementById(`optionMenu`);
-		if (menu.style.display === "none") {
-			menu.style.display = "block";
-		} else {
-			menu.style.display = "none";
-		}
-		workSheetLayout.updateSize();
 	};
 
 	// document.getElementById(`loadWorksheet`).onclick = function () {
@@ -614,7 +609,13 @@ function update_nodelist() {
 	showNodeListNextPrevious();
 }
 
-function showNodeListNextPrevious(){
+function showNodeListNextPrevious(fn=null){
+	let nodelist = $('#nodelist');
+	nodelist.empty();
+	let row = document.getElementById("nodelist").insertRow(0);
+	let cell = row.insertCell(0);
+	cell.innerHTML = (`<td>Searching...</td>`);
+
 	neo4jQueries.get_nodes($('#filterNodeType').val(),
 							$('#filterName').val(),
 							$('#filterHost').val(),
@@ -622,27 +623,41 @@ function showNodeListNextPrevious(){
 							$('#filterLocalPort').val(),
 							$('#filterRemoteIp').val(), 
 							$('#filterRemotePort').val(),
+							$('#filterfileNameStart').val(), 
+							$('#filterfileNum').val(),
+							$('#filterstartDate').val(), 
+							$('#filterendDate').val(),
 							overFlowVars[`nodeList`][`DisplayAmount`] + 1,
 							overFlowVars['nodeList'][`IDStart`],
 							false,
 		function(result) {
-			let nodelist = $('#nodelist');
+			nodelist = $('#nodelist');
 			nodelist.empty();
 
 			updateOverFlow('nodeList', result);
 
-			for (let node of result) {
-				let meta = graphingAPI.node_metadata(node);
+			if(result.length == 0){
+				row = document.getElementById("nodelist").insertRow(0);
+				cell = row.insertCell(0);
+				cell.innerHTML = (`<td>No results found</td>`);
+			}
+			else{
+				for (let node of result) {
+					let meta = graphingAPI.node_metadata(node);
 
-				let row = document.getElementById("nodelist").insertRow(0);
-				row.onclick = (function() {
-					inspectAsync(node.id);
-				});
-				let cell = row.insertCell(0);
-				cell.innerHTML = (`<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
-									<td>${meta.timestamp}</td>
-									<td><a>${meta.label}</a></td>
-								`);
+					row = document.getElementById("nodelist").insertRow(0);
+					row.onclick = (function() {
+						inspectAsync(node.id);
+					});
+					cell = row.insertCell(0);
+					cell.innerHTML = (`<td><a style="color: black;"><i class="fa fa-${meta.icon}" aria-hidden="true"></i></a></td>
+										<td>${meta.timestamp}</td>
+										<td><a>${meta.label}</a></td>
+									`);
+				}
+			}
+			if(fn != null){
+				fn();
 			}
 		}
 	);
@@ -656,12 +671,32 @@ function getNodeCount(fn){
 							$('#filterLocalPort').val(),
 							$('#filterRemoteIp').val(), 
 							$('#filterRemotePort').val(),
+							$('#filterfileNameStart').val(), 
+							$('#filterfileNum').val(),
+							$('#filterstartDate').val(), 
+							$('#filterendDate').val(),
 							0,0,
 							true,
 		function(result) {
 			fn(result);
 		}
 	);
+}
+
+function connectNodeListAccordion(){
+	let acc = document.getElementsByClassName("formBoxAccordion");
+
+	for (let i = 0; i < acc.length; i++) {
+	    acc[i].addEventListener("click", function() {
+	        //this.classList.toggle("active");
+	        var panel = this.nextElementSibling;
+	        if (panel.style.display === "block") {
+	            panel.style.display = "none";
+	        } else {
+	            panel.style.display = "block";
+	        }
+	    });
+	}
 }
 
 //NodeSearchsheet Functions end
@@ -674,6 +709,11 @@ function inspectAsync(id){
 	workSheetLayout.eventHub.emit('inspect', id);
 }
 
+function refresh_inspect(){
+	if(overFlowVars['inspector'][`inspectee`] == -1){return;}
+	inspect_node(overFlowVars['inspector'][`inspectee`]);
+}
+
 //
 // Displays the selected node and neighbours in the Inspector window
 //
@@ -683,7 +723,7 @@ function inspect_node(id) {
 	showInspectorNextPrevious();
 }
 
-function showInspectorNextPrevious(){
+function showInspectorNextPrevious(fn=null){
 	let id = overFlowVars['inspector'][`inspectee`];
 
 	inspector.detail.empty();
@@ -714,6 +754,7 @@ function showInspectorNextPrevious(){
 
 			updateOverFlow('inspector', result.nodes);
 
+
 			graphingAPI.add_node_batch(result.nodes, inspector.graph, null, [], function(node){
 				let meta = graphingAPI.node_metadata(node);
 
@@ -721,7 +762,7 @@ function showInspectorNextPrevious(){
 				row.onclick = (function() {
 					openSubMenu(function(){
 						import_into_worksheet(node.id);
-					}, true, true);
+					}, true, false, true);
 				});
 				let cell = row.insertCell(0);
 				cell.innerHTML = (`
@@ -739,7 +780,7 @@ function showInspectorNextPrevious(){
 
 			// Only use the (somewhat expensive) dagre algorithm when the number of
 			// edges is small enough to be computationally zippy.
-			if (inspector.graph.edges.length < limitNodesForDagre) {
+			if (inspector.graph.edges().length <= limitNodesForDagre) {
 				graphingAPI.layout(inspector.graph, 'dagre');
 			} else {
 				graphingAPI.layout(inspector.graph, 'cose-bilkent');
@@ -749,7 +790,20 @@ function showInspectorNextPrevious(){
 				level: 1,
 				position: inspector.graph.inspectee.position(),
 			});
+			if(fn != null){
+				fn();
+			}
 		}
+	);
+}
+
+function getInspectorCount(fn){
+	get_neighbours(overFlowVars['inspector'][`inspectee`], false,
+		0, 0, 
+		function(result) {
+			fn(result);
+		},
+		true
 	);
 }
 
@@ -769,7 +823,7 @@ function import_into_worksheet(id) {
 //
 // Fetch neighbours to a node, based on some user-specified filters.
 //
-function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, fn) {
+function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, fn, countOnly = false) {
 	return neo4jQueries.get_neighbours_id(id,
 										fn,	
 										inspectFiles,
@@ -778,7 +832,8 @@ function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, f
 										inspectProcessMeta,
 										isOverFlow,
 										displayAmount,
-										startID);
+										startID,
+										countOnly);
 }
 
 function import_batch_into_worksheet(nodes) {
@@ -792,7 +847,7 @@ function import_batch_into_worksheet(nodes) {
 		else{
 			ids = ids.concat(node.id);
 
-			if(ids.length >= maxImportLength){
+			if(ids.length > maxImportLength){
 				vex.dialog.alert({
 					unsafeMessage: `Trying to import more nodes than the maxImportLength:${maxImportLength} allows!`,
 					className: 'vex-theme-wireframe'
@@ -838,15 +893,78 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 							<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 							<button type="button" class="headerButton" id="toggleNodeSearchsheet">Close NodeSearchsheet</button>
-							<button type="button" class="headerButton" id="dropdownOptions">Options</button>
-							<div class="optionMenu" id="optionMenu">
-								<h2>Options</h2>
-								<font>GUI_Version: ${GUI_VERSION}</font>
-							</div>
+							<div class="dropdown" id="optionsForm"></div>
 						</div>
 						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>`;
-
 	return element;
+}
+
+function generateOptions(){
+	let optionsForm = document.getElementById('optionsForm');
+	let optionButton = document.createElement('button');
+	optionButton.className = 'headerButton';
+	optionButton.id = 'dropdownOptions';
+	optionButton.innerHTML = 'Options';
+	optionButton.onclick = (function(){
+		let menu = document.getElementById(`optionMenu`);
+		if (menu.style.display === "none") {
+			menu.style.display = "block";
+		} else {
+			menu.style.display = "none";
+		}
+	});
+	optionsForm.appendChild(optionButton);
+	attachOptionForm(optionsForm);
+}
+
+function attachOptionForm(optionsForm){
+	let optionMenu = document.getElementById('optionMenu');
+	if(optionMenu == null){
+		optionMenu = document.createElement('a');
+	}
+	optionMenu.className = 'optionMenu';
+	optionMenu.id = 'optionMenu';
+	optionMenu.innerHTML = `<h2>Options</h2>
+							<font>GUI_Version: ${GUI_VERSION}</font><br><br>
+							<label for="newNodeListDisplayAmount">Nodes shown in nodeList:</label><br>
+							<input id="newNodeListDisplayAmount" class="darkTextBox leftPadding" placeholder="${overFlowVars['nodeList']['DisplayAmount']}"></input><br>
+							<label for="newInspectorDisplayAmount">Neighbours shown in Inspector:</label><br>
+							<input id="newInspectorDisplayAmount" class="darkTextBox leftPadding" placeholder="${overFlowVars['inspector']['DisplayAmount']}"></input><br>
+							<label for="newMaxImportLength">Max amount of nodes importable:</label><br>
+							<input id="newMaxImportLength" class="darkTextBox leftPadding" placeholder="${maxImportLength}"></input><br>
+							<label for="newLimitNodesForDagre">Inspector edge limit for Dagre layout:</label><br>
+							<input id="newLimitNodesForDagre" class="darkTextBox leftPadding" placeholder="${limitNodesForDagre}"></input><br><br>`;
+
+	let optionSubmit = document.createElement('button');
+	optionSubmit.className = 'headerButton';
+	optionSubmit.id = 'optionSubmit';
+	optionSubmit.innerHTML = 'Submit';
+	optionSubmit.onclick = (function(){
+		if(testIfNumber($('#newNodeListDisplayAmount').val()) && $('#newNodeListDisplayAmount').val() > 0){
+			overFlowVars['nodeList']['DisplayAmount'] = parseInt($('#newNodeListDisplayAmount').val());
+		}
+		if(testIfNumber($('#newInspectorDisplayAmount').val()) && $('#newInspectorDisplayAmount').val() > 0){
+			overFlowVars['inspector']['DisplayAmount'] = parseInt($('#newInspectorDisplayAmount').val());
+		}
+		if(testIfNumber($('#newMaxImportLength').val()) && $('#newMaxImportLength').val() > 0){
+			maxImportLength = parseInt($('#newMaxImportLength').val());
+		}
+		if(testIfNumber($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
+			limitNodesForDagre = parseInt($('#newLimitNodesForDagre').val());
+		}
+		refresh_inspect();
+		update_nodelist();
+		document.getElementById('dropdownOptions').click();
+		attachOptionForm(optionsForm);
+	});
+	optionMenu.appendChild(optionSubmit);
+	optionsForm.appendChild(optionMenu);
+}
+
+function validOptionInput(varToSet, input){
+	if(testIfNumber(input) && input > 0){
+		varToSet = parseInt(input);
+	}
 }
 
 function refreshGraph(graph){
@@ -902,7 +1020,7 @@ function setRefreshGraphOnElementShow(watchElement, graph){
 	observer.observe(targetNode,  { attributes: true, childList: true });
 }
 
-function openSubMenu(fn, isNewWorksheetOption = true, leftClickSpawn = false){
+function openSubMenu(fn, isNewWorksheetOption = true, isAllWorksheetOption=false, leftClickSpawn = false){
 	if_DOM_IDExsitsRemove("myDropdown");
 	let cxtSubMenu = document.createElement('div');
 	cxtSubMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
@@ -925,6 +1043,17 @@ function openSubMenu(fn, isNewWorksheetOption = true, leftClickSpawn = false){
 			selectedWorksheet = getWorksheetCount();
 			addNewWorksheet()
 			fn();
+		});
+		cxtSubMenu.appendChild(SubMenuOption);
+	}
+	if(isAllWorksheetOption){
+		let SubMenuOption = document.createElement('a');
+		SubMenuOption.text = `All Worksheet`;
+		SubMenuOption.onclick =(function() {
+			for(let i in worksheets){
+				selectedWorksheet = i;
+				fn();
+			}
 		});
 		cxtSubMenu.appendChild(SubMenuOption);
 	}
@@ -971,28 +1100,51 @@ function updateOverFlow(name, results){
 		results.splice(results.length-1, 1);
 	}
 	overFlowVars[name][`IDEnd`] = results[results.length-1].id;
-
+	overFlowVars[name]['currDisplayAmount'] = results.length;
 	if(length > overFlowVars[name][`DisplayAmount`] && !overFlowVars[name][`OverflowWarning`]){
 		spawnOverFlow(name);
 	}
 }
 
 function removeOverFlow(name){
-	if_DOM_IDExsitsRemove(overFlowVars[name][`overFlowEle`]);
+	if_DOM_IDExsitsRemove(`${name}OverflowWarning`);
 	overFlowVars[name][`OverflowWarning`] = false;
 	overFlowVars[name][`IDStart`] = -1;
 	overFlowVars[name][`LastLowestShownIDs`] = [];
+	overFlowVars[name][`startDisplayNum`] = 1;
+	overFlowVars[name][`totalCount`] = '';
+}
+
+function updateOverFlowText(name){
+	if(overFlowVars[name][`cntFunc`] != null){
+		overFlowVars[name][`cntFunc`](function(cnt){
+			overFlowVars[name][`totalCount`] = cnt;
+			let node = document.getElementById(`${name}NodesShowing`);
+			let displayNum = overFlowVars[name][`startDisplayNum`];
+			let string =`Showing ${displayNum} - ${displayNum + overFlowVars[name]['currDisplayAmount'] -1} of ${overFlowVars[name][`totalCount`]}`;
+			node.innerHTML = string;
+		});
+	}
+	else{
+		let node = document.getElementById(`${name}NodesShowing`);
+		let displayNum = overFlowVars[name][`startDisplayNum`];
+		let string =`Showing ${displayNum} - ${displayNum + overFlowVars[name]['currDisplayAmount'] -1} of ${overFlowVars[name][`totalCount`]}`;
+		node.innerHTML = string;
+	}
 }
 
 function spawnOverFlow(name){
 	overFlowVars[name][`OverflowWarning`] = true;
 	let overflowWarning = document.createElement("div");
-	overflowWarning.id = overFlowVars[name][`overFlowEle`];
-	// overflowWarning.style.cssText = `color: red;`;
-	// overflowWarning.innerHTML = `<font size=+1>Only showing ${overFlowVars[name][`DisplayAmount`]} 
-	// nodes.<br></font>`;
+	overflowWarning.id = `${name}OverflowWarning`;
+
+	let warningText = document.createElement("div");
+	warningText.id  = `${name}NodesShowing`;
+	warningText.innerHTML = '';
+	overflowWarning.appendChild(warningText);
+
 	let lastNodes = document.createElement("button");
-	lastNodes.className  = "headerButton";
+	lastNodes.className = "headerButton";
 	lastNodes.innerHTML = `previous ${overFlowVars[name][`DisplayAmount`]} nodes`;
 	lastNodes.onclick = function(){
 		getPreviousNodes(name);
@@ -1008,26 +1160,33 @@ function spawnOverFlow(name){
 	overflowWarning.appendChild(nextNodes);
 
 	document.getElementById(overFlowVars[name][`appendTo`]).appendChild(overflowWarning);
+	updateOverFlowText(name);
 }
 
 function getPreviousNodes(name){
 	if(overFlowVars[name][`LastLowestShownIDs`].length > 0 && !UILock){
 		UILock = true;
 		overFlowVars[name][`IDStart`] = overFlowVars[name][`LastLowestShownIDs`].pop();
-		overFlowVars[name][`func`]();
-		UILock = false;
+		overFlowVars[name][`func`](function(){
+			overFlowVars[name][`startDisplayNum`] -= overFlowVars[name][`DisplayAmount`];
+			updateOverFlowText(name);
+			UILock = false;
+		});
 	}
 }
 
 function getNextNodes(name){
-	if(//overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
+	if(overFlowVars[name][`IDStart`] != overFlowVars[name][`IDNextStart`] && 
 		overFlowVars[name][`IDNextStart`] != overFlowVars[name][`IDEnd`] && 
 		!UILock){
 		UILock = true;
 		overFlowVars[name][`LastLowestShownIDs`] = overFlowVars[name][`LastLowestShownIDs`].concat(overFlowVars[name][`IDStart`]);
 		overFlowVars[name][`IDStart`] = overFlowVars[name][`IDNextStart`];
-		overFlowVars[name][`func`]();
-		UILock = false;
+		overFlowVars[name][`func`](function(){
+			overFlowVars[name][`startDisplayNum`] += overFlowVars[name][`DisplayAmount`];
+			updateOverFlowText(name);
+			UILock = false;
+		});
 	}
 }
 
@@ -1048,7 +1207,7 @@ function spawnVexList(ele, message, resultID, resultName, func){
 			file.onclick =(function() {
 				openSubMenu(function(){
 					inspect_and_importAsync(result[resultID]);
-				}, true, true);
+				}, true, false, true);
 			});
 			files.appendChild(file);
 		});

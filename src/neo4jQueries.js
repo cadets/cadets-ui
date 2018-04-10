@@ -1,5 +1,6 @@
 import $ from './../node_modules/jquery/dist/jquery.js';
 import vex from './../node_modules/vex-js/dist/js/vex.combined.min.js';
+import moment from './../node_modules/moment/moment.js';
 
 import './../node_modules/vex-js/dist/css/vex.css';
 import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
@@ -10,7 +11,7 @@ var driver = null;
 var pvm_version = null;
 
 
-export function neo4jLogin(eventE){
+export function neo4jLogin(eventE, fn){
 	vex.dialog.open({
 		message: 'Enter your Neo4j username and password:',
 		input: [
@@ -23,7 +24,7 @@ export function neo4jLogin(eventE){
     	className: 'vex-theme-wireframe',
 		callback: function (data) {
 			if (!data) {
-				neo4jLogin(eventE);
+				neo4jLogin(eventE, fn);
 			} else {
 				driver = neo4j.driver("bolt://localhost:7687/", neo4j.auth.basic(data.username, data.password));
 				let session = driver.session();
@@ -38,10 +39,15 @@ export function neo4jLogin(eventE){
 								vex.dialog.alert({message: "DataBase does not contain PVM version data.",
 										className: 'vex-theme-wireframe'});
 							}
+							else{
+								vex.dialog.alert({message: 'Neo4j successfully logged in.',
+								className: 'vex-theme-wireframe'});
+								fn();
+							}
 						}
 					},
 					function(error) {
-						neo4jLogin(eventE);
+						neo4jLogin(eventE, fn);
 						neo4jError(error, session, "neo4jLogin");
 					});
 			}
@@ -117,9 +123,9 @@ export function cmd_query(id, fn){
 }
 
 export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
-								process_meta=true, isOverFlow=false, limit=-1, startID = 0){
+								process_meta=true, isOverFlow=false, limit=-1, startID = 0, countOnly=false){
 	get_neighbours_id_batch([parseInt(id)], fn, files, sockets, pipes, 
-							process_meta, isOverFlow, limit, startID);
+							process_meta, isOverFlow, limit, startID, countOnly);
 }
 
 export function get_neighbours_id_batch(ids,
@@ -130,11 +136,8 @@ export function get_neighbours_id_batch(ids,
 										process_meta=true,
 										isOverFlow=false,
 										limit=-1,
-										startID = 0){
-	let session = driver.session();
-	let root_node;
-	let neighbour_nodes = [];
-	let neighbour_edges = [];
+										startID = 0,
+										countOnly=false){
 	let matchers = ["Machine", "Process", "Conn"];
 	if (files){
 		matchers = matchers.concat(['File', 'EditSession']);
@@ -151,61 +154,129 @@ export function get_neighbours_id_batch(ids,
 	if (process_meta){
 		matchers = matchers.concat('Meta');
 	}
+	let returnQuery = '';
 	let limitQuery = '';
 	let startQuery = '';
-	if(limit != -1 && isOverFlow){
-		limitQuery = `Limit ${limit}`;
+	let socket_machine_query = '';
+	if(countOnly){
+		returnQuery = 'count(DISTINCT s) as cnt'
 	}
-	if(startID != -1 && isOverFlow){
-		startQuery =`id(d) >= ${startID}
-					AND`;
+	else{
+		if(limit != -1 && isOverFlow){
+			limitQuery = `Limit ${limit}`;
+		}
+		if(startID != -1 && isOverFlow){
+			startQuery =`id(s) >= ${startID}
+						AND`;
+		}
+		returnQuery = `DISTINCT d, e, s
+						ORDER BY id(s)
+						${limitQuery}`;
 	}
-	session.run(`MATCH (s)-[e]-(d)
+	if(sockets){
+		socket_machine_query = `UNION
+								MATCH (s:Socket), (e), (d:Machine)
+								WHERE 
+								id(d) >= ${startID}
+								AND
+								s = e
+								AND
+								d.external
+								AND 
+								id(s) IN ${JSON.stringify(ids)}
+								AND 
+								split(s.name[0], ":")[0] in d.ips
+								RETURN ${returnQuery}
+								UNION
+								MATCH (s:Socket), (e), (d:Machine)
+								WHERE 
+								${startQuery}
+								s = e
+								AND
+								d.external
+								AND 
+								id(d) IN ${JSON.stringify(ids)}
+								AND 
+								split(s.name[0], ":")[0] in d.ips
+								RETURN ${returnQuery}`;
+	}
+	let query = `MATCH (d)-[e]-(s)
 				WHERE 
 				${startQuery}
-				id(s) IN ${JSON.stringify(ids)}
+				id(d) IN ${JSON.stringify(ids)}
 				AND
-				any(lab in labels(d) WHERE lab IN ${JSON.stringify(matchers)})
-				RETURN DISTINCT s, e, d
-				ORDER BY id(d)
-				${limitQuery}`)
-
+				any(lab in labels(s) WHERE lab IN ${JSON.stringify(matchers)})
+				RETURN ${returnQuery}
+				${socket_machine_query}`;
+	let session = driver.session();
+	session.run(query)
 	.then(result => {
 		session.close();
+		if(countOnly){
+			let totalNodes = 0;
+			result.records.forEach(function(cnt){
+				totalNodes += cnt.get('cnt').low;
+			});
+			fn(totalNodes);
+			return;
+		}
+		let machine_socket_nodes = [];
+		let neighbour_nodes = [];
+		let neighbour_edges = [];
 		let neighbours = result.records;
-		if (neighbours.length != 0){
-			neighbours.forEach(function(row){
-				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(row.get('d')));
+		let oneMachine = false;
+		neighbours.forEach(function(row){
+			if(row.get('e').start == null){
+				if(!oneMachine && row.get('d').identity.low != ids[0]){
+					oneMachine = true;
+					machine_socket_nodes = machine_socket_nodes.concat(neo4jParser.parseNeo4jNode(row.get('d')));
+				}
+				let m_links = {'type' : 'comm'};
+				m_links.identity = {'low' : row.get('s')['identity']['low'] + row.get('d')['identity']['low']};
+				m_links.properties = {'state' : null}; 
+				m_links.start = {'low' : row.get('s')['identity']['low']};
+				m_links.end = {'low' : row.get('d')['identity']['low']};
+				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(m_links));
+				machine_socket_nodes = machine_socket_nodes.concat(neo4jParser.parseNeo4jNode(row.get('s')));
+			}
+			else{
 				neighbour_edges = neighbour_edges.concat(neo4jParser.parseNeo4jEdge(row.get('e')));
-			});
-			get_neighbours_id_batch_end(neighbour_nodes, neighbour_edges, ids, 
-										sockets, fn, neo4jParser.parseNeo4jNode(neighbours[0].get('s')));
+				neighbour_nodes = neighbour_nodes.concat(neo4jParser.parseNeo4jNode(row.get('s')));
+			}
+		});
+		let sIndex = 0;
+		if(machine_socket_nodes.length != 0){//this is here temporarily until the proper query can be figured out 
+			if(neighbour_nodes.length == 0){
+				neighbour_nodes = machine_socket_nodes;
+			}
+			else{
+				machine_socket_nodes.forEach(function(node){
+					for(let i = sIndex; i < neighbour_nodes.length; i++){
+						sIndex = i;
+						if(neighbour_nodes[i].id == node.id){break;}
+						else if(i+1 == neighbour_nodes.length){
+							neighbour_nodes.push(node);
+							break;
+						}
+						else if(neighbour_nodes[i].id < node.id && neighbour_nodes[i+1].id > node.id){
+							neighbour_nodes.splice(i+1, 0, node);
+							break;
+						}
+					}
+				})
+			}
+			if(neighbour_nodes.length > limit){
+				neighbour_nodes.length = limit;
+			}
 		}
-		else{
-			get_batch_detail_id(ids, function(nodes){
-				get_neighbours_id_batch_end(neighbour_nodes, neighbour_edges, ids, sockets, fn, nodes[0]);
-			});
-		}
-	}, function(error) {
-		neo4jError(error, session, "get_neighbours_id");
-	});
-}
-
-function get_neighbours_id_batch_end(neighbour_nodes, neighbour_edges, ids, sockets, fn, root_node){
-	if (sockets){
-		getMachineSocketConnections(ids, function(elements){
-			neighbour_nodes = neighbour_nodes.concat(elements.nodes);
-			neighbour_edges = neighbour_edges.concat(elements.edges);
-			fn({focusNode: root_node,
+		get_batch_detail_id([ids[0]], function(nodes){
+			fn({focusNode: nodes[0],
 				nodes: neighbour_nodes,
 				edges: neighbour_edges});
 		});
-	}
-	else{
-		fn({focusNode: root_node,
-			nodes: neighbour_nodes,
-			edges: neighbour_edges});
-	}
+	}, function(error) {
+		neo4jError(error, session, "get_neighbours_id");
+	});
 }
 
 // export function successors_query(dbid, max_depth=4, files=true, sockets=true, pipes=true, process_meta=true, fn){
@@ -435,6 +506,10 @@ export function get_nodes(node_type=null,
 				local_port=null, 
 				remote_ip=null, 
 				remote_port=null, 
+				fileNameStart=null, 
+				fileNum=1,
+				startDate="", 
+				endDate="",
 				limit='100',
 				startID = 0,
 				countOnly = false,
@@ -474,10 +549,14 @@ export function get_nodes(node_type=null,
 	if (remote_port == null || remote_port == ""){
 		remote_port = ".*?";
 	}
+	if(fileNum == ''){
+		fileNum = 1;
+	}
 	let returnQuery;
 	let idQuery = ``;
+	let fileCreatedQuery = ``;
 	if(countOnly == true){
-		returnQuery = 'DISTINCT count(n) AS cnt';
+		returnQuery = 'count(DISTINCT n) AS cnt';
 	}
 	else{
 		returnQuery = `DISTINCT n
@@ -485,6 +564,27 @@ export function get_nodes(node_type=null,
 		idQuery = `WHERE 
 						id(n) >= ${startID}
 					WITH n`;
+	}
+	if(fileNameStart != null && fileNameStart != ''){//d.name CONTAINS ${JSON.stringify(fileNameStart)}
+		fileCreatedQuery=`MATCH (n)-[]-(d:File)
+				WHERE
+				any(name in d.name WHERE name CONTAINS ${JSON.stringify(fileNameStart)})
+				WITH n, count(*) as matchs
+				WHERE 
+				matchs >= ${fileNum}
+				WITH n`;
+	}
+	let startDateQuery = ``;
+	let endDateQuery = ``;
+	if(startDate != ""){
+		startDateQuery =`WHERE 
+							n.timestamp >= ${moment(startDate).unix() * 1000000000}
+						WITH n`; 
+	}
+	if(endDate != ""){
+		endDateQuery =`WHERE 
+							n.timestamp <= ${moment(endDate).unix() * 1000000000}
+						WITH n`;
 	}
 	let query = `MATCH (n)
 			${idQuery}
@@ -515,6 +615,9 @@ export function get_nodes(node_type=null,
 				OR
 				n.uuid = ${JSON.stringify(host)}
 			WITH n
+			${startDateQuery}
+			${endDateQuery}
+			${fileCreatedQuery}
 			OPTIONAL MATCH (m:Machine)
 			WHERE
 				(

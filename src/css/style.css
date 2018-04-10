@@ -19,14 +19,12 @@ html, body {
 .fillHeader{
 	background-color: #232323;
 	width: 100%;
-	position: relative;
 	top: 0%;
 	left: 0%;
 	padding-bottom: 5px;
 }
 .headerButtons{
 	height: 100%;
-	position: absolute;
 	top: 25%;
 	left: 20%;
  }
@@ -43,7 +41,6 @@ html, body {
 	color: #9e9e9e;
  }
 .sheet{
-	/*background-color: #303030;*/
 	width: 100%;
 	height: 100%;
 }
@@ -109,7 +106,8 @@ th,td{
 	color: #e2e2e2;
 	size:2;
 }
-.dropdown {
+.dropdown { 
+	display:inline-block;
     position: relative;
 }
 .dropdown-content {
@@ -117,7 +115,7 @@ th,td{
     background-color: #f1f1f1;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 999999;
+    z-index: 9999;
 }
 .dropdown-content a {
     color: black;
@@ -128,5 +126,28 @@ th,td{
 .dropdown-content a:hover {background-color: #ddd}
 
 .optionMenu{
+	min-width: 300px;
+	padding-bottom: 20px;
+	padding-left: 20px;
+	background-color: #121212;
+	display: none;
+	position: absolute;
+	z-index: 500;
+    box-shadow: 5px 10px rgba(0,0,0,0.2);
+	border-radius: 2px;
+}
+.hide{
 	display: none;
 }
+.formBoxAccordion{
+	background-color: #333;
+	color: #7f7f7f;
+	border: black;
+	transition-duration: 0.5s;
+	font-size: 15px;
+	outline:none;
+}
+.formBoxAccordion:Hover{
+	background-color: #444;
+ }
+ 

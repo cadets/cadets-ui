@@ -9,14 +9,13 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 									<label for="filterNodeType">&nbsp;Type</label>
 									<div>
 										&nbsp;<select id="filterNodeType" class="darkTextBox">
-											<option></option>
+											<option>process</option>
+											<option>machine</option>
 					 						<option>connection</option>
 											<option>file-version</option>
 											<option>pipe-endpoint</option>
-											<option>process</option>
 											<option>process-meta</option>
 											<option>socket-version</option>
-											<option>machine</option>
 											<option>global-only</option>
 											<option>edit-session</option>
 					 					</select>
@@ -24,18 +23,35 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 									<label for="filterName">&nbsp;Name</label>
 									<div>
 										&nbsp;<input id="filterName" size="18.5" class="darkTextBox leftPadding"/>
-									</div>
-									<label for="filterHost">&nbsp;Host</label>
-									<div>
-										&nbsp;<input id="filterHost" size="18.5" class="darkTextBox leftPadding"/>
-									</div>
-									<label for="filterTuple">&nbsp;TCP</label>
-									<div id="filterTuple">
-										&nbsp;<input id="filterLocalIp" size="10" class="darkTextBox leftPadding"/>
-										<input id="filterLocalPort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;L<br/>
-										&nbsp;<input id="filterRemoteIp" size="10" class="darkTextBox leftPadding"/>
-										<input id="filterRemotePort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;R
-									</div>
+									</div><br>
+									<button class="formBoxAccordion">Machine options</button>
+									<div class="hide">
+										<label for="filterHost">&nbsp;Host</label>
+										<div>
+											&nbsp;<input id="filterHost" size="18.5" class="darkTextBox leftPadding"/>
+										</div>
+										<label for="filterTuple">&nbsp;TCP</label>
+										<div id="filterTuple">
+											&nbsp;<input id="filterLocalIp" size="10" class="darkTextBox leftPadding"/>
+											<input id="filterLocalPort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;L<br/>
+											&nbsp;<input id="filterRemoteIp" size="10" class="darkTextBox leftPadding"/>
+											<input id="filterRemotePort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;R
+										</div>
+									</div><br>
+									<button class="formBoxAccordion">Connected file options</button>
+									<div class="hide">
+										<label for="filterfileNameStart">&nbsp;Connected file name:</label><br>
+										&nbsp;<input id="filterfileNameStart" size="18.5" class="darkTextBox leftPadding"/><br>
+										<label for="filterfileNum">&nbsp;More files then:</label><br>
+										&nbsp;<input id="filterfileNum" size="18.5" class="darkTextBox leftPadding"/>
+									</div><br>
+									<button class="formBoxAccordion">Date options</button>
+									<div class="hide">
+										<label for="filterstartDate">&nbsp;Start date:</label><br>
+										<input type="datetime-local" id="filterstartDate" size="3" class="darkTextBox leftPadding"/><br>
+										<label for="filterendDate">&nbsp;End date:</label><br>
+										<input type="datetime-local" id="filterendDate" size="3" class="darkTextBox leftPadding"/><br>
+									</div><br>
 								</div>
 								<div class="row content scrollable">
 									<table class="table">
