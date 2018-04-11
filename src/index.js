@@ -840,12 +840,13 @@ function import_batch_into_worksheet(nodes) {
 	let graph = worksheets[`${selectedWorksheet}`].graph;
 	let ids = [];
 
-	for(let node of nodes){
-		if (!graph.$id(node.id).empty()) {
-			nodes.splice(nodes.indexOf(node), 1);
+	for(let i = 0; i < nodes.length; i++){
+		if (!graph.$id(nodes[i].id).empty()) {
+			nodes.splice(nodes.indexOf(nodes[i]), 1);
+			i--;
 		}
 		else{
-			ids = ids.concat(node.id);
+			ids = ids.concat(nodes[i].id);
 
 			if(ids.length > maxImportLength){
 				vex.dialog.alert({
@@ -857,7 +858,6 @@ function import_batch_into_worksheet(nodes) {
 		}
 	}
 	if(ids.length <= 0){return;}
-
 	let position = {
 		x: graph.width() / 2,
 		y: graph.height() / 2,
