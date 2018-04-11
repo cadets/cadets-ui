@@ -606,6 +606,8 @@ function inspect_and_import(id) {
 // Populate node list.
 //
 function update_nodelist() {
+
+	if(document.getElementById("NodeSearchsheet") == null){return;}
 	removeOverFlow(`nodeList`);
 	showNodeListNextPrevious();
 }
