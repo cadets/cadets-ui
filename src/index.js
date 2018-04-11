@@ -27,7 +27,7 @@ cytoscape.use( dagre );
 cytoscape.use( cose_bilkent );
 
 //Build Html document
-const GUI_VERSION = 'v0.5.0-dev';
+const GUI_VERSION = 'v0.6.0-dev';
 let PVM_VERSION = '';
 
 let element = htmlBody();
@@ -938,7 +938,7 @@ function attachOptionForm(optionsForm){
 	let optionSubmit = document.createElement('button');
 	optionSubmit.className = 'headerButton';
 	optionSubmit.id = 'optionSubmit';
-	optionSubmit.innerHTML = 'Submit';
+	optionSubmit.innerHTML = 'Apply';
 	optionSubmit.onclick = (function(){
 		if(testIfNumber($('#newNodeListDisplayAmount').val()) && $('#newNodeListDisplayAmount').val() > 0){
 			overFlowVars['nodeList']['DisplayAmount'] = parseInt($('#newNodeListDisplayAmount').val());

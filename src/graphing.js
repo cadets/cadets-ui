@@ -92,6 +92,9 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 			}
 
 			if (compound.empty()) {
+				if(name == ''){
+					name = ['node'];
+				}
 				add_node({
 					id: data.uuid,
 					type: type,

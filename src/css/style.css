@@ -60,10 +60,10 @@ html, body {
 	overflow: hidden;
 }
 ::-webkit-scrollbar {
-	width: 7px;
+	width: 15px;
 }
 ::-webkit-scrollbar-thumb:hover {
-	background: #555; 
+	background: #000; 
 }
 .table{
 	width: 100%;
