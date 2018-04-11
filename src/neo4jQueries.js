@@ -5,6 +5,7 @@ import moment from './../node_modules/moment/moment.js';
 import './../node_modules/vex-js/dist/css/vex.css';
 import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
 
+var utilFunc = require('./utilFunc.js');
 var neo4jParser = require('./neo4jParser.js');
 var neo4j = require('./../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js').v1;
 var driver = null;
@@ -514,6 +515,9 @@ export function get_nodes(node_type=null,
 				startID = 0,
 				countOnly = false,
 				fn){
+	if(!utilFunc.testIfNumber(fileNum)){
+		fileNum = 0;
+	}
 	let lab;
 	let node_labels = {'pipe-endpoint': 'Pipe',
 					'socket-version': 'Socket',

@@ -16,6 +16,7 @@ import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-base.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
 
+var utilFunc = require('./utilFunc.js');
 var graphingAPI = require('./graphing.js');
 var neo4jQueries = require('./neo4jQueries.js');
 var goldenLayoutHTML = require('./goldenLayoutHTML.js');
@@ -242,7 +243,6 @@ workSheetLayout.registerComponent( 'Inspector', function( container, state ){
 });
 workSheetLayout.registerComponent( 'Details', function( container, state ){
 	container._config.isClosable = false;
-	console.log(container._config);
 	container.getElement().html(state.text);
 	detailsContainer = container;
 });
@@ -940,16 +940,16 @@ function attachOptionForm(optionsForm){
 	optionSubmit.id = 'optionSubmit';
 	optionSubmit.innerHTML = 'Apply';
 	optionSubmit.onclick = (function(){
-		if(testIfNumber($('#newNodeListDisplayAmount').val()) && $('#newNodeListDisplayAmount').val() > 0){
+		if(utilFunc.testIfNumber($('#newNodeListDisplayAmount').val()) && $('#newNodeListDisplayAmount').val() > 0){
 			overFlowVars['nodeList']['DisplayAmount'] = parseInt($('#newNodeListDisplayAmount').val());
 		}
-		if(testIfNumber($('#newInspectorDisplayAmount').val()) && $('#newInspectorDisplayAmount').val() > 0){
+		if(utilFunc.testIfNumber($('#newInspectorDisplayAmount').val()) && $('#newInspectorDisplayAmount').val() > 0){
 			overFlowVars['inspector']['DisplayAmount'] = parseInt($('#newInspectorDisplayAmount').val());
 		}
-		if(testIfNumber($('#newMaxImportLength').val()) && $('#newMaxImportLength').val() > 0){
+		if(utilFunc.testIfNumber($('#newMaxImportLength').val()) && $('#newMaxImportLength').val() > 0){
 			maxImportLength = parseInt($('#newMaxImportLength').val());
 		}
-		if(testIfNumber($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
+		if(utilFunc.testIfNumber($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
 			limitNodesForDagre = parseInt($('#newLimitNodesForDagre').val());
 		}
 		refresh_inspect();
@@ -962,7 +962,7 @@ function attachOptionForm(optionsForm){
 }
 
 function validOptionInput(varToSet, input){
-	if(testIfNumber(input) && input > 0){
+	if(utilFunc.testIfNumber(input) && input > 0){
 		varToSet = parseInt(input);
 	}
 }
@@ -1080,10 +1080,6 @@ function updateInspectTargets(files, scokets, pipes, meta){
 	inspectSockets = scokets;
 	inspectPipes = pipes;
 	inspectProcessMeta = meta;
-}
-
-function testIfNumber(val){
-	return /^\d+$/.test(val);
 }
 
 function if_DOM_IDExsitsRemove(id){
