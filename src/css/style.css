@@ -140,7 +140,8 @@ th,td{
 	display: none;
 }
 .formBoxAccordion{
-	background-color: #333;
+	width: 100%;
+	background-color: #222;
 	color: #7f7f7f;
 	border: black;
 	transition-duration: 0.5s;

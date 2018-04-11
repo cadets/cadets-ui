@@ -7,7 +7,6 @@ import moment from './../node_modules/moment/moment.js';
 import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.js';
 import events from './../node_modules/events/events.js';
 
-//import './../node_modules/hashids/dist/hashids.min.js';
 import dagre from './../node_modules/cytoscape-dagre/cytoscape-dagre.js';
 import cose_bilkent from './../node_modules/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js';
 
@@ -243,6 +242,7 @@ workSheetLayout.registerComponent( 'Inspector', function( container, state ){
 });
 workSheetLayout.registerComponent( 'Details', function( container, state ){
 	container._config.isClosable = false;
+	console.log(container._config);
 	container.getElement().html(state.text);
 	detailsContainer = container;
 });
@@ -306,6 +306,7 @@ workSheetLayout.on('initialised', function(){
 workSheetLayout.on('stackCreated', function(stack) {
 			stack.on('activeContentItemChanged', function(contentItem) {
 				contentItem.parent.header.controlsContainer.find('.lm_popout').hide();
+				contentItem.parent.header.controlsContainer.find('.lm_maximise').hide();
 			}
 		);
 	}
@@ -688,7 +689,6 @@ function connectNodeListAccordion(){
 
 	for (let i = 0; i < acc.length; i++) {
 	    acc[i].addEventListener("click", function() {
-	        //this.classList.toggle("active");
 	        var panel = this.nextElementSibling;
 	        if (panel.style.display === "block") {
 	            panel.style.display = "none";
