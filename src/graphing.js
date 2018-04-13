@@ -55,6 +55,13 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 			fn(data);
 		}
 
+		if(renderedPosition == null){
+			renderedPosition = {
+				x: graph.width() / 2,
+				y: graph.height() / 2,
+			};
+		}
+
 		// Have we already imported this node?
 		if (!graph.$id(data.id).empty()) {
 			return;
@@ -325,7 +332,7 @@ function load_graph_style(graphs) {
 				background-position-y: 0; }
 
 			node:selected {
-				  overlay-color: #a80000;
+				  overlay-color: #720d00;
 				  overlay-opacity: 0.5;
 				  overlay-padding: 5; }
 
@@ -571,7 +578,7 @@ export function node_metadata(node) {
 			break;
 		case 'textual':
 			metadata = {
-				label: node['label'],
+				label: node['title'],
 			};
 			timestamp = node['timestamp'];
 			break;

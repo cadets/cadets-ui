@@ -139,7 +139,7 @@ export function get_neighbours_id_batch(ids,
 										limit=-1,
 										startID = 0,
 										countOnly=false){
-	let matchers = ["Machine", "Process", "Conn"];
+	let matchers = ["Machine", "Process", "Conn", "Textual"];
 	if (files){
 		matchers = matchers.concat(['File', 'EditSession']);
 	}
@@ -527,7 +527,8 @@ export function get_nodes(node_type=null,
 					'connection': 'Conn',
 					'file-version': 'File',
 					'global-only': 'Global',
-					'edit-session': 'EditSession'};
+					'edit-session': 'EditSession',
+					'textual': 'Textual'};
 	let labelQuery;
 	if  (!(node_type in node_labels)){
 		lab = "Null";
@@ -746,6 +747,31 @@ export function createTextualNode(fn){
 	});
 }
 
+export function getTextualNodeTitleDes(id, fn){
+	let session = driver.session();
+	session.run(`Match (n:Textual)
+				WHERE id(n) = ${id}
+				RETURN n.title AS title, n.description as description`)
+	.then(result => {
+		fn({'title':result.records[0].get('title'),
+			'description': result.records[0].get('description')});
+	}, function(error) {
+		neo4jError(error, session, "setTextualNodeTitleDes");
+	});
+}
+
+export function setTextualNodeTitleDes(id, title, description){
+	let session = driver.session();
+	session.run(`Match (n:Textual)
+				WHERE id(n) = ${id}
+				SET n.title = ${JSON.stringify(title)}
+				SET n.description = ${JSON.stringify(description)}`)
+	.then(result => {
+	}, function(error) {
+		neo4jError(error, session, "setTextualNodeTitleDes");
+	});
+}
+
 export function createTextualEdge(sourceID, targetID, fn){
 	let session = driver.session();
 	session.run(`MATCH (s:Textual), (t) 
@@ -797,6 +823,7 @@ const neo4jQueries ={
 	get_nodes,
 	getTypeLabels,
 	createTextualNode,
+	setTextualNodeTitleDes,
 	createTextualEdge,
 	deleteEmptyTextualNodes,
 }

@@ -219,6 +219,12 @@ var worksheetTextualCxtMenu = ({
 				}
 			}
 		},
+		{
+			content: 'Edit Details',
+			select: function(ele){
+				openTextualMenu(ele);
+			}
+		}
 	]
 });
 
@@ -975,7 +981,7 @@ function attachOptionForm(optionsForm){
 	if(optionMenu == null){
 		optionMenu = document.createElement('a');
 	}
-	optionMenu.className = 'optionMenu';
+	optionMenu.className = 'popoutMenu';
 	optionMenu.id = 'optionMenu';
 	optionMenu.innerHTML = `<h2>Options</h2>
 							<font>GUI_Version: ${GUI_VERSION}</font><br><br>
@@ -1073,12 +1079,47 @@ function setRefreshGraphOnElementShow(watchElement, graph){
 	observer.observe(targetNode,  { attributes: true, childList: true });
 }
 
+function openTextualMenu(ele){
+	if_DOM_IDExsitsRemove("textualDropdown");
+	let textualMenu = document.createElement('div');
+	textualMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
+	textualMenu.className = 'absolute';
+	textualMenu.id = 'textualDropdown';
+	
+	neo4jQueries.getTextualNodeTitleDes(ele.data().id, function(result){
+		let title = result.title;
+		let description = result.description;
+		if(title == null){title = '';}
+		if(description == null){description = '';}
+
+		let subMenuOption = document.createElement('a');
+		subMenuOption.innerHTML = `<label for="editTitle">Title:</label><br>
+								<input id="editTitle" class="darkTextBox leftPadding" value="${title}"></input><br>
+								<label for="editDescription">Description:</label><br>
+								<textarea  id="editDescription" class="darkTextBox leftPadding" rows="4" cols="50">${description}</textarea><br><br>`
+		textualMenu.appendChild(subMenuOption);
+
+		let textualSubmit = document.createElement('button');
+		textualSubmit.className = 'headerButton';
+		textualSubmit.innerHTML = 'Apply';
+		textualSubmit.onclick = (function(){
+			title = document.getElementById('editTitle').value;
+			description = document.getElementById('editDescription').value;
+			neo4jQueries.setTextualNodeTitleDes(ele.data().id, title, description)
+			textualMenu.remove();
+		});
+		textualMenu.appendChild(textualSubmit);
+
+		document.body.appendChild(textualMenu);
+	});
+}
+
 function openSubMenu(fn, isNewWorksheetOption = true, isAllWorksheetOption=false, leftClickSpawn = false){
-	if_DOM_IDExsitsRemove("myDropdown");
+	if_DOM_IDExsitsRemove("worksheetDropdown");
 	let cxtSubMenu = document.createElement('div');
 	cxtSubMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
 	cxtSubMenu.className = 'dropdown-content';
-	cxtSubMenu.id = 'myDropdown';
+	cxtSubMenu.id = 'worksheetDropdown';
 
 	for(let i in worksheets){
 		let SubMenuOption = document.createElement('a');
@@ -1113,7 +1154,7 @@ function openSubMenu(fn, isNewWorksheetOption = true, isAllWorksheetOption=false
 	document.body.appendChild(cxtSubMenu);
 	window.onclick = function(event) {
 		if(!leftClickSpawn){//this is here so SubMenu is usable with a left click
-			document.getElementById(`myDropdown`).remove();
+			document.getElementById(`worksheetDropdown`).remove();
 			window.onclick = null;
 		}
 		leftClickSpawn = false;
