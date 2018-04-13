@@ -125,6 +125,10 @@ function getWorksheetHtml(){
 	let index = worksheetCount;
 	return `<div class="sheet" id="worksheet${index}">
 				<div class="sheet" id="worksheetGraph${index}"></div>
+				<div class="topOptions">
+					<button type="button" class="headerButton" id="addTextual${index}">Add Textual Note</button>
+					<button type="button" class="headerButton" id="saveTextual${index}">Delete db Textual Notes</button>
+				</div>
 				<div class="bottomOptions">
 					<input id="loadGraph${index}" name="file" type="file" style="display: none">
 					<button class="headerButton" onclick="document.getElementById('loadGraph${index}').click();">Load</button>

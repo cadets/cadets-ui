@@ -736,6 +736,49 @@ export function getTypeLabels(fn){
 	});
 }
 
+export function createTextualNode(fn){
+	let session = driver.session();
+	session.run(`CREATE (n:Textual) RETURN n`)
+	.then(result => {
+		fn(neo4jParser.parseNeo4jNode(result.records[0].get('n')));
+	}, function(error) {
+		neo4jError(error, session, "createTextualNode");
+	});
+}
+
+export function createTextualEdge(sourceID, targetID, fn){
+	let session = driver.session();
+	session.run(`MATCH (s:Textual), (t) 
+				WHERE id(s) = ${sourceID} AND id(t) = ${targetID}
+				CREATE (s)<-[e:Describes]-(t)
+				RETURN e`)
+	.then(result => {
+		fn(neo4jParser.parseNeo4jEdge(result.records[0].get('e')));
+	}, function(error) {
+		neo4jError(error, session, "createTextualEdge");
+	});
+}
+
+export function deleteTextualEdge(sourceID, targetID){
+	let session = driver.session();
+	session.run(`MATCH (s:Textual)-[e:Describes]-(t) 
+				WHERE id(s) = ${sourceID} AND id(t) = ${targetID}
+				DELETE (e)`)
+	.then(result => {
+	}, function(error) {
+		neo4jError(error, session, "deleteTextualEdge");
+	});
+}
+
+export function deleteEmptyTextualNodes(){
+	let session = driver.session();
+	session.run(`Match (n:Textual) DETACH DELETE n`)
+	.then(result => {
+	}, function(error) {
+		neo4jError(error, session, "deleteEmptyTextualNodes");
+	});
+}
+
 function neo4jError(error, session, funcName){
 	session.close();
 	console.log(`Error reported from ${funcName}() in neo4jQueries.js`);
@@ -753,6 +796,9 @@ const neo4jQueries ={
 	get_detail_id,
 	get_nodes,
 	getTypeLabels,
+	createTextualNode,
+	createTextualEdge,
+	deleteEmptyTextualNodes,
 }
 
 export default neo4jQueries;
