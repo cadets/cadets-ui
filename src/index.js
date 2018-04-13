@@ -186,9 +186,29 @@ var worksheetParentCxtMenu = ({
 
 var worksheetTextualCxtMenu = ({
 	menuRadius: 140,
-	separatorWidth: 0,
+	separatorWidth: 5,
 	selector: 'node.textual',
 	commands: [
+		{
+			content: 'Inspect',
+			select: function(ele){
+				inspectAsync(ele.data('id'));
+			}
+		},
+		{
+			content: 'Import neighbours',
+			select: function(ele){
+				openSubMenu(function(){
+					import_neighbours_into_worksheet(ele.data('id'));
+				});
+			}
+		},
+		{
+			content: 'Highlight',
+			select: function(ele){
+				toggle_node_importance(ele.data("id"));
+			}
+		},
 		{
 			content: `Toggle selection connections`,
 			select: function(ele){
@@ -224,7 +244,23 @@ var worksheetTextualCxtMenu = ({
 			select: function(ele){
 				openTextualMenu(ele);
 			}
-		}
+		},
+		{
+			content: 'Remove neighbours',
+			select: function(ele){
+				openSubMenu(function(){
+					remove_neighbours_from_worksheet(ele.data("id"));
+				}, false, true);
+			}
+		},
+		{
+			content: 'Remove',
+			select: function(ele){
+				openSubMenu(function(){
+					removeNode(ele);
+				}, false, true);
+			}
+		},
 	]
 });
 
@@ -542,6 +578,35 @@ function remove_neighbours_from_worksheet(id) {
 		return !ele.hasClass('important');
 	}).remove();
 	removeEmptyParents(parents);
+}
+
+function toggleSection(ele){
+	let eleID = ele.data().id;
+	if(ele.data().connectionOn){
+		console.log(ele);
+		ele.removeClass('textualActive');
+		ele.data().connectionOn = false;
+		ele.cy().removeListener('tap', textualHandlers[`${eleID}`]);
+		textualHandlers[`${eleID}`] = null;
+	}
+	else{
+		ele.addClass('textualActive');
+		ele.data().connectionOn = true;
+		textualHandlers[`${eleID}`] = function(event){
+			let evtID = event.target.data().id;
+			if(evtID == eleID){return;}
+			if (!ele.allAreNeighbors(`#${evtID}`)){
+				neo4jQueries.createTextualEdge(eleID, evtID, function(edge){
+					graphingAPI.add_edge(edge, ele.cy());
+				});
+			}
+			else{
+				neo4jQueries.deleteTextualEdge(eleID, evtID);
+				ele.edgesWith(`#${evtID}`).remove();
+			}
+		};
+		ele.cy().on('tap', 'node', textualHandlers[`${eleID}`]);
+	}
 }
 
 function toggle_node_importance(id, excludeWorksheet = -1) {
