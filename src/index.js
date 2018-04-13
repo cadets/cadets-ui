@@ -77,6 +77,8 @@ var inspecteeForwardStack = [];
 
 var highlightedIDs = [];
 
+var textualHandlers = {};
+
 var inspectFiles = false;
 var inspectSockets = false;
 var inspectPipes = false;
@@ -105,7 +107,7 @@ var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
 var worksheetChildCxtMenu = ({
 	menuRadius: 140,
 	separatorWidth: 5,
-	selector: 'node:childless',
+	selector: 'node[type != "textual"]:childless',
 	commands: [
 		{
 			content: 'Inspect',
@@ -182,6 +184,44 @@ var worksheetParentCxtMenu = ({
 	]
 });
 
+var worksheetTextualCxtMenu = ({
+	menuRadius: 140,
+	separatorWidth: 0,
+	selector: 'node.textual',
+	commands: [
+		{
+			content: `Toggle selection connections`,
+			select: function(ele){
+				let eleID = ele.data().id;
+				if(ele.data().connectionOn){
+					ele.removeClass('textualActive');
+					ele.data().connectionOn = false;
+					ele.cy().removeListener('tap', textualHandlers[`${eleID}`]);
+					textualHandlers[`${eleID}`] = null;
+				}
+				else{
+					ele.addClass('textualActive');
+					ele.data().connectionOn = true;
+					textualHandlers[`${eleID}`] = function(event){
+						let evtID = event.target.data().id;
+						if(evtID == eleID){return;}
+						if (!ele.allAreNeighbors(`#${evtID}`)){
+							neo4jQueries.createTextualEdge(eleID, evtID, function(edge){
+								graphingAPI.add_edge(edge, ele.cy());
+							});
+						}
+						else{
+							neo4jQueries.deleteTextualEdge(eleID, evtID);
+							ele.edgesWith(`#${evtID}`).remove();
+						}
+					};
+					ele.cy().on('tap', 'node', textualHandlers[`${eleID}`]);
+				}
+			}
+		},
+	]
+});
+
 var inspectorChildCxtMenu = ({
 		selector: 'node:childless',
 		commands: [
@@ -218,7 +258,7 @@ var inspectorChildCxtMenu = ({
 		]
 	});
 
-var worksheetCxtMenus = [worksheetChildCxtMenu, worksheetParentCxtMenu];
+var worksheetCxtMenus = [worksheetChildCxtMenu, worksheetParentCxtMenu, worksheetTextualCxtMenu];
 var inspectorCxtMenus = [inspectorChildCxtMenu];
 
 //Global variables end
@@ -450,6 +490,17 @@ function createWorksheet(){
 
 	document.getElementById(`reCose-Bilkent${index}`).onclick = function () {
 		graphingAPI.layout( worksheets[`${index}`].graph, 'cose-bilkent');
+	};
+
+	document.getElementById(`addTextual${index}`).onclick = function () {
+		neo4jQueries.createTextualNode(function(node){
+			graphingAPI.add_node(node, worksheets[`${index}`].graph);
+			//console.log(worksheets[`${index}`].graph.nodes());
+		})
+	};
+
+	document.getElementById(`saveTextual${index}`).onclick = function () {
+		neo4jQueries.deleteEmptyTextualNodes();
 	};
 	goldenLayoutHTML.incrementWorksheetCount();
 }

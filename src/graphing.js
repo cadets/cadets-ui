@@ -299,6 +299,12 @@ function load_graph_style(graphs) {
 				line-color: #633;
 				text-outline-color: #633; }
 
+			edge.describes {
+				target-arrow-color: #8c4a00;
+				mid-target-arrow-color: #8c4a00;
+				line-color: #8c4a00;
+				text-outline-color: #8c4a00; }
+
 			node {
 				content: data(label);
 				font-family: Inconsolata, Source Code Pro, Consolas, monospace;
@@ -318,15 +324,27 @@ function load_graph_style(graphs) {
 				background-position-x: 0;
 				background-position-y: 0; }
 
+			node:selected {
+				  overlay-color: #a80000;
+				  overlay-opacity: 0.5;
+				  overlay-padding: 5; }
+
+			node:active {
+				  overlay-color: #474747;
+				  overlay-opacity: 0.5;
+				  overlay-padding: 5; }
+
+			node.textual {
+				shape: octagon; }
+
+			node.textualActive {
+				background-color: #720d00; }
+
 			node.important {
 				overlay-color: #996b00;
 				overlay-padding: 64;
 				overlay-opacity: 0.50; }
-				node:selected {
-				overlay-color: #333;
-				overlay-padding: 10;
-				overlay-opacity: 0.25; }
-
+			
 			node.connection {
 				shape: rectangle;
 				background-image: ${connNeonNBG};
@@ -546,6 +564,12 @@ export function node_metadata(node) {
 			timestamp = node['timestamp'];
 			break;
 		case 'sock':
+			metadata = {
+				label: node['label'],
+			};
+			timestamp = node['timestamp'];
+			break;
+		case 'textual':
 			metadata = {
 				label: node['label'],
 			};

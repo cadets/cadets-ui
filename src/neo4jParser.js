@@ -26,6 +26,11 @@ export function parseNeo4jNode(o){
 		data.type = "machine";
 		data = concatDictionary( data, o['properties']);
 	} 
+	else if (labels.indexOf('Textual') > -1){
+		data.type = "textual";
+		data.connectionOn = false;
+		data = concatDictionary( data, o['properties']);
+	}
 	else if (labels.indexOf('Meta') > -1){
 		data.type = "process-meta";
 		data = concatDictionary( data, o['properties']);
@@ -93,7 +98,8 @@ export function parseNeo4jEdge(o){
 					'GLOB_OBJ_PREV': 'file-change',
 					'COMM': 'comm',
 					'comm': 'comm',
-					'INF': 'inf'};
+					'INF': 'inf',
+					'Describes': 'describes'};
 	let state;
 	let src;
 	let dst;
