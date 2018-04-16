@@ -61,7 +61,6 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 				y: graph.height() / 2,
 			};
 		}
-
 		// Have we already imported this node?
 		if (!graph.$id(data.id).empty()) {
 			return;

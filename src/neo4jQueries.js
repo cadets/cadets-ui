@@ -414,8 +414,10 @@ export function get_neighbours_id_batch(ids,
 // }
 
 export function get_all_edges_batch(ids, fn){
+	let queryID = `[${ids}]`;
+	if(typeof ids[0] !== 'string'){queryID = JSON.stringify(ids);}
 	let session = driver.session();
-	session.run(`MATCH (a)-[e]-() WHERE id(a) IN ${JSON.stringify(ids)} RETURN DISTINCT e`)
+	session.run(`MATCH (a)-[e]-() WHERE id(a) IN ${queryID} RETURN DISTINCT e`)
 	.then(result => {
 		session.close();
 		let edges = [];
@@ -423,7 +425,7 @@ export function get_all_edges_batch(ids, fn){
 		{
 			edges = edges.concat(neo4jParser.parseNeo4jEdge(record.get('e')));
 		});
-		getMachineSocketConnections(ids, function(elements){
+		getMachineSocketConnections(queryID, function(elements){
 			fn(edges.concat(elements.edges));
 		});
 		}, function(error) {
@@ -437,7 +439,7 @@ function getMachineSocketConnections(ids, fn){
 				WHERE 
 				mch.external
 				AND 
-				id(skt) IN ${JSON.stringify(ids)}
+				id(skt) IN ${ids}
 				AND 
 				split(skt.name[0], ":")[0] in mch.ips
 				RETURN skt, mch
@@ -446,7 +448,7 @@ function getMachineSocketConnections(ids, fn){
 				WHERE 
 				mch.external
 				AND 
-				id(mch) IN ${JSON.stringify(ids)}
+				id(mch) IN ${ids}
 				AND
 				split(skt.name[0], ":")[0] in mch.ips
 				RETURN DISTINCT skt, mch`)
@@ -469,7 +471,7 @@ function getMachineSocketConnections(ids, fn){
 		fn({'nodes': neighbour_nodes,
 			'edges': neighbour_edges});
 	}, function(error) {
-		neo4jError(error, session, "get_neighbours_id");
+		neo4jError(error, session, "getMachineSocketConnections");
 	});
 }
 
@@ -747,6 +749,21 @@ export function createTextualNode(fn){
 	});
 }
 
+export function getTextualNodes(fn){
+	let nodes = [];
+	let session = driver.session();
+	session.run(`Match (n:Textual)
+				RETURN n`)
+	.then(result => {
+		result.records.forEach(function(record){
+			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
+		})
+		fn(nodes);
+	}, function(error) {
+		neo4jError(error, session, "getTextualNodes");
+	});
+}
+
 export function getTextualNodeTitleDes(id, fn){
 	let session = driver.session();
 	session.run(`Match (n:Textual)
@@ -822,6 +839,7 @@ const neo4jQueries ={
 	get_detail_id,
 	get_nodes,
 	getTypeLabels,
+	getTextualNodes,
 	createTextualNode,
 	setTextualNodeTitleDes,
 	createTextualEdge,

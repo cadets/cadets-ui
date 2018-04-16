@@ -69,6 +69,7 @@ var currMouseY = 0;
 
 var inspector;
 var worksheets = [];
+var reportGenGraph;
 
 var selectedWorksheet = 0;
 
@@ -360,6 +361,7 @@ workSheetLayout.on('initialised', function(){
 	if(document.getElementById(`worksheetGraph${getWorksheetCount()}`) != null){
 		createWorksheet();
 	}
+	reportGenGraph = graphingAPI.create(`reportGenGraph`);
 
 	document.getElementById(`toggleNodeSearchsheet`).onclick = function () {
 		if(document.getElementById("NodeSearchsheet") != null){
@@ -372,6 +374,19 @@ workSheetLayout.on('initialised', function(){
 			goldenLayoutHTML.addNodeSearchsheet(workSheetLayout);
 			connectNodeListAccordion();
 			update_nodelist();
+		}
+	};
+
+	document.getElementById(`saveTextualReport`).onclick = function () {
+		let x = document.getElementById("reportGenMenu");
+		let y = document.getElementById("worksheetPage");
+		if (x.style.display === "none") {
+			x.style.display = "block";
+			y.style.display = "none";
+			openSaveTextualMenu();
+		} else {
+			x.style.display = "none";
+			y.style.display = "block";
 		}
 	};
 
@@ -812,14 +827,14 @@ function connectNodeListAccordion(){
 	let acc = document.getElementsByClassName("formBoxAccordion");
 
 	for (let i = 0; i < acc.length; i++) {
-	    acc[i].addEventListener("click", function() {
-	        var panel = this.nextElementSibling;
-	        if (panel.style.display === "block") {
-	            panel.style.display = "none";
-	        } else {
-	            panel.style.display = "block";
-	        }
-	    });
+		acc[i].addEventListener("click", function() {
+			var panel = this.nextElementSibling;
+			if (panel.style.display === "block") {
+				panel.style.display = "none";
+			} else {
+				panel.style.display = "block";
+			}
+		});
 	}
 }
 
@@ -1017,9 +1032,27 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 							<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 							<button type="button" class="headerButton" id="toggleNodeSearchsheet">Close NodeSearchsheet</button>
+							<button type="button" class="headerButton" id="saveTextualReport">Save Textual Report</button>
 							<div class="dropdown" id="optionsForm"></div>
 						</div>
-						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>`;
+						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>
+						<div class="row content notScrollable hide" style="padding: 0.5%;position:relative;" id="reportGenMenu">
+							<div class="scrollable" style="width:20%;height:100%;position:absolute;">
+								<table class="table">
+									<tbody id="textualList"></tbody>
+								</table>
+							</div>
+							<div class="scrollable" style="width:80%;height:100%;left:20%;position:absolute;">
+								<label for="reportTitle">Title:</label><br>
+								<input id="reportTitle" class="darkTextBox leftPadding" value=""></input><br><br>
+								<label for="reportGenGraph">Graph:</label><br>
+								<div id="reportGenGraph" style="width:100%;height:75%;background-color:#222222;"></div><br>
+								<label for="reportDescription">Description:</label><br>
+								<textarea id="reportDescription" class="darkTextBox leftPadding" rows="4" cols="50"></textarea><br><br>
+								<button type="button" class="headerButton" id="saveToNode">Save To Node</button>
+								<button type="button" class="headerButton" id="addToReport">Add to Report</button><br><br>
+							</div>
+						</div>`;
 	return element;
 }
 
@@ -1144,6 +1177,40 @@ function setRefreshGraphOnElementShow(watchElement, graph){
 	observer.observe(targetNode,  { attributes: true, childList: true });
 }
 
+function openSaveTextualMenu(){
+	refreshGraph(reportGenGraph);
+	$('#textualList').empty();
+	neo4jQueries.getTextualNodes(function(nodes){
+		for (let node of nodes) {
+
+			let meta = graphingAPI.node_metadata(node);
+			let row = document.getElementById('textualList').insertRow(0);
+			row.onclick = (function() {
+				neo4jQueries.get_neighbours_id(node.id, function(neighbours){
+					reportGenGraph.remove('node');
+					reportGenGraph.inspectee = node.id;
+					graphingAPI.add_node_batch(neighbours.nodes.concat(neighbours.focusNode), reportGenGraph);
+					neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
+						graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
+					});
+					neo4jQueries.getTextualNodeTitleDes(node.id, function(result){
+						document.getElementById('reportTitle').value = result.title;
+						document.getElementById('reportDescription').innerHTML = result.description;
+					})
+				});
+			});
+			let cell = row.insertCell(0);
+			cell.innerHTML = (`<td><a>${meta.label}</a></td>`);
+		}
+		console.log(reportGenGraph);
+		document.getElementById('saveToNode').onclick = function(){
+			neo4jQueries.setTextualNodeTitleDes(reportGenGraph.inspectee, 
+									document.getElementById('reportTitle').value, 
+									document.getElementById('reportDescription').innerHTML);
+		};
+	});
+}
+
 function openTextualMenu(ele){
 	if(document.getElementById(`textualDropdown${ele.data().id}`) != null){
 		return;
@@ -1173,6 +1240,11 @@ function openTextualMenu(ele){
 			title = document.getElementById('editTitle').value;
 			description = document.getElementById('editDescription').value;
 			neo4jQueries.setTextualNodeTitleDes(ele.data().id, title, description);
+			for(let worksheet of worksheets){
+				worksheet.graph.$id(ele.data().id).data('label', title);
+			}
+			inspector.graph.$id(ele.data().id).data('label', title);
+
 			textualMenu.remove();
 		});
 		textualMenu.appendChild(textualSubmit);
