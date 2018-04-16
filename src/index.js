@@ -1145,11 +1145,13 @@ function setRefreshGraphOnElementShow(watchElement, graph){
 }
 
 function openTextualMenu(ele){
-	if_DOM_IDExsitsRemove("textualDropdown");
+	if(document.getElementById(`textualDropdown${ele.data().id}`) != null){
+		return;
+	}
 	let textualMenu = document.createElement('div');
 	textualMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
 	textualMenu.className = 'absolute';
-	textualMenu.id = 'textualDropdown';
+	textualMenu.id = `textualDropdown${ele.data().id}`;
 	
 	neo4jQueries.getTextualNodeTitleDes(ele.data().id, function(result){
 		let title = result.title;
@@ -1170,10 +1172,31 @@ function openTextualMenu(ele){
 		textualSubmit.onclick = (function(){
 			title = document.getElementById('editTitle').value;
 			description = document.getElementById('editDescription').value;
-			neo4jQueries.setTextualNodeTitleDes(ele.data().id, title, description)
+			neo4jQueries.setTextualNodeTitleDes(ele.data().id, title, description);
 			textualMenu.remove();
 		});
 		textualMenu.appendChild(textualSubmit);
+
+		let textualCancel = document.createElement('button');
+		textualCancel.className = 'headerButton';
+		textualCancel.innerHTML = 'Close';
+		textualCancel.onclick = (function(){
+			if(title != document.getElementById('editTitle').value ||
+				description != document.getElementById('editDescription').value){
+				vex.dialog.confirm({
+					message: 'Changes have been made. Are you sure you wish to discard them?',
+    				className: 'vex-theme-wireframe',
+					callback: function (value) {
+						if(!value){return;}
+						textualMenu.remove();
+					}
+				})
+			}
+			else{
+				textualMenu.remove();
+			}
+		});
+		textualMenu.appendChild(textualCancel);
 
 		document.body.appendChild(textualMenu);
 	});
@@ -1241,7 +1264,10 @@ function updateInspectTargets(files, scokets, pipes, meta){
 	inspectProcessMeta = meta;
 }
 
-function if_DOM_IDExsitsRemove(id){
+function if_DOM_IDExsitsRemove(id, fn=null){
+	if(fn != null){
+		fn(document.getElementById(id) != null);
+	}
 	if(document.getElementById(id) != null){
 		document.getElementById(id).remove();
 	}
