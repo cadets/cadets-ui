@@ -454,6 +454,18 @@ workSheetLayout.on(`NodeSearchsheetContainerCreated`, function(){
 
 //NodeSearchsheet Events end
 
+//ReportGen Events
+
+document.getElementById(`reportDagre`).onclick = function () {
+	graphingAPI.layout( reportGenGraph, 'dagre');
+};
+
+document.getElementById(`reportCose`).onclick = function () {
+	graphingAPI.layout( reportGenGraph, 'cose-bilkent');
+};
+
+//ReportGen Events end
+
 //Popout Events 
 
 workSheetLayout.on('windowOpened', function( id ){
@@ -1047,7 +1059,13 @@ function htmlBody() {
 								<label for="reportTitle">Title:</label><br>
 								<input id="reportTitle" class="darkTextBox leftPadding" value=""></input><br><br>
 								<label for="reportGenGraph">Graph:</label><br>
-								<div id="reportGenGraph" style="width:100%;height:75%;background-color:#222222;"></div><br>
+								<div style="width:100%;height:75%;background-color:#222222;position:relative;">
+									<div id="reportGenGraph" class="sheet"></div>
+									<div class="bottomOptions">
+										<button type="button" class="headerButton" id="reportDagre">Dagre</button>
+										<button type="button" class="headerButton" id="reportCose">Cose</button>
+									</div>	
+								</div><br>
 								<label for="reportDescription">Description:</label><br>
 								<textarea id="reportDescription" class="darkTextBox leftPadding" rows="4" cols="50"></textarea><br><br>
 								<button type="button" class="headerButton" id="saveToNode">Save To Node</button>
