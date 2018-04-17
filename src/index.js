@@ -387,6 +387,7 @@ workSheetLayout.on('initialised', function(){
 		} else {
 			x.style.display = "none";
 			y.style.display = "block";
+			workSheetLayout.updateSize();
 		}
 	};
 
@@ -1037,7 +1038,7 @@ function htmlBody() {
 						</div>
 						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>
 						<div class="row content notScrollable hide" style="padding: 0.5%;position:relative;" id="reportGenMenu">
-							<div class="scrollable" style="width:20%;height:100%;position:absolute;">
+							<div class="scrollable" style="width:18%;height:100%;position:absolute;background-color:#222222;">
 								<table class="table">
 									<tbody id="textualList"></tbody>
 								</table>
@@ -1179,6 +1180,8 @@ function setRefreshGraphOnElementShow(watchElement, graph){
 
 function openSaveTextualMenu(){
 	refreshGraph(reportGenGraph);
+	let title = null;
+	let description = null;
 	$('#textualList').empty();
 	neo4jQueries.getTextualNodes(function(nodes){
 		for (let node of nodes) {
@@ -1186,27 +1189,55 @@ function openSaveTextualMenu(){
 			let meta = graphingAPI.node_metadata(node);
 			let row = document.getElementById('textualList').insertRow(0);
 			row.onclick = (function() {
-				neo4jQueries.get_neighbours_id(node.id, function(neighbours){
-					reportGenGraph.remove('node');
-					reportGenGraph.inspectee = node.id;
-					graphingAPI.add_node_batch(neighbours.nodes.concat(neighbours.focusNode), reportGenGraph);
-					neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
-						graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
+				if(title != null && description != null && 
+					(title != document.getElementById('reportTitle').value ||
+						description != document.getElementById('reportDescription').value)){
+					vex.dialog.confirm({
+						message: 'Changes have been made. Are you sure you wish to discard them?',
+	    				className: 'vex-theme-wireframe',
+						callback: function (value) {
+							if(!value){return;}
+							neo4jQueries.get_neighbours_id(node.id, function(neighbours){
+								reportGenGraph.remove('node');
+								reportGenGraph.inspectee = node.id;
+								graphingAPI.add_node_batch(neighbours.nodes.concat(neighbours.focusNode), reportGenGraph);
+								neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
+									graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
+								});
+								neo4jQueries.getTextualNodeTitleDes(node.id, function(result){
+									title = result.title;
+									description = result.description;
+									document.getElementById('reportTitle').value = result.title;
+									$('#reportDescription').val(result.description);
+								})
+							});
+						}
 					});
-					neo4jQueries.getTextualNodeTitleDes(node.id, function(result){
-						document.getElementById('reportTitle').value = result.title;
-						document.getElementById('reportDescription').innerHTML = result.description;
-					})
-				});
+				}
+				else{
+					neo4jQueries.get_neighbours_id(node.id, function(neighbours){
+						reportGenGraph.remove('node');
+						reportGenGraph.inspectee = node.id;
+						graphingAPI.add_node_batch(neighbours.nodes.concat(neighbours.focusNode), reportGenGraph);
+						neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
+							graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
+						});
+						neo4jQueries.getTextualNodeTitleDes(node.id, function(result){
+							title = result.title;
+							description = result.description;
+							document.getElementById('reportTitle').value = result.title;
+							$('#reportDescription').val(result.description);
+						})
+					});
+				}
 			});
 			let cell = row.insertCell(0);
 			cell.innerHTML = (`<td><a>${meta.label}</a></td>`);
 		}
-		console.log(reportGenGraph);
 		document.getElementById('saveToNode').onclick = function(){
 			neo4jQueries.setTextualNodeTitleDes(reportGenGraph.inspectee, 
 									document.getElementById('reportTitle').value, 
-									document.getElementById('reportDescription').innerHTML);
+									document.getElementById('reportDescription').value);
 		};
 	});
 }
@@ -1262,7 +1293,7 @@ function openTextualMenu(ele){
 						if(!value){return;}
 						textualMenu.remove();
 					}
-				})
+				});
 			}
 			else{
 				textualMenu.remove();
