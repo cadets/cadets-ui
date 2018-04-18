@@ -434,7 +434,7 @@ workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
 
 workSheetLayout.on(`itemDestroyed`, function(item){
 	if(item.componentName == "Worksheet"){
-		delete worksheets[`${item.container.worksheetID}`];
+		worksheets.splice(worksheets.indexOf(worksheets[`${item.container.worksheetID}`]), 1);
 	}
 });
 
@@ -1268,16 +1268,13 @@ function openSaveTextualMenu(){
 		let nodes = reportGenGraph.nodes();
 		nodes.forEach(function(node){
 			let data = node.data();
-			if(data.type != 'textual'){
-				let keys = Object.keys(data);
-				let table = 
-				`\n\n.${data.label} #${data.id}\n|===\n|property |value\n\n`;
-				keys.forEach(function(key){
-					table += `|${key}\n|${data[key]}\n\n`;
-				})
-				table += `|===`;
-				string += table;
-			}
+			let keys = Object.keys(data);
+			let table = `\n\n.${data.label} #${data.id}\n|===\n|property |value\n\n`;
+			keys.forEach(function(key){
+				table += `|${key}\n|${data[key]}\n\n`;
+			})
+			table += `|===`;
+			string += table;
 		})
 		let blob = new Blob([ string ]);
 		let a = document.createElement('a');
@@ -1323,6 +1320,7 @@ function openTextualMenu(ele){
 			title = document.getElementById('editTitle').value;
 			description = document.getElementById('editDescription').value;
 			neo4jQueries.setTextualNodeTitleDes(ele.data().id, title, description);
+			console.log(worksheets);
 			for(let worksheet of worksheets){
 				worksheet.graph.$id(ele.data().id).data('label', title);
 			}
