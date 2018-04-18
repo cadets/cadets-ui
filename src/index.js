@@ -436,7 +436,6 @@ workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
 workSheetLayout.on(`itemDestroyed`, function(item){
 	if(item.componentName == "Worksheet"){
 		worksheets.splice(worksheets.indexOf(worksheets[`${item.container.worksheetID}`]), 1);
-	console.log(worksheets);
 	}
 });
 
@@ -624,7 +623,6 @@ function remove_neighbours_from_worksheet(id) {
 function toggleSection(ele){
 	let eleID = ele.data().id;
 	if(ele.data().connectionOn){
-		console.log(ele);
 		ele.removeClass('textualActive');
 		ele.data().connectionOn = false;
 		ele.cy().removeListener('tap', textualHandlers[`${eleID}`]);
@@ -1255,7 +1253,6 @@ function openSaveTextualMenu(){
 								document.getElementById('reportDescription').value,
 								function(){
 									rowReportSelected.row.innerHTML = (`<td><a>${newTitle}</a></td>`);
-									console.log(rowReportSelected.innerHTML);
 									inspector.graph.$id(`${reportGenGraph.inspectee}`).data('label', newTitle);
 									reportGenGraph.$id(`${reportGenGraph.inspectee}`).data('label', newTitle);
 									update_nodelist();
@@ -1341,7 +1338,6 @@ function openTextualMenu(ele){
 			title = document.getElementById('editTitle').value;
 			description = document.getElementById('editDescription').value;
 			neo4jQueries.setTextualNodeTitleDes(ele.data().id, title, description);
-			console.log(worksheets);
 			for(let worksheet of worksheets){
 				worksheet.graph.$id(ele.data().id).data('label', title);
 			}
