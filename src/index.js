@@ -377,14 +377,16 @@ workSheetLayout.on('initialised', function(){
 		}
 	};
 
-	document.getElementById(`saveTextualReport`).onclick = function () {
+	document.getElementById(`toggleTextualReport`).onclick = function () {
 		let x = document.getElementById("reportGenMenu");
 		let y = document.getElementById("worksheetPage");
 		if (x.style.display === "none") {
+			document.getElementById("toggleTextualReport").innerHTML = 'Close Textual Report Saver';
 			x.style.display = "block";
 			y.style.display = "none";
 			openSaveTextualMenu();
 		} else {
+			document.getElementById("toggleTextualReport").innerHTML = 'Open Textual Report Saver';
 			x.style.display = "none";
 			y.style.display = "block";
 			workSheetLayout.updateSize();
@@ -1045,7 +1047,7 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 							<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 							<button type="button" class="headerButton" id="toggleNodeSearchsheet">Close NodeSearchsheet</button>
-							<button type="button" class="headerButton" id="saveTextualReport">Save Textual Report</button>
+							<button type="button" class="headerButton" id="toggleTextualReport">Open Textual Report Saver</button>
 							<div class="dropdown" id="optionsForm"></div>
 						</div>
 						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>
@@ -1068,8 +1070,8 @@ function htmlBody() {
 								</div><br>
 								<label for="reportDescription">Description:</label><br>
 								<textarea id="reportDescription" class="darkTextBox leftPadding" rows="4" cols="50"></textarea><br><br>
-								<button type="button" class="headerButton" id="saveToNode">Save To Node</button>
-								<button type="button" class="headerButton" id="addToReport">Add to Report</button><br><br>
+								<button type="button" class="headerButton" id="saveToNode">Update Textual Node to db</button>
+								<button type="button" class="headerButton" id="saveReport">Save Report</button><br><br>
 							</div>
 						</div>`;
 	return element;
@@ -1258,6 +1260,38 @@ function openSaveTextualMenu(){
 									document.getElementById('reportDescription').value);
 		};
 	});
+	document.getElementById('saveReport').onclick = function(){
+		let report = {'title':document.getElementById('reportTitle').value, 
+					'png': reportGenGraph.png(),
+					'description':document.getElementById('reportDescription').value};
+		let string = '## Title:\n' + report.title + '\n\n## Description:\n' + report.description;
+		let nodes = reportGenGraph.nodes();
+		nodes.forEach(function(node){
+			let data = node.data();
+			if(data.type != 'textual'){
+				let keys = Object.keys(data);
+				let table = 
+				`\n\n.${data.label} #${data.id}\n|===\n|property |value\n\n`;
+				keys.forEach(function(key){
+					table += `|${key}\n|${data[key]}\n\n`;
+				})
+				table += `|===`;
+				string += table;
+			}
+		})
+		let blob = new Blob([ string ]);
+		let a = document.createElement('a');
+
+		a.download = report.title + `.adoc`;
+		a.href= window.URL.createObjectURL(blob);
+
+		a.click();
+
+		a.download = report.title + `.png`;
+		a.href= report.png;
+
+		a.click();
+	};
 }
 
 function openTextualMenu(ele){
