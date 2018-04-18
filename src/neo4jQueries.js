@@ -5,6 +5,7 @@ import moment from './../node_modules/moment/moment.js';
 import './../node_modules/vex-js/dist/css/vex.css';
 import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
 
+var utilFunc = require('./utilFunc.js');
 var neo4jParser = require('./neo4jParser.js');
 var neo4j = require('./../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js').v1;
 var driver = null;
@@ -138,7 +139,7 @@ export function get_neighbours_id_batch(ids,
 										limit=-1,
 										startID = 0,
 										countOnly=false){
-	let matchers = ["Machine", "Process", "Conn"];
+	let matchers = ["Machine", "Process", "Conn", "Textual"];
 	if (files){
 		matchers = matchers.concat(['File', 'EditSession']);
 	}
@@ -413,8 +414,10 @@ export function get_neighbours_id_batch(ids,
 // }
 
 export function get_all_edges_batch(ids, fn){
+	let queryID = `[${ids}]`;
+	if(typeof ids[0] !== 'string'){queryID = JSON.stringify(ids);}
 	let session = driver.session();
-	session.run(`MATCH (a)-[e]-() WHERE id(a) IN ${JSON.stringify(ids)} RETURN DISTINCT e`)
+	session.run(`MATCH (a)-[e]-() WHERE id(a) IN ${queryID} RETURN DISTINCT e`)
 	.then(result => {
 		session.close();
 		let edges = [];
@@ -422,7 +425,7 @@ export function get_all_edges_batch(ids, fn){
 		{
 			edges = edges.concat(neo4jParser.parseNeo4jEdge(record.get('e')));
 		});
-		getMachineSocketConnections(ids, function(elements){
+		getMachineSocketConnections(queryID, function(elements){
 			fn(edges.concat(elements.edges));
 		});
 		}, function(error) {
@@ -436,7 +439,7 @@ function getMachineSocketConnections(ids, fn){
 				WHERE 
 				mch.external
 				AND 
-				id(skt) IN ${JSON.stringify(ids)}
+				id(skt) IN ${ids}
 				AND 
 				split(skt.name[0], ":")[0] in mch.ips
 				RETURN skt, mch
@@ -445,7 +448,7 @@ function getMachineSocketConnections(ids, fn){
 				WHERE 
 				mch.external
 				AND 
-				id(mch) IN ${JSON.stringify(ids)}
+				id(mch) IN ${ids}
 				AND
 				split(skt.name[0], ":")[0] in mch.ips
 				RETURN DISTINCT skt, mch`)
@@ -468,7 +471,7 @@ function getMachineSocketConnections(ids, fn){
 		fn({'nodes': neighbour_nodes,
 			'edges': neighbour_edges});
 	}, function(error) {
-		neo4jError(error, session, "get_neighbours_id");
+		neo4jError(error, session, "getMachineSocketConnections");
 	});
 }
 
@@ -514,6 +517,9 @@ export function get_nodes(node_type=null,
 				startID = 0,
 				countOnly = false,
 				fn){
+	if(!utilFunc.testIfNumber(fileNum)){
+		fileNum = 0;
+	}
 	let lab;
 	let node_labels = {'pipe-endpoint': 'Pipe',
 					'socket-version': 'Socket',
@@ -523,7 +529,8 @@ export function get_nodes(node_type=null,
 					'connection': 'Conn',
 					'file-version': 'File',
 					'global-only': 'Global',
-					'edit-session': 'EditSession'};
+					'edit-session': 'EditSession',
+					'textual': 'Textual'};
 	let labelQuery;
 	if  (!(node_type in node_labels)){
 		lab = "Null";
@@ -732,6 +739,90 @@ export function getTypeLabels(fn){
 	});
 }
 
+export function createTextualNode(fn){
+	let session = driver.session();
+	session.run(`CREATE (n:Textual) RETURN n`)
+	.then(result => {
+		fn(neo4jParser.parseNeo4jNode(result.records[0].get('n')));
+	}, function(error) {
+		neo4jError(error, session, "createTextualNode");
+	});
+}
+
+export function getTextualNodes(fn){
+	let nodes = [];
+	let session = driver.session();
+	session.run(`Match (n:Textual)
+				RETURN n`)
+	.then(result => {
+		result.records.forEach(function(record){
+			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
+		})
+		fn(nodes);
+	}, function(error) {
+		neo4jError(error, session, "getTextualNodes");
+	});
+}
+
+export function getTextualNodeTitleDes(id, fn){
+	let session = driver.session();
+	session.run(`Match (n:Textual)
+				WHERE id(n) = ${id}
+				RETURN n.title AS title, n.description as description`)
+	.then(result => {
+		fn({'title':result.records[0].get('title'),
+			'description': result.records[0].get('description')});
+	}, function(error) {
+		neo4jError(error, session, "setTextualNodeTitleDes");
+	});
+}
+
+export function setTextualNodeTitleDes(id, title, description, fn=null){
+	let session = driver.session();
+	session.run(`Match (n:Textual)
+				WHERE id(n) = ${id}
+				SET n.title = ${JSON.stringify(title)}
+				SET n.description = ${JSON.stringify(description)}`)
+	.then(result => {
+		if(fn!=null){fn();}
+	}, function(error) {
+		neo4jError(error, session, "setTextualNodeTitleDes");
+	});
+}
+
+export function createTextualEdge(sourceID, targetID, fn){
+	let session = driver.session();
+	session.run(`MATCH (s:Textual), (t) 
+				WHERE id(s) = ${sourceID} AND id(t) = ${targetID}
+				CREATE (s)<-[e:Describes]-(t)
+				RETURN e`)
+	.then(result => {
+		fn(neo4jParser.parseNeo4jEdge(result.records[0].get('e')));
+	}, function(error) {
+		neo4jError(error, session, "createTextualEdge");
+	});
+}
+
+export function deleteTextualEdge(sourceID, targetID){
+	let session = driver.session();
+	session.run(`MATCH (s:Textual)-[e:Describes]-(t) 
+				WHERE id(s) = ${sourceID} AND id(t) = ${targetID}
+				DELETE (e)`)
+	.then(result => {
+	}, function(error) {
+		neo4jError(error, session, "deleteTextualEdge");
+	});
+}
+
+export function deleteEmptyTextualNodes(){
+	let session = driver.session();
+	session.run(`Match (n:Textual) DETACH DELETE n`)
+	.then(result => {
+	}, function(error) {
+		neo4jError(error, session, "deleteEmptyTextualNodes");
+	});
+}
+
 function neo4jError(error, session, funcName){
 	session.close();
 	console.log(`Error reported from ${funcName}() in neo4jQueries.js`);
@@ -749,6 +840,11 @@ const neo4jQueries ={
 	get_detail_id,
 	get_nodes,
 	getTypeLabels,
+	getTextualNodes,
+	createTextualNode,
+	setTextualNodeTitleDes,
+	createTextualEdge,
+	deleteEmptyTextualNodes,
 }
 
 export default neo4jQueries;

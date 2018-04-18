@@ -7,7 +7,6 @@ import moment from './../node_modules/moment/moment.js';
 import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.js';
 import events from './../node_modules/events/events.js';
 
-//import './../node_modules/hashids/dist/hashids.min.js';
 import dagre from './../node_modules/cytoscape-dagre/cytoscape-dagre.js';
 import cose_bilkent from './../node_modules/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js';
 
@@ -17,6 +16,7 @@ import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-base.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
 
+var utilFunc = require('./utilFunc.js');
 var graphingAPI = require('./graphing.js');
 var neo4jQueries = require('./neo4jQueries.js');
 var goldenLayoutHTML = require('./goldenLayoutHTML.js');
@@ -27,7 +27,7 @@ cytoscape.use( dagre );
 cytoscape.use( cose_bilkent );
 
 //Build Html document
-const GUI_VERSION = 'v0.5.0-release';
+const GUI_VERSION = 'v0.6.0-dev';
 let PVM_VERSION = '';
 
 let element = htmlBody();
@@ -69,13 +69,17 @@ var currMouseY = 0;
 
 var inspector;
 var worksheets = [];
+var reportGenGraph;
 
 var selectedWorksheet = 0;
+var rowReportSelected = null;
 
 var inspecteeBackStack = [];
 var inspecteeForwardStack = [];
 
 var highlightedIDs = [];
+
+var textualHandlers = {};
 
 var inspectFiles = false;
 var inspectSockets = false;
@@ -105,7 +109,7 @@ var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
 var worksheetChildCxtMenu = ({
 	menuRadius: 140,
 	separatorWidth: 5,
-	selector: 'node:childless',
+	selector: 'node[type != "textual"]:childless',
 	commands: [
 		{
 			content: 'Inspect',
@@ -182,6 +186,86 @@ var worksheetParentCxtMenu = ({
 	]
 });
 
+var worksheetTextualCxtMenu = ({
+	menuRadius: 140,
+	separatorWidth: 5,
+	selector: 'node.textual',
+	commands: [
+		{
+			content: 'Inspect',
+			select: function(ele){
+				inspectAsync(ele.data('id'));
+			}
+		},
+		{
+			content: 'Import neighbours',
+			select: function(ele){
+				openSubMenu(function(){
+					import_neighbours_into_worksheet(ele.data('id'));
+				});
+			}
+		},
+		{
+			content: 'Highlight',
+			select: function(ele){
+				toggle_node_importance(ele.data("id"));
+			}
+		},
+		{
+			content: `Toggle selection connections`,
+			select: function(ele){
+				let eleID = ele.data().id;
+				if(ele.data().connectionOn){
+					ele.removeClass('textualActive');
+					ele.data().connectionOn = false;
+					ele.cy().removeListener('tap', textualHandlers[`${eleID}`]);
+					textualHandlers[`${eleID}`] = null;
+				}
+				else{
+					ele.addClass('textualActive');
+					ele.data().connectionOn = true;
+					textualHandlers[`${eleID}`] = function(event){
+						let evtID = event.target.data().id;
+						if(evtID == eleID){return;}
+						if (!ele.allAreNeighbors(`#${evtID}`)){
+							neo4jQueries.createTextualEdge(eleID, evtID, function(edge){
+								graphingAPI.add_edge(edge, ele.cy());
+							});
+						}
+						else{
+							neo4jQueries.deleteTextualEdge(eleID, evtID);
+							ele.edgesWith(`#${evtID}`).remove();
+						}
+					};
+					ele.cy().on('tap', 'node', textualHandlers[`${eleID}`]);
+				}
+			}
+		},
+		{
+			content: 'Edit Details',
+			select: function(ele){
+				openTextualMenu(ele);
+			}
+		},
+		{
+			content: 'Remove neighbours',
+			select: function(ele){
+				openSubMenu(function(){
+					remove_neighbours_from_worksheet(ele.data("id"));
+				}, false, true);
+			}
+		},
+		{
+			content: 'Remove',
+			select: function(ele){
+				openSubMenu(function(){
+					removeNode(ele);
+				}, false, true);
+			}
+		},
+	]
+});
+
 var inspectorChildCxtMenu = ({
 		selector: 'node:childless',
 		commands: [
@@ -218,7 +302,7 @@ var inspectorChildCxtMenu = ({
 		]
 	});
 
-var worksheetCxtMenus = [worksheetChildCxtMenu, worksheetParentCxtMenu];
+var worksheetCxtMenus = [worksheetChildCxtMenu, worksheetParentCxtMenu, worksheetTextualCxtMenu];
 var inspectorCxtMenus = [inspectorChildCxtMenu];
 
 //Global variables end
@@ -278,6 +362,7 @@ workSheetLayout.on('initialised', function(){
 	if(document.getElementById(`worksheetGraph${getWorksheetCount()}`) != null){
 		createWorksheet();
 	}
+	reportGenGraph = graphingAPI.create(`reportGenGraph`);
 
 	document.getElementById(`toggleNodeSearchsheet`).onclick = function () {
 		if(document.getElementById("NodeSearchsheet") != null){
@@ -290,6 +375,22 @@ workSheetLayout.on('initialised', function(){
 			goldenLayoutHTML.addNodeSearchsheet(workSheetLayout);
 			connectNodeListAccordion();
 			update_nodelist();
+		}
+	};
+
+	document.getElementById(`toggleTextualReport`).onclick = function () {
+		let x = document.getElementById("reportGenMenu");
+		let y = document.getElementById("worksheetPage");
+		if (x.style.display === "none") {
+			document.getElementById("toggleTextualReport").innerHTML = 'Close Textual Report Saver';
+			x.style.display = "block";
+			y.style.display = "none";
+			openSaveTextualMenu();
+		} else {
+			document.getElementById("toggleTextualReport").innerHTML = 'Open Textual Report Saver';
+			x.style.display = "none";
+			y.style.display = "block";
+			workSheetLayout.updateSize();
 		}
 	};
 
@@ -306,6 +407,7 @@ workSheetLayout.on('initialised', function(){
 workSheetLayout.on('stackCreated', function(stack) {
 			stack.on('activeContentItemChanged', function(contentItem) {
 				contentItem.parent.header.controlsContainer.find('.lm_popout').hide();
+				contentItem.parent.header.controlsContainer.find('.lm_maximise').hide();
 			}
 		);
 	}
@@ -333,7 +435,8 @@ workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
 
 workSheetLayout.on(`itemDestroyed`, function(item){
 	if(item.componentName == "Worksheet"){
-		delete worksheets[`${item.container.worksheetID}`];
+		worksheets.splice(worksheets.indexOf(worksheets[`${item.container.worksheetID}`]), 1);
+	console.log(worksheets);
 	}
 });
 
@@ -354,6 +457,18 @@ workSheetLayout.on(`NodeSearchsheetContainerCreated`, function(){
 });
 
 //NodeSearchsheet Events end
+
+//ReportGen Events
+
+document.getElementById(`reportDagre`).onclick = function () {
+	graphingAPI.layout( reportGenGraph, 'dagre');
+};
+
+document.getElementById(`reportCose`).onclick = function () {
+	graphingAPI.layout( reportGenGraph, 'cose-bilkent');
+};
+
+//ReportGen Events end
 
 //Popout Events 
 
@@ -420,7 +535,7 @@ function createWorksheet(){
 	worksheets[`${index}`] = { graph: worksheetGraph, id: index};
 
 	worksheetContainer[index].on('resize', function(){
-		refreshGraph(worksheets[`${index}`].graph);
+		refreshGraph(worksheetGraph);
 	})
 
 	setWorksheetCxtMenu(index);
@@ -450,15 +565,35 @@ function createWorksheet(){
 	document.getElementById(`reCose-Bilkent${index}`).onclick = function () {
 		graphingAPI.layout( worksheets[`${index}`].graph, 'cose-bilkent');
 	};
+
+	document.getElementById(`addTextual${index}`).onclick = function () {
+		neo4jQueries.createTextualNode(function(node){
+			graphingAPI.add_node(node, worksheets[`${index}`].graph);
+			if($('#filterNodeType').val() == 'textual'){
+				update_nodelist();
+			}
+		})
+	};
+
+	// document.getElementById(`saveTextual${index}`).onclick = function () {
+	// 	vex.dialog.confirm({
+	// 		message: 'WARNING this action will delete all textual nodes in database.',
+	// 		className: 'vex-theme-wireframe',
+	// 		callback: function (value) {
+	// 			if(!value){return;}
+	// 			neo4jQueries.deleteEmptyTextualNodes();
+	// 		}
+	// 	});
+	// };
 	goldenLayoutHTML.incrementWorksheetCount();
 }
 
 function addNewWorksheet(){
 	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
-		const index = getWorksheetCount() -1;
+		const graph = worksheets[`${getWorksheetCount() -1}`].graph;
 		let temp = workSheetLayout.root.contentItems[ 0 ].contentItems;
 		temp[ temp.length-1 ].on('resize', function(){
-			refreshGraph(worksheets[`${index}`].graph);
+			refreshGraph(graph);
 		});
 	});
 }
@@ -484,6 +619,35 @@ function remove_neighbours_from_worksheet(id) {
 		return !ele.hasClass('important');
 	}).remove();
 	removeEmptyParents(parents);
+}
+
+function toggleSection(ele){
+	let eleID = ele.data().id;
+	if(ele.data().connectionOn){
+		console.log(ele);
+		ele.removeClass('textualActive');
+		ele.data().connectionOn = false;
+		ele.cy().removeListener('tap', textualHandlers[`${eleID}`]);
+		textualHandlers[`${eleID}`] = null;
+	}
+	else{
+		ele.addClass('textualActive');
+		ele.data().connectionOn = true;
+		textualHandlers[`${eleID}`] = function(event){
+			let evtID = event.target.data().id;
+			if(evtID == eleID){return;}
+			if (!ele.allAreNeighbors(`#${evtID}`)){
+				neo4jQueries.createTextualEdge(eleID, evtID, function(edge){
+					graphingAPI.add_edge(edge, ele.cy());
+				});
+			}
+			else{
+				neo4jQueries.deleteTextualEdge(eleID, evtID);
+				ele.edgesWith(`#${evtID}`).remove();
+			}
+		};
+		ele.cy().on('tap', 'node', textualHandlers[`${eleID}`]);
+	}
 }
 
 function toggle_node_importance(id, excludeWorksheet = -1) {
@@ -605,6 +769,7 @@ function inspect_and_import(id) {
 // Populate node list.
 //
 function update_nodelist() {
+	if(document.getElementById("NodeSearchsheet") == null){return;}
 	removeOverFlow(`nodeList`);
 	showNodeListNextPrevious();
 }
@@ -687,15 +852,14 @@ function connectNodeListAccordion(){
 	let acc = document.getElementsByClassName("formBoxAccordion");
 
 	for (let i = 0; i < acc.length; i++) {
-	    acc[i].addEventListener("click", function() {
-	        //this.classList.toggle("active");
-	        var panel = this.nextElementSibling;
-	        if (panel.style.display === "block") {
-	            panel.style.display = "none";
-	        } else {
-	            panel.style.display = "block";
-	        }
-	    });
+		acc[i].addEventListener("click", function() {
+			var panel = this.nextElementSibling;
+			if (panel.style.display === "block") {
+				panel.style.display = "none";
+			} else {
+				panel.style.display = "block";
+			}
+		});
 	}
 }
 
@@ -840,12 +1004,13 @@ function import_batch_into_worksheet(nodes) {
 	let graph = worksheets[`${selectedWorksheet}`].graph;
 	let ids = [];
 
-	for(let node of nodes){
-		if (!graph.$id(node.id).empty()) {
-			nodes.splice(nodes.indexOf(node), 1);
+	for(let i = 0; i < nodes.length; i++){
+		if (!graph.$id(nodes[i].id).empty()) {
+			nodes.splice(nodes.indexOf(nodes[i]), 1);
+			i--;
 		}
 		else{
-			ids = ids.concat(node.id);
+			ids = ids.concat(nodes[i].id);
 
 			if(ids.length > maxImportLength){
 				vex.dialog.alert({
@@ -857,7 +1022,6 @@ function import_batch_into_worksheet(nodes) {
 		}
 	}
 	if(ids.length <= 0){return;}
-
 	let position = {
 		x: graph.width() / 2,
 		y: graph.height() / 2,
@@ -893,9 +1057,33 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 							<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 							<button type="button" class="headerButton" id="toggleNodeSearchsheet">Close NodeSearchsheet</button>
+							<button type="button" class="headerButton" id="toggleTextualReport">Open Textual Report Saver</button>
 							<div class="dropdown" id="optionsForm"></div>
 						</div>
-						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>`;
+						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>
+						<div class="row content notScrollable hide" style="padding: 0.5%;position:relative;" id="reportGenMenu">
+							<div class="scrollable" style="width:18%;height:100%;position:absolute;background-color:#222222;">
+								<table class="table">
+									<tbody id="textualList"></tbody>
+								</table>
+							</div>
+							<div class="scrollable" style="width:80%;height:100%;left:20%;position:absolute;">
+								<label for="reportTitle">Title:</label><br>
+								<input id="reportTitle" class="darkTextBox leftPadding" value=""></input><br><br>
+								<label for="reportGenGraph">Graph:</label><br>
+								<div style="width:100%;height:75%;background-color:#222222;position:relative;">
+									<div id="reportGenGraph" class="sheet"></div>
+									<div class="bottomOptions">
+										<button type="button" class="headerButton" id="reportDagre">Dagre</button>
+										<button type="button" class="headerButton" id="reportCose">Cose</button>
+									</div>	
+								</div><br>
+								<label for="reportDescription">Description:</label><br>
+								<textarea id="reportDescription" class="darkTextBox leftPadding" rows="4" cols="50"></textarea><br><br>
+								<button type="button" class="headerButton" id="saveToNode">Update Textual Node to db</button>
+								<button type="button" class="headerButton" id="saveReport">Save Report</button><br><br>
+							</div>
+						</div>`;
 	return element;
 }
 
@@ -922,7 +1110,7 @@ function attachOptionForm(optionsForm){
 	if(optionMenu == null){
 		optionMenu = document.createElement('a');
 	}
-	optionMenu.className = 'optionMenu';
+	optionMenu.className = 'popoutMenu';
 	optionMenu.id = 'optionMenu';
 	optionMenu.innerHTML = `<h2>Options</h2>
 							<font>GUI_Version: ${GUI_VERSION}</font><br><br>
@@ -938,18 +1126,18 @@ function attachOptionForm(optionsForm){
 	let optionSubmit = document.createElement('button');
 	optionSubmit.className = 'headerButton';
 	optionSubmit.id = 'optionSubmit';
-	optionSubmit.innerHTML = 'Submit';
+	optionSubmit.innerHTML = 'Apply';
 	optionSubmit.onclick = (function(){
-		if(testIfNumber($('#newNodeListDisplayAmount').val()) && $('#newNodeListDisplayAmount').val() > 0){
+		if(utilFunc.testIfNumber($('#newNodeListDisplayAmount').val()) && $('#newNodeListDisplayAmount').val() > 0){
 			overFlowVars['nodeList']['DisplayAmount'] = parseInt($('#newNodeListDisplayAmount').val());
 		}
-		if(testIfNumber($('#newInspectorDisplayAmount').val()) && $('#newInspectorDisplayAmount').val() > 0){
+		if(utilFunc.testIfNumber($('#newInspectorDisplayAmount').val()) && $('#newInspectorDisplayAmount').val() > 0){
 			overFlowVars['inspector']['DisplayAmount'] = parseInt($('#newInspectorDisplayAmount').val());
 		}
-		if(testIfNumber($('#newMaxImportLength').val()) && $('#newMaxImportLength').val() > 0){
+		if(utilFunc.testIfNumber($('#newMaxImportLength').val()) && $('#newMaxImportLength').val() > 0){
 			maxImportLength = parseInt($('#newMaxImportLength').val());
 		}
-		if(testIfNumber($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
+		if(utilFunc.testIfNumber($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
 			limitNodesForDagre = parseInt($('#newLimitNodesForDagre').val());
 		}
 		refresh_inspect();
@@ -962,7 +1150,7 @@ function attachOptionForm(optionsForm){
 }
 
 function validOptionInput(varToSet, input){
-	if(testIfNumber(input) && input > 0){
+	if(utilFunc.testIfNumber(input) && input > 0){
 		varToSet = parseInt(input);
 	}
 }
@@ -1020,12 +1208,183 @@ function setRefreshGraphOnElementShow(watchElement, graph){
 	observer.observe(targetNode,  { attributes: true, childList: true });
 }
 
+function openSaveTextualMenu(){
+	refreshGraph(reportGenGraph);
+	let title = null;
+	let description = null;
+	$('#textualList').empty();
+	neo4jQueries.getTextualNodes(function(nodes){
+		for (let node of nodes) {
+			let meta = graphingAPI.node_metadata(node);
+			let row = document.getElementById('textualList').insertRow(0);
+			if(rowReportSelected != null && rowReportSelected.id == node.id){
+				rowReportSelected.row = row;
+			}
+			row.onclick = (function() {
+				if(title != null && description != null && 
+					(title != document.getElementById('reportTitle').value ||
+						description != document.getElementById('reportDescription').value)){
+					vex.dialog.confirm({
+						message: 'Changes have been made. Are you sure you wish to discard them?',
+	    				className: 'vex-theme-wireframe',
+						callback: function (value) {
+							if(!value){return;}
+							rowReportSelected = {'row':row, 'id':node.id};
+							updateReportPanel(node.id, title, description, function(newTitle, newDescription){
+								title = newTitle;
+								description = newDescription;
+							});
+						}
+					});
+				}
+				else{
+					rowReportSelected = {'row':row, 'id':node.id};
+					updateReportPanel(node.id, title, description, function(newTitle, newDescription){
+						title = newTitle;
+						description = newDescription;
+					});
+				}
+			});
+			row.innerHTML = (`<td><a>${meta.label}</a></td>`);
+		}
+	});
+	document.getElementById('saveToNode').onclick = function(){
+		let newTitle = document.getElementById('reportTitle').value;
+		neo4jQueries.setTextualNodeTitleDes(reportGenGraph.inspectee, 
+								newTitle, 
+								document.getElementById('reportDescription').value,
+								function(){
+									rowReportSelected.row.innerHTML = (`<td><a>${newTitle}</a></td>`);
+									console.log(rowReportSelected.innerHTML);
+									inspector.graph.$id(`${reportGenGraph.inspectee}`).data('label', newTitle);
+									reportGenGraph.$id(`${reportGenGraph.inspectee}`).data('label', newTitle);
+									update_nodelist();
+									for(let worksheet of worksheets){
+										worksheet.graph.$id(reportGenGraph.inspectee).data('label', newTitle);
+									}
+								});
+	};
+	document.getElementById('saveReport').onclick = function(){
+		let report = {'title':document.getElementById('reportTitle').value, 
+					'png': reportGenGraph.png(),
+					'description':document.getElementById('reportDescription').value};
+		let string = '## Title:\n' + report.title + '\n\n## Description:\n' + report.description;
+		let nodes = reportGenGraph.nodes();
+		nodes.forEach(function(node){
+			let data = node.data();
+			let keys = Object.keys(data);
+			let table = `\n\n.${data.label} #${data.id}\n|===\n|property |value\n\n`;
+			keys.forEach(function(key){
+				table += `|${key}\n|${data[key]}\n\n`;
+			})
+			table += `|===`;
+			string += table;
+		})
+		let blob = new Blob([ string ]);
+		let a = document.createElement('a');
+
+		a.download = report.title + `.adoc`;
+		a.href= window.URL.createObjectURL(blob);
+
+		a.click();
+
+		a.download = report.title + `.png`;
+		a.href= report.png;
+
+		a.click();
+	};
+}
+
+function updateReportPanel(id, title, description, fn){
+	neo4jQueries.get_neighbours_id(id, function(neighbours){
+		reportGenGraph.remove('node');
+		reportGenGraph.inspectee = id;
+		graphingAPI.add_node_batch(neighbours.nodes.concat(neighbours.focusNode), reportGenGraph);
+		neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
+			graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
+		});
+		neo4jQueries.getTextualNodeTitleDes(id, function(result){
+			document.getElementById('reportTitle').value = result.title;
+			$('#reportDescription').val(result.description);
+			fn(result.title, result.description);
+		})
+	});
+}
+
+
+function openTextualMenu(ele){
+	if(document.getElementById(`textualDropdown${ele.data().id}`) != null){
+		return;
+	}
+	let textualMenu = document.createElement('div');
+	textualMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
+	textualMenu.className = 'absolute';
+	textualMenu.id = `textualDropdown${ele.data().id}`;
+	
+	neo4jQueries.getTextualNodeTitleDes(ele.data().id, function(result){
+		let title = result.title;
+		let description = result.description;
+		if(title == null){title = '';}
+		if(description == null){description = '';}
+
+		let subMenuOption = document.createElement('a');
+		subMenuOption.innerHTML = `<label for="editTitle">Title:</label><br>
+								<input id="editTitle" class="darkTextBox leftPadding" value="${title}"></input><br>
+								<label for="editDescription">Description:</label><br>
+								<textarea  id="editDescription" class="darkTextBox leftPadding" rows="4" cols="50">${description}</textarea><br><br>`
+		textualMenu.appendChild(subMenuOption);
+
+		let textualSubmit = document.createElement('button');
+		textualSubmit.className = 'headerButton';
+		textualSubmit.innerHTML = 'Apply';
+		textualSubmit.onclick = (function(){
+			title = document.getElementById('editTitle').value;
+			description = document.getElementById('editDescription').value;
+			neo4jQueries.setTextualNodeTitleDes(ele.data().id, title, description);
+			console.log(worksheets);
+			for(let worksheet of worksheets){
+				worksheet.graph.$id(ele.data().id).data('label', title);
+			}
+			inspector.graph.$id(ele.data().id).data('label', title);
+
+			textualMenu.remove();
+			if($('#filterNodeType').val() == 'textual'){
+				update_nodelist();
+			}
+		});
+		textualMenu.appendChild(textualSubmit);
+
+		let textualCancel = document.createElement('button');
+		textualCancel.className = 'headerButton';
+		textualCancel.innerHTML = 'Close';
+		textualCancel.onclick = (function(){
+			if(title != document.getElementById('editTitle').value ||
+				description != document.getElementById('editDescription').value){
+				vex.dialog.confirm({
+					message: 'Changes have been made. Are you sure you wish to discard them?',
+    				className: 'vex-theme-wireframe',
+					callback: function (value) {
+						if(!value){return;}
+						textualMenu.remove();
+					}
+				});
+			}
+			else{
+				textualMenu.remove();
+			}
+		});
+		textualMenu.appendChild(textualCancel);
+
+		document.body.appendChild(textualMenu);
+	});
+}
+
 function openSubMenu(fn, isNewWorksheetOption = true, isAllWorksheetOption=false, leftClickSpawn = false){
-	if_DOM_IDExsitsRemove("myDropdown");
+	if_DOM_IDExsitsRemove("worksheetDropdown");
 	let cxtSubMenu = document.createElement('div');
 	cxtSubMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
 	cxtSubMenu.className = 'dropdown-content';
-	cxtSubMenu.id = 'myDropdown';
+	cxtSubMenu.id = 'worksheetDropdown';
 
 	for(let i in worksheets){
 		let SubMenuOption = document.createElement('a');
@@ -1060,7 +1419,7 @@ function openSubMenu(fn, isNewWorksheetOption = true, isAllWorksheetOption=false
 	document.body.appendChild(cxtSubMenu);
 	window.onclick = function(event) {
 		if(!leftClickSpawn){//this is here so SubMenu is usable with a left click
-			document.getElementById(`myDropdown`).remove();
+			document.getElementById(`worksheetDropdown`).remove();
 			window.onclick = null;
 		}
 		leftClickSpawn = false;
@@ -1082,11 +1441,10 @@ function updateInspectTargets(files, scokets, pipes, meta){
 	inspectProcessMeta = meta;
 }
 
-function testIfNumber(val){
-	return /^\d+$/.test(val);
-}
-
-function if_DOM_IDExsitsRemove(id){
+function if_DOM_IDExsitsRemove(id, fn=null){
+	if(fn != null){
+		fn(document.getElementById(id) != null);
+	}
 	if(document.getElementById(id) != null){
 		document.getElementById(id).remove();
 	}

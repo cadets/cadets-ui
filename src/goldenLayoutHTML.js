@@ -18,6 +18,7 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 											<option>socket-version</option>
 											<option>global-only</option>
 											<option>edit-session</option>
+											<option>textual</option>
 					 					</select>
 									</div>
 									<label for="filterName">&nbsp;Name</label>
@@ -122,9 +123,13 @@ var config = {
 };
 
 function getWorksheetHtml(){
-	let index = worksheetCount;
+	let index = worksheetCount;//<button type="button" class="headerButton" id="saveTextual${index}">Delete db Textual Notes</button>
 	return `<div class="sheet" id="worksheet${index}">
 				<div class="sheet" id="worksheetGraph${index}"></div>
+				<div class="topOptions">
+					<button type="button" class="headerButton" id="addTextual${index}">Add Textual Note</button>
+					
+				</div>
 				<div class="bottomOptions">
 					<input id="loadGraph${index}" name="file" type="file" style="display: none">
 					<button class="headerButton" onclick="document.getElementById('loadGraph${index}').click();">Load</button>
