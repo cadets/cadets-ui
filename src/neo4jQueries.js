@@ -777,13 +777,14 @@ export function getTextualNodeTitleDes(id, fn){
 	});
 }
 
-export function setTextualNodeTitleDes(id, title, description){
+export function setTextualNodeTitleDes(id, title, description, fn=null){
 	let session = driver.session();
 	session.run(`Match (n:Textual)
 				WHERE id(n) = ${id}
 				SET n.title = ${JSON.stringify(title)}
 				SET n.description = ${JSON.stringify(description)}`)
 	.then(result => {
+		if(fn!=null){fn();}
 	}, function(error) {
 		neo4jError(error, session, "setTextualNodeTitleDes");
 	});

@@ -72,6 +72,7 @@ var worksheets = [];
 var reportGenGraph;
 
 var selectedWorksheet = 0;
+var rowReportSelected = null;
 
 var inspecteeBackStack = [];
 var inspecteeForwardStack = [];
@@ -435,6 +436,7 @@ workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
 workSheetLayout.on(`itemDestroyed`, function(item){
 	if(item.componentName == "Worksheet"){
 		worksheets.splice(worksheets.indexOf(worksheets[`${item.container.worksheetID}`]), 1);
+	console.log(worksheets);
 	}
 });
 
@@ -533,7 +535,7 @@ function createWorksheet(){
 	worksheets[`${index}`] = { graph: worksheetGraph, id: index};
 
 	worksheetContainer[index].on('resize', function(){
-		refreshGraph(worksheets[`${index}`].graph);
+		refreshGraph(worksheetGraph);
 	})
 
 	setWorksheetCxtMenu(index);
@@ -567,22 +569,31 @@ function createWorksheet(){
 	document.getElementById(`addTextual${index}`).onclick = function () {
 		neo4jQueries.createTextualNode(function(node){
 			graphingAPI.add_node(node, worksheets[`${index}`].graph);
-			//console.log(worksheets[`${index}`].graph.nodes());
+			if($('#filterNodeType').val() == 'textual'){
+				update_nodelist();
+			}
 		})
 	};
 
-	document.getElementById(`saveTextual${index}`).onclick = function () {
-		neo4jQueries.deleteEmptyTextualNodes();
-	};
+	// document.getElementById(`saveTextual${index}`).onclick = function () {
+	// 	vex.dialog.confirm({
+	// 		message: 'WARNING this action will delete all textual nodes in database.',
+	// 		className: 'vex-theme-wireframe',
+	// 		callback: function (value) {
+	// 			if(!value){return;}
+	// 			neo4jQueries.deleteEmptyTextualNodes();
+	// 		}
+	// 	});
+	// };
 	goldenLayoutHTML.incrementWorksheetCount();
 }
 
 function addNewWorksheet(){
 	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
-		const index = getWorksheetCount() -1;
+		const graph = worksheets[`${getWorksheetCount() -1}`].graph;
 		let temp = workSheetLayout.root.contentItems[ 0 ].contentItems;
 		temp[ temp.length-1 ].on('resize', function(){
-			refreshGraph(worksheets[`${index}`].graph);
+			refreshGraph(graph);
 		});
 	});
 }
@@ -758,7 +769,6 @@ function inspect_and_import(id) {
 // Populate node list.
 //
 function update_nodelist() {
-
 	if(document.getElementById("NodeSearchsheet") == null){return;}
 	removeOverFlow(`nodeList`);
 	showNodeListNextPrevious();
@@ -1205,9 +1215,11 @@ function openSaveTextualMenu(){
 	$('#textualList').empty();
 	neo4jQueries.getTextualNodes(function(nodes){
 		for (let node of nodes) {
-
 			let meta = graphingAPI.node_metadata(node);
 			let row = document.getElementById('textualList').insertRow(0);
+			if(rowReportSelected != null && rowReportSelected.id == node.id){
+				rowReportSelected.row = row;
+			}
 			row.onclick = (function() {
 				if(title != null && description != null && 
 					(title != document.getElementById('reportTitle').value ||
@@ -1217,49 +1229,41 @@ function openSaveTextualMenu(){
 	    				className: 'vex-theme-wireframe',
 						callback: function (value) {
 							if(!value){return;}
-							neo4jQueries.get_neighbours_id(node.id, function(neighbours){
-								reportGenGraph.remove('node');
-								reportGenGraph.inspectee = node.id;
-								graphingAPI.add_node_batch(neighbours.nodes.concat(neighbours.focusNode), reportGenGraph);
-								neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
-									graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
-								});
-								neo4jQueries.getTextualNodeTitleDes(node.id, function(result){
-									title = result.title;
-									description = result.description;
-									document.getElementById('reportTitle').value = result.title;
-									$('#reportDescription').val(result.description);
-								})
+							rowReportSelected = {'row':row, 'id':node.id};
+							updateReportPanel(node.id, title, description, function(newTitle, newDescription){
+								title = newTitle;
+								description = newDescription;
 							});
 						}
 					});
 				}
 				else{
-					neo4jQueries.get_neighbours_id(node.id, function(neighbours){
-						reportGenGraph.remove('node');
-						reportGenGraph.inspectee = node.id;
-						graphingAPI.add_node_batch(neighbours.nodes.concat(neighbours.focusNode), reportGenGraph);
-						neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
-							graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
-						});
-						neo4jQueries.getTextualNodeTitleDes(node.id, function(result){
-							title = result.title;
-							description = result.description;
-							document.getElementById('reportTitle').value = result.title;
-							$('#reportDescription').val(result.description);
-						})
+					rowReportSelected = {'row':row, 'id':node.id};
+					updateReportPanel(node.id, title, description, function(newTitle, newDescription){
+						title = newTitle;
+						description = newDescription;
 					});
 				}
 			});
-			let cell = row.insertCell(0);
-			cell.innerHTML = (`<td><a>${meta.label}</a></td>`);
+			row.innerHTML = (`<td><a>${meta.label}</a></td>`);
 		}
-		document.getElementById('saveToNode').onclick = function(){
-			neo4jQueries.setTextualNodeTitleDes(reportGenGraph.inspectee, 
-									document.getElementById('reportTitle').value, 
-									document.getElementById('reportDescription').value);
-		};
 	});
+	document.getElementById('saveToNode').onclick = function(){
+		let newTitle = document.getElementById('reportTitle').value;
+		neo4jQueries.setTextualNodeTitleDes(reportGenGraph.inspectee, 
+								newTitle, 
+								document.getElementById('reportDescription').value,
+								function(){
+									rowReportSelected.row.innerHTML = (`<td><a>${newTitle}</a></td>`);
+									console.log(rowReportSelected.innerHTML);
+									inspector.graph.$id(`${reportGenGraph.inspectee}`).data('label', newTitle);
+									reportGenGraph.$id(`${reportGenGraph.inspectee}`).data('label', newTitle);
+									update_nodelist();
+									for(let worksheet of worksheets){
+										worksheet.graph.$id(reportGenGraph.inspectee).data('label', newTitle);
+									}
+								});
+	};
 	document.getElementById('saveReport').onclick = function(){
 		let report = {'title':document.getElementById('reportTitle').value, 
 					'png': reportGenGraph.png(),
@@ -1290,6 +1294,23 @@ function openSaveTextualMenu(){
 		a.click();
 	};
 }
+
+function updateReportPanel(id, title, description, fn){
+	neo4jQueries.get_neighbours_id(id, function(neighbours){
+		reportGenGraph.remove('node');
+		reportGenGraph.inspectee = id;
+		graphingAPI.add_node_batch(neighbours.nodes.concat(neighbours.focusNode), reportGenGraph);
+		neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
+			graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
+		});
+		neo4jQueries.getTextualNodeTitleDes(id, function(result){
+			document.getElementById('reportTitle').value = result.title;
+			$('#reportDescription').val(result.description);
+			fn(result.title, result.description);
+		})
+	});
+}
+
 
 function openTextualMenu(ele){
 	if(document.getElementById(`textualDropdown${ele.data().id}`) != null){
@@ -1327,6 +1348,9 @@ function openTextualMenu(ele){
 			inspector.graph.$id(ele.data().id).data('label', title);
 
 			textualMenu.remove();
+			if($('#filterNodeType').val() == 'textual'){
+				update_nodelist();
+			}
 		});
 		textualMenu.appendChild(textualSubmit);
 

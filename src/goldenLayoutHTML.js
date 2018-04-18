@@ -123,12 +123,12 @@ var config = {
 };
 
 function getWorksheetHtml(){
-	let index = worksheetCount;
+	let index = worksheetCount;//<button type="button" class="headerButton" id="saveTextual${index}">Delete db Textual Notes</button>
 	return `<div class="sheet" id="worksheet${index}">
 				<div class="sheet" id="worksheetGraph${index}"></div>
 				<div class="topOptions">
 					<button type="button" class="headerButton" id="addTextual${index}">Add Textual Note</button>
-					<button type="button" class="headerButton" id="saveTextual${index}">Delete db Textual Notes</button>
+					
 				</div>
 				<div class="bottomOptions">
 					<input id="loadGraph${index}" name="file" type="file" style="display: none">
