@@ -10,11 +10,14 @@ import events from './../node_modules/events/events.js';
 import dagre from './../node_modules/cytoscape-dagre/cytoscape-dagre.js';
 import cose_bilkent from './../node_modules/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js';
 
-import './css/style.css';
 import './../node_modules/vex-js/dist/css/vex.css';
 import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-base.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
+import './../node_modules/golden-layout/src/css/goldenlayout-light-theme.css';
+import './css/darkStyle.css';
+import './css/lightStyle.css';
+
 
 var utilFunc = require('./utilFunc.js');
 var graphingAPI = require('./graphing.js');
@@ -22,12 +25,20 @@ var neo4jQueries = require('./neo4jQueries.js');
 var goldenLayoutHTML = require('./goldenLayoutHTML.js');
 var eventEmitter = new events.EventEmitter();
 
+var darkGoldTheme = document.styleSheets[document.styleSheets.length-4];
+var lightGoldTheme = document.styleSheets[document.styleSheets.length-3];
+var darkTheme = document.styleSheets[document.styleSheets.length-2];
+var lightTheme = document.styleSheets[document.styleSheets.length-1];
+darkGoldTheme.disabled= true;
+darkTheme.disabled= true;
+graphingAPI.swapStyle(false);
+
 cytoscape.use( cxtmenu );
 cytoscape.use( dagre );
 cytoscape.use( cose_bilkent );
 
 //Build Html document
-const GUI_VERSION = 'v0.6.0-release';
+const GUI_VERSION = 'v0.7.0-dev';
 let PVM_VERSION = '';
 
 let element = htmlBody();
@@ -574,6 +585,17 @@ function createWorksheet(){
 		})
 	};
 
+	document.getElementById(`confidanceSlider${index}`).oninput = function () {
+		document.getElementById(`confidanceValue${index}`).value = document.getElementById(`confidanceSlider${index}`).value/100;
+	};
+
+	document.getElementById(`confidanceValue${index}`).onchange = function () {
+		if(!utilFunc.testIfNumber(document.getElementById(`confidanceSlider${index}`).value)){return;}
+		let value = Math.min(Math.max(document.getElementById(`confidanceValue${index}`).value*100, 0), 100);
+		document.getElementById(`confidanceSlider${index}`).value = value;
+		document.getElementById(`confidanceValue${index}`).value = value/100;
+	};
+
 	// document.getElementById(`saveTextual${index}`).onclick = function () {
 	// 	vex.dialog.confirm({
 	// 		message: 'WARNING this action will delete all textual nodes in database.',
@@ -1060,16 +1082,16 @@ function htmlBody() {
 						</div>
 						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>
 						<div class="row content notScrollable hide" style="padding: 0.5%;position:relative;" id="reportGenMenu">
-							<div class="scrollable" style="width:18%;height:100%;position:absolute;background-color:#222222;">
+							<div class="scrollable textualReportList">
 								<table class="table">
 									<tbody id="textualList"></tbody>
 								</table>
 							</div>
-							<div class="scrollable" style="width:80%;height:100%;left:20%;position:absolute;">
+							<div class="scrollable textualReport">
 								<label for="reportTitle">Title:</label><br>
-								<input id="reportTitle" class="darkTextBox leftPadding" value=""></input><br><br>
+								<input id="reportTitle" class="textBox leftPadding" value=""></input><br><br>
 								<label for="reportGenGraph">Graph:</label><br>
-								<div style="width:100%;height:75%;background-color:#222222;position:relative;">
+								<div class="textualReportGraph">
 									<div id="reportGenGraph" class="sheet"></div>
 									<div class="bottomOptions">
 										<button type="button" class="headerButton" id="reportDagre">Dagre</button>
@@ -1077,7 +1099,7 @@ function htmlBody() {
 									</div>	
 								</div><br>
 								<label for="reportDescription">Description:</label><br>
-								<textarea id="reportDescription" class="darkTextBox leftPadding" rows="4" cols="50"></textarea><br><br>
+								<textarea id="reportDescription" class="textBox leftPadding" rows="4" cols="50"></textarea><br><br>
 								<button type="button" class="headerButton" id="saveToNode">Update Textual Node to db</button>
 								<button type="button" class="headerButton" id="saveReport">Save Report</button><br><br>
 							</div>
@@ -1113,13 +1135,19 @@ function attachOptionForm(optionsForm){
 	optionMenu.innerHTML = `<h2>Options</h2>
 							<font>GUI_Version: ${GUI_VERSION}</font><br><br>
 							<label for="newNodeListDisplayAmount">Nodes shown in nodeList:</label><br>
-							<input id="newNodeListDisplayAmount" class="darkTextBox leftPadding" placeholder="${overFlowVars['nodeList']['DisplayAmount']}"></input><br>
+							<input id="newNodeListDisplayAmount" class="textBox leftPadding" placeholder="${overFlowVars['nodeList']['DisplayAmount']}"></input><br>
 							<label for="newInspectorDisplayAmount">Neighbours shown in Inspector:</label><br>
-							<input id="newInspectorDisplayAmount" class="darkTextBox leftPadding" placeholder="${overFlowVars['inspector']['DisplayAmount']}"></input><br>
+							<input id="newInspectorDisplayAmount" class="textBox leftPadding" placeholder="${overFlowVars['inspector']['DisplayAmount']}"></input><br>
 							<label for="newMaxImportLength">Max amount of nodes importable:</label><br>
-							<input id="newMaxImportLength" class="darkTextBox leftPadding" placeholder="${maxImportLength}"></input><br>
+							<input id="newMaxImportLength" class="textBox leftPadding" placeholder="${maxImportLength}"></input><br>
 							<label for="newLimitNodesForDagre">Inspector edge limit for Dagre layout:</label><br>
-							<input id="newLimitNodesForDagre" class="darkTextBox leftPadding" placeholder="${limitNodesForDagre}"></input><br><br>`;
+							<input id="newLimitNodesForDagre" class="textBox leftPadding" placeholder="${limitNodesForDagre}"></input><br>
+							<label>Dark </label>
+							<label class="switch">
+								<input type="checkbox" id="styleSwitch">
+								<span class="slider"></span>
+							</label>
+							<label> Light</label><br><br>`;
 
 	let optionSubmit = document.createElement('button');
 	optionSubmit.className = 'headerButton';
@@ -1138,6 +1166,15 @@ function attachOptionForm(optionsForm){
 		if(utilFunc.testIfNumber($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
 			limitNodesForDagre = parseInt($('#newLimitNodesForDagre').val());
 		}
+
+		let graphs = worksheets.map(a => a.graph).concat(inspector.graph).concat(reportGenGraph);
+		let isLight = $('#styleSwitch').is(':checked');
+		darkTheme.disabled= isLight;
+		lightTheme.disabled= !isLight;
+		darkGoldTheme.disabled= isLight;
+		lightGoldTheme.disabled= !isLight;
+		graphingAPI.swapStyle(!$('#styleSwitch').is(':checked'), graphs);
+
 		refresh_inspect();
 		update_nodelist();
 		document.getElementById('dropdownOptions').click();
@@ -1224,7 +1261,7 @@ function openSaveTextualMenu(){
 						description != document.getElementById('reportDescription').value)){
 					vex.dialog.confirm({
 						message: 'Changes have been made. Are you sure you wish to discard them?',
-	    				className: 'vex-theme-wireframe',
+						className: 'vex-theme-wireframe',
 						callback: function (value) {
 							if(!value){return;}
 							rowReportSelected = {'row':row, 'id':node.id};
@@ -1274,12 +1311,13 @@ function openSaveTextualMenu(){
 			keys.forEach(function(key){
 				table += `|${key}\n|${data[key]}\n\n`;
 			})
-			table += `|===`;
+			table += `|===\n\nimage:./${report.title}.png`;
 			string += table;
 		})
 		let blob = new Blob([ string ]);
 		let a = document.createElement('a');
 
+	//	console.log(report.png);
 		a.download = report.title + `.adoc`;
 		a.href= window.URL.createObjectURL(blob);
 
@@ -1296,7 +1334,7 @@ function updateReportPanel(id, title, description, fn){
 	neo4jQueries.get_neighbours_id(id, function(neighbours){
 		reportGenGraph.remove('node');
 		reportGenGraph.inspectee = id;
-		graphingAPI.add_node_batch(neighbours.nodes.concat(neighbours.focusNode), reportGenGraph);
+		graphingAPI.add_node_batch(neighbours.nodes, reportGenGraph);
 		neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
 			graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
 		});
@@ -1326,9 +1364,9 @@ function openTextualMenu(ele){
 
 		let subMenuOption = document.createElement('a');
 		subMenuOption.innerHTML = `<label for="editTitle">Title:</label><br>
-								<input id="editTitle" class="darkTextBox leftPadding" value="${title}"></input><br>
+								<input id="editTitle" class="textBox leftPadding" value="${title}"></input><br>
 								<label for="editDescription">Description:</label><br>
-								<textarea  id="editDescription" class="darkTextBox leftPadding" rows="4" cols="50">${description}</textarea><br><br>`
+								<textarea  id="editDescription" class="textBox leftPadding" rows="4" cols="50">${description}</textarea><br><br>`
 		textualMenu.appendChild(subMenuOption);
 
 		let textualSubmit = document.createElement('button');
@@ -1358,7 +1396,7 @@ function openTextualMenu(ele){
 				description != document.getElementById('editDescription').value){
 				vex.dialog.confirm({
 					message: 'Changes have been made. Are you sure you wish to discard them?',
-    				className: 'vex-theme-wireframe',
+					className: 'vex-theme-wireframe',
 					callback: function (value) {
 						if(!value){return;}
 						textualMenu.remove();

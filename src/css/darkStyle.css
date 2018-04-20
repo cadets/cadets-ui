@@ -1,0 +1,236 @@
+html, body {
+	color: #e2e2e2; 
+	background-color: #121212;
+	height: 100%;
+	width: 100%;
+	margin: 0;
+}
+.box {
+	display: flex;
+	flex-flow: column;
+	height: 100%;
+}
+.box .row.header {
+	flex: 0 0 auto;
+}
+.box .row.content {
+	flex: 1 1 auto;
+}
+.fillHeader{
+	background-color: #232323;
+	width: 100%;
+	top: 0%;
+	left: 0%;
+	padding-bottom: 5px;
+}
+.headerButtons{
+	height: 100%;
+	top: 25%;
+	left: 20%;
+ }
+ .headerButton{
+	transition-duration: 0.5s;
+	font-size: 20px;
+	background-color: #343434;
+	border: #343434;
+	color: #717171;
+	outline:none;
+	border-radius: 2px;
+ }
+ .headerButton:Hover{
+	color: #9e9e9e;
+ }
+.sheet{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+.formBox{
+	background-color: black;
+	color: #7f7f7f;
+	width: 100%;
+	top: 0%;
+	left: 0%;
+	padding: 2%
+}
+.scrollable{
+	overflow: scroll;
+	overflow-x: hidden;
+}
+.notScrollable{
+	overflow: hidden;
+}
+::-webkit-scrollbar {
+	width: 15px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: #000; 
+}
+.table{
+	width: 100%;
+}
+.table, th, td {
+	border: 1px solid black;
+	border-color: #2e2e2e;
+	border-collapse: collapse;
+}
+th,td{
+	padding: 8px;
+}
+.topOptions{
+	position: absolute;
+	top: 0%;
+	left: 0%;
+	padding: 2%
+}
+.bottomOptions{
+	color: #7f7f7f;
+	position: absolute;
+	bottom: 0%;
+	left: 0%;
+	padding: 2%
+}
+.textBox{
+	border: 0px;
+	background-color: #303030;!important
+	color: #c6c6c6;
+	size:2;
+}
+.leftPadding{
+	padding-left: 5px
+}
+.WorksheetTextBox{
+	height: 22px;
+	border: 0px;
+	border-color: #343434;
+	background-color: #121212;
+	color: #e2e2e2;
+	size:2;
+}
+.dropdown { 
+	display:inline-block;
+    position: relative;
+}
+.absolute{
+	padding: 20px;
+	background-color: #161616;
+	position: absolute;
+	z-index: 500;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	border-radius: 2px;
+}
+.dropdown-content {
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 9999;
+}
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+.dropdown-content a:hover {background-color: #ddd}
+
+.popoutMenu{
+	min-width: 300px;
+	padding-bottom: 20px;
+	padding-left: 20px;
+	background-color: #121212;
+	display: none;
+	position: absolute;
+	z-index: 500;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	border-radius: 2px;
+}
+.hide{
+	display: none;
+}
+.formBoxAccordion{
+	width: 100%;
+	background-color: #222;
+	color: #7f7f7f;
+	border: black;
+	transition-duration: 0.5s;
+	font-size: 15px;
+	outline:none;
+}
+.formBoxAccordion:Hover{
+	background-color: #444;
+ }
+ .reportGenMenu{
+	background-color: #161616;
+	position: absolute;
+	z-index: 500;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	border-radius: 2px;
+ }
+
+ .switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 17px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #727272;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #ccc;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 0.5px #ccc;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(13px);
+  -ms-transform: translateX(13px);
+  transform: translateX(13px);
+}
+.textualReportList{
+	width:18%;
+	height:100%;
+	position:absolute;
+	background-color:#222222;
+}
+.textualReport{
+	width:80%;
+	height:100%;
+	left:20%;
+	position:absolute;
+}
+.textualReportGraph{
+	width:100%;
+	height:75%;
+	background-color:#222222;
+	position:relative;
+}

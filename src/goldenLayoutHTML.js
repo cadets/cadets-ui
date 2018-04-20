@@ -8,7 +8,7 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 								<div class="row header formBox" id="formBox">
 									<label for="filterNodeType">&nbsp;Type</label>
 									<div>
-										&nbsp;<select id="filterNodeType" class="darkTextBox">
+										&nbsp;<select id="filterNodeType" class="textBox">
 											<option>process</option>
 											<option>machine</option>
 					 						<option>connection</option>
@@ -23,35 +23,35 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 									</div>
 									<label for="filterName">&nbsp;Name</label>
 									<div>
-										&nbsp;<input id="filterName" size="18.5" class="darkTextBox leftPadding"/>
+										&nbsp;<input id="filterName" size="18.5" class="textBox leftPadding"/>
 									</div><br>
 									<button class="formBoxAccordion">Machine options</button>
 									<div class="hide">
 										<label for="filterHost">&nbsp;Host</label>
 										<div>
-											&nbsp;<input id="filterHost" size="18.5" class="darkTextBox leftPadding"/>
+											&nbsp;<input id="filterHost" size="18.5" class="textBox leftPadding"/>
 										</div>
 										<label for="filterTuple">&nbsp;TCP</label>
 										<div id="filterTuple">
-											&nbsp;<input id="filterLocalIp" size="10" class="darkTextBox leftPadding"/>
-											<input id="filterLocalPort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;L<br/>
-											&nbsp;<input id="filterRemoteIp" size="10" class="darkTextBox leftPadding"/>
-											<input id="filterRemotePort" size="3" class="darkTextBox leftPadding"/>&nbsp;&nbsp;R
+											&nbsp;<input id="filterLocalIp" size="10" class="textBox leftPadding"/>
+											<input id="filterLocalPort" size="3" class="textBox leftPadding"/>&nbsp;&nbsp;L<br/>
+											&nbsp;<input id="filterRemoteIp" size="10" class="textBox leftPadding"/>
+											<input id="filterRemotePort" size="3" class="textBox leftPadding"/>&nbsp;&nbsp;R
 										</div>
 									</div><br>
 									<button class="formBoxAccordion">Connected file options</button>
 									<div class="hide">
 										<label for="filterfileNameStart">&nbsp;Connected file name:</label><br>
-										&nbsp;<input id="filterfileNameStart" size="18.5" class="darkTextBox leftPadding"/><br>
+										&nbsp;<input id="filterfileNameStart" size="18.5" class="textBox leftPadding"/><br>
 										<label for="filterfileNum">&nbsp;More files then:</label><br>
-										&nbsp;<input id="filterfileNum" size="18.5" class="darkTextBox leftPadding"/>
+										&nbsp;<input id="filterfileNum" size="18.5" class="textBox leftPadding"/>
 									</div><br>
 									<button class="formBoxAccordion">Date options</button>
 									<div class="hide">
 										<label for="filterstartDate">&nbsp;Start date:</label><br>
-										<input type="datetime-local" id="filterstartDate" size="3" class="darkTextBox leftPadding"/><br>
+										<input type="datetime-local" id="filterstartDate" size="3" class="textBox leftPadding"/><br>
 										<label for="filterendDate">&nbsp;End date:</label><br>
-										<input type="datetime-local" id="filterendDate" size="3" class="darkTextBox leftPadding"/><br>
+										<input type="datetime-local" id="filterendDate" size="3" class="textBox leftPadding"/><br>
 									</div><br>
 								</div>
 								<div class="row content scrollable">
@@ -67,10 +67,10 @@ var inspectorHtml = `<div class="sheet" id="inspectorGraph"></div>
 						<button type="button" class="headerButton" id="inspectForward">🡒</button>
 					</div>
 					<div class="bottomOptions">
-						<input type="checkbox" id="inspectFiles" class="darkTextBox">Files</input>
-						<input type="checkbox" id="inspectSockets" class="darkTextBox">Sockets</input>
-						<input type="checkbox" id="inspectPipes" class="darkTextBox">Pipes</input>
-						<input type="checkbox" id="inspectProcessMeta" class="darkTextBox">ProcessMetaData</input>
+						<input type="checkbox" id="inspectFiles" class="textBox">Files</input>
+						<input type="checkbox" id="inspectSockets" class="textBox">Sockets</input>
+						<input type="checkbox" id="inspectPipes" class="textBox">Pipes</input>
+						<input type="checkbox" id="inspectProcessMeta" class="textBox">ProcessMetaData</input>
 					</div>`;
 
 var DetailsHtml = `<div class="sheet scrollable">
@@ -127,14 +127,21 @@ function getWorksheetHtml(){
 	return `<div class="sheet" id="worksheet${index}">
 				<div class="sheet" id="worksheetGraph${index}"></div>
 				<div class="topOptions">
-					<button type="button" class="headerButton" id="addTextual${index}">Add Textual Note</button>
-					
+					<button class="formBoxAccordion">Textual options</button>
+					<div class="hide"><br>
+						<button type="button" class="headerButton" id="addTextual${index}">Add Textual Note</button>
+					</div><br>
+					<button class="formBoxAccordion">Confidance slider options</button>
+					<div class="hide"><br>
+						<input type="range" min="0" max="100" value="50" class="slider" id="confidanceSlider${index}">
+						<input type="text" class="WorksheetTextBox leftPadding" id="confidanceValue${index}" value="0.5">
+					</div><br>
 				</div>
 				<div class="bottomOptions">
 					<input id="loadGraph${index}" name="file" type="file" style="display: none">
 					<button class="headerButton" onclick="document.getElementById('loadGraph${index}').click();">Load</button>
 					<button type="button" class="headerButton" id="saveGraph${index}">Save</button>
-					<input id="saveFilename${index}" class="darkWorksheetTextBox leftPadding" name="saveFilename" type="text" placeholder="File name""></input>
+					<input id="saveFilename${index}" class="WorksheetTextBox leftPadding" name="saveFilename" type="text" placeholder="File name""></input>
 					<button type="button" class="headerButton" id="reDagre${index}">Dagre</button>
 					<button type="button" class="headerButton" id="reCose-Bilkent${index}">Cose</button>
 				</div>
