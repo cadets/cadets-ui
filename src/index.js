@@ -25,13 +25,14 @@ var neo4jQueries = require('./neo4jQueries.js');
 var goldenLayoutHTML = require('./goldenLayoutHTML.js');
 var eventEmitter = new events.EventEmitter();
 
+//Find less hacky way to assign these vars 
 var darkGoldTheme = document.styleSheets[document.styleSheets.length-4];
 var lightGoldTheme = document.styleSheets[document.styleSheets.length-3];
 var darkTheme = document.styleSheets[document.styleSheets.length-2];
 var lightTheme = document.styleSheets[document.styleSheets.length-1];
-darkGoldTheme.disabled= true;
-darkTheme.disabled= true;
-graphingAPI.swapStyle(false);
+lightGoldTheme.disabled= true;
+lightTheme.disabled= true;
+graphingAPI.swapStyle(true);
 
 cytoscape.use( cxtmenu );
 cytoscape.use( dagre );
@@ -117,39 +118,58 @@ var maxImportLength = 500;//The max number of nodes that can be imported into a 
 
 var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
 
+var standardWorksheetCommands = [
+	{
+		content: 'Inspect',
+		select: function(ele){
+			inspectAsync(ele.data('id'));
+		}
+	},
+	{
+		content: 'Import neighbours',
+		select: function(ele){
+			openSubMenu(function(){
+				import_neighbours_into_worksheet(ele.data('id'));
+			});
+		}
+	},
+	// {
+	// 	content: 'Import successors',
+	// 	select: function(ele){
+	// 		openSubMenu(function(){
+	// 			successors(ele.data('id'));
+	// 		});
+	// 	}
+	// },
+	{
+		content: 'Highlight',
+		select: function(ele){
+			toggle_node_importance(ele.data("id"));
+		}
+	},
+	{
+		content: 'Remove neighbours',
+		select: function(ele){
+			openSubMenu(function(){
+				remove_neighbours_from_worksheet(ele.data("id"));
+			}, false, true);
+		}
+	},
+	{
+		content: 'Remove',
+		select: function(ele){
+			openSubMenu(function(){
+				removeNode(ele);
+			}, false, true);
+		}
+	},
+];
+
 var worksheetChildCxtMenu = ({
 	menuRadius: 140,
 	separatorWidth: 5,
 	selector: 'node[type != "textual"]:childless',
 	commands: [
-		{
-			content: 'Inspect',
-			select: function(ele){
-				inspectAsync(ele.data('id'));
-			}
-		},
-		{
-			content: 'Import neighbours',
-			select: function(ele){
-				openSubMenu(function(){
-					import_neighbours_into_worksheet(ele.data('id'));
-				});
-			}
-		},
-		// {
-		// 	content: 'Import successors',
-		// 	select: function(ele){
-		// 		openSubMenu(function(){
-		// 			successors(ele.data('id'));
-		// 		});
-		// 	}
-		// },
-		{
-			content: 'Highlight',
-			select: function(ele){
-				toggle_node_importance(ele.data("id"));
-			}
-		},
 		{
 			content: 'Files read',
 			select: function(ele){
@@ -162,23 +182,7 @@ var worksheetChildCxtMenu = ({
 				spawnVexList(ele, 'Commands run by node', 'id', ['cmdline'], neo4jQueries.cmd_query);
 			}
 		},
-		{
-			content: 'Remove neighbours',
-			select: function(ele){
-				openSubMenu(function(){
-					remove_neighbours_from_worksheet(ele.data("id"));
-				}, false, true);
-			}
-		},
-		{
-			content: 'Remove',
-			select: function(ele){
-				openSubMenu(function(){
-					removeNode(ele);
-				}, false, true);
-			}
-		},
-	]
+	].concat(standardWorksheetCommands)
 });
 
 var worksheetParentCxtMenu = ({
@@ -202,26 +206,6 @@ var worksheetTextualCxtMenu = ({
 	separatorWidth: 5,
 	selector: 'node.textual',
 	commands: [
-		{
-			content: 'Inspect',
-			select: function(ele){
-				inspectAsync(ele.data('id'));
-			}
-		},
-		{
-			content: 'Import neighbours',
-			select: function(ele){
-				openSubMenu(function(){
-					import_neighbours_into_worksheet(ele.data('id'));
-				});
-			}
-		},
-		{
-			content: 'Highlight',
-			select: function(ele){
-				toggle_node_importance(ele.data("id"));
-			}
-		},
 		{
 			content: `Toggle selection connections`,
 			select: function(ele){
@@ -258,23 +242,7 @@ var worksheetTextualCxtMenu = ({
 				openTextualMenu(ele);
 			}
 		},
-		{
-			content: 'Remove neighbours',
-			select: function(ele){
-				openSubMenu(function(){
-					remove_neighbours_from_worksheet(ele.data("id"));
-				}, false, true);
-			}
-		},
-		{
-			content: 'Remove',
-			select: function(ele){
-				openSubMenu(function(){
-					removeNode(ele);
-				}, false, true);
-			}
-		},
-	]
+	].concat(standardWorksheetCommands)
 });
 
 var inspectorChildCxtMenu = ({
@@ -357,17 +325,14 @@ workSheetLayout.init();
 
 workSheetLayout.on('initialised', function(){
 	generateOptions();
+	connectNodeListAccordion();
 	if(document.getElementById("NodeSearchsheet") != null){
 		neo4jQueries.neo4jLogin(eventEmitter, function(){
-			connectNodeListAccordion();
 			update_nodelist();
 		});
-		$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
+		workSheetLayout.emit(`NodeSearchsheetContainerCreated`);
 	}
 	if(document.getElementById("inspectorGraph") != null){
-		$("body").on("contextmenu", function(e){
-			return false;
-		});
 		createInspector();
 	}
 	if(document.getElementById(`worksheetGraph${getWorksheetCount()}`) != null){
@@ -390,19 +355,14 @@ workSheetLayout.on('initialised', function(){
 	};
 
 	document.getElementById(`toggleTextualReport`).onclick = function () {
-		let x = document.getElementById("reportGenMenu");
-		let y = document.getElementById("worksheetPage");
-		if (x.style.display === "none") {
+		toggleBlockNone("worksheetPage");
+		toggleBlockNone("reportGenMenu", function(){
 			document.getElementById("toggleTextualReport").innerHTML = 'Close Textual Report Saver';
-			x.style.display = "block";
-			y.style.display = "none";
 			openSaveTextualMenu();
-		} else {
+		}, function(){
 			document.getElementById("toggleTextualReport").innerHTML = 'Open Textual Report Saver';
-			x.style.display = "none";
-			y.style.display = "block";
 			workSheetLayout.updateSize();
-		}
+		});
 	};
 
 	// document.getElementById(`loadWorksheet`).onclick = function () {
@@ -437,6 +397,15 @@ eventEmitter.on('pvm_version_set', function(pvm_version){
 
 //Main Events end
 
+//General Events
+
+//This is so the native context menu will not spawn
+$("body").on("contextmenu", function(e){
+	return false;
+});
+
+//General Events end
+
 //Worksheet Events
 
 workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
@@ -464,6 +433,7 @@ workSheetLayout.eventHub.on('updateInspectTargets', function(files, sockets, pip
 
 workSheetLayout.on(`NodeSearchsheetContainerCreated`, function(){
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
+	setConfidenceSilder(`confidanceSliderSearch`, `confidanceValueSearch`);
 });
 
 //NodeSearchsheet Events end
@@ -482,35 +452,35 @@ document.getElementById(`reportCose`).onclick = function () {
 
 //Popout Events 
 
-workSheetLayout.on('windowOpened', function( id ){
-	workSheetLayout.eventHub.emit('inspectorWindowOpened', lastInspectedId, neo4jQueries);
-});
+// workSheetLayout.on('windowOpened', function( id ){
+// 	workSheetLayout.eventHub.emit('inspectorWindowOpened', lastInspectedId, neo4jQueries);
+// });
 
-var once = false; // should find a better way to make sure windows only load once
+// var once = false; // should find a better way to make sure windows only load once
 
-workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currNeo4jQueries ){
-	if(document.getElementById("NodeSearchsheet") != null && !once){
-		once = true;
-		workSheetLayout.eventHub.emit('updateInspectTargets',
-										$('#inspectFiles').is(':checked'),
-										$('#inspectSockets').is(':checked'),
-										$('#inspectPipes').is(':checked'),
-										$('#inspectProcessMeta').is(':checked'));
-	}
-	if(document.getElementById("inspectorGraph") != null){
-		neo4jQueries = currNeo4jQueries;
-		lastInspectedId = id;
-		inspectAsync(id);
-	}
-});
+// workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currNeo4jQueries ){
+// 	if(document.getElementById("NodeSearchsheet") != null && !once){
+// 		once = true;
+// 		workSheetLayout.eventHub.emit('updateInspectTargets',
+// 										$('#inspectFiles').is(':checked'),
+// 										$('#inspectSockets').is(':checked'),
+// 										$('#inspectPipes').is(':checked'),
+// 										$('#inspectProcessMeta').is(':checked'));
+// 	}
+// 	if(document.getElementById("inspectorGraph") != null){
+// 		neo4jQueries = currNeo4jQueries;
+// 		lastInspectedId = id;
+// 		inspectAsync(id);
+// 	}
+// });
 
-workSheetLayout.on('windowClosed', function( id ){
-	once = false;
-	if(document.getElementById("inspectorGraph") != null){
-		createInspector();
-		inspect_node(lastInspectedId);
-	}
-});
+// workSheetLayout.on('windowClosed', function( id ){
+// 	once = false;
+// 	if(document.getElementById("inspectorGraph") != null){
+// 		createInspector();
+// 		inspect_node(lastInspectedId);
+// 	}
+// });
 
 workSheetLayout.eventHub.on('inspect', function( id ){
 	if(document.getElementById("inspectorGraph") != null){
@@ -585,16 +555,7 @@ function createWorksheet(){
 		})
 	};
 
-	document.getElementById(`confidanceSlider${index}`).oninput = function () {
-		document.getElementById(`confidanceValue${index}`).value = document.getElementById(`confidanceSlider${index}`).value/100;
-	};
-
-	document.getElementById(`confidanceValue${index}`).onchange = function () {
-		if(!utilFunc.testIfNumber(document.getElementById(`confidanceSlider${index}`).value)){return;}
-		let value = Math.min(Math.max(document.getElementById(`confidanceValue${index}`).value*100, 0), 100);
-		document.getElementById(`confidanceSlider${index}`).value = value;
-		document.getElementById(`confidanceValue${index}`).value = value/100;
-	};
+	setConfidenceSilder(`confidanceSlider${index}`, `confidanceValue${index}`);
 
 	// document.getElementById(`saveTextual${index}`).onclick = function () {
 	// 	vex.dialog.confirm({
@@ -736,7 +697,7 @@ function createInspector(){
 	};
 	inspector.graph.inspectee = null;
 
-	setRefreshGraphOnElementShow('inspectorGraph', inspector.graph);
+	//setRefreshGraphOnElementShow('inspectorGraph', inspector.graph);
 
 	setInspectorCxtMenu();
 
@@ -747,9 +708,7 @@ function createInspector(){
 										$('#inspectPipes').is(':checked'),
 										$('#inspectProcessMeta').is(':checked')
 		 );
-		if (inspector.graph.inspectee != null) {
-			inspect_node(inspector.graph.inspectee.id());
-		}
+		refresh_inspect();
 	});
 
 	inspectorContainer.on('resize', function(){
@@ -769,6 +728,8 @@ function createInspector(){
 			inspect_node(inspecteeForwardStack.pop());
 		}
 	};
+
+	setConfidenceSilder(`confidanceSliderInspector`, `confidanceValueInspector`);
 }
 
 function inspect_and_importAsync(id){
@@ -816,7 +777,6 @@ function showNodeListNextPrevious(fn=null){
 							overFlowVars['nodeList'][`IDStart`],
 							false,
 		function(result) {
-			nodelist = $('#nodelist');
 			nodelist.empty();
 
 			updateOverFlow('nodeList', result);
@@ -866,21 +826,6 @@ function getNodeCount(fn){
 			fn(result);
 		}
 	);
-}
-
-function connectNodeListAccordion(){
-	let acc = document.getElementsByClassName("formBoxAccordion");
-
-	for (let i = 0; i < acc.length; i++) {
-		acc[i].addEventListener("click", function() {
-			var panel = this.nextElementSibling;
-			if (panel.style.display === "block") {
-				panel.style.display = "none";
-			} else {
-				panel.style.display = "block";
-			}
-		});
-	}
 }
 
 //NodeSearchsheet Functions end
@@ -1080,8 +1025,8 @@ function htmlBody() {
 							<button type="button" class="headerButton" id="toggleTextualReport">Open Textual Report Saver</button>
 							<div class="dropdown" id="optionsForm"></div>
 						</div>
-						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>
-						<div class="row content notScrollable hide" style="padding: 0.5%;position:relative;" id="reportGenMenu">
+						<div class="row content notScrollable" style="padding: 0.5%;display:block;" id="worksheetPage"></div>
+						<div class="row content notScrollable" style="padding: 0.5%;position:relative;display:none;" id="reportGenMenu">
 							<div class="scrollable textualReportList">
 								<table class="table">
 									<tbody id="textualList"></tbody>
@@ -1114,12 +1059,7 @@ function generateOptions(){
 	optionButton.id = 'dropdownOptions';
 	optionButton.innerHTML = 'Options';
 	optionButton.onclick = (function(){
-		let menu = document.getElementById(`optionMenu`);
-		if (menu.style.display === "none") {
-			menu.style.display = "block";
-		} else {
-			menu.style.display = "none";
-		}
+		toggleBlockNone(`optionMenu`);
 	});
 	optionsForm.appendChild(optionButton);
 	attachOptionForm(optionsForm);
@@ -1142,12 +1082,12 @@ function attachOptionForm(optionsForm){
 							<input id="newMaxImportLength" class="textBox leftPadding" placeholder="${maxImportLength}"></input><br>
 							<label for="newLimitNodesForDagre">Inspector edge limit for Dagre layout:</label><br>
 							<input id="newLimitNodesForDagre" class="textBox leftPadding" placeholder="${limitNodesForDagre}"></input><br>
-							<label>Dark </label>
+							<label>Dark&nbsp;</label>
 							<label class="switch">
 								<input type="checkbox" id="styleSwitch">
-								<span class="slider"></span>
+								<span class="sliderCheck"></span>
 							</label>
-							<label> Light</label><br><br>`;
+							<label>&nbsp;Light</label><br><br>`;
 
 	let optionSubmit = document.createElement('button');
 	optionSubmit.className = 'headerButton';
@@ -1233,15 +1173,15 @@ function removeEmptyParents(parents){
 	})
 }
 
-function setRefreshGraphOnElementShow(watchElement, graph){
-	let targetNode = document.getElementById(watchElement).parentElement.parentElement;
-	let observer = new MutationObserver(function(){
-		if(targetNode.style.display !='none' && graph != null){
-			refreshGraph(graph);
-		}
-	});
-	observer.observe(targetNode,  { attributes: true, childList: true });
-}
+// function setRefreshGraphOnElementShow(watchElement, graph){
+// 	let targetNode = document.getElementById(watchElement).parentElement.parentElement;
+// 	let observer = new MutationObserver(function(){
+// 		if(targetNode.style.display !='none' && graph != null){
+// 			refreshGraph(graph);
+// 		}
+// 	});
+// 	observer.observe(targetNode,  { attributes: true, childList: true });
+// }
 
 function openSaveTextualMenu(){
 	refreshGraph(reportGenGraph);
@@ -1283,28 +1223,22 @@ function openSaveTextualMenu(){
 			row.innerHTML = (`<td><a>${meta.label}</a></td>`);
 		}
 	});
+
 	document.getElementById('saveToNode').onclick = function(){
 		let newTitle = document.getElementById('reportTitle').value;
-		neo4jQueries.setTextualNodeTitleDes(reportGenGraph.inspectee, 
-								newTitle, 
-								document.getElementById('reportDescription').value,
-								function(){
-									rowReportSelected.row.innerHTML = (`<td><a>${newTitle}</a></td>`);
-									inspector.graph.$id(`${reportGenGraph.inspectee}`).data('label', newTitle);
-									reportGenGraph.$id(`${reportGenGraph.inspectee}`).data('label', newTitle);
-									update_nodelist();
-									for(let worksheet of worksheets){
-										worksheet.graph.$id(reportGenGraph.inspectee).data('label', newTitle);
-									}
-								});
+		setTextualNode(reportGenGraph.inspectee, newTitle, 
+			document.getElementById('reportDescription').value,
+				function(){
+					rowReportSelected.row.innerHTML = (`<td><a>${newTitle}</a></td>`);
+				});
 	};
+
 	document.getElementById('saveReport').onclick = function(){
 		let report = {'title':document.getElementById('reportTitle').value, 
 					'png': reportGenGraph.png(),
 					'description':document.getElementById('reportDescription').value};
 		let string = '## Title:\n' + report.title + '\n\n## Description:\n' + report.description;
-		let nodes = reportGenGraph.nodes();
-		nodes.forEach(function(node){
+		reportGenGraph.nodes().forEach(function(node){
 			let data = node.data();
 			let keys = Object.keys(data);
 			let table = `\n\n.${data.label} #${data.id}\n|===\n|property |value\n\n`;
@@ -1317,7 +1251,6 @@ function openSaveTextualMenu(){
 		let blob = new Blob([ string ]);
 		let a = document.createElement('a');
 
-	//	console.log(report.png);
 		a.download = report.title + `.adoc`;
 		a.href= window.URL.createObjectURL(blob);
 
@@ -1353,7 +1286,7 @@ function openTextualMenu(ele){
 	}
 	let textualMenu = document.createElement('div');
 	textualMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
-	textualMenu.className = 'absolute';
+	textualMenu.className = 'textualEditMenu';
 	textualMenu.id = `textualDropdown${ele.data().id}`;
 	
 	neo4jQueries.getTextualNodeTitleDes(ele.data().id, function(result){
@@ -1375,16 +1308,8 @@ function openTextualMenu(ele){
 		textualSubmit.onclick = (function(){
 			title = document.getElementById('editTitle').value;
 			description = document.getElementById('editDescription').value;
-			neo4jQueries.setTextualNodeTitleDes(ele.data().id, title, description);
-			for(let worksheet of worksheets){
-				worksheet.graph.$id(ele.data().id).data('label', title);
-			}
-			inspector.graph.$id(ele.data().id).data('label', title);
-
+			setTextualNode(ele.data().id, title, description);
 			textualMenu.remove();
-			if($('#filterNodeType').val() == 'textual'){
-				update_nodelist();
-			}
 		});
 		textualMenu.appendChild(textualSubmit);
 
@@ -1628,6 +1553,67 @@ function setGraphCxtMenu(graph, cxtMenus){
 	cxtMenus.forEach(function(menu){
 		graph.cxtmenu(menu);
 	});
+}
+
+function setConfidenceSilder(slider, textbox){
+	slider = document.getElementById(slider);
+	textbox = document.getElementById(textbox);
+	slider.oninput = function () {
+		textbox.value = slider.value/100;
+	};
+
+	textbox.onchange = function () {
+		if(!utilFunc.testIfNumber(textbox.value)){
+			textbox.value = 0;
+			slider.value = 0;
+			return;
+		}
+		let value = Math.min(Math.max(textbox.value*100, 0), 100);
+		slider.value = value;
+		textbox.value = value/100;
+	};
+}
+
+function toggleBlockNone(element, blockFn=null, noneFn=null){
+	if('string' === typeof element){
+		element = document.getElementById(element);
+	}
+	if (element.style.display === "none" || element.style.display == '') {
+		element.style.display = "block";
+		if(blockFn != null){
+			blockFn();
+		}
+	} else {
+		element.style.display = "none";
+		if(noneFn != null){
+			noneFn();
+		}
+	}
+}
+
+function setTextualNode(id, label, description, fn=null){
+	neo4jQueries.setTextualNodeTitleDes(id, label, description,
+		function(){
+			if(fn != null){
+				fn();
+			}
+			for(let worksheet of worksheets){
+				worksheet.graph.$id(id).data('label', label);
+			}
+			inspector.graph.$id(id).data('label', label);
+
+			if($('#filterNodeType').val() == 'textual'){
+				update_nodelist();
+			}
+		});
+}
+
+function connectNodeListAccordion(){
+	for (let acc of document.getElementsByClassName("formBoxAccordion")) {
+		acc.addEventListener("click", function() {
+			toggleBlockNone(this.nextElementSibling);
+		});
+	}
 }
 
 //Utility Functions end

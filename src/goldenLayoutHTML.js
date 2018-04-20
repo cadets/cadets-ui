@@ -53,6 +53,11 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 										<label for="filterendDate">&nbsp;End date:</label><br>
 										<input type="datetime-local" id="filterendDate" size="3" class="textBox leftPadding"/><br>
 									</div><br>
+									<button class="formBoxAccordion">Confidance slider options</button>
+									<div class="hide">
+										<input type="range" min="0" max="100" value="0" class="slider" id="confidanceSliderSearch">
+										<input type="text" class="textBox leftPadding" id="confidanceValueSearch" value="0">
+									</div><br>
 								</div>
 								<div class="row content scrollable">
 									<table class="table">
@@ -65,6 +70,8 @@ var inspectorHtml = `<div class="sheet" id="inspectorGraph"></div>
 					<div class="topOptions" id="inspectorHeader">
 						<button type="button" class="headerButton" id="inspectLast">🡐</button>
 						<button type="button" class="headerButton" id="inspectForward">🡒</button>
+						<input type="range" min="0" max="100" value="0" class="slider" id="confidanceSliderInspector">
+						<input type="text" class="WorksheetTextBox leftPadding" id="confidanceValueInspector" value="0">
 					</div>
 					<div class="bottomOptions">
 						<input type="checkbox" id="inspectFiles" class="textBox">Files</input>
@@ -132,10 +139,10 @@ function getWorksheetHtml(){
 						<button type="button" class="headerButton" id="addTextual${index}">Add Textual Note</button>
 					</div><br>
 					<button class="formBoxAccordion">Confidance slider options</button>
-					<div class="hide"><br>
-						<input type="range" min="0" max="100" value="50" class="slider" id="confidanceSlider${index}">
-						<input type="text" class="WorksheetTextBox leftPadding" id="confidanceValue${index}" value="0.5">
-					</div><br>
+					<div class="hide">
+						<input type="range" min="0" max="100" value="0" class="slider" id="confidanceSlider${index}">
+						<input type="text" class="WorksheetTextBox leftPadding" id="confidanceValue${index}" value="0">
+					</div>
 				</div>
 				<div class="bottomOptions">
 					<input id="loadGraph${index}" name="file" type="file" style="display: none">

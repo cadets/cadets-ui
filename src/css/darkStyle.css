@@ -60,6 +60,12 @@ html, body {
 .notScrollable{
 	overflow: hidden;
 }
+::-moz-scrollbar {
+	width: 15px;
+}
+::-moz-scrollbar-thumb:hover {
+	background: #000; 
+}
 ::-webkit-scrollbar {
 	width: 15px;
 }
@@ -92,7 +98,7 @@ th,td{
 }
 .textBox{
 	border: 0px;
-	background-color: #303030;!important
+	background-color: #303030;
 	color: #c6c6c6;
 	size:2;
 }
@@ -111,7 +117,7 @@ th,td{
 	display:inline-block;
     position: relative;
 }
-.absolute{
+.textualEditMenu{
 	padding: 20px;
 	background-color: #161616;
 	position: absolute;
@@ -179,7 +185,7 @@ th,td{
 .switch input {display:none;}
 
 /* The slider */
-.slider {
+.sliderCheck {
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -188,10 +194,11 @@ th,td{
   bottom: 0;
   background-color: #727272;
   -webkit-transition: .4s;
+  -moz-transition: .4s;
   transition: .4s;
 }
 
-.slider:before {
+.sliderCheck:before {
   position: absolute;
   content: "";
   height: 13px;
@@ -200,19 +207,21 @@ th,td{
   bottom: 2px;
   background-color: white;
   -webkit-transition: .4s;
+  -moz-transition: .4s;
   transition: .4s;
 }
 
-input:checked + .slider {
+input:checked + .sliderCheck {
   background-color: #ccc;
 }
 
-input:focus + .slider {
+input:focus + .sliderCheck {
   box-shadow: 0 0 0.5px #ccc;
 }
 
-input:checked + .slider:before {
+input:checked + .sliderCheck:before {
   -webkit-transform: translateX(13px);
+  -moz-transform: translateX(13px);
   -ms-transform: translateX(13px);
   transform: translateX(13px);
 }

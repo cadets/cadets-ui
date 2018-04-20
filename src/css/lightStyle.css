@@ -62,6 +62,12 @@ html, body {
 .notScrollable{
 	overflow: hidden;
 }
+::-moz-scrollbar {
+	width: 15px;
+}
+::-moz-scrollbar-thumb:hover {
+	background: #555; 
+}
 ::-webkit-scrollbar {
 	width: 15px;
 }
@@ -109,7 +115,7 @@ th,td{
     position: relative;
     display: inline-block;
 }
-.absolute{
+.textualEditMenu{
 	padding: 20px;
 	background-color: #d6d6d6;
 	position: absolute;
@@ -176,7 +182,7 @@ th,td{
 .switch input {display:none;}
 
 /* The slider */
-.slider {
+.sliderCheck {
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -185,10 +191,11 @@ th,td{
   bottom: 0;
   background-color: #727272;
   -webkit-transition: .4s;
+  -moz-transition: .4s;
   transition: .4s;
 }
 
-.slider:before {
+.sliderCheck:before {
   position: absolute;
   content: "";
   height: 13px;
@@ -197,19 +204,21 @@ th,td{
   bottom: 2px;
   background-color: white;
   -webkit-transition: .4s;
+  -moz-transition: .4s;
   transition: .4s;
 }
 
-input:checked + .slider {
+input:checked + .sliderCheck {
   background-color: #ccc;
 }
 
-input:focus + .slider {
+input:focus + .sliderCheck {
   box-shadow: 0 0 0.5px #ccc;
 }
 
-input:checked + .slider:before {
+input:checked + .sliderCheck:before {
   -webkit-transform: translateX(13px);
+  -moz-transform: translateX(13px);
   -ms-transform: translateX(13px);
   transform: translateX(13px);
 }
