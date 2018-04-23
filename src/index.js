@@ -98,6 +98,7 @@ var inspecteeForwardStack = [];
 var highlightedIDs = [];
 
 var textualHandlers = {};
+var pathHandlers = {};
 
 var inspectFiles = false;
 var inspectSockets = false;
@@ -167,6 +168,26 @@ var standardWorksheetCommands = [
 			openSubMenu(function(){
 				removeNode(ele);
 			}, false, true);
+		}
+	},
+	{
+		content: 'Shortest path',
+		select: function(ele){
+			let eleID = ele.data().id;
+			pathHandlers[`${eleID}`] = function(event){
+				ele.cy().removeListener('tap', textualHandlers[`${eleID}`]);
+				pathHandlers[`${eleID}`] = null;
+				let evtID = event.target.data().id;
+				neo4jQueries.getShortestPath(eleID, evtID, function(results){
+					graphingAPI.add_node_batch(results.nodes, worksheets[0].graph);
+					neo4jQueries.get_all_edges_batch(results.nodes.map(function(ele){
+						return parseInt(ele.id);
+					}), function(edges){
+						graphingAPI.add_edge_batch(edges.concat(results.edges), worksheets[0].graph);
+					});
+				});
+			}
+			ele.cy().on('tap', 'node', pathHandlers[`${eleID}`]);
 		}
 	},
 ];

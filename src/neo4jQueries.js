@@ -729,6 +729,7 @@ export function getTypeLabels(fn){
 	let session = driver.session();
 	session.run(`CALL db.labels()`)
 	.then(result => {
+		session.close();
 		let types = [];
 		result.records.forEach(function(record){
 			types = types.concat(record.get('label'));
@@ -743,6 +744,7 @@ export function createTextualNode(fn){
 	let session = driver.session();
 	session.run(`CREATE (n:Textual) RETURN n`)
 	.then(result => {
+		session.close();
 		fn(neo4jParser.parseNeo4jNode(result.records[0].get('n')));
 	}, function(error) {
 		neo4jError(error, session, "createTextualNode");
@@ -755,6 +757,7 @@ export function getTextualNodes(fn){
 	session.run(`Match (n:Textual)
 				RETURN n`)
 	.then(result => {
+		session.close();
 		result.records.forEach(function(record){
 			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
 		})
@@ -770,6 +773,7 @@ export function getTextualNodeTitleDes(id, fn){
 				WHERE id(n) = ${id}
 				RETURN n.title AS title, n.description as description`)
 	.then(result => {
+		session.close();
 		fn({'title':result.records[0].get('title'),
 			'description': result.records[0].get('description')});
 	}, function(error) {
@@ -784,6 +788,7 @@ export function setTextualNodeTitleDes(id, title, description, fn=null){
 				SET n.title = ${JSON.stringify(title)}
 				SET n.description = ${JSON.stringify(description)}`)
 	.then(result => {
+		session.close();
 		if(fn!=null){fn();}
 	}, function(error) {
 		neo4jError(error, session, "setTextualNodeTitleDes");
@@ -797,6 +802,7 @@ export function createTextualEdge(sourceID, targetID, fn){
 				CREATE (s)<-[e:Describes]-(t)
 				RETURN e`)
 	.then(result => {
+		session.close();
 		fn(neo4jParser.parseNeo4jEdge(result.records[0].get('e')));
 	}, function(error) {
 		neo4jError(error, session, "createTextualEdge");
@@ -809,6 +815,7 @@ export function deleteTextualEdge(sourceID, targetID){
 				WHERE id(s) = ${sourceID} AND id(t) = ${targetID}
 				DELETE (e)`)
 	.then(result => {
+		session.close();
 	}, function(error) {
 		neo4jError(error, session, "deleteTextualEdge");
 	});
@@ -818,8 +825,36 @@ export function deleteEmptyTextualNodes(){
 	let session = driver.session();
 	session.run(`Match (n:Textual) DETACH DELETE n`)
 	.then(result => {
+		session.close();
 	}, function(error) {
 		neo4jError(error, session, "deleteEmptyTextualNodes");
+	});
+}
+
+export function getShortestPath(startID, endID, fn){
+	let session = driver.session();
+	session.run(`MATCH (source),(target)
+				WHERE id(source) = ${startID} AND id(target) = ${endID}
+				MATCH p = shortestPath((source)<-[*]-(target))
+				return p;`)
+	.then(result => {
+		session.close();
+		if(result.records[0] == null){
+			vex.dialog.alert({message: 'No forward connection from source to target node.',
+							className: 'vex-theme-wireframe'});
+			return;
+		}
+		let nodes = [];
+		let edges = [];
+		result.records[0].get('p').segments.forEach(function(segment){
+			nodes = nodes.concat(neo4jParser.parseNeo4jNode(segment.start));
+			edges = edges.concat(neo4jParser.parseNeo4jEdge(segment.relationship));	
+		});
+		nodes = nodes.concat(neo4jParser.parseNeo4jNode(result.records[0].get('p').end));
+		fn({'nodes': nodes,
+			'edges': edges});
+	}, function(error) {
+		neo4jError(error, session, "setTextualNodeTitleDes");
 	});
 }
 
@@ -845,6 +880,7 @@ const neo4jQueries ={
 	setTextualNodeTitleDes,
 	createTextualEdge,
 	deleteEmptyTextualNodes,
+	getShortestPath,
 }
 
 export default neo4jQueries;
