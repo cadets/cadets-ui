@@ -70,6 +70,12 @@ if (module.hot) {
 		element = component();
 		document.body.appendChild(element);
 	})
+	module.hot.accept('./utilFunc.js', function() {
+		console.log('Accepting the updated graphing module!');
+		document.body.removeChild(element);
+		element = component();
+		document.body.appendChild(element);
+	})
 }
 
 //Build Html document end
@@ -556,6 +562,8 @@ function createWorksheet(){
 	};
 
 	setConfidenceSilder(`confidanceSlider${index}`, `confidanceValue${index}`);
+
+	connectNodeListAccordion();
 
 	// document.getElementById(`saveTextual${index}`).onclick = function () {
 	// 	vex.dialog.confirm({
