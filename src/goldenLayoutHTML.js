@@ -18,7 +18,7 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 											<option>socket-version</option>
 											<option>global-only</option>
 											<option>edit-session</option>
-											<option>textual</option>
+											<option>annotation</option>
 					 					</select>
 									</div>
 									<label for="filterName">&nbsp;Name</label>
@@ -130,13 +130,13 @@ var config = {
 };
 
 function getWorksheetHtml(){
-	let index = worksheetCount;//<button type="button" class="headerButton" id="saveTextual${index}">Delete db Textual Notes</button>
+	let index = worksheetCount;//<button type="button" class="headerButton" id="saveAnnotation${index}">Delete db Annotation Notes</button>
 	return `<div class="sheet" id="worksheet${index}">
 				<div class="sheet" id="worksheetGraph${index}"></div>
 				<div class="topOptions">
-					<button class="formBoxAccordion">Textual options</button>
+					<button class="formBoxAccordion">Annotation options</button>
 					<div class="hide"><br>
-						<button type="button" class="headerButton" id="addTextual${index}">Add Textual Note</button>
+						<button type="button" class="headerButton" id="addAnnotation${index}">Add Annotation Note</button>
 					</div><br>
 					<button class="formBoxAccordion">Confidance slider options</button>
 					<div class="hide">

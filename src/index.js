@@ -97,7 +97,7 @@ var inspecteeForwardStack = [];
 
 var highlightedIDs = [];
 
-var textualHandlers = {};
+var annotationHandlers = {};
 var pathHandlers = {};
 
 var inspectFiles = false;
@@ -175,7 +175,7 @@ var standardWorksheetCommands = [
 		select: function(ele){
 			let eleID = ele.data().id;
 			pathHandlers[`${eleID}`] = function(event){
-				ele.cy().removeListener('tap', textualHandlers[`${eleID}`]);
+				ele.cy().removeListener('tap', annotationHandlers[`${eleID}`]);
 				pathHandlers[`${eleID}`] = null;
 				let evtID = event.target.data().id;
 				neo4jQueries.getShortestPath(eleID, evtID, function(results){
@@ -195,7 +195,7 @@ var standardWorksheetCommands = [
 var worksheetChildCxtMenu = ({
 	menuRadius: 140,
 	separatorWidth: 5,
-	selector: 'node[type != "textual"]:childless',
+	selector: 'node[type != "annotation"]:childless',
 	commands: [
 		{
 			content: 'Files read',
@@ -228,45 +228,45 @@ var worksheetParentCxtMenu = ({
 	]
 });
 
-var worksheetTextualCxtMenu = ({
+var worksheetAnnotationCxtMenu = ({
 	menuRadius: 140,
 	separatorWidth: 5,
-	selector: 'node.textual',
+	selector: 'node.annotation',
 	commands: [
 		{
 			content: `Toggle selection connections`,
 			select: function(ele){
 				let eleID = ele.data().id;
 				if(ele.data().connectionOn){
-					ele.removeClass('textualActive');
+					ele.removeClass('annotationActive');
 					ele.data().connectionOn = false;
-					ele.cy().removeListener('tap', textualHandlers[`${eleID}`]);
-					textualHandlers[`${eleID}`] = null;
+					ele.cy().removeListener('tap', annotationHandlers[`${eleID}`]);
+					annotationHandlers[`${eleID}`] = null;
 				}
 				else{
-					ele.addClass('textualActive');
+					ele.addClass('annotationActive');
 					ele.data().connectionOn = true;
-					textualHandlers[`${eleID}`] = function(event){
+					annotationHandlers[`${eleID}`] = function(event){
 						let evtID = event.target.data().id;
 						if(evtID == eleID){return;}
 						if (!ele.allAreNeighbors(`#${evtID}`)){
-							neo4jQueries.createTextualEdge(eleID, evtID, function(edge){
+							neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
 								graphingAPI.add_edge(edge, ele.cy());
 							});
 						}
 						else{
-							neo4jQueries.deleteTextualEdge(eleID, evtID);
+							neo4jQueries.deleteAnnotationEdge(eleID, evtID);
 							ele.edgesWith(`#${evtID}`).remove();
 						}
 					};
-					ele.cy().on('tap', 'node', textualHandlers[`${eleID}`]);
+					ele.cy().on('tap', 'node', annotationHandlers[`${eleID}`]);
 				}
 			}
 		},
 		{
 			content: 'Edit Details',
 			select: function(ele){
-				openTextualMenu(ele);
+				openAnnotationMenu(ele);
 			}
 		},
 	].concat(standardWorksheetCommands)
@@ -308,7 +308,7 @@ var inspectorChildCxtMenu = ({
 		]
 	});
 
-var worksheetCxtMenus = [worksheetChildCxtMenu, worksheetParentCxtMenu, worksheetTextualCxtMenu];
+var worksheetCxtMenus = [worksheetChildCxtMenu, worksheetParentCxtMenu, worksheetAnnotationCxtMenu];
 var inspectorCxtMenus = [inspectorChildCxtMenu];
 
 //Global variables end
@@ -352,7 +352,6 @@ workSheetLayout.init();
 
 workSheetLayout.on('initialised', function(){
 	generateOptions();
-	connectNodeListAccordion();
 	if(document.getElementById("NodeSearchsheet") != null){
 		neo4jQueries.neo4jLogin(eventEmitter, function(){
 			update_nodelist();
@@ -381,13 +380,13 @@ workSheetLayout.on('initialised', function(){
 		}
 	};
 
-	document.getElementById(`toggleTextualReport`).onclick = function () {
+	document.getElementById(`toggleAnnotationReport`).onclick = function () {
 		toggleBlockNone("worksheetPage");
 		toggleBlockNone("reportGenMenu", function(){
-			document.getElementById("toggleTextualReport").innerHTML = 'Close Textual Report Saver';
-			openSaveTextualMenu();
+			document.getElementById("toggleAnnotationReport").innerHTML = 'Close Annotation Report Saver';
+			openSaveAnnotationMenu();
 		}, function(){
-			document.getElementById("toggleTextualReport").innerHTML = 'Open Textual Report Saver';
+			document.getElementById("toggleAnnotationReport").innerHTML = 'Open Annotation Report Saver';
 			workSheetLayout.updateSize();
 		});
 	};
@@ -460,7 +459,7 @@ workSheetLayout.eventHub.on('updateInspectTargets', function(files, sockets, pip
 
 workSheetLayout.on(`NodeSearchsheetContainerCreated`, function(){
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
-	setConfidenceSilder(`confidanceSliderSearch`, `confidanceValueSearch`);
+	setConfidenceSilder(`confidanceSliderSearch`, `confidanceValueSearch`, update_nodelist);
 });
 
 //NodeSearchsheet Events end
@@ -573,26 +572,28 @@ function createWorksheet(){
 		graphingAPI.layout( worksheets[`${index}`].graph, 'cose-bilkent');
 	};
 
-	document.getElementById(`addTextual${index}`).onclick = function () {
-		neo4jQueries.createTextualNode(function(node){
+	document.getElementById(`addAnnotation${index}`).onclick = function () {
+		neo4jQueries.createAnnotationNode(function(node){
 			graphingAPI.add_node(node, worksheets[`${index}`].graph);
-			if($('#filterNodeType').val() == 'textual'){
+			if($('#filterNodeType').val() == 'annotation'){
 				update_nodelist();
 			}
 		})
 	};
 
-	setConfidenceSilder(`confidanceSlider${index}`, `confidanceValue${index}`);
+	setConfidenceSilder(`confidanceSlider${index}`, `confidanceValue${index}`, function(){
+		worksheetGraph.remove();
+	});
 
 	connectNodeListAccordion();
 
-	// document.getElementById(`saveTextual${index}`).onclick = function () {
+	// document.getElementById(`saveAnnotation${index}`).onclick = function () {
 	// 	vex.dialog.confirm({
-	// 		message: 'WARNING this action will delete all textual nodes in database.',
+	// 		message: 'WARNING this action will delete all annotation nodes in database.',
 	// 		className: 'vex-theme-wireframe',
 	// 		callback: function (value) {
 	// 			if(!value){return;}
-	// 			neo4jQueries.deleteEmptyTextualNodes();
+	// 			neo4jQueries.deleteEmptyAnnotationNodes();
 	// 		}
 	// 	});
 	// };
@@ -635,28 +636,28 @@ function remove_neighbours_from_worksheet(id) {
 function toggleSection(ele){
 	let eleID = ele.data().id;
 	if(ele.data().connectionOn){
-		ele.removeClass('textualActive');
+		ele.removeClass('annotationActive');
 		ele.data().connectionOn = false;
-		ele.cy().removeListener('tap', textualHandlers[`${eleID}`]);
-		textualHandlers[`${eleID}`] = null;
+		ele.cy().removeListener('tap', annotationHandlers[`${eleID}`]);
+		annotationHandlers[`${eleID}`] = null;
 	}
 	else{
-		ele.addClass('textualActive');
+		ele.addClass('annotationActive');
 		ele.data().connectionOn = true;
-		textualHandlers[`${eleID}`] = function(event){
+		annotationHandlers[`${eleID}`] = function(event){
 			let evtID = event.target.data().id;
 			if(evtID == eleID){return;}
 			if (!ele.allAreNeighbors(`#${evtID}`)){
-				neo4jQueries.createTextualEdge(eleID, evtID, function(edge){
+				neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
 					graphingAPI.add_edge(edge, ele.cy());
 				});
 			}
 			else{
-				neo4jQueries.deleteTextualEdge(eleID, evtID);
+				neo4jQueries.deleteAnnotationEdge(eleID, evtID);
 				ele.edgesWith(`#${evtID}`).remove();
 			}
 		};
-		ele.cy().on('tap', 'node', textualHandlers[`${eleID}`]);
+		ele.cy().on('tap', 'node', annotationHandlers[`${eleID}`]);
 	}
 }
 
@@ -758,7 +759,7 @@ function createInspector(){
 		}
 	};
 
-	setConfidenceSilder(`confidanceSliderInspector`, `confidanceValueInspector`);
+	setConfidenceSilder(`confidanceSliderInspector`, `confidanceValueInspector`, refresh_inspect);
 }
 
 function inspect_and_importAsync(id){
@@ -802,6 +803,7 @@ function showNodeListNextPrevious(fn=null){
 							$('#filterfileNum').val(),
 							$('#filterstartDate').val(), 
 							$('#filterendDate').val(),
+							$('#confidanceValueSearch').val(),
 							overFlowVars[`nodeList`][`DisplayAmount`] + 1,
 							overFlowVars['nodeList'][`IDStart`],
 							false,
@@ -849,6 +851,7 @@ function getNodeCount(fn){
 							$('#filterfileNum').val(),
 							$('#filterstartDate').val(), 
 							$('#filterendDate').val(),
+							$('#confidanceValueSearch').val(),
 							0,0,
 							true,
 		function(result) {
@@ -991,7 +994,8 @@ function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, f
 										isOverFlow,
 										displayAmount,
 										startID,
-										countOnly);
+										countOnly,
+										$('#confidanceValueInspector').val());
 }
 
 function import_batch_into_worksheet(nodes) {
@@ -1051,21 +1055,21 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 							<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 							<button type="button" class="headerButton" id="toggleNodeSearchsheet">Close NodeSearchsheet</button>
-							<button type="button" class="headerButton" id="toggleTextualReport">Open Textual Report Saver</button>
+							<button type="button" class="headerButton" id="toggleAnnotationReport">Open Annotation Report Saver</button>
 							<div class="dropdown" id="optionsForm"></div>
 						</div>
 						<div class="row content notScrollable" style="padding: 0.5%;display:block;" id="worksheetPage"></div>
 						<div class="row content notScrollable" style="padding: 0.5%;position:relative;display:none;" id="reportGenMenu">
-							<div class="scrollable textualReportList">
+							<div class="scrollable annotationReportList">
 								<table class="table">
-									<tbody id="textualList"></tbody>
+									<tbody id="annotationList"></tbody>
 								</table>
 							</div>
-							<div class="scrollable textualReport">
+							<div class="scrollable annotationReport">
 								<label for="reportTitle">Title:</label><br>
 								<input id="reportTitle" class="textBox leftPadding" value=""></input><br><br>
 								<label for="reportGenGraph">Graph:</label><br>
-								<div class="textualReportGraph">
+								<div class="annotationReportGraph">
 									<div id="reportGenGraph" class="sheet"></div>
 									<div class="bottomOptions">
 										<button type="button" class="headerButton" id="reportDagre">Dagre</button>
@@ -1074,7 +1078,7 @@ function htmlBody() {
 								</div><br>
 								<label for="reportDescription">Description:</label><br>
 								<textarea id="reportDescription" class="textBox leftPadding" rows="4" cols="50"></textarea><br><br>
-								<button type="button" class="headerButton" id="saveToNode">Update Textual Node to db</button>
+								<button type="button" class="headerButton" id="saveToNode">Update Annotation Node to db</button>
 								<button type="button" class="headerButton" id="saveReport">Save Report</button><br><br>
 							</div>
 						</div>`;
@@ -1212,15 +1216,15 @@ function removeEmptyParents(parents){
 // 	observer.observe(targetNode,  { attributes: true, childList: true });
 // }
 
-function openSaveTextualMenu(){
+function openSaveAnnotationMenu(){
 	refreshGraph(reportGenGraph);
 	let title = null;
 	let description = null;
-	$('#textualList').empty();
-	neo4jQueries.getTextualNodes(function(nodes){
+	$('#annotationList').empty();
+	neo4jQueries.getAnnotationNodes(function(nodes){
 		for (let node of nodes) {
 			let meta = graphingAPI.node_metadata(node);
-			let row = document.getElementById('textualList').insertRow(0);
+			let row = document.getElementById('annotationList').insertRow(0);
 			if(rowReportSelected != null && rowReportSelected.id == node.id){
 				rowReportSelected.row = row;
 			}
@@ -1255,7 +1259,7 @@ function openSaveTextualMenu(){
 
 	document.getElementById('saveToNode').onclick = function(){
 		let newTitle = document.getElementById('reportTitle').value;
-		setTextualNode(reportGenGraph.inspectee, newTitle, 
+		setAnnotationNode(reportGenGraph.inspectee, newTitle, 
 			document.getElementById('reportDescription').value,
 				function(){
 					rowReportSelected.row.innerHTML = (`<td><a>${newTitle}</a></td>`);
@@ -1300,7 +1304,7 @@ function updateReportPanel(id, title, description, fn){
 		neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
 			graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
 		});
-		neo4jQueries.getTextualNodeTitleDes(id, function(result){
+		neo4jQueries.getAnnotationNodeTitleDes(id, function(result){
 			document.getElementById('reportTitle').value = result.title;
 			$('#reportDescription').val(result.description);
 			fn(result.title, result.description);
@@ -1309,16 +1313,16 @@ function updateReportPanel(id, title, description, fn){
 }
 
 
-function openTextualMenu(ele){
-	if(document.getElementById(`textualDropdown${ele.data().id}`) != null){
+function openAnnotationMenu(ele){
+	if(document.getElementById(`annotationDropdown${ele.data().id}`) != null){
 		return;
 	}
-	let textualMenu = document.createElement('div');
-	textualMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
-	textualMenu.className = 'textualEditMenu';
-	textualMenu.id = `textualDropdown${ele.data().id}`;
+	let annotationMenu = document.createElement('div');
+	annotationMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
+	annotationMenu.className = 'annotationEditMenu';
+	annotationMenu.id = `annotationDropdown${ele.data().id}`;
 	
-	neo4jQueries.getTextualNodeTitleDes(ele.data().id, function(result){
+	neo4jQueries.getAnnotationNodeTitleDes(ele.data().id, function(result){
 		let title = result.title;
 		let description = result.description;
 		if(title == null){title = '';}
@@ -1329,23 +1333,23 @@ function openTextualMenu(ele){
 								<input id="editTitle" class="textBox leftPadding" value="${title}"></input><br>
 								<label for="editDescription">Description:</label><br>
 								<textarea  id="editDescription" class="textBox leftPadding" rows="4" cols="50">${description}</textarea><br><br>`
-		textualMenu.appendChild(subMenuOption);
+		annotationMenu.appendChild(subMenuOption);
 
-		let textualSubmit = document.createElement('button');
-		textualSubmit.className = 'headerButton';
-		textualSubmit.innerHTML = 'Apply';
-		textualSubmit.onclick = (function(){
+		let annotationSubmit = document.createElement('button');
+		annotationSubmit.className = 'headerButton';
+		annotationSubmit.innerHTML = 'Apply';
+		annotationSubmit.onclick = (function(){
 			title = document.getElementById('editTitle').value;
 			description = document.getElementById('editDescription').value;
-			setTextualNode(ele.data().id, title, description);
-			textualMenu.remove();
+			setAnnotationNode(ele.data().id, title, description);
+			annotationMenu.remove();
 		});
-		textualMenu.appendChild(textualSubmit);
+		annotationMenu.appendChild(annotationSubmit);
 
-		let textualCancel = document.createElement('button');
-		textualCancel.className = 'headerButton';
-		textualCancel.innerHTML = 'Close';
-		textualCancel.onclick = (function(){
+		let annotationCancel = document.createElement('button');
+		annotationCancel.className = 'headerButton';
+		annotationCancel.innerHTML = 'Close';
+		annotationCancel.onclick = (function(){
 			if(title != document.getElementById('editTitle').value ||
 				description != document.getElementById('editDescription').value){
 				vex.dialog.confirm({
@@ -1353,17 +1357,17 @@ function openTextualMenu(ele){
 					className: 'vex-theme-wireframe',
 					callback: function (value) {
 						if(!value){return;}
-						textualMenu.remove();
+						annotationMenu.remove();
 					}
 				});
 			}
 			else{
-				textualMenu.remove();
+				annotationMenu.remove();
 			}
 		});
-		textualMenu.appendChild(textualCancel);
+		annotationMenu.appendChild(annotationCancel);
 
-		document.body.appendChild(textualMenu);
+		document.body.appendChild(annotationMenu);
 	});
 }
 
@@ -1584,11 +1588,12 @@ function setGraphCxtMenu(graph, cxtMenus){
 	});
 }
 
-function setConfidenceSilder(slider, textbox){
+function setConfidenceSilder(slider, textbox, fn){
 	slider = document.getElementById(slider);
 	textbox = document.getElementById(textbox);
 	slider.oninput = function () {
 		textbox.value = slider.value/100;
+		fn();
 	};
 
 	textbox.onchange = function () {
@@ -1620,8 +1625,8 @@ function toggleBlockNone(element, blockFn=null, noneFn=null){
 	}
 }
 
-function setTextualNode(id, label, description, fn=null){
-	neo4jQueries.setTextualNodeTitleDes(id, label, description,
+function setAnnotationNode(id, label, description, fn=null){
+	neo4jQueries.setAnnotationNodeTitleDes(id, label, description,
 		function(){
 			if(fn != null){
 				fn();
@@ -1631,7 +1636,7 @@ function setTextualNode(id, label, description, fn=null){
 			}
 			inspector.graph.$id(id).data('label', label);
 
-			if($('#filterNodeType').val() == 'textual'){
+			if($('#filterNodeType').val() == 'annotation'){
 				update_nodelist();
 			}
 		});

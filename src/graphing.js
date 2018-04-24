@@ -396,10 +396,10 @@ function load_graph_style(graphs) {
 				  overlay-opacity: 0.5;
 				  overlay-padding: 5; }
 
-			node.textual {
+			node.annotation {
 				shape: octagon; }
 
-			node.textualActive {
+			node.annotationActive {
 				background-color: #720d00; }
 
 			node.important {
@@ -631,7 +631,7 @@ export function node_metadata(node) {
 			};
 			timestamp = node['timestamp'];
 			break;
-		case 'textual':
+		case 'annotation':
 			metadata = {
 				label: node['title'],
 			};

@@ -124,9 +124,10 @@ export function cmd_query(id, fn){
 }
 
 export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
-								process_meta=true, isOverFlow=false, limit=-1, startID = 0, countOnly=false){
+								process_meta=true, isOverFlow=false, limit=-1, 
+								startID = 0, countOnly=false, confidance=null){
 	get_neighbours_id_batch([parseInt(id)], fn, files, sockets, pipes, 
-							process_meta, isOverFlow, limit, startID, countOnly);
+							process_meta, isOverFlow, limit, startID, countOnly, confidance);
 }
 
 export function get_neighbours_id_batch(ids,
@@ -138,8 +139,9 @@ export function get_neighbours_id_batch(ids,
 										isOverFlow=false,
 										limit=-1,
 										startID = 0,
-										countOnly=false){
-	let matchers = ["Machine", "Process", "Conn", "Textual"];
+										countOnly=false,
+										confidance=null){
+	let matchers = ["Machine", "Process", "Conn", "Annotation"];
 	if (files){
 		matchers = matchers.concat(['File', 'EditSession']);
 	}
@@ -178,6 +180,12 @@ export function get_neighbours_id_batch(ids,
 		socket_machine_query = `UNION
 								MATCH (s:Socket), (e), (d:Machine)
 								WHERE 
+									d.show is Null
+									OR
+									${confidance} <= d.show
+								WITH d
+								MATCH (s:Socket), (e), (d:Machine)
+								WHERE 
 								id(d) >= ${startID}
 								AND
 								s = e
@@ -191,6 +199,12 @@ export function get_neighbours_id_batch(ids,
 								UNION
 								MATCH (s:Socket), (e), (d:Machine)
 								WHERE 
+									s.show is Null
+									OR
+									${confidance} <= s.show
+								WITH s
+								MATCH (s:Socket), (e), (d:Machine)
+								WHERE 
 								${startQuery}
 								s = e
 								AND
@@ -202,6 +216,12 @@ export function get_neighbours_id_batch(ids,
 								RETURN ${returnQuery}`;
 	}
 	let query = `MATCH (d)-[e]-(s)
+				WHERE 
+					s.show is Null
+					OR
+					${confidance} <= s.show
+				WITH s
+				MATCH (d)-[e]-(s)
 				WHERE 
 				${startQuery}
 				id(d) IN ${JSON.stringify(ids)}
@@ -513,6 +533,7 @@ export function get_nodes(node_type=null,
 				fileNum=1,
 				startDate="", 
 				endDate="",
+				confidance=null,
 				limit='100',
 				startID = 0,
 				countOnly = false,
@@ -530,7 +551,7 @@ export function get_nodes(node_type=null,
 					'file-version': 'File',
 					'global-only': 'Global',
 					'edit-session': 'EditSession',
-					'textual': 'Textual'};
+					'annotation': 'Annotation'};
 	let labelQuery;
 	if  (!(node_type in node_labels)){
 		lab = "Null";
@@ -599,6 +620,11 @@ export function get_nodes(node_type=null,
 				${JSON.stringify(lab)} is Null
 				OR
 				${labelQuery}
+			WITH n
+			WHERE 
+				n.show is Null
+				OR
+				${confidance} <= n.show
 			WITH n
 			WHERE
 				${JSON.stringify(name)} is Null
@@ -740,21 +766,21 @@ export function getTypeLabels(fn){
 	});
 }
 
-export function createTextualNode(fn){
+export function createAnnotationNode(fn){
 	let session = driver.session();
-	session.run(`CREATE (n:Textual) RETURN n`)
+	session.run(`CREATE (n:Annotation) RETURN n`)
 	.then(result => {
 		session.close();
 		fn(neo4jParser.parseNeo4jNode(result.records[0].get('n')));
 	}, function(error) {
-		neo4jError(error, session, "createTextualNode");
+		neo4jError(error, session, "createAnnotationNode");
 	});
 }
 
-export function getTextualNodes(fn){
+export function getAnnotationNodes(fn){
 	let nodes = [];
 	let session = driver.session();
-	session.run(`Match (n:Textual)
+	session.run(`Match (n:Annotation)
 				RETURN n`)
 	.then(result => {
 		session.close();
@@ -763,13 +789,13 @@ export function getTextualNodes(fn){
 		})
 		fn(nodes);
 	}, function(error) {
-		neo4jError(error, session, "getTextualNodes");
+		neo4jError(error, session, "getAnnotationNodes");
 	});
 }
 
-export function getTextualNodeTitleDes(id, fn){
+export function getAnnotationNodeTitleDes(id, fn){
 	let session = driver.session();
-	session.run(`Match (n:Textual)
+	session.run(`Match (n:Annotation)
 				WHERE id(n) = ${id}
 				RETURN n.title AS title, n.description as description`)
 	.then(result => {
@@ -777,13 +803,13 @@ export function getTextualNodeTitleDes(id, fn){
 		fn({'title':result.records[0].get('title'),
 			'description': result.records[0].get('description')});
 	}, function(error) {
-		neo4jError(error, session, "setTextualNodeTitleDes");
+		neo4jError(error, session, "setAnnotationNodeTitleDes");
 	});
 }
 
-export function setTextualNodeTitleDes(id, title, description, fn=null){
+export function setAnnotationNodeTitleDes(id, title, description, fn=null){
 	let session = driver.session();
-	session.run(`Match (n:Textual)
+	session.run(`Match (n:Annotation)
 				WHERE id(n) = ${id}
 				SET n.title = ${JSON.stringify(title)}
 				SET n.description = ${JSON.stringify(description)}`)
@@ -791,13 +817,13 @@ export function setTextualNodeTitleDes(id, title, description, fn=null){
 		session.close();
 		if(fn!=null){fn();}
 	}, function(error) {
-		neo4jError(error, session, "setTextualNodeTitleDes");
+		neo4jError(error, session, "setAnnotationNodeTitleDes");
 	});
 }
 
-export function createTextualEdge(sourceID, targetID, fn){
+export function createAnnotationEdge(sourceID, targetID, fn){
 	let session = driver.session();
-	session.run(`MATCH (s:Textual), (t) 
+	session.run(`MATCH (s:Annotation), (t) 
 				WHERE id(s) = ${sourceID} AND id(t) = ${targetID}
 				CREATE (s)<-[e:Describes]-(t)
 				RETURN e`)
@@ -805,29 +831,29 @@ export function createTextualEdge(sourceID, targetID, fn){
 		session.close();
 		fn(neo4jParser.parseNeo4jEdge(result.records[0].get('e')));
 	}, function(error) {
-		neo4jError(error, session, "createTextualEdge");
+		neo4jError(error, session, "createAnnotationEdge");
 	});
 }
 
-export function deleteTextualEdge(sourceID, targetID){
+export function deleteAnnotationEdge(sourceID, targetID){
 	let session = driver.session();
-	session.run(`MATCH (s:Textual)-[e:Describes]-(t) 
+	session.run(`MATCH (s:Annotation)-[e:Describes]-(t) 
 				WHERE id(s) = ${sourceID} AND id(t) = ${targetID}
 				DELETE (e)`)
 	.then(result => {
 		session.close();
 	}, function(error) {
-		neo4jError(error, session, "deleteTextualEdge");
+		neo4jError(error, session, "deleteAnnotationEdge");
 	});
 }
 
-export function deleteEmptyTextualNodes(){
+export function deleteEmptyAnnotationNodes(){
 	let session = driver.session();
-	session.run(`Match (n:Textual) DETACH DELETE n`)
+	session.run(`Match (n:Annotation) DETACH DELETE n`)
 	.then(result => {
 		session.close();
 	}, function(error) {
-		neo4jError(error, session, "deleteEmptyTextualNodes");
+		neo4jError(error, session, "deleteEmptyAnnotationNodes");
 	});
 }
 
@@ -854,7 +880,7 @@ export function getShortestPath(startID, endID, fn){
 		fn({'nodes': nodes,
 			'edges': edges});
 	}, function(error) {
-		neo4jError(error, session, "setTextualNodeTitleDes");
+		neo4jError(error, session, "setAnnotationNodeTitleDes");
 	});
 }
 
@@ -875,11 +901,11 @@ const neo4jQueries ={
 	get_detail_id,
 	get_nodes,
 	getTypeLabels,
-	getTextualNodes,
-	createTextualNode,
-	setTextualNodeTitleDes,
-	createTextualEdge,
-	deleteEmptyTextualNodes,
+	getAnnotationNodes,
+	createAnnotationNode,
+	setAnnotationNodeTitleDes,
+	createAnnotationEdge,
+	deleteEmptyAnnotationNodes,
 	getShortestPath,
 }
 
