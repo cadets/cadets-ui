@@ -125,9 +125,9 @@ export function cmd_query(id, fn){
 
 export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
 								process_meta=true, isOverFlow=false, limit=-1, 
-								startID = 0, countOnly=false, confidance=null){
+								startID = 0, countOnly=false, confidence=null){
 	get_neighbours_id_batch([parseInt(id)], fn, files, sockets, pipes, 
-							process_meta, isOverFlow, limit, startID, countOnly, confidance);
+							process_meta, isOverFlow, limit, startID, countOnly, confidence);
 }
 
 export function get_neighbours_id_batch(ids,
@@ -140,7 +140,7 @@ export function get_neighbours_id_batch(ids,
 										limit=-1,
 										startID = 0,
 										countOnly=false,
-										confidance=null){
+										confidence=null){
 	let matchers = ["Machine", "Process", "Conn", "Annotation"];
 	if (files){
 		matchers = matchers.concat(['File', 'EditSession']);
@@ -182,7 +182,7 @@ export function get_neighbours_id_batch(ids,
 								WHERE 
 									d.show is Null
 									OR
-									${confidance} <= d.show
+									${confidence} <= d.show
 								WITH d
 								MATCH (s:Socket), (e), (d:Machine)
 								WHERE 
@@ -201,7 +201,7 @@ export function get_neighbours_id_batch(ids,
 								WHERE 
 									s.show is Null
 									OR
-									${confidance} <= s.show
+									${confidence} <= s.show
 								WITH s
 								MATCH (s:Socket), (e), (d:Machine)
 								WHERE 
@@ -219,7 +219,7 @@ export function get_neighbours_id_batch(ids,
 				WHERE 
 					s.show is Null
 					OR
-					${confidance} <= s.show
+					${confidence} <= s.show
 				WITH s
 				MATCH (d)-[e]-(s)
 				WHERE 
@@ -533,7 +533,7 @@ export function get_nodes(node_type=null,
 				fileNum=1,
 				startDate="", 
 				endDate="",
-				confidance=null,
+				confidence=null,
 				limit='100',
 				startID = 0,
 				countOnly = false,
@@ -624,7 +624,7 @@ export function get_nodes(node_type=null,
 			WHERE 
 				n.show is Null
 				OR
-				${confidance} <= n.show
+				${confidence} <= n.show
 			WITH n
 			WHERE
 				${JSON.stringify(name)} is Null

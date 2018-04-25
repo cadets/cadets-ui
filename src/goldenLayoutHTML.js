@@ -53,10 +53,10 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 										<label for="filterendDate">&nbsp;End date:</label><br>
 										<input type="datetime-local" id="filterendDate" size="3" class="textBox leftPadding"/><br>
 									</div><br>
-									<button class="formBoxAccordion">Confidance slider options</button>
+									<button class="formBoxAccordion">Confidence slider options</button>
 									<div class="hide">
-										<input type="range" min="0" max="100" value="0" class="slider" id="confidanceSliderSearch">
-										<input type="text" class="textBox leftPadding" id="confidanceValueSearch" value="0">
+										<input type="range" min="0" max="100" value="0" class="slider" id="confidenceSliderSearch">
+										<input type="text" class="textBox leftPadding" id="confidenceValueSearch" value="0">
 									</div><br>
 								</div>
 								<div class="row content scrollable">
@@ -70,8 +70,8 @@ var inspectorHtml = `<div class="sheet" id="inspectorGraph"></div>
 					<div class="topOptions" id="inspectorHeader">
 						<button type="button" class="headerButton" id="inspectLast">🡐</button>
 						<button type="button" class="headerButton" id="inspectForward">🡒</button>
-						<input type="range" min="0" max="100" value="0" class="slider" id="confidanceSliderInspector">
-						<input type="text" class="WorksheetTextBox leftPadding" id="confidanceValueInspector" value="0">
+						<input type="range" min="0" max="100" value="0" class="slider" id="confidenceSliderInspector">
+						<input type="text" class="WorksheetTextBox leftPadding" id="confidenceValueInspector" value="0">
 					</div>
 					<div class="bottomOptions">
 						<input type="checkbox" id="inspectFiles" class="textBox">Files</input>
@@ -136,12 +136,13 @@ function getWorksheetHtml(){
 				<div class="topOptions">
 					<button class="formBoxAccordion">Annotation options</button>
 					<div class="hide"><br>
-						<button type="button" class="headerButton" id="addAnnotation${index}">Add Annotation Note</button>
+						<button type="button" class="headerButton" id="addAnnotation${index}">Add Annotation Node</button>
+						<button type="button" class="headerButton" id="acAnnotation${index}">Add Annotation/Connect to All Nodes</button>
 					</div><br>
-					<button class="formBoxAccordion">Confidance slider options</button>
+					<button class="formBoxAccordion">Confidence slider options</button>
 					<div class="hide">
-						<input type="range" min="0" max="100" value="0" class="slider" id="confidanceSlider${index}">
-						<input type="text" class="WorksheetTextBox leftPadding" id="confidanceValue${index}" value="0">
+						<input type="range" min="0" max="100" value="0" class="slider" id="confidenceSlider${index}">
+						<input type="text" class="WorksheetTextBox leftPadding" id="confidenceValue${index}" value="0">
 					</div>
 				</div>
 				<div class="bottomOptions">

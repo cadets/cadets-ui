@@ -459,7 +459,7 @@ workSheetLayout.eventHub.on('updateInspectTargets', function(files, sockets, pip
 
 workSheetLayout.on(`NodeSearchsheetContainerCreated`, function(){
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
-	setConfidenceSilder(`confidanceSliderSearch`, `confidanceValueSearch`, update_nodelist);
+	setConfidenceSilder(`confidenceSliderSearch`, `confidenceValueSearch`, update_nodelist);
 });
 
 //NodeSearchsheet Events end
@@ -581,8 +581,21 @@ function createWorksheet(){
 		})
 	};
 
-	setConfidenceSilder(`confidanceSlider${index}`, `confidanceValue${index}`, function(){
-		worksheetGraph.remove();
+	document.getElementById(`acAnnotation${index}`).onclick = function () {
+		//neo4jQueries.createAnnotationNode(function(node){
+			console.log(worksheets[`${index}`].graph.nodes());
+		// 	graphingAPI.add_node(node, worksheets[`${index}`].graph);
+		// 	neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
+		// 		graphingAPI.add_edge(edge, ele.cy());
+		// 	});
+		// 	if($('#filterNodeType').val() == 'annotation'){
+		// 		update_nodelist();
+		// 	}
+		// })
+	};
+
+	setConfidenceSilder(`confidenceSlider${index}`, `confidenceValue${index}`, function(){
+		//worksheetGraph.remove();
 	});
 
 	connectNodeListAccordion();
@@ -759,7 +772,7 @@ function createInspector(){
 		}
 	};
 
-	setConfidenceSilder(`confidanceSliderInspector`, `confidanceValueInspector`, refresh_inspect);
+	setConfidenceSilder(`confidenceSliderInspector`, `confidenceValueInspector`, refresh_inspect);
 }
 
 function inspect_and_importAsync(id){
@@ -803,7 +816,7 @@ function showNodeListNextPrevious(fn=null){
 							$('#filterfileNum').val(),
 							$('#filterstartDate').val(), 
 							$('#filterendDate').val(),
-							$('#confidanceValueSearch').val(),
+							$('#confidenceValueSearch').val(),
 							overFlowVars[`nodeList`][`DisplayAmount`] + 1,
 							overFlowVars['nodeList'][`IDStart`],
 							false,
@@ -851,7 +864,7 @@ function getNodeCount(fn){
 							$('#filterfileNum').val(),
 							$('#filterstartDate').val(), 
 							$('#filterendDate').val(),
-							$('#confidanceValueSearch').val(),
+							$('#confidenceValueSearch').val(),
 							0,0,
 							true,
 		function(result) {
@@ -995,7 +1008,7 @@ function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, f
 										displayAmount,
 										startID,
 										countOnly,
-										$('#confidanceValueInspector').val());
+										$('#confidenceValueInspector').val());
 }
 
 function import_batch_into_worksheet(nodes) {
