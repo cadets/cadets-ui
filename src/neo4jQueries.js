@@ -822,14 +822,21 @@ export function setAnnotationNodeTitleDes(id, title, description, fn=null){
 }
 
 export function createAnnotationEdge(sourceID, targetID, fn){
+	createAnnotationEdgeBatch(sourceID, [targetID], fn);
+}
+export function createAnnotationEdgeBatch(sourceID, targetID, fn){
 	let session = driver.session();
 	session.run(`MATCH (s:Annotation), (t) 
-				WHERE id(s) = ${sourceID} AND id(t) = ${targetID}
+				WHERE id(s) = ${sourceID} AND id(t) IN ${JSON.stringify(targetID)}
 				CREATE (s)<-[e:Describes]-(t)
 				RETURN e`)
 	.then(result => {
 		session.close();
-		fn(neo4jParser.parseNeo4jEdge(result.records[0].get('e')));
+		let edges = [];
+		result.records.forEach(function(record){
+			edges = edges.concat(neo4jParser.parseNeo4jEdge(record.get('e')));
+		})
+		fn(edges);
 	}, function(error) {
 		neo4jError(error, session, "createAnnotationEdge");
 	});
@@ -905,6 +912,7 @@ const neo4jQueries ={
 	createAnnotationNode,
 	setAnnotationNodeTitleDes,
 	createAnnotationEdge,
+	createAnnotationEdgeBatch,
 	deleteEmptyAnnotationNodes,
 	getShortestPath,
 }

@@ -582,16 +582,19 @@ function createWorksheet(){
 	};
 
 	document.getElementById(`acAnnotation${index}`).onclick = function () {
-		//neo4jQueries.createAnnotationNode(function(node){
-			console.log(worksheets[`${index}`].graph.nodes());
-		// 	graphingAPI.add_node(node, worksheets[`${index}`].graph);
-		// 	neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
-		// 		graphingAPI.add_edge(edge, ele.cy());
-		// 	});
-		// 	if($('#filterNodeType').val() == 'annotation'){
-		// 		update_nodelist();
-		// 	}
-		// })
+		neo4jQueries.createAnnotationNode(function(annNode){
+			let graphIds = [];
+			worksheets[`${index}`].graph.nodes().forEach(function(node){
+				graphIds = graphIds.concat(parseInt(node.id()));
+			});
+			graphingAPI.add_node(annNode, worksheets[`${index}`].graph);
+			neo4jQueries.createAnnotationEdgeBatch(annNode.id, graphIds, function(edges){
+				graphingAPI.add_edge_batch(edges, worksheets[`${index}`].graph);
+			});
+			if($('#filterNodeType').val() == 'annotation'){
+				update_nodelist();
+			}
+		})
 	};
 
 	setConfidenceSilder(`confidenceSlider${index}`, `confidenceValue${index}`, function(){
