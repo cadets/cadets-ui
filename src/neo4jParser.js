@@ -129,7 +129,7 @@ export function parseNeo4jEdge(o){
 		src = o['start']['low'];
 		dst = o['end']['low'];
 	}
-	if (o['type'] == 'COMM'){
+	if (o['type'] == 'COMM' || o['type'] == 'INF'){
 		src = o['start']['low'];
 		dst = o['end']['low'];
 	}

@@ -1300,6 +1300,10 @@ function openSaveAnnotationMenu(){
 		let blob = new Blob([ string ]);
 		let a = document.createElement('a');
 
+		let title = report.title;
+		if(title = ''){
+			title = 'report';
+		}
 		a.download = report.title + `.adoc`;
 		a.href= window.URL.createObjectURL(blob);
 

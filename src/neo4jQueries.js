@@ -100,7 +100,7 @@ export function cmd_query(id, fn){
 					RETURN c ORDER BY c.timestamp`;
 			break;
 		case(2):
-			query = `MATCH (n:Process)<-[]-(c:Process) 
+			query = `MATCH (n:Process)-[]->(c:Process) 
 						WHERE id(n) = ${id} 
 					RETURN c`;
 			break;
@@ -865,11 +865,25 @@ export function deleteEmptyAnnotationNodes(){
 }
 
 export function getShortestPath(startID, endID, fn){
+	let query = '';
+	switch(parseInt(pvm_version)){
+		case(1):
+			query = `MATCH (source),(target)
+					WHERE id(source) = ${startID} AND id(target) = ${endID}
+					MATCH p = shortestPath((source)<-[*]-(target))
+					return p;`;
+			break;
+		case(2):
+			query = `MATCH (source),(target)
+					WHERE id(source) = ${startID} AND id(target) = ${endID}
+					MATCH p = shortestPath((source)-[*]->(target))
+					return p;`;
+			break;
+		default:
+			console.log(`neo4jQueries.js - getShortestPath pvm_version:${pvm_version} not implemented`);
+	}
 	let session = driver.session();
-	session.run(`MATCH (source),(target)
-				WHERE id(source) = ${startID} AND id(target) = ${endID}
-				MATCH p = shortestPath((source)<-[*]-(target))
-				return p;`)
+	session.run(query)
 	.then(result => {
 		session.close();
 		if(result.records[0] == null){
