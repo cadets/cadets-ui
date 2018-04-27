@@ -1634,18 +1634,19 @@ function setConfidenceSilder(slider, textbox, fn){
 	textbox = document.getElementById(textbox);
 	slider.oninput = function () {
 		textbox.value = slider.value/100;
-		fn();
 	};
 
 	textbox.onchange = function () {
 		if(isNaN(textbox.value)){
 			textbox.value = 0;
 			slider.value = 0;
-			return;
 		}
-		let value = Math.min(Math.max(textbox.value*100, 0), 100);
-		slider.value = value;
-		textbox.value = value/100;
+		else{
+			let value = Math.min(Math.max(textbox.value*100, 0), 100);
+			slider.value = value;
+			textbox.value = value/100;
+		}
+		fn();
 	};
 }
 
