@@ -41,49 +41,58 @@ var PVMvLexicon = null;
 //
 // Create a new graph.
 //
-export function create(container) {
-	let graph = cytoscape({
-		container: document.getElementById(container),
-		boxSelectionEnabled: true,
-	});
-
-	load_graph_style([ graph ]);
-
+export function create(container=null) {
+	let graph;
+	if(container == null){
+		graph = cytoscape();
+	}
+	else{
+		graph = cytoscape({
+			container: document.getElementById(container),
+			boxSelectionEnabled: true,
+		});
+		load_graph_style([ graph ]);
+	}
 	return graph;
 }
 
 //
 // Add a node to a graph.
 //
-export function add_node(data, graph, renderedPosition = null, highLightedIDs = []) {
-	add_node_batch([data], graph, renderedPosition = null, highLightedIDs = []);
+export function add_node(data, graphs, renderedPosition = null, highLightedIDs = []) {
+	add_node_batch([data], graphs, renderedPosition = null, highLightedIDs = []);
 }
 
 
-export function add_node_batch(nodes, graph, renderedPosition = null, highLightedIDs = [], fn=null ) {
+export function add_node_batch(nodes, graphs, renderedPosition = null, highLightedIDs = [], fn=null ) {
 	let parsedNodes = [];
 	let nodesToHighLight = [];
+	
+	if(!Array.isArray(graphs)){graphs = [graphs];}
+	let graphAmount = graphs.length;
+	if(graphAmount == 1){
+		graphs = graphs.concat(graphs[0]);
+	}
 	nodes.forEach(function(data){
 
 		if(fn != null){
 			fn(data);
 		}
-
 		if(renderedPosition == null){
 			renderedPosition = {
-				x: graph.width() / 2,
-				y: graph.height() / 2,
+				x: graphs[0].width() / 2,
+				y: graphs[0].height() / 2,
 			};
 		}
 		// Have we already imported this node?
-		if (!graph.$id(data.id).empty()) {
+		if (!graphs[1].$id(data.id).empty()) {
 			return;
 		}
 
 		// When importing things with abstract containers (e.g., file versions),
 		// draw a compound node to show the abstraction and simplify the versions.
 		if (data.uuid && (['file-version', 'pipe-endpoint', 'socket-version', 'edit-session'].indexOf(data.type) != -1)) {
-			let compound = graph.$id(data.uuid);
+			let compound = graphs[1].$id(data.uuid);
 			let type = data.type.substr(0, 4);
 
 			let name = [];
@@ -121,7 +130,7 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 					label: parseNodeName(name, '\n'),
 					names: name,
 					'parent': data['parent'],
-				}, graph, renderedPosition);
+				}, graphs[0], renderedPosition);
 			} else {
 				let existing = compound.data();
 				switch(pvm_version.low){
@@ -160,23 +169,30 @@ export function add_node_batch(nodes, graph, renderedPosition = null, highLighte
 
 		parsedNodes = parsedNodes.concat(node);
 	});
-	graph.add(parsedNodes);
+	if(graphAmount == 1){graphs.pop();}
+	for(let graph of graphs){
+		graph.add(parsedNodes);
+	}
 	nodesToHighLight.forEach(function(id){
-		graph.$id( id ).addClass('important');
+		graphs[0].$id( id ).addClass('important');
 	})
 }
 
-export function add_edge(data, graph) {
-	add_edge_batch([data], graph);
+export function add_edge(data, graphs) {
+	add_edge_batch([data], graphs);
 }
 
-export function add_edge_batch(edges, graph){
+export function add_edge_batch(edges, graphs){
+	let graphAmount = graphs.length;
+	if(graphAmount == 1){
+		graphs = graphs.concat(graphs[0]);
+	}
 	let processEdges = [];
 	edges.forEach(function(edge){
-		let source = graph.$id( edge.source );
-		let target = graph.$id( edge.target );
+		let source = graphs[1].$id( edge.source );
+		let target = graphs[1].$id( edge.target );
 
-		if (!graph.$id( edge.id ).empty() || source.empty() || target.empty()) {return;}
+		if (!graphs[1].$id( edge.id ).empty() || source.empty() || target.empty()) {return;}
 
 		// If the target is explicitly marked as something we read from
 		// (e.g., the by-convention read-from pipe), reverse the edge's direction.
@@ -187,7 +203,10 @@ export function add_edge_batch(edges, graph){
 		}
 		processEdges = processEdges.concat({classes: edge.type, data: edge,});
 	});
-	graph.add(processEdges);
+	if(graphAmount == 1){graphs.pop();}
+	for(let graph of graphs){
+		graph.add(processEdges);
+	}
 }
 
 //
@@ -210,26 +229,28 @@ export function save(graph, filename) {
 //
 // Load a Cytograph JSON representation into an object with a 'graph' property.
 //
-export function load(file, graph, highLightedIDs = [], fn) {
+export function load(file, graphs, highLightedIDs = [], fn) {
 	let reader = new FileReader();
 	let loadedHighLighted = [];
 	reader.addEventListener('loadend', function() {
 		let data = JSON.parse(reader.result);
-		data.container = graph.container();
-		data.layout = { name: 'preset' };
-		graph = cytoscape(data);
+		graphs.forEach(function(graph){
+			data.container = graph.container();
+			data.layout = { name: 'preset' };
+			graph = cytoscape(data);
 
-		highLightedIDs.forEach(function(id){
-			let ele = graph.$id( id );
-			if(ele.length > 0 && !ele.hasClass('important')){
-				ele.addClass('important');
-			}
+			highLightedIDs.forEach(function(id){
+				let ele = graph.$id( id );
+				if(ele.length > 0 && !ele.hasClass('important')){
+					ele.addClass('important');
+				}
+			});
+			graph.$('.important').forEach(function(ele){
+				loadedHighLighted = loadedHighLighted.concat(ele.attr('id'));
+			});
+			let highDiff = $(loadedHighLighted).not(highLightedIDs).get();
+			fn(graph, highDiff);
 		});
-		graph.$('.important').forEach(function(ele){
-			loadedHighLighted = loadedHighLighted.concat(ele.attr('id'));
-		});
-		let highDiff = $(loadedHighLighted).not(highLightedIDs).get();
-		fn(graph, highDiff);
 	});
 
 	reader.readAsText(file);

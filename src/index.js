@@ -18,8 +18,6 @@ import './../node_modules/golden-layout/src/css/goldenlayout-light-theme.css';
 import './css/darkStyle.css';
 import './css/lightStyle.css';
 
-
-var utilFunc = require('./utilFunc.js');
 var graphingAPI = require('./graphing.js');
 var neo4jQueries = require('./neo4jQueries.js');
 var goldenLayoutHTML = require('./goldenLayoutHTML.js');
@@ -65,12 +63,6 @@ if (module.hot) {
 		document.body.appendChild(element);
 	})
 	module.hot.accept('./goldenLayoutHTML.js', function() {
-		console.log('Accepting the updated graphing module!');
-		document.body.removeChild(element);
-		element = component();
-		document.body.appendChild(element);
-	})
-	module.hot.accept('./utilFunc.js', function() {
 		console.log('Accepting the updated graphing module!');
 		document.body.removeChild(element);
 		element = component();
@@ -155,6 +147,29 @@ var standardWorksheetCommands = [
 		}
 	},
 	{
+		content: 'Shortest path',
+		select: function(ele){
+			openSubMenu(function(){
+				let eleID = ele.data().id;
+				pathHandlers[`${eleID}`] = function(event){
+					ele.cy().removeListener('tap', annotationHandlers[`${eleID}`]);
+					pathHandlers[`${eleID}`] = null;
+					let evtID = event.target.data().id;
+					neo4jQueries.getShortestPath(eleID, evtID, function(results){
+						let graphs = [worksheets[`${selectedWorksheet}`].graph, worksheets[`${selectedWorksheet}`].confidenceHiddenGraph];
+						graphingAPI.add_node_batch(results.nodes, graphs);
+						neo4jQueries.get_all_edges_batch(results.nodes.map(function(ele){
+							return parseInt(ele.id);
+						}), function(edges){
+							graphingAPI.add_edge_batch(edges.concat(results.edges), graphs);
+						});
+					});
+				}
+				ele.cy().on('tap', 'node', pathHandlers[`${eleID}`]);
+			});
+		}
+	},
+	{
 		content: 'Remove neighbours',
 		select: function(ele){
 			openSubMenu(function(){
@@ -168,26 +183,6 @@ var standardWorksheetCommands = [
 			openSubMenu(function(){
 				removeNode(ele);
 			}, false, true);
-		}
-	},
-	{
-		content: 'Shortest path',
-		select: function(ele){
-			let eleID = ele.data().id;
-			pathHandlers[`${eleID}`] = function(event){
-				ele.cy().removeListener('tap', annotationHandlers[`${eleID}`]);
-				pathHandlers[`${eleID}`] = null;
-				let evtID = event.target.data().id;
-				neo4jQueries.getShortestPath(eleID, evtID, function(results){
-					graphingAPI.add_node_batch(results.nodes, worksheets[0].graph);
-					neo4jQueries.get_all_edges_batch(results.nodes.map(function(ele){
-						return parseInt(ele.id);
-					}), function(edges){
-						graphingAPI.add_edge_batch(edges.concat(results.edges), worksheets[0].graph);
-					});
-				});
-			}
-			ele.cy().on('tap', 'node', pathHandlers[`${eleID}`]);
 		}
 	},
 ];
@@ -234,6 +229,12 @@ var worksheetAnnotationCxtMenu = ({
 	selector: 'node.annotation',
 	commands: [
 		{
+			content: 'Edit Details',
+			select: function(ele){
+				openAnnotationMenu(ele);
+			}
+		},
+		{
 			content: `Toggle selection connections`,
 			select: function(ele){
 				let eleID = ele.data().id;
@@ -251,7 +252,8 @@ var worksheetAnnotationCxtMenu = ({
 						if(evtID == eleID){return;}
 						if (!ele.allAreNeighbors(`#${evtID}`)){
 							neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
-								graphingAPI.add_edge(edge, ele.cy());
+								let graphs = [worksheets[`${ele.cy().id}`].graph, worksheets[`${ele.cy().id}`].confidenceHiddenGraph];
+								graphingAPI.add_edge(edge, graphs);
 							});
 						}
 						else{
@@ -261,12 +263,6 @@ var worksheetAnnotationCxtMenu = ({
 					};
 					ele.cy().on('tap', 'node', annotationHandlers[`${eleID}`]);
 				}
-			}
-		},
-		{
-			content: 'Edit Details',
-			select: function(ele){
-				openAnnotationMenu(ele);
 			}
 		},
 	].concat(standardWorksheetCommands)
@@ -537,12 +533,14 @@ workSheetLayout.eventHub.on('import_neighbours_into_worksheet', function( id ){
 function createWorksheet(){
 	let index = getWorksheetCount();
 	let worksheetGraph = graphingAPI.create(`worksheetGraph${index}`);
-
-	worksheets[`${index}`] = { graph: worksheetGraph, id: index};
+	worksheetGraph.id = index;
+	worksheets[`${index}`] = { graph: worksheetGraph};
+	worksheets[`${index}`].confidenceHiddenGraph = graphingAPI.create();
+	let graphs = [worksheets[`${selectedWorksheet}`].graph, worksheets[`${selectedWorksheet}`].confidenceHiddenGraph];
 
 	worksheetContainer[index].on('resize', function(){
 		refreshGraph(worksheetGraph);
-	})
+	});
 
 	setWorksheetCxtMenu(index);
 
@@ -550,7 +548,8 @@ function createWorksheet(){
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
 		if(this.files[0] == ''){return;}
-		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, highlightedIDs, function(newGraph, newHighLight){
+		let graphs = [worksheets[`${index}`].graph, worksheets[`${index}`].confidenceHiddenGraph];
+		graphingAPI.load(this.files[0], graphs, highlightedIDs, function(newGraph, newHighLight){
 			newHighLight.forEach(function(id){
 				toggle_node_importance(id, index);
 			});
@@ -574,7 +573,7 @@ function createWorksheet(){
 
 	document.getElementById(`addAnnotation${index}`).onclick = function () {
 		neo4jQueries.createAnnotationNode(function(node){
-			graphingAPI.add_node(node, worksheets[`${index}`].graph);
+			graphingAPI.add_node(node, graphs);
 			if($('#filterNodeType').val() == 'annotation'){
 				update_nodelist();
 			}
@@ -587,9 +586,10 @@ function createWorksheet(){
 			worksheets[`${index}`].graph.nodes().forEach(function(node){
 				graphIds = graphIds.concat(parseInt(node.id()));
 			});
-			graphingAPI.add_node(annNode, worksheets[`${index}`].graph);
+			graphingAPI.add_node(annNode, graphs);
 			neo4jQueries.createAnnotationEdgeBatch(annNode.id, graphIds, function(edges){
-				graphingAPI.add_edge_batch(edges, worksheets[`${index}`].graph);
+				let graphs = [worksheets[index].graph, worksheets[index].confidenceHiddenGraph];
+				graphingAPI.add_edge_batch(edges, graphs);
 			});
 			if($('#filterNodeType').val() == 'annotation'){
 				update_nodelist();
@@ -598,7 +598,12 @@ function createWorksheet(){
 	};
 
 	setConfidenceSilder(`confidenceSlider${index}`, `confidenceValue${index}`, function(){
-		//worksheetGraph.remove();
+		let confidenceNodesToHide = worksheets[`${index}`].graph.nodes(`[show < ${$(`#confidenceValue${index}`).val()}]`);
+		let confidenceShouldShowNodes = worksheets[`${index}`].confidenceHiddenGraph.nodes(`[show >= ${$(`#confidenceValue${index}`).val()}]`);
+		confidenceNodesToHide.remove();
+		let nodes = confidenceShouldShowNodes.difference(worksheets[`${index}`].graph.nodes('[show]'));
+		worksheets[`${index}`].graph.add(nodes);
+		worksheets[`${index}`].graph.add(nodes.connectedEdges());
 	});
 
 	connectNodeListAccordion();
@@ -632,21 +637,24 @@ function getWorksheetCount(){
 
 function remove_neighbours_from_worksheet(id) {
 	let parents = [];
-	let node = worksheets[`${selectedWorksheet}`].graph.$id(id);
-	// First check to see if this is a compound node.
-	let children = node.children();
-	if (!children.empty()) {
-		children.forEach(function (node) { worksheets[`${selectedWorksheet}`].graph.remove(node); });
-		node.remove();
-		return;
-	}
+	let nodeShownGraphNode = worksheets[`${selectedWorksheet}`].graph.$id(id);
+	let nodeHiddenGraphNode = worksheets[`${selectedWorksheet}`].confidenceHiddenGraph.$id(id);
+	for(let node of [nodeShownGraphNode, nodeHiddenGraphNode]){
+		// First check to see if this is a compound node.
+		let children = node.children();
+		if (!children.empty()) {
+			children.forEach(function (node) { worksheets[`${selectedWorksheet}`].graph.remove(node); });
+			node.remove();
+			return;
+		}
 
-	// Otherwise, remove edge-connected neighbours that aren't highlighted.
-	node.connectedEdges().connectedNodes().filter(function(ele) {
-		parents = parents.concat(ele.parents());
-		return !ele.hasClass('important');
-	}).remove();
-	removeEmptyParents(parents);
+		// Otherwise, remove edge-connected neighbours that aren't highlighted.
+		node.connectedEdges().connectedNodes().filter(function(ele) {
+			parents = parents.concat(ele.parents());
+			return !ele.hasClass('important');
+		}).remove();
+		removeEmptyParents(parents);
+	}
 }
 
 function toggleSection(ele){
@@ -665,7 +673,8 @@ function toggleSection(ele){
 			if(evtID == eleID){return;}
 			if (!ele.allAreNeighbors(`#${evtID}`)){
 				neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
-					graphingAPI.add_edge(edge, ele.cy());
+					let graphs = [worksheets[`${ele.cy().id}`].graph, worksheets[`${ele.cy().id}`].confidenceHiddenGraph];
+					graphingAPI.add_edge(edge, graphs);
 				});
 			}
 			else{
@@ -687,12 +696,13 @@ function toggle_node_importance(id, excludeWorksheet = -1) {
 	}
 	worksheets.forEach( function(worksheet){
 		if(worksheet.id == excludeWorksheet){ return; }
-		let ele = worksheet.graph.$id( id );
-		if(ele.length > 0){
-			if (ele.hasClass('important')) {
-				ele.removeClass('important');
-			} else {
-				ele.addClass('important');
+		for(let ele of [worksheet.graph.$id( id ), worksheet.confidenceHiddenGraph.$id( id )]){
+			if(ele.length > 0){
+				if (ele.hasClass('important')) {
+					ele.removeClass('important');
+				} else {
+					ele.addClass('important');
+				}
 			}
 		}
 	});
@@ -927,12 +937,12 @@ function showInspectorNextPrevious(fn=null){
 
 			inspector.graph.remove('node');
 
-			graphingAPI.add_node(inspectee, inspector.graph);
+			graphingAPI.add_node(inspectee, [inspector.graph]);
 
 			updateOverFlow('inspector', result.nodes);
 
 
-			graphingAPI.add_node_batch(result.nodes, inspector.graph, null, [], function(node){
+			graphingAPI.add_node_batch(result.nodes, [inspector.graph], null, [], function(node){
 				let meta = graphingAPI.node_metadata(node);
 
 				let row = document.getElementById("neighbour-detail").insertRow(0);
@@ -948,7 +958,7 @@ function showInspectorNextPrevious(fn=null){
 								`);
 			});
 
-			graphingAPI.add_edge_batch(result.edges, inspector.graph);
+			graphingAPI.add_edge_batch(result.edges, [inspector.graph]);
 			let n = inspector.graph.$id(id);
 			if (n.empty()) {
 				n = inspector.graph.elements().nodes(`[uuid="${id}"]`);
@@ -1015,11 +1025,11 @@ function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, f
 }
 
 function import_batch_into_worksheet(nodes) {
-	let graph = worksheets[`${selectedWorksheet}`].graph;
+	let graphs = [worksheets[`${selectedWorksheet}`].graph, worksheets[`${selectedWorksheet}`].confidenceHiddenGraph];
 	let ids = [];
 
 	for(let i = 0; i < nodes.length; i++){
-		if (!graph.$id(nodes[i].id).empty()) {
+		if (!graphs[0].$id(nodes[i].id).empty()) {
 			nodes.splice(nodes.indexOf(nodes[i]), 1);
 			i--;
 		}
@@ -1037,12 +1047,12 @@ function import_batch_into_worksheet(nodes) {
 	}
 	if(ids.length <= 0){return;}
 	let position = {
-		x: graph.width() / 2,
-		y: graph.height() / 2,
+		x: graphs[0].width() / 2,
+		y: graphs[0].height() / 2,
 	};
-	graphingAPI.add_node_batch(nodes, graph, position, highlightedIDs);
+	graphingAPI.add_node_batch(nodes, graphs, position, highlightedIDs);
 	neo4jQueries.get_all_edges_batch(ids, function(edges){
-		graphingAPI.add_edge_batch(edges, graph);
+		graphingAPI.add_edge_batch(edges, graphs);
 	});
 }
 
@@ -1095,7 +1105,8 @@ function htmlBody() {
 								<label for="reportDescription">Description:</label><br>
 								<textarea id="reportDescription" class="textBox leftPadding" rows="4" cols="50"></textarea><br><br>
 								<button type="button" class="headerButton" id="saveToNode">Update Annotation Node to db</button>
-								<button type="button" class="headerButton" id="saveReport">Save Report</button><br><br>
+								<button type="button" class="headerButton" id="saveReport">Save Report</button>
+								<button type="button" class="headerButton" id="savePNG">Save PNG</button><br><br>
 							</div>
 						</div>`;
 	return element;
@@ -1143,16 +1154,16 @@ function attachOptionForm(optionsForm){
 	optionSubmit.id = 'optionSubmit';
 	optionSubmit.innerHTML = 'Apply';
 	optionSubmit.onclick = (function(){
-		if(utilFunc.testIfNumber($('#newNodeListDisplayAmount').val()) && $('#newNodeListDisplayAmount').val() > 0){
+		if(!isNaN($('#newNodeListDisplayAmount').val()) && $('#newNodeListDisplayAmount').val() > 0){
 			overFlowVars['nodeList']['DisplayAmount'] = parseInt($('#newNodeListDisplayAmount').val());
 		}
-		if(utilFunc.testIfNumber($('#newInspectorDisplayAmount').val()) && $('#newInspectorDisplayAmount').val() > 0){
+		if(!isNaN($('#newInspectorDisplayAmount').val()) && $('#newInspectorDisplayAmount').val() > 0){
 			overFlowVars['inspector']['DisplayAmount'] = parseInt($('#newInspectorDisplayAmount').val());
 		}
-		if(utilFunc.testIfNumber($('#newMaxImportLength').val()) && $('#newMaxImportLength').val() > 0){
+		if(!isNaN($('#newMaxImportLength').val()) && $('#newMaxImportLength').val() > 0){
 			maxImportLength = parseInt($('#newMaxImportLength').val());
 		}
-		if(utilFunc.testIfNumber($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
+		if(!isNaN($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
 			limitNodesForDagre = parseInt($('#newLimitNodesForDagre').val());
 		}
 
@@ -1174,7 +1185,7 @@ function attachOptionForm(optionsForm){
 }
 
 function validOptionInput(varToSet, input){
-	if(utilFunc.testIfNumber(input) && input > 0){
+	if(!isNaN(input) && input > 0){
 		varToSet = parseInt(input);
 	}
 }
@@ -1283,8 +1294,7 @@ function openSaveAnnotationMenu(){
 	};
 
 	document.getElementById('saveReport').onclick = function(){
-		let report = {'title':document.getElementById('reportTitle').value, 
-					'png': reportGenGraph.png(),
+		let report = {'title':document.getElementById('reportTitle').value,
 					'description':document.getElementById('reportDescription').value};
 		let string = '## Title:\n' + report.title + '\n\n## Description:\n' + report.description;
 		reportGenGraph.nodes().forEach(function(node){
@@ -1301,16 +1311,26 @@ function openSaveAnnotationMenu(){
 		let a = document.createElement('a');
 
 		let title = report.title;
-		if(title = ''){
+		console.log(title);
+		if(title == ''){
 			title = 'report';
 		}
-		a.download = report.title + `.adoc`;
+		a.download = title + `.adoc`;
 		a.href= window.URL.createObjectURL(blob);
 
 		a.click();
+	};
 
-		a.download = report.title + `.png`;
-		a.href= report.png;
+	document.getElementById('savePNG').onclick = function(){
+		let a = document.createElement('a');
+
+		let title = document.getElementById('reportTitle').value;
+		if(title == ''){
+			title = 'report';
+		}
+
+		a.download = title + `.png`;
+		a.href= reportGenGraph.png();
 
 		a.click();
 	};
@@ -1320,9 +1340,9 @@ function updateReportPanel(id, title, description, fn){
 	neo4jQueries.get_neighbours_id(id, function(neighbours){
 		reportGenGraph.remove('node');
 		reportGenGraph.inspectee = id;
-		graphingAPI.add_node_batch(neighbours.nodes, reportGenGraph);
+		graphingAPI.add_node_batch(neighbours.nodes, [reportGenGraph]);
 		neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
-			graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
+			graphingAPI.add_edge_batch(edges.concat(neighbours.edges), [reportGenGraph]);
 		});
 		neo4jQueries.getAnnotationNodeTitleDes(id, function(result){
 			document.getElementById('reportTitle').value = result.title;
@@ -1590,6 +1610,7 @@ function spawnVexList(ele, message, resultID, resultName, func){
 
 function removeNode(ele){
 	let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
+	worksheets[`${selectedWorksheet}`].confidenceHiddenGraph.$id(ele.data("id")).remove();
 	node.remove();
 	removeEmptyParents(node.parents());
 }
@@ -1617,7 +1638,7 @@ function setConfidenceSilder(slider, textbox, fn){
 	};
 
 	textbox.onchange = function () {
-		if(!utilFunc.testIfNumber(textbox.value)){
+		if(isNaN(textbox.value)){
 			textbox.value = 0;
 			slider.value = 0;
 			return;
@@ -1667,6 +1688,7 @@ function connectNodeListAccordion(){
 		acc.addEventListener("click", function() {
 			toggleBlockNone(this.nextElementSibling);
 		});
+		console.log(acc);
 	}
 }
 
