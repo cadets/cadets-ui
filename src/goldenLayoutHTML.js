@@ -25,7 +25,7 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 									<div>
 										&nbsp;<input id="filterName" size="18.5" class="textBox leftPadding"/>
 									</div><br>
-									<button class="formBoxAccordion">Machine options</button>
+									<button class="formBoxAccordion NodeSearchsheetAccordion">Machine options</button>
 									<div class="hide">
 										<label for="filterHost">&nbsp;Host</label>
 										<div>
@@ -39,21 +39,21 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 											<input id="filterRemotePort" size="3" class="textBox leftPadding"/>&nbsp;&nbsp;R
 										</div>
 									</div><br>
-									<button class="formBoxAccordion">Connected file options</button>
+									<button class="formBoxAccordion NodeSearchsheetAccordion">Connected file options</button>
 									<div class="hide">
 										<label for="filterfileNameStart">&nbsp;Connected file name:</label><br>
 										&nbsp;<input id="filterfileNameStart" size="18.5" class="textBox leftPadding"/><br>
 										<label for="filterfileNum">&nbsp;More files then:</label><br>
 										&nbsp;<input id="filterfileNum" size="18.5" class="textBox leftPadding"/>
 									</div><br>
-									<button class="formBoxAccordion">Date options</button>
+									<button class="formBoxAccordion NodeSearchsheetAccordion">Date options</button>
 									<div class="hide">
 										<label for="filterstartDate">&nbsp;Start date:</label><br>
 										<input type="datetime-local" id="filterstartDate" size="3" class="textBox leftPadding"/><br>
 										<label for="filterendDate">&nbsp;End date:</label><br>
 										<input type="datetime-local" id="filterendDate" size="3" class="textBox leftPadding"/><br>
 									</div><br>
-									<button class="formBoxAccordion">Confidence slider options</button>
+									<button class="formBoxAccordion NodeSearchsheetAccordion">Confidence slider options</button>
 									<div class="hide">
 										<input type="range" min="0" max="100" value="0" class="slider" id="confidenceSliderSearch">
 										<input type="text" class="textBox leftPadding" id="confidenceValueSearch" value="0">
@@ -134,12 +134,12 @@ function getWorksheetHtml(){
 	return `<div class="sheet" id="worksheet${index}">
 				<div class="sheet" id="worksheetGraph${index}"></div>
 				<div class="topOptions">
-					<button class="formBoxAccordion">Annotation options</button>
+					<button class="formBoxAccordion worksheetAccordion${index}">Annotation options</button>
 					<div class="hide"><br>
 						<button type="button" class="headerButton" id="addAnnotation${index}">Add Annotation Node</button>
 						<button type="button" class="headerButton" id="acAnnotation${index}">Add Annotation/Connect to All Nodes</button>
 					</div><br>
-					<button class="formBoxAccordion">Confidence slider options</button>
+					<button class="formBoxAccordion worksheetAccordion${index}">Confidence slider options</button>
 					<div class="hide">
 						<input type="range" min="0" max="100" value="0" class="slider" id="confidenceSlider${index}">
 						<input type="text" class="WorksheetTextBox leftPadding" id="confidenceValue${index}" value="0">

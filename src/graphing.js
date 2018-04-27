@@ -232,11 +232,14 @@ export function save(graph, filename) {
 export function load(file, graphs, highLightedIDs = [], fn) {
 	let reader = new FileReader();
 	let loadedHighLighted = [];
+	let highDiff = [];
 	reader.addEventListener('loadend', function() {
 		let data = JSON.parse(reader.result);
 		graphs.forEach(function(graph){
-			data.container = graph.container();
-			data.layout = { name: 'preset' };
+			if(graph.container() != null){
+				data.container = graph.container();
+				data.layout = { name: 'preset' };
+			}
 			graph = cytoscape(data);
 
 			highLightedIDs.forEach(function(id){
@@ -245,12 +248,14 @@ export function load(file, graphs, highLightedIDs = [], fn) {
 					ele.addClass('important');
 				}
 			});
-			graph.$('.important').forEach(function(ele){
-				loadedHighLighted = loadedHighLighted.concat(ele.attr('id'));
-			});
-			let highDiff = $(loadedHighLighted).not(highLightedIDs).get();
-			fn(graph, highDiff);
+			if(loadedHighLighted != []){
+				graph.$('.important').forEach(function(ele){
+					loadedHighLighted = loadedHighLighted.concat(ele.attr('id'));
+				});
+				highDiff = $(loadedHighLighted).not(highLightedIDs).get();
+			}
 		});
+		fn(graphs, highDiff);
 	});
 
 	reader.readAsText(file);

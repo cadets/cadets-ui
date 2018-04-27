@@ -371,7 +371,6 @@ workSheetLayout.on('initialised', function(){
 		else{
 			document.getElementById("toggleNodeSearchsheet").innerHTML = "Close NodeSearchsheet";
 			goldenLayoutHTML.addNodeSearchsheet(workSheetLayout);
-			connectNodeListAccordion();
 			update_nodelist();
 		}
 	};
@@ -456,6 +455,7 @@ workSheetLayout.eventHub.on('updateInspectTargets', function(files, sockets, pip
 workSheetLayout.on(`NodeSearchsheetContainerCreated`, function(){
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
 	setConfidenceSilder(`confidenceSliderSearch`, `confidenceValueSearch`, update_nodelist);
+	connectNodeListAccordion(`NodeSearchsheetAccordion`);
 });
 
 //NodeSearchsheet Events end
@@ -549,11 +549,14 @@ function createWorksheet(){
 	document.getElementById(`loadGraph${index}`).onchange = function () {
 		if(this.files[0] == ''){return;}
 		let graphs = [worksheets[`${index}`].graph, worksheets[`${index}`].confidenceHiddenGraph];
-		graphingAPI.load(this.files[0], graphs, highlightedIDs, function(newGraph, newHighLight){
+		graphingAPI.load(this.files[0], graphs, highlightedIDs, function(newGraphs, newHighLight){
 			newHighLight.forEach(function(id){
 				toggle_node_importance(id, index);
 			});
-			worksheets[`${index}`].graph = newGraph;
+			worksheets[`${index}`].graph = newGraphs[0];
+			worksheets[`${index}`].graph.id = index;
+			worksheets[`${index}`].confidenceHiddenGraph = newGraphs[1];
+			//console.log(worksheets[`${index}`]);
 			setWorksheetCxtMenu(index);
 			document.getElementById(`loadGraph${index}`).value = '';
 		});
@@ -606,7 +609,7 @@ function createWorksheet(){
 		worksheets[`${index}`].graph.add(nodes.connectedEdges());
 	});
 
-	connectNodeListAccordion();
+	connectNodeListAccordion(`worksheetAccordion${index}`);
 
 	// document.getElementById(`saveAnnotation${index}`).onclick = function () {
 	// 	vex.dialog.confirm({
@@ -1027,7 +1030,6 @@ function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, f
 function import_batch_into_worksheet(nodes) {
 	let graphs = [worksheets[`${selectedWorksheet}`].graph, worksheets[`${selectedWorksheet}`].confidenceHiddenGraph];
 	let ids = [];
-
 	for(let i = 0; i < nodes.length; i++){
 		if (!graphs[0].$id(nodes[i].id).empty()) {
 			nodes.splice(nodes.indexOf(nodes[i]), 1);
@@ -1311,7 +1313,6 @@ function openSaveAnnotationMenu(){
 		let a = document.createElement('a');
 
 		let title = report.title;
-		console.log(title);
 		if(title == ''){
 			title = 'report';
 		}
@@ -1625,6 +1626,7 @@ function setWorksheetCxtMenu(index){
 
 function setGraphCxtMenu(graph, cxtMenus){
 	cxtMenus.forEach(function(menu){
+		//console.log(menu);
 		graph.cxtmenu(menu);
 	});
 }
@@ -1634,6 +1636,7 @@ function setConfidenceSilder(slider, textbox, fn){
 	textbox = document.getElementById(textbox);
 	slider.oninput = function () {
 		textbox.value = slider.value/100;
+		fn();
 	};
 
 	textbox.onchange = function () {
@@ -1684,12 +1687,11 @@ function setAnnotationNode(id, label, description, fn=null){
 		});
 }
 
-function connectNodeListAccordion(){
-	for (let acc of document.getElementsByClassName("formBoxAccordion")) {
+function connectNodeListAccordion(className){
+	for (let acc of document.getElementsByClassName(className)) {
 		acc.addEventListener("click", function() {
 			toggleBlockNone(this.nextElementSibling);
 		});
-		console.log(acc);
 	}
 }
 
