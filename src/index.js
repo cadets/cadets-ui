@@ -151,9 +151,9 @@ var standardWorksheetCommands = [
 		select: function(ele){
 			openSubMenu(function(){
 				let eleID = ele.data().id;
-				pathHandlers[`${eleID}`] = function(event){
-					ele.cy().removeListener('tap', annotationHandlers[`${eleID}`]);
-					pathHandlers[`${eleID}`] = null;
+				pathHandlers[eleID] = function(event){
+					ele.cy().removeListener('tap', annotationHandlers[eleID]);
+					delete pathHandlers[eleID];
 					let evtID = event.target.data().id;
 					neo4jQueries.getShortestPath(eleID, evtID, function(results){
 						let graphs = [worksheets[selectedWorksheet].graph, worksheets[selectedWorksheet].confidenceHiddenGraph];
@@ -165,7 +165,7 @@ var standardWorksheetCommands = [
 						});
 					});
 				}
-				ele.cy().on('tap', 'node', pathHandlers[`${eleID}`]);
+				ele.cy().on('tap', 'node', pathHandlers[eleID]);
 			});
 		}
 	},
@@ -241,13 +241,13 @@ var worksheetAnnotationCxtMenu = ({
 				if(ele.data().connectionOn){
 					ele.removeClass('annotationActive');
 					ele.data().connectionOn = false;
-					ele.cy().removeListener('tap', annotationHandlers[`${eleID}`]);
-					annotationHandlers[`${eleID}`] = null;
+					ele.cy().removeListener('tap', annotationHandlers[eleID]);
+					annotationHandlers[eleID] = null;
 				}
 				else{
 					ele.addClass('annotationActive');
 					ele.data().connectionOn = true;
-					annotationHandlers[`${eleID}`] = function(event){
+					annotationHandlers[eleID] = function(event){
 						let evtID = event.target.data().id;
 						if(evtID == eleID){return;}
 						if (!ele.allAreNeighbors(`#${evtID}`)){
@@ -261,7 +261,7 @@ var worksheetAnnotationCxtMenu = ({
 							ele.edgesWith(`#${evtID}`).remove();
 						}
 					};
-					ele.cy().on('tap', 'node', annotationHandlers[`${eleID}`]);
+					ele.cy().on('tap', 'node', annotationHandlers[eleID]);
 				}
 			}
 		},
@@ -436,8 +436,7 @@ workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
 
 workSheetLayout.on(`itemDestroyed`, function(item){
 	if(item.componentName == "Worksheet"){
-		delete worksheets[`${item.container.worksheetID}`];
-		//worksheets.splice(worksheets.indexOf(worksheets[`${item.container.worksheetID}`]), 1);
+		delete worksheets[item.container.worksheetID];
 	}
 });
 
@@ -539,7 +538,6 @@ function createWorksheet(){
 	worksheets[index] = {'graph' : worksheetGraph,
 				'confidenceHiddenGraph': confidenceHiddenGraph, 
 				'id' : index};
-	console.log(worksheets);
 	let graphs = [worksheets[index].graph, worksheets[index].confidenceHiddenGraph];
 
 	worksheetContainer[index].on('resize', function(){
@@ -552,15 +550,12 @@ function createWorksheet(){
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
 		if(this.files[0] == ''){return;}
-		//console.log(worksheets);
-		graphingAPI.load(this.files[0], graphs, highlightedIDs, function(newGraphs, newHighLight){
+		graphingAPI.load(this.files[0], graphs[0], highlightedIDs, function(newGraph, newHighLight){
 			newHighLight.forEach(function(id){
 				toggle_node_importance(id, index);
 			});
-
-			worksheets[index].graph = newGraphs[0];
-			worksheets[index].confidenceHiddenGraph = newGraphs[1];
-			//console.log(worksheets[index]);
+			worksheets[index].graph = newGraph;
+			worksheets[index].confidenceHiddenGraph.json(newGraph.json());
 			setWorksheetCxtMenu(index);
 			document.getElementById(`loadGraph${index}`).value = '';
 		});
@@ -668,13 +663,13 @@ function toggleSection(ele){
 	if(ele.data().connectionOn){
 		ele.removeClass('annotationActive');
 		ele.data().connectionOn = false;
-		ele.cy().removeListener('tap', annotationHandlers[`${eleID}`]);
-		annotationHandlers[`${eleID}`] = null;
+		ele.cy().removeListener('tap', annotationHandlers[eleID]);
+		annotationHandlers[eleID] = null;
 	}
 	else{
 		ele.addClass('annotationActive');
 		ele.data().connectionOn = true;
-		annotationHandlers[`${eleID}`] = function(event){
+		annotationHandlers[eleID] = function(event){
 			let evtID = event.target.data().id;
 			if(evtID == eleID){return;}
 			if (!ele.allAreNeighbors(`#${evtID}`)){
@@ -688,7 +683,7 @@ function toggleSection(ele){
 				ele.edgesWith(`#${evtID}`).remove();
 			}
 		};
-		ele.cy().on('tap', 'node', annotationHandlers[`${eleID}`]);
+		ele.cy().on('tap', 'node', annotationHandlers[eleID]);
 	}
 }
 
@@ -701,7 +696,7 @@ function toggle_node_importance(id, excludeWorksheet = -1) {
 		highlightedIDs = highlightedIDs.concat(id);
 	}
 	for(let key in worksheets){
-		if(worksheets[key].id == excludeWorksheet){ return; }
+		if(key == excludeWorksheet){ continue; }
 		for(let ele of [worksheets[key].graph.$id( id ), worksheets[key].confidenceHiddenGraph.$id( id )]){
 			if(ele.length > 0){
 				if (ele.hasClass('important')) {
@@ -1175,7 +1170,6 @@ function attachOptionForm(optionsForm){
 		for(let key in worksheets){
 			graphs = graphs.concat(worksheets[key].graph)
 		}
-		//let graphs = worksheets.map(a => a.graph).concat(inspector.graph).concat(reportGenGraph);
 		let isLight = $('#styleSwitch').is(':checked');
 		darkTheme.disabled= isLight;
 		lightTheme.disabled= !isLight;
@@ -1628,8 +1622,6 @@ function setInspectorCxtMenu(){
 }
 
 function setWorksheetCxtMenu(index){
-	// console.log(index);
-	// console.log(worksheets);
 	setGraphCxtMenu(worksheets[index].graph, worksheetCxtMenus);
 }
 
@@ -1643,9 +1635,8 @@ function setConfidenceSilder(slider, textbox, fn){
 	slider = document.getElementById(slider);
 	textbox = document.getElementById(textbox);
 	slider.oninput = function () {
-		// textbox.value = slider.value/100;
-		// fn();
-		console.log(worksheets);
+		textbox.value = slider.value/100;
+		fn();
 	};
 
 	textbox.onchange = function () {

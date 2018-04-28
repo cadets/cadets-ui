@@ -229,33 +229,26 @@ export function save(graph, filename) {
 //
 // Load a Cytograph JSON representation into an object with a 'graph' property.
 //
-export function load(file, graphs, highLightedIDs = [], fn) {
+export function load(file, graph, highLightedIDs = [], fn) {
 	let reader = new FileReader();
 	let loadedHighLighted = [];
-	let highDiff = [];
 	reader.addEventListener('loadend', function() {
 		let data = JSON.parse(reader.result);
-		graphs.forEach(function(graph){
-			if(graph.container() != null){
-				data.container = graph.container();
-				data.layout = { name: 'preset' };
-			}
-			graph = cytoscape(data);
+		data.container = graph.container();
+		data.layout = { name: 'preset' };
+		graph = cytoscape(data);
 
-			highLightedIDs.forEach(function(id){
-				let ele = graph.$id( id );
-				if(ele.length > 0 && !ele.hasClass('important')){
-					ele.addClass('important');
-				}
-			});
-			if(loadedHighLighted != []){
-				graph.$('.important').forEach(function(ele){
-					loadedHighLighted = loadedHighLighted.concat(ele.attr('id'));
-				});
-				highDiff = $(loadedHighLighted).not(highLightedIDs).get();
+		highLightedIDs.forEach(function(id){
+			let ele = graph.$id( id );
+			if(ele.length > 0 && !ele.hasClass('important')){
+				ele.addClass('important');
 			}
 		});
-		fn(graphs, highDiff);
+		graph.$('.important').forEach(function(ele){
+			loadedHighLighted = loadedHighLighted.concat(ele.attr('id'));
+		});
+		let highDiff = $(loadedHighLighted).not(highLightedIDs).get();
+		fn(graph, highDiff);
 	});
 
 	reader.readAsText(file);

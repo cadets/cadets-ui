@@ -592,7 +592,7 @@ export function get_nodes(node_type=null,
 						id(n) >= ${startID}
 					WITH n`;
 	}
-	if(fileNameStart != null && fileNameStart != ''){//d.name CONTAINS ${JSON.stringify(fileNameStart)}
+	if(fileNameStart != null && fileNameStart != ''){
 		fileCreatedQuery=`MATCH (n)-[]-(d:File)
 				WHERE
 				any(name in d.name WHERE name CONTAINS ${JSON.stringify(fileNameStart)})
