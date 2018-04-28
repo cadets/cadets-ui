@@ -78,7 +78,7 @@ var currMouseX = 0;
 var currMouseY = 0;
 
 var inspector;
-var worksheets = [];
+var worksheets = {};
 var reportGenGraph;
 
 var selectedWorksheet = 0;
@@ -156,7 +156,7 @@ var standardWorksheetCommands = [
 					pathHandlers[`${eleID}`] = null;
 					let evtID = event.target.data().id;
 					neo4jQueries.getShortestPath(eleID, evtID, function(results){
-						let graphs = [worksheets[`${selectedWorksheet}`].graph, worksheets[`${selectedWorksheet}`].confidenceHiddenGraph];
+						let graphs = [worksheets[selectedWorksheet].graph, worksheets[selectedWorksheet].confidenceHiddenGraph];
 						graphingAPI.add_node_batch(results.nodes, graphs);
 						neo4jQueries.get_all_edges_batch(results.nodes.map(function(ele){
 							return parseInt(ele.id);
@@ -252,7 +252,7 @@ var worksheetAnnotationCxtMenu = ({
 						if(evtID == eleID){return;}
 						if (!ele.allAreNeighbors(`#${evtID}`)){
 							neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
-								let graphs = [worksheets[`${ele.cy().id}`].graph, worksheets[`${ele.cy().id}`].confidenceHiddenGraph];
+								let graphs = [worksheets[ele.cy().id].graph, worksheets[ele.cy().id].confidenceHiddenGraph];
 								graphingAPI.add_edge(edge, graphs);
 							});
 						}
@@ -436,7 +436,8 @@ workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
 
 workSheetLayout.on(`itemDestroyed`, function(item){
 	if(item.componentName == "Worksheet"){
-		worksheets.splice(worksheets.indexOf(worksheets[`${item.container.worksheetID}`]), 1);
+		delete worksheets[`${item.container.worksheetID}`];
+		//worksheets.splice(worksheets.indexOf(worksheets[`${item.container.worksheetID}`]), 1);
 	}
 });
 
@@ -533,10 +534,13 @@ workSheetLayout.eventHub.on('import_neighbours_into_worksheet', function( id ){
 function createWorksheet(){
 	let index = getWorksheetCount();
 	let worksheetGraph = graphingAPI.create(`worksheetGraph${index}`);
+	let confidenceHiddenGraph = graphingAPI.create();
 	worksheetGraph.id = index;
-	worksheets[`${index}`] = { graph: worksheetGraph};
-	worksheets[`${index}`].confidenceHiddenGraph = graphingAPI.create();
-	let graphs = [worksheets[`${selectedWorksheet}`].graph, worksheets[`${selectedWorksheet}`].confidenceHiddenGraph];
+	worksheets[index] = {'graph' : worksheetGraph,
+				'confidenceHiddenGraph': confidenceHiddenGraph, 
+				'id' : index};
+	console.log(worksheets);
+	let graphs = [worksheets[index].graph, worksheets[index].confidenceHiddenGraph];
 
 	worksheetContainer[index].on('resize', function(){
 		refreshGraph(worksheetGraph);
@@ -548,30 +552,30 @@ function createWorksheet(){
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
 		if(this.files[0] == ''){return;}
-		let graphs = [worksheets[`${index}`].graph, worksheets[`${index}`].confidenceHiddenGraph];
+		//console.log(worksheets);
 		graphingAPI.load(this.files[0], graphs, highlightedIDs, function(newGraphs, newHighLight){
 			newHighLight.forEach(function(id){
 				toggle_node_importance(id, index);
 			});
-			worksheets[`${index}`].graph = newGraphs[0];
-			worksheets[`${index}`].graph.id = index;
-			worksheets[`${index}`].confidenceHiddenGraph = newGraphs[1];
-			//console.log(worksheets[`${index}`]);
+
+			worksheets[index].graph = newGraphs[0];
+			worksheets[index].confidenceHiddenGraph = newGraphs[1];
+			//console.log(worksheets[index]);
 			setWorksheetCxtMenu(index);
 			document.getElementById(`loadGraph${index}`).value = '';
 		});
 	};
 
 	document.getElementById(`saveGraph${index}`).onclick = function () {
-		graphingAPI.save(worksheets[`${index}`].graph, document.getElementById(`saveFilename${index}`).value);
+		graphingAPI.save(worksheets[index].graph, document.getElementById(`saveFilename${index}`).value);
 	};
 
 	document.getElementById(`reDagre${index}`).onclick = function () {
-		graphingAPI.layout( worksheets[`${index}`].graph, 'dagre');
+		graphingAPI.layout( worksheets[index].graph, 'dagre');
 	};
 
 	document.getElementById(`reCose-Bilkent${index}`).onclick = function () {
-		graphingAPI.layout( worksheets[`${index}`].graph, 'cose-bilkent');
+		graphingAPI.layout( worksheets[index].graph, 'cose-bilkent');
 	};
 
 	document.getElementById(`addAnnotation${index}`).onclick = function () {
@@ -586,12 +590,11 @@ function createWorksheet(){
 	document.getElementById(`acAnnotation${index}`).onclick = function () {
 		neo4jQueries.createAnnotationNode(function(annNode){
 			let graphIds = [];
-			worksheets[`${index}`].graph.nodes().forEach(function(node){
+			worksheets[index].graph.nodes().forEach(function(node){
 				graphIds = graphIds.concat(parseInt(node.id()));
 			});
 			graphingAPI.add_node(annNode, graphs);
 			neo4jQueries.createAnnotationEdgeBatch(annNode.id, graphIds, function(edges){
-				let graphs = [worksheets[index].graph, worksheets[index].confidenceHiddenGraph];
 				graphingAPI.add_edge_batch(edges, graphs);
 			});
 			if($('#filterNodeType').val() == 'annotation'){
@@ -601,12 +604,12 @@ function createWorksheet(){
 	};
 
 	setConfidenceSilder(`confidenceSlider${index}`, `confidenceValue${index}`, function(){
-		let confidenceNodesToHide = worksheets[`${index}`].graph.nodes(`[show < ${$(`#confidenceValue${index}`).val()}]`);
-		let confidenceShouldShowNodes = worksheets[`${index}`].confidenceHiddenGraph.nodes(`[show >= ${$(`#confidenceValue${index}`).val()}]`);
+		let confidenceNodesToHide = worksheets[index].graph.nodes(`[show < ${$(`#confidenceValue${index}`).val()}]`);
+		let confidenceShouldShowNodes = worksheets[index].confidenceHiddenGraph.nodes(`[show >= ${$(`#confidenceValue${index}`).val()}]`);
 		confidenceNodesToHide.remove();
-		let nodes = confidenceShouldShowNodes.difference(worksheets[`${index}`].graph.nodes('[show]'));
-		worksheets[`${index}`].graph.add(nodes);
-		worksheets[`${index}`].graph.add(nodes.connectedEdges());
+		let nodes = confidenceShouldShowNodes.difference(worksheets[index].graph.nodes('[show]'));
+		worksheets[index].graph.add(nodes);
+		worksheets[index].graph.add(nodes.connectedEdges());
 	});
 
 	connectNodeListAccordion(`worksheetAccordion${index}`);
@@ -626,7 +629,7 @@ function createWorksheet(){
 
 function addNewWorksheet(){
 	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
-		const graph = worksheets[`${getWorksheetCount() -1}`].graph;
+		const graph = worksheets[getWorksheetCount() -1].graph;
 		let temp = workSheetLayout.root.contentItems[ 0 ].contentItems;
 		temp[ temp.length-1 ].on('resize', function(){
 			refreshGraph(graph);
@@ -640,13 +643,13 @@ function getWorksheetCount(){
 
 function remove_neighbours_from_worksheet(id) {
 	let parents = [];
-	let nodeShownGraphNode = worksheets[`${selectedWorksheet}`].graph.$id(id);
-	let nodeHiddenGraphNode = worksheets[`${selectedWorksheet}`].confidenceHiddenGraph.$id(id);
+	let nodeShownGraphNode = worksheets[selectedWorksheet].graph.$id(id);
+	let nodeHiddenGraphNode = worksheets[selectedWorksheet].confidenceHiddenGraph.$id(id);
 	for(let node of [nodeShownGraphNode, nodeHiddenGraphNode]){
 		// First check to see if this is a compound node.
 		let children = node.children();
 		if (!children.empty()) {
-			children.forEach(function (node) { worksheets[`${selectedWorksheet}`].graph.remove(node); });
+			children.forEach(function (node) { worksheets[selectedWorksheet].graph.remove(node); });
 			node.remove();
 			return;
 		}
@@ -676,7 +679,7 @@ function toggleSection(ele){
 			if(evtID == eleID){return;}
 			if (!ele.allAreNeighbors(`#${evtID}`)){
 				neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
-					let graphs = [worksheets[`${ele.cy().id}`].graph, worksheets[`${ele.cy().id}`].confidenceHiddenGraph];
+					let graphs = [worksheets[ele.cy().id].graph, worksheets[ele.cy().id].confidenceHiddenGraph];
 					graphingAPI.add_edge(edge, graphs);
 				});
 			}
@@ -697,9 +700,9 @@ function toggle_node_importance(id, excludeWorksheet = -1) {
 	else{
 		highlightedIDs = highlightedIDs.concat(id);
 	}
-	worksheets.forEach( function(worksheet){
-		if(worksheet.id == excludeWorksheet){ return; }
-		for(let ele of [worksheet.graph.$id( id ), worksheet.confidenceHiddenGraph.$id( id )]){
+	for(let key in worksheets){
+		if(worksheets[key].id == excludeWorksheet){ return; }
+		for(let ele of [worksheets[key].graph.$id( id ), worksheets[key].confidenceHiddenGraph.$id( id )]){
 			if(ele.length > 0){
 				if (ele.hasClass('important')) {
 					ele.removeClass('important');
@@ -708,7 +711,7 @@ function toggle_node_importance(id, excludeWorksheet = -1) {
 				}
 			}
 		}
-	});
+	}
 }
 
 // //
@@ -1028,7 +1031,7 @@ function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, f
 }
 
 function import_batch_into_worksheet(nodes) {
-	let graphs = [worksheets[`${selectedWorksheet}`].graph, worksheets[`${selectedWorksheet}`].confidenceHiddenGraph];
+	let graphs = [worksheets[selectedWorksheet].graph, worksheets[selectedWorksheet].confidenceHiddenGraph];
 	let ids = [];
 	for(let i = 0; i < nodes.length; i++){
 		if (!graphs[0].$id(nodes[i].id).empty()) {
@@ -1168,8 +1171,11 @@ function attachOptionForm(optionsForm){
 		if(!isNaN($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
 			limitNodesForDagre = parseInt($('#newLimitNodesForDagre').val());
 		}
-
-		let graphs = worksheets.map(a => a.graph).concat(inspector.graph).concat(reportGenGraph);
+		let graphs = inspector.graph.concat(reportGenGraph);
+		for(let key in worksheets){
+			graphs = graphs.concat(worksheets[key].graph)
+		}
+		//let graphs = worksheets.map(a => a.graph).concat(inspector.graph).concat(reportGenGraph);
 		let isLight = $('#styleSwitch').is(':checked');
 		darkTheme.disabled= isLight;
 		lightTheme.disabled= !isLight;
@@ -1419,11 +1425,12 @@ function openSubMenu(fn, isNewWorksheetOption = true, isAllWorksheetOption=false
 	cxtSubMenu.className = 'dropdown-content';
 	cxtSubMenu.id = 'worksheetDropdown';
 
-	for(let i in worksheets){
+
+	for(let key in worksheets){
 		let SubMenuOption = document.createElement('a');
-		SubMenuOption.text = `Worksheet_${i}`;
+		SubMenuOption.text = `Worksheet_${key}`;
 		SubMenuOption.onclick =(function() {
-			selectedWorksheet = i;
+			selectedWorksheet = key;
 			fn();
 		});
 		cxtSubMenu.appendChild(SubMenuOption);
@@ -1442,8 +1449,8 @@ function openSubMenu(fn, isNewWorksheetOption = true, isAllWorksheetOption=false
 		let SubMenuOption = document.createElement('a');
 		SubMenuOption.text = `All Worksheet`;
 		SubMenuOption.onclick =(function() {
-			for(let i in worksheets){
-				selectedWorksheet = i;
+			for(let key in worksheets){
+				selectedWorksheet = key;
 				fn();
 			}
 		});
@@ -1610,8 +1617,8 @@ function spawnVexList(ele, message, resultID, resultName, func){
 }
 
 function removeNode(ele){
-	let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
-	worksheets[`${selectedWorksheet}`].confidenceHiddenGraph.$id(ele.data("id")).remove();
+	let node = worksheets[selectedWorksheet].graph.$id(ele.data("id"));
+	worksheets[selectedWorksheet].confidenceHiddenGraph.$id(ele.data("id")).remove();
 	node.remove();
 	removeEmptyParents(node.parents());
 }
@@ -1621,12 +1628,13 @@ function setInspectorCxtMenu(){
 }
 
 function setWorksheetCxtMenu(index){
+	// console.log(index);
+	// console.log(worksheets);
 	setGraphCxtMenu(worksheets[index].graph, worksheetCxtMenus);
 }
 
 function setGraphCxtMenu(graph, cxtMenus){
 	cxtMenus.forEach(function(menu){
-		//console.log(menu);
 		graph.cxtmenu(menu);
 	});
 }
@@ -1635,8 +1643,9 @@ function setConfidenceSilder(slider, textbox, fn){
 	slider = document.getElementById(slider);
 	textbox = document.getElementById(textbox);
 	slider.oninput = function () {
-		textbox.value = slider.value/100;
-		fn();
+		// textbox.value = slider.value/100;
+		// fn();
+		console.log(worksheets);
 	};
 
 	textbox.onchange = function () {
@@ -1676,8 +1685,8 @@ function setAnnotationNode(id, label, description, fn=null){
 			if(fn != null){
 				fn();
 			}
-			for(let worksheet of worksheets){
-				worksheet.graph.$id(id).data('label', label);
+			for(let key in worksheets){
+				worksheets[key].graph.$id(id).data('label', label);
 			}
 			inspector.graph.$id(id).data('label', label);
 

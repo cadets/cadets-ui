@@ -130,7 +130,7 @@ export function add_node_batch(nodes, graphs, renderedPosition = null, highLight
 					label: parseNodeName(name, '\n'),
 					names: name,
 					'parent': data['parent'],
-				}, graphs[0], renderedPosition);
+				}, graphs, renderedPosition);
 			} else {
 				let existing = compound.data();
 				switch(pvm_version.low){
@@ -172,10 +172,10 @@ export function add_node_batch(nodes, graphs, renderedPosition = null, highLight
 	if(graphAmount == 1){graphs.pop();}
 	for(let graph of graphs){
 		graph.add(parsedNodes);
+		nodesToHighLight.forEach(function(id){
+			graph.$id( id ).addClass('important');
+		})
 	}
-	nodesToHighLight.forEach(function(id){
-		graphs[0].$id( id ).addClass('important');
-	})
 }
 
 export function add_edge(data, graphs) {
