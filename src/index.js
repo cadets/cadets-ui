@@ -37,7 +37,7 @@ cytoscape.use( dagre );
 cytoscape.use( cose_bilkent );
 
 //Build Html document
-const GUI_VERSION = 'v0.7.0-dev';
+const GUI_VERSION = 'v0.7.0-release';
 let PVM_VERSION = '';
 
 let element = htmlBody();
