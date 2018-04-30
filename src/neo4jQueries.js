@@ -820,9 +820,6 @@ export function setAnnotationNodeTitleDes(id, title, description, fn=null){
 	});
 }
 
-export function createAnnotationEdge(sourceID, targetID, fn){
-	createAnnotationEdgeBatch(sourceID, [targetID], fn);
-}
 export function createAnnotationEdgeBatch(sourceID, targetID, fn){
 	let session = driver.session();
 	session.run(`MATCH (s:Annotation), (t) 
@@ -837,7 +834,7 @@ export function createAnnotationEdgeBatch(sourceID, targetID, fn){
 		})
 		fn(edges);
 	}, function(error) {
-		neo4jError(error, session, "createAnnotationEdge");
+		neo4jError(error, session, "createAnnotationEdgeBatch");
 	});
 }
 
@@ -924,7 +921,6 @@ const neo4jQueries ={
 	getAnnotationNodes,
 	createAnnotationNode,
 	setAnnotationNodeTitleDes,
-	createAnnotationEdge,
 	createAnnotationEdgeBatch,
 	deleteEmptyAnnotationNodes,
 	getShortestPath,

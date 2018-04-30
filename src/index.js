@@ -251,14 +251,16 @@ var worksheetAnnotationCxtMenu = ({
 						let evtID = event.target.data().id;
 						if(evtID == eleID){return;}
 						if (!ele.allAreNeighbors(`#${evtID}`)){
-							neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
+							neo4jQueries.createAnnotationEdgeBatch(eleID, [parseInt(evtID)], function(edge){
 								let graphs = [worksheets[ele.cy().id].graph, worksheets[ele.cy().id].confidenceHiddenGraph];
-								graphingAPI.add_edge(edge, graphs);
+								graphingAPI.add_edge_batch(edge, graphs);
 							});
 						}
 						else{
 							neo4jQueries.deleteAnnotationEdge(eleID, evtID);
+							let edgeID = ele.edgesWith(`#${evtID}`).id();
 							ele.edgesWith(`#${evtID}`).remove();
+							worksheets[ele.cy().id].confidenceHiddenGraph.$id(`${eleID}`).edgesWith(`#${evtID}`).remove();
 						}
 					};
 					ele.cy().on('tap', 'node', annotationHandlers[eleID]);
@@ -658,34 +660,34 @@ function remove_neighbours_from_worksheet(id) {
 	}
 }
 
-function toggleSection(ele){
-	let eleID = ele.data().id;
-	if(ele.data().connectionOn){
-		ele.removeClass('annotationActive');
-		ele.data().connectionOn = false;
-		ele.cy().removeListener('tap', annotationHandlers[eleID]);
-		annotationHandlers[eleID] = null;
-	}
-	else{
-		ele.addClass('annotationActive');
-		ele.data().connectionOn = true;
-		annotationHandlers[eleID] = function(event){
-			let evtID = event.target.data().id;
-			if(evtID == eleID){return;}
-			if (!ele.allAreNeighbors(`#${evtID}`)){
-				neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
-					let graphs = [worksheets[ele.cy().id].graph, worksheets[ele.cy().id].confidenceHiddenGraph];
-					graphingAPI.add_edge(edge, graphs);
-				});
-			}
-			else{
-				neo4jQueries.deleteAnnotationEdge(eleID, evtID);
-				ele.edgesWith(`#${evtID}`).remove();
-			}
-		};
-		ele.cy().on('tap', 'node', annotationHandlers[eleID]);
-	}
-}
+// function toggleSection(ele){
+// 	let eleID = ele.data().id;
+// 	if(ele.data().connectionOn){
+// 		ele.removeClass('annotationActive');
+// 		ele.data().connectionOn = false;
+// 		ele.cy().removeListener('tap', annotationHandlers[eleID]);
+// 		annotationHandlers[eleID] = null;
+// 	}
+// 	else{
+// 		ele.addClass('annotationActive');
+// 		ele.data().connectionOn = true;
+// 		annotationHandlers[eleID] = function(event){
+// 			let evtID = event.target.data().id;
+// 			if(evtID == eleID){return;}
+// 			if (!ele.allAreNeighbors(`#${evtID}`)){
+// 				neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
+// 					let graphs = [worksheets[ele.cy().id].graph, worksheets[ele.cy().id].confidenceHiddenGraph];
+// 					graphingAPI.add_edge(edge, graphs);
+// 				});
+// 			}
+// 			else{
+// 				neo4jQueries.deleteAnnotationEdge(eleID, evtID);
+// 				ele.edgesWith(`#${evtID}`).remove();
+// 			}
+// 		};
+// 		ele.cy().on('tap', 'node', annotationHandlers[eleID]);
+// 	}
+// }
 
 function toggle_node_importance(id, excludeWorksheet = -1) {
 	let index = highlightedIDs.indexOf(id);
@@ -1166,7 +1168,8 @@ function attachOptionForm(optionsForm){
 		if(!isNaN($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
 			limitNodesForDagre = parseInt($('#newLimitNodesForDagre').val());
 		}
-		let graphs = inspector.graph.concat(reportGenGraph);
+		let graphs = [inspector.graph];
+		graphs = graphs.concat(reportGenGraph);
 		for(let key in worksheets){
 			graphs = graphs.concat(worksheets[key].graph)
 		}
@@ -1298,7 +1301,7 @@ function openSaveAnnotationMenu(){
 	document.getElementById('saveReport').onclick = function(){
 		let report = {'title':document.getElementById('reportTitle').value,
 					'description':document.getElementById('reportDescription').value};
-		let string = '## Title:\n' + report.title + '\n\n## Description:\n' + report.description;
+		let string = '## Title:\n' + report.title + '\n\n## Description:\n' + report.description + `\n\n image:./${report.title}.png\n\n`;
 		reportGenGraph.nodes().forEach(function(node){
 			let data = node.data();
 			let keys = Object.keys(data);
@@ -1306,7 +1309,7 @@ function openSaveAnnotationMenu(){
 			keys.forEach(function(key){
 				table += `|${key}\n|${data[key]}\n\n`;
 			})
-			table += `|===\n\nimage:./${report.title}.png`;
+			table += `|===\n\n`;
 			string += table;
 		})
 		let blob = new Blob([ string ]);
