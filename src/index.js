@@ -10,24 +10,34 @@ import events from './../node_modules/events/events.js';
 import dagre from './../node_modules/cytoscape-dagre/cytoscape-dagre.js';
 import cose_bilkent from './../node_modules/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js';
 
-import './css/style.css';
 import './../node_modules/vex-js/dist/css/vex.css';
 import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-base.css';
 import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
+import './../node_modules/golden-layout/src/css/goldenlayout-light-theme.css';
+import './css/darkStyle.css';
+import './css/lightStyle.css';
 
-var utilFunc = require('./utilFunc.js');
 var graphingAPI = require('./graphing.js');
 var neo4jQueries = require('./neo4jQueries.js');
 var goldenLayoutHTML = require('./goldenLayoutHTML.js');
 var eventEmitter = new events.EventEmitter();
+
+//Find less hacky way to assign these vars 
+var darkGoldTheme = document.styleSheets[document.styleSheets.length-4];
+var lightGoldTheme = document.styleSheets[document.styleSheets.length-3];
+var darkTheme = document.styleSheets[document.styleSheets.length-2];
+var lightTheme = document.styleSheets[document.styleSheets.length-1];
+lightGoldTheme.disabled= true;
+lightTheme.disabled= true;
+graphingAPI.swapStyle(true);
 
 cytoscape.use( cxtmenu );
 cytoscape.use( dagre );
 cytoscape.use( cose_bilkent );
 
 //Build Html document
-const GUI_VERSION = 'v0.6.0-release';
+const GUI_VERSION = 'v0.7.0-dev';
 let PVM_VERSION = '';
 
 let element = htmlBody();
@@ -68,7 +78,7 @@ var currMouseX = 0;
 var currMouseY = 0;
 
 var inspector;
-var worksheets = [];
+var worksheets = {};
 var reportGenGraph;
 
 var selectedWorksheet = 0;
@@ -79,7 +89,8 @@ var inspecteeForwardStack = [];
 
 var highlightedIDs = [];
 
-var textualHandlers = {};
+var annotationHandlers = {};
+var pathHandlers = {};
 
 var inspectFiles = false;
 var inspectSockets = false;
@@ -106,39 +117,81 @@ var maxImportLength = 500;//The max number of nodes that can be imported into a 
 
 var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
 
+var standardWorksheetCommands = [
+	{
+		content: 'Inspect',
+		select: function(ele){
+			inspectAsync(ele.data('id'));
+		}
+	},
+	{
+		content: 'Import neighbours',
+		select: function(ele){
+			openSubMenu(function(){
+				import_neighbours_into_worksheet(ele.data('id'));
+			});
+		}
+	},
+	// {
+	// 	content: 'Import successors',
+	// 	select: function(ele){
+	// 		openSubMenu(function(){
+	// 			successors(ele.data('id'));
+	// 		});
+	// 	}
+	// },
+	{
+		content: 'Highlight',
+		select: function(ele){
+			toggle_node_importance(ele.data("id"));
+		}
+	},
+	{
+		content: 'Shortest path',
+		select: function(ele){
+			openSubMenu(function(){
+				let eleID = ele.data().id;
+				pathHandlers[eleID] = function(event){
+					ele.cy().removeListener('tap', annotationHandlers[eleID]);
+					delete pathHandlers[eleID];
+					let evtID = event.target.data().id;
+					neo4jQueries.getShortestPath(eleID, evtID, function(results){
+						let graphs = [worksheets[selectedWorksheet].graph, worksheets[selectedWorksheet].confidenceHiddenGraph];
+						graphingAPI.add_node_batch(results.nodes, graphs);
+						neo4jQueries.get_all_edges_batch(results.nodes.map(function(ele){
+							return parseInt(ele.id);
+						}), function(edges){
+							graphingAPI.add_edge_batch(edges.concat(results.edges), graphs);
+						});
+					});
+				}
+				ele.cy().on('tap', 'node', pathHandlers[eleID]);
+			});
+		}
+	},
+	{
+		content: 'Remove neighbours',
+		select: function(ele){
+			openSubMenu(function(){
+				remove_neighbours_from_worksheet(ele.data("id"));
+			}, false, true);
+		}
+	},
+	{
+		content: 'Remove',
+		select: function(ele){
+			openSubMenu(function(){
+				removeNode(ele);
+			}, false, true);
+		}
+	},
+];
+
 var worksheetChildCxtMenu = ({
 	menuRadius: 140,
 	separatorWidth: 5,
-	selector: 'node[type != "textual"]:childless',
+	selector: 'node[type != "annotation"]:childless',
 	commands: [
-		{
-			content: 'Inspect',
-			select: function(ele){
-				inspectAsync(ele.data('id'));
-			}
-		},
-		{
-			content: 'Import neighbours',
-			select: function(ele){
-				openSubMenu(function(){
-					import_neighbours_into_worksheet(ele.data('id'));
-				});
-			}
-		},
-		// {
-		// 	content: 'Import successors',
-		// 	select: function(ele){
-		// 		openSubMenu(function(){
-		// 			successors(ele.data('id'));
-		// 		});
-		// 	}
-		// },
-		{
-			content: 'Highlight',
-			select: function(ele){
-				toggle_node_importance(ele.data("id"));
-			}
-		},
 		{
 			content: 'Files read',
 			select: function(ele){
@@ -151,23 +204,7 @@ var worksheetChildCxtMenu = ({
 				spawnVexList(ele, 'Commands run by node', 'id', ['cmdline'], neo4jQueries.cmd_query);
 			}
 		},
-		{
-			content: 'Remove neighbours',
-			select: function(ele){
-				openSubMenu(function(){
-					remove_neighbours_from_worksheet(ele.data("id"));
-				}, false, true);
-			}
-		},
-		{
-			content: 'Remove',
-			select: function(ele){
-				openSubMenu(function(){
-					removeNode(ele);
-				}, false, true);
-			}
-		},
-	]
+	].concat(standardWorksheetCommands)
 });
 
 var worksheetParentCxtMenu = ({
@@ -186,29 +223,15 @@ var worksheetParentCxtMenu = ({
 	]
 });
 
-var worksheetTextualCxtMenu = ({
+var worksheetAnnotationCxtMenu = ({
 	menuRadius: 140,
 	separatorWidth: 5,
-	selector: 'node.textual',
+	selector: 'node.annotation',
 	commands: [
 		{
-			content: 'Inspect',
+			content: 'Edit Details',
 			select: function(ele){
-				inspectAsync(ele.data('id'));
-			}
-		},
-		{
-			content: 'Import neighbours',
-			select: function(ele){
-				openSubMenu(function(){
-					import_neighbours_into_worksheet(ele.data('id'));
-				});
-			}
-		},
-		{
-			content: 'Highlight',
-			select: function(ele){
-				toggle_node_importance(ele.data("id"));
+				openAnnotationMenu(ele);
 			}
 		},
 		{
@@ -216,54 +239,35 @@ var worksheetTextualCxtMenu = ({
 			select: function(ele){
 				let eleID = ele.data().id;
 				if(ele.data().connectionOn){
-					ele.removeClass('textualActive');
+					ele.removeClass('annotationActive');
 					ele.data().connectionOn = false;
-					ele.cy().removeListener('tap', textualHandlers[`${eleID}`]);
-					textualHandlers[`${eleID}`] = null;
+					ele.cy().removeListener('tap', annotationHandlers[eleID]);
+					annotationHandlers[eleID] = null;
 				}
 				else{
-					ele.addClass('textualActive');
+					ele.addClass('annotationActive');
 					ele.data().connectionOn = true;
-					textualHandlers[`${eleID}`] = function(event){
+					annotationHandlers[eleID] = function(event){
 						let evtID = event.target.data().id;
 						if(evtID == eleID){return;}
 						if (!ele.allAreNeighbors(`#${evtID}`)){
-							neo4jQueries.createTextualEdge(eleID, evtID, function(edge){
-								graphingAPI.add_edge(edge, ele.cy());
+							neo4jQueries.createAnnotationEdgeBatch(eleID, [parseInt(evtID)], function(edge){
+								let graphs = [worksheets[ele.cy().id].graph, worksheets[ele.cy().id].confidenceHiddenGraph];
+								graphingAPI.add_edge_batch(edge, graphs);
 							});
 						}
 						else{
-							neo4jQueries.deleteTextualEdge(eleID, evtID);
+							neo4jQueries.deleteAnnotationEdge(eleID, evtID);
+							let edgeID = ele.edgesWith(`#${evtID}`).id();
 							ele.edgesWith(`#${evtID}`).remove();
+							worksheets[ele.cy().id].confidenceHiddenGraph.$id(`${eleID}`).edgesWith(`#${evtID}`).remove();
 						}
 					};
-					ele.cy().on('tap', 'node', textualHandlers[`${eleID}`]);
+					ele.cy().on('tap', 'node', annotationHandlers[eleID]);
 				}
 			}
 		},
-		{
-			content: 'Edit Details',
-			select: function(ele){
-				openTextualMenu(ele);
-			}
-		},
-		{
-			content: 'Remove neighbours',
-			select: function(ele){
-				openSubMenu(function(){
-					remove_neighbours_from_worksheet(ele.data("id"));
-				}, false, true);
-			}
-		},
-		{
-			content: 'Remove',
-			select: function(ele){
-				openSubMenu(function(){
-					removeNode(ele);
-				}, false, true);
-			}
-		},
-	]
+	].concat(standardWorksheetCommands)
 });
 
 var inspectorChildCxtMenu = ({
@@ -302,7 +306,7 @@ var inspectorChildCxtMenu = ({
 		]
 	});
 
-var worksheetCxtMenus = [worksheetChildCxtMenu, worksheetParentCxtMenu, worksheetTextualCxtMenu];
+var worksheetCxtMenus = [worksheetChildCxtMenu, worksheetParentCxtMenu, worksheetAnnotationCxtMenu];
 var inspectorCxtMenus = [inspectorChildCxtMenu];
 
 //Global variables end
@@ -348,15 +352,11 @@ workSheetLayout.on('initialised', function(){
 	generateOptions();
 	if(document.getElementById("NodeSearchsheet") != null){
 		neo4jQueries.neo4jLogin(eventEmitter, function(){
-			connectNodeListAccordion();
 			update_nodelist();
 		});
-		$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
+		workSheetLayout.emit(`NodeSearchsheetContainerCreated`);
 	}
 	if(document.getElementById("inspectorGraph") != null){
-		$("body").on("contextmenu", function(e){
-			return false;
-		});
 		createInspector();
 	}
 	if(document.getElementById(`worksheetGraph${getWorksheetCount()}`) != null){
@@ -373,25 +373,19 @@ workSheetLayout.on('initialised', function(){
 		else{
 			document.getElementById("toggleNodeSearchsheet").innerHTML = "Close NodeSearchsheet";
 			goldenLayoutHTML.addNodeSearchsheet(workSheetLayout);
-			connectNodeListAccordion();
 			update_nodelist();
 		}
 	};
 
-	document.getElementById(`toggleTextualReport`).onclick = function () {
-		let x = document.getElementById("reportGenMenu");
-		let y = document.getElementById("worksheetPage");
-		if (x.style.display === "none") {
-			document.getElementById("toggleTextualReport").innerHTML = 'Close Textual Report Saver';
-			x.style.display = "block";
-			y.style.display = "none";
-			openSaveTextualMenu();
-		} else {
-			document.getElementById("toggleTextualReport").innerHTML = 'Open Textual Report Saver';
-			x.style.display = "none";
-			y.style.display = "block";
+	document.getElementById(`toggleAnnotationReport`).onclick = function () {
+		toggleBlockNone("worksheetPage");
+		toggleBlockNone("reportGenMenu", function(){
+			document.getElementById("toggleAnnotationReport").innerHTML = 'Close Annotation Report Saver';
+			openSaveAnnotationMenu();
+		}, function(){
+			document.getElementById("toggleAnnotationReport").innerHTML = 'Open Annotation Report Saver';
 			workSheetLayout.updateSize();
-		}
+		});
 	};
 
 	// document.getElementById(`loadWorksheet`).onclick = function () {
@@ -426,6 +420,15 @@ eventEmitter.on('pvm_version_set', function(pvm_version){
 
 //Main Events end
 
+//General Events
+
+//This is so the native context menu will not spawn
+$("body").on("contextmenu", function(e){
+	return false;
+});
+
+//General Events end
+
 //Worksheet Events
 
 workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
@@ -435,7 +438,7 @@ workSheetLayout.on(`WorksheetContainerCreated`, function(fn){
 
 workSheetLayout.on(`itemDestroyed`, function(item){
 	if(item.componentName == "Worksheet"){
-		worksheets.splice(worksheets.indexOf(worksheets[`${item.container.worksheetID}`]), 1);
+		delete worksheets[item.container.worksheetID];
 	}
 });
 
@@ -453,6 +456,8 @@ workSheetLayout.eventHub.on('updateInspectTargets', function(files, sockets, pip
 
 workSheetLayout.on(`NodeSearchsheetContainerCreated`, function(){
 	$('input[id *= "filter"],select[id *= "filter"]').on('change', update_nodelist);
+	setConfidenceSilder(`confidenceSliderSearch`, `confidenceValueSearch`, update_nodelist);
+	connectNodeListAccordion(`NodeSearchsheetAccordion`);
 });
 
 //NodeSearchsheet Events end
@@ -471,35 +476,35 @@ document.getElementById(`reportCose`).onclick = function () {
 
 //Popout Events 
 
-workSheetLayout.on('windowOpened', function( id ){
-	workSheetLayout.eventHub.emit('inspectorWindowOpened', lastInspectedId, neo4jQueries);
-});
+// workSheetLayout.on('windowOpened', function( id ){
+// 	workSheetLayout.eventHub.emit('inspectorWindowOpened', lastInspectedId, neo4jQueries);
+// });
 
-var once = false; // should find a better way to make sure windows only load once
+// var once = false; // should find a better way to make sure windows only load once
 
-workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currNeo4jQueries ){
-	if(document.getElementById("NodeSearchsheet") != null && !once){
-		once = true;
-		workSheetLayout.eventHub.emit('updateInspectTargets',
-										$('#inspectFiles').is(':checked'),
-										$('#inspectSockets').is(':checked'),
-										$('#inspectPipes').is(':checked'),
-										$('#inspectProcessMeta').is(':checked'));
-	}
-	if(document.getElementById("inspectorGraph") != null){
-		neo4jQueries = currNeo4jQueries;
-		lastInspectedId = id;
-		inspectAsync(id);
-	}
-});
+// workSheetLayout.eventHub.on('inspectorWindowOpened', function( id, currNeo4jQueries ){
+// 	if(document.getElementById("NodeSearchsheet") != null && !once){
+// 		once = true;
+// 		workSheetLayout.eventHub.emit('updateInspectTargets',
+// 										$('#inspectFiles').is(':checked'),
+// 										$('#inspectSockets').is(':checked'),
+// 										$('#inspectPipes').is(':checked'),
+// 										$('#inspectProcessMeta').is(':checked'));
+// 	}
+// 	if(document.getElementById("inspectorGraph") != null){
+// 		neo4jQueries = currNeo4jQueries;
+// 		lastInspectedId = id;
+// 		inspectAsync(id);
+// 	}
+// });
 
-workSheetLayout.on('windowClosed', function( id ){
-	once = false;
-	if(document.getElementById("inspectorGraph") != null){
-		createInspector();
-		inspect_node(lastInspectedId);
-	}
-});
+// workSheetLayout.on('windowClosed', function( id ){
+// 	once = false;
+// 	if(document.getElementById("inspectorGraph") != null){
+// 		createInspector();
+// 		inspect_node(lastInspectedId);
+// 	}
+// });
 
 workSheetLayout.eventHub.on('inspect', function( id ){
 	if(document.getElementById("inspectorGraph") != null){
@@ -530,12 +535,16 @@ workSheetLayout.eventHub.on('import_neighbours_into_worksheet', function( id ){
 function createWorksheet(){
 	let index = getWorksheetCount();
 	let worksheetGraph = graphingAPI.create(`worksheetGraph${index}`);
-
-	worksheets[`${index}`] = { graph: worksheetGraph, id: index};
+	let confidenceHiddenGraph = graphingAPI.create();
+	worksheetGraph.id = index;
+	worksheets[index] = {'graph' : worksheetGraph,
+				'confidenceHiddenGraph': confidenceHiddenGraph, 
+				'id' : index};
+	let graphs = [worksheets[index].graph, worksheets[index].confidenceHiddenGraph];
 
 	worksheetContainer[index].on('resize', function(){
 		refreshGraph(worksheetGraph);
-	})
+	});
 
 	setWorksheetCxtMenu(index);
 
@@ -543,44 +552,72 @@ function createWorksheet(){
 
 	document.getElementById(`loadGraph${index}`).onchange = function () {
 		if(this.files[0] == ''){return;}
-		graphingAPI.load(this.files[0], worksheets[`${index}`].graph, highlightedIDs, function(newGraph, newHighLight){
+		graphingAPI.load(this.files[0], graphs[0], highlightedIDs, function(newGraph, newHighLight){
 			newHighLight.forEach(function(id){
 				toggle_node_importance(id, index);
 			});
-			worksheets[`${index}`].graph = newGraph;
+			worksheets[index].graph = newGraph;
+			worksheets[index].confidenceHiddenGraph.json(newGraph.json());
 			setWorksheetCxtMenu(index);
 			document.getElementById(`loadGraph${index}`).value = '';
 		});
 	};
 
 	document.getElementById(`saveGraph${index}`).onclick = function () {
-		graphingAPI.save(worksheets[`${index}`].graph, document.getElementById(`saveFilename${index}`).value);
+		graphingAPI.save(worksheets[index].graph, document.getElementById(`saveFilename${index}`).value);
 	};
 
 	document.getElementById(`reDagre${index}`).onclick = function () {
-		graphingAPI.layout( worksheets[`${index}`].graph, 'dagre');
+		graphingAPI.layout( worksheets[index].graph, 'dagre');
 	};
 
 	document.getElementById(`reCose-Bilkent${index}`).onclick = function () {
-		graphingAPI.layout( worksheets[`${index}`].graph, 'cose-bilkent');
+		graphingAPI.layout( worksheets[index].graph, 'cose-bilkent');
 	};
 
-	document.getElementById(`addTextual${index}`).onclick = function () {
-		neo4jQueries.createTextualNode(function(node){
-			graphingAPI.add_node(node, worksheets[`${index}`].graph);
-			if($('#filterNodeType').val() == 'textual'){
+	document.getElementById(`addAnnotation${index}`).onclick = function () {
+		neo4jQueries.createAnnotationNode(function(node){
+			graphingAPI.add_node(node, graphs);
+			if($('#filterNodeType').val() == 'annotation'){
 				update_nodelist();
 			}
 		})
 	};
 
-	// document.getElementById(`saveTextual${index}`).onclick = function () {
+	document.getElementById(`acAnnotation${index}`).onclick = function () {
+		neo4jQueries.createAnnotationNode(function(annNode){
+			let graphIds = [];
+			worksheets[index].graph.nodes().forEach(function(node){
+				graphIds = graphIds.concat(parseInt(node.id()));
+			});
+			graphingAPI.add_node(annNode, graphs);
+			neo4jQueries.createAnnotationEdgeBatch(annNode.id, graphIds, function(edges){
+				graphingAPI.add_edge_batch(edges, graphs);
+			});
+			if($('#filterNodeType').val() == 'annotation'){
+				update_nodelist();
+			}
+		})
+	};
+
+	setConfidenceSilder(`confidenceSlider${index}`, `confidenceValue${index}`, function(){
+		let confidenceNodesToHide = worksheets[index].graph.nodes(`[show < ${$(`#confidenceValue${index}`).val()}]`);
+		let confidenceShouldShowNodes = worksheets[index].confidenceHiddenGraph.nodes(`[show >= ${$(`#confidenceValue${index}`).val()}]`);
+		confidenceNodesToHide.remove();
+		let nodes = confidenceShouldShowNodes.difference(worksheets[index].graph.nodes('[show]'));
+		worksheets[index].graph.add(nodes);
+		worksheets[index].graph.add(nodes.connectedEdges());
+	});
+
+	connectNodeListAccordion(`worksheetAccordion${index}`);
+
+	// document.getElementById(`saveAnnotation${index}`).onclick = function () {
 	// 	vex.dialog.confirm({
-	// 		message: 'WARNING this action will delete all textual nodes in database.',
+	// 		message: 'WARNING this action will delete all annotation nodes in database.',
 	// 		className: 'vex-theme-wireframe',
 	// 		callback: function (value) {
 	// 			if(!value){return;}
-	// 			neo4jQueries.deleteEmptyTextualNodes();
+	// 			neo4jQueries.deleteEmptyAnnotationNodes();
 	// 		}
 	// 	});
 	// };
@@ -589,7 +626,7 @@ function createWorksheet(){
 
 function addNewWorksheet(){
 	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
-		const graph = worksheets[`${getWorksheetCount() -1}`].graph;
+		const graph = worksheets[getWorksheetCount() -1].graph;
 		let temp = workSheetLayout.root.contentItems[ 0 ].contentItems;
 		temp[ temp.length-1 ].on('resize', function(){
 			refreshGraph(graph);
@@ -603,50 +640,54 @@ function getWorksheetCount(){
 
 function remove_neighbours_from_worksheet(id) {
 	let parents = [];
-	let node = worksheets[`${selectedWorksheet}`].graph.$id(id);
-	// First check to see if this is a compound node.
-	let children = node.children();
-	if (!children.empty()) {
-		children.forEach(function (node) { worksheets[`${selectedWorksheet}`].graph.remove(node); });
-		node.remove();
-		return;
-	}
+	let nodeShownGraphNode = worksheets[selectedWorksheet].graph.$id(id);
+	let nodeHiddenGraphNode = worksheets[selectedWorksheet].confidenceHiddenGraph.$id(id);
+	for(let node of [nodeShownGraphNode, nodeHiddenGraphNode]){
+		// First check to see if this is a compound node.
+		let children = node.children();
+		if (!children.empty()) {
+			children.forEach(function (node) { worksheets[selectedWorksheet].graph.remove(node); });
+			node.remove();
+			return;
+		}
 
-	// Otherwise, remove edge-connected neighbours that aren't highlighted.
-	node.connectedEdges().connectedNodes().filter(function(ele) {
-		parents = parents.concat(ele.parents());
-		return !ele.hasClass('important');
-	}).remove();
-	removeEmptyParents(parents);
+		// Otherwise, remove edge-connected neighbours that aren't highlighted.
+		node.connectedEdges().connectedNodes().filter(function(ele) {
+			parents = parents.concat(ele.parents());
+			return !ele.hasClass('important');
+		}).remove();
+		removeEmptyParents(parents);
+	}
 }
 
-function toggleSection(ele){
-	let eleID = ele.data().id;
-	if(ele.data().connectionOn){
-		ele.removeClass('textualActive');
-		ele.data().connectionOn = false;
-		ele.cy().removeListener('tap', textualHandlers[`${eleID}`]);
-		textualHandlers[`${eleID}`] = null;
-	}
-	else{
-		ele.addClass('textualActive');
-		ele.data().connectionOn = true;
-		textualHandlers[`${eleID}`] = function(event){
-			let evtID = event.target.data().id;
-			if(evtID == eleID){return;}
-			if (!ele.allAreNeighbors(`#${evtID}`)){
-				neo4jQueries.createTextualEdge(eleID, evtID, function(edge){
-					graphingAPI.add_edge(edge, ele.cy());
-				});
-			}
-			else{
-				neo4jQueries.deleteTextualEdge(eleID, evtID);
-				ele.edgesWith(`#${evtID}`).remove();
-			}
-		};
-		ele.cy().on('tap', 'node', textualHandlers[`${eleID}`]);
-	}
-}
+// function toggleSection(ele){
+// 	let eleID = ele.data().id;
+// 	if(ele.data().connectionOn){
+// 		ele.removeClass('annotationActive');
+// 		ele.data().connectionOn = false;
+// 		ele.cy().removeListener('tap', annotationHandlers[eleID]);
+// 		annotationHandlers[eleID] = null;
+// 	}
+// 	else{
+// 		ele.addClass('annotationActive');
+// 		ele.data().connectionOn = true;
+// 		annotationHandlers[eleID] = function(event){
+// 			let evtID = event.target.data().id;
+// 			if(evtID == eleID){return;}
+// 			if (!ele.allAreNeighbors(`#${evtID}`)){
+// 				neo4jQueries.createAnnotationEdge(eleID, evtID, function(edge){
+// 					let graphs = [worksheets[ele.cy().id].graph, worksheets[ele.cy().id].confidenceHiddenGraph];
+// 					graphingAPI.add_edge(edge, graphs);
+// 				});
+// 			}
+// 			else{
+// 				neo4jQueries.deleteAnnotationEdge(eleID, evtID);
+// 				ele.edgesWith(`#${evtID}`).remove();
+// 			}
+// 		};
+// 		ele.cy().on('tap', 'node', annotationHandlers[eleID]);
+// 	}
+// }
 
 function toggle_node_importance(id, excludeWorksheet = -1) {
 	let index = highlightedIDs.indexOf(id);
@@ -656,17 +697,18 @@ function toggle_node_importance(id, excludeWorksheet = -1) {
 	else{
 		highlightedIDs = highlightedIDs.concat(id);
 	}
-	worksheets.forEach( function(worksheet){
-		if(worksheet.id == excludeWorksheet){ return; }
-		let ele = worksheet.graph.$id( id );
-		if(ele.length > 0){
-			if (ele.hasClass('important')) {
-				ele.removeClass('important');
-			} else {
-				ele.addClass('important');
+	for(let key in worksheets){
+		if(key == excludeWorksheet){ continue; }
+		for(let ele of [worksheets[key].graph.$id( id ), worksheets[key].confidenceHiddenGraph.$id( id )]){
+			if(ele.length > 0){
+				if (ele.hasClass('important')) {
+					ele.removeClass('important');
+				} else {
+					ele.addClass('important');
+				}
 			}
 		}
-	});
+	}
 }
 
 // //
@@ -714,7 +756,7 @@ function createInspector(){
 	};
 	inspector.graph.inspectee = null;
 
-	setRefreshGraphOnElementShow('inspectorGraph', inspector.graph);
+	//setRefreshGraphOnElementShow('inspectorGraph', inspector.graph);
 
 	setInspectorCxtMenu();
 
@@ -725,9 +767,7 @@ function createInspector(){
 										$('#inspectPipes').is(':checked'),
 										$('#inspectProcessMeta').is(':checked')
 		 );
-		if (inspector.graph.inspectee != null) {
-			inspect_node(inspector.graph.inspectee.id());
-		}
+		refresh_inspect();
 	});
 
 	inspectorContainer.on('resize', function(){
@@ -747,6 +787,8 @@ function createInspector(){
 			inspect_node(inspecteeForwardStack.pop());
 		}
 	};
+
+	setConfidenceSilder(`confidenceSliderInspector`, `confidenceValueInspector`, refresh_inspect);
 }
 
 function inspect_and_importAsync(id){
@@ -790,11 +832,11 @@ function showNodeListNextPrevious(fn=null){
 							$('#filterfileNum').val(),
 							$('#filterstartDate').val(), 
 							$('#filterendDate').val(),
+							$('#confidenceValueSearch').val(),
 							overFlowVars[`nodeList`][`DisplayAmount`] + 1,
 							overFlowVars['nodeList'][`IDStart`],
 							false,
 		function(result) {
-			nodelist = $('#nodelist');
 			nodelist.empty();
 
 			updateOverFlow('nodeList', result);
@@ -838,27 +880,13 @@ function getNodeCount(fn){
 							$('#filterfileNum').val(),
 							$('#filterstartDate').val(), 
 							$('#filterendDate').val(),
+							$('#confidenceValueSearch').val(),
 							0,0,
 							true,
 		function(result) {
 			fn(result);
 		}
 	);
-}
-
-function connectNodeListAccordion(){
-	let acc = document.getElementsByClassName("formBoxAccordion");
-
-	for (let i = 0; i < acc.length; i++) {
-		acc[i].addEventListener("click", function() {
-			var panel = this.nextElementSibling;
-			if (panel.style.display === "block") {
-				panel.style.display = "none";
-			} else {
-				panel.style.display = "block";
-			}
-		});
-	}
 }
 
 //NodeSearchsheet Functions end
@@ -912,12 +940,12 @@ function showInspectorNextPrevious(fn=null){
 
 			inspector.graph.remove('node');
 
-			graphingAPI.add_node(inspectee, inspector.graph);
+			graphingAPI.add_node(inspectee, [inspector.graph]);
 
 			updateOverFlow('inspector', result.nodes);
 
 
-			graphingAPI.add_node_batch(result.nodes, inspector.graph, null, [], function(node){
+			graphingAPI.add_node_batch(result.nodes, [inspector.graph], null, [], function(node){
 				let meta = graphingAPI.node_metadata(node);
 
 				let row = document.getElementById("neighbour-detail").insertRow(0);
@@ -933,7 +961,7 @@ function showInspectorNextPrevious(fn=null){
 								`);
 			});
 
-			graphingAPI.add_edge_batch(result.edges, inspector.graph);
+			graphingAPI.add_edge_batch(result.edges, [inspector.graph]);
 			let n = inspector.graph.$id(id);
 			if (n.empty()) {
 				n = inspector.graph.elements().nodes(`[uuid="${id}"]`);
@@ -995,15 +1023,15 @@ function get_neighbours(id, isOverFlow=false, displayAmount = -1, startID = 0, f
 										isOverFlow,
 										displayAmount,
 										startID,
-										countOnly);
+										countOnly,
+										$('#confidenceValueInspector').val());
 }
 
 function import_batch_into_worksheet(nodes) {
-	let graph = worksheets[`${selectedWorksheet}`].graph;
+	let graphs = [worksheets[selectedWorksheet].graph, worksheets[selectedWorksheet].confidenceHiddenGraph];
 	let ids = [];
-
 	for(let i = 0; i < nodes.length; i++){
-		if (!graph.$id(nodes[i].id).empty()) {
+		if (!graphs[0].$id(nodes[i].id).empty()) {
 			nodes.splice(nodes.indexOf(nodes[i]), 1);
 			i--;
 		}
@@ -1021,12 +1049,12 @@ function import_batch_into_worksheet(nodes) {
 	}
 	if(ids.length <= 0){return;}
 	let position = {
-		x: graph.width() / 2,
-		y: graph.height() / 2,
+		x: graphs[0].width() / 2,
+		y: graphs[0].height() / 2,
 	};
-	graphingAPI.add_node_batch(nodes, graph, position, highlightedIDs);
+	graphingAPI.add_node_batch(nodes, graphs, position, highlightedIDs);
 	neo4jQueries.get_all_edges_batch(ids, function(edges){
-		graphingAPI.add_edge_batch(edges, graph);
+		graphingAPI.add_edge_batch(edges, graphs);
 	});
 }
 
@@ -1055,21 +1083,21 @@ function htmlBody() {
 							<font size="+3">&nbsp;CADETS/OPUS&nbsp;</font>
 							<button type="button" class="headerButton" id="newWorksheet">Open New Worksheet</button>
 							<button type="button" class="headerButton" id="toggleNodeSearchsheet">Close NodeSearchsheet</button>
-							<button type="button" class="headerButton" id="toggleTextualReport">Open Textual Report Saver</button>
+							<button type="button" class="headerButton" id="toggleAnnotationReport">Open Annotation Report Saver</button>
 							<div class="dropdown" id="optionsForm"></div>
 						</div>
-						<div class="row content notScrollable" style="padding: 0.5%;" id="worksheetPage"></div>
-						<div class="row content notScrollable hide" style="padding: 0.5%;position:relative;" id="reportGenMenu">
-							<div class="scrollable" style="width:18%;height:100%;position:absolute;background-color:#222222;">
+						<div class="row content notScrollable" style="padding: 0.5%;display:block;" id="worksheetPage"></div>
+						<div class="row content notScrollable" style="padding: 0.5%;position:relative;display:none;" id="reportGenMenu">
+							<div class="scrollable annotationReportList">
 								<table class="table">
-									<tbody id="textualList"></tbody>
+									<tbody id="annotationList"></tbody>
 								</table>
 							</div>
-							<div class="scrollable" style="width:80%;height:100%;left:20%;position:absolute;">
+							<div class="scrollable annotationReport">
 								<label for="reportTitle">Title:</label><br>
-								<input id="reportTitle" class="darkTextBox leftPadding" value=""></input><br><br>
+								<input id="reportTitle" class="textBox leftPadding" value=""></input><br><br>
 								<label for="reportGenGraph">Graph:</label><br>
-								<div style="width:100%;height:75%;background-color:#222222;position:relative;">
+								<div class="annotationReportGraph">
 									<div id="reportGenGraph" class="sheet"></div>
 									<div class="bottomOptions">
 										<button type="button" class="headerButton" id="reportDagre">Dagre</button>
@@ -1077,9 +1105,10 @@ function htmlBody() {
 									</div>	
 								</div><br>
 								<label for="reportDescription">Description:</label><br>
-								<textarea id="reportDescription" class="darkTextBox leftPadding" rows="4" cols="50"></textarea><br><br>
-								<button type="button" class="headerButton" id="saveToNode">Update Textual Node to db</button>
-								<button type="button" class="headerButton" id="saveReport">Save Report</button><br><br>
+								<textarea id="reportDescription" class="textBox leftPadding" rows="4" cols="50"></textarea><br><br>
+								<button type="button" class="headerButton" id="saveToNode">Update Annotation Node to db</button>
+								<button type="button" class="headerButton" id="saveReport">Save Report</button>
+								<button type="button" class="headerButton" id="savePNG">Save PNG</button><br><br>
 							</div>
 						</div>`;
 	return element;
@@ -1092,12 +1121,7 @@ function generateOptions(){
 	optionButton.id = 'dropdownOptions';
 	optionButton.innerHTML = 'Options';
 	optionButton.onclick = (function(){
-		let menu = document.getElementById(`optionMenu`);
-		if (menu.style.display === "none") {
-			menu.style.display = "block";
-		} else {
-			menu.style.display = "none";
-		}
+		toggleBlockNone(`optionMenu`);
 	});
 	optionsForm.appendChild(optionButton);
 	attachOptionForm(optionsForm);
@@ -1113,31 +1137,49 @@ function attachOptionForm(optionsForm){
 	optionMenu.innerHTML = `<h2>Options</h2>
 							<font>GUI_Version: ${GUI_VERSION}</font><br><br>
 							<label for="newNodeListDisplayAmount">Nodes shown in nodeList:</label><br>
-							<input id="newNodeListDisplayAmount" class="darkTextBox leftPadding" placeholder="${overFlowVars['nodeList']['DisplayAmount']}"></input><br>
+							<input id="newNodeListDisplayAmount" class="textBox leftPadding" placeholder="${overFlowVars['nodeList']['DisplayAmount']}"></input><br>
 							<label for="newInspectorDisplayAmount">Neighbours shown in Inspector:</label><br>
-							<input id="newInspectorDisplayAmount" class="darkTextBox leftPadding" placeholder="${overFlowVars['inspector']['DisplayAmount']}"></input><br>
+							<input id="newInspectorDisplayAmount" class="textBox leftPadding" placeholder="${overFlowVars['inspector']['DisplayAmount']}"></input><br>
 							<label for="newMaxImportLength">Max amount of nodes importable:</label><br>
-							<input id="newMaxImportLength" class="darkTextBox leftPadding" placeholder="${maxImportLength}"></input><br>
+							<input id="newMaxImportLength" class="textBox leftPadding" placeholder="${maxImportLength}"></input><br>
 							<label for="newLimitNodesForDagre">Inspector edge limit for Dagre layout:</label><br>
-							<input id="newLimitNodesForDagre" class="darkTextBox leftPadding" placeholder="${limitNodesForDagre}"></input><br><br>`;
+							<input id="newLimitNodesForDagre" class="textBox leftPadding" placeholder="${limitNodesForDagre}"></input><br>
+							<label>Dark&nbsp;</label>
+							<label class="switch">
+								<input type="checkbox" id="styleSwitch">
+								<span class="sliderCheck"></span>
+							</label>
+							<label>&nbsp;Light</label><br><br>`;
 
 	let optionSubmit = document.createElement('button');
 	optionSubmit.className = 'headerButton';
 	optionSubmit.id = 'optionSubmit';
 	optionSubmit.innerHTML = 'Apply';
 	optionSubmit.onclick = (function(){
-		if(utilFunc.testIfNumber($('#newNodeListDisplayAmount').val()) && $('#newNodeListDisplayAmount').val() > 0){
+		if(!isNaN($('#newNodeListDisplayAmount').val()) && $('#newNodeListDisplayAmount').val() > 0){
 			overFlowVars['nodeList']['DisplayAmount'] = parseInt($('#newNodeListDisplayAmount').val());
 		}
-		if(utilFunc.testIfNumber($('#newInspectorDisplayAmount').val()) && $('#newInspectorDisplayAmount').val() > 0){
+		if(!isNaN($('#newInspectorDisplayAmount').val()) && $('#newInspectorDisplayAmount').val() > 0){
 			overFlowVars['inspector']['DisplayAmount'] = parseInt($('#newInspectorDisplayAmount').val());
 		}
-		if(utilFunc.testIfNumber($('#newMaxImportLength').val()) && $('#newMaxImportLength').val() > 0){
+		if(!isNaN($('#newMaxImportLength').val()) && $('#newMaxImportLength').val() > 0){
 			maxImportLength = parseInt($('#newMaxImportLength').val());
 		}
-		if(utilFunc.testIfNumber($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
+		if(!isNaN($('#newLimitNodesForDagre').val()) && $('#newLimitNodesForDagre').val() > 0){
 			limitNodesForDagre = parseInt($('#newLimitNodesForDagre').val());
 		}
+		let graphs = [inspector.graph];
+		graphs = graphs.concat(reportGenGraph);
+		for(let key in worksheets){
+			graphs = graphs.concat(worksheets[key].graph)
+		}
+		let isLight = $('#styleSwitch').is(':checked');
+		darkTheme.disabled= isLight;
+		lightTheme.disabled= !isLight;
+		darkGoldTheme.disabled= isLight;
+		lightGoldTheme.disabled= !isLight;
+		graphingAPI.swapStyle(!$('#styleSwitch').is(':checked'), graphs);
+
 		refresh_inspect();
 		update_nodelist();
 		document.getElementById('dropdownOptions').click();
@@ -1148,7 +1190,7 @@ function attachOptionForm(optionsForm){
 }
 
 function validOptionInput(varToSet, input){
-	if(utilFunc.testIfNumber(input) && input > 0){
+	if(!isNaN(input) && input > 0){
 		varToSet = parseInt(input);
 	}
 }
@@ -1196,25 +1238,25 @@ function removeEmptyParents(parents){
 	})
 }
 
-function setRefreshGraphOnElementShow(watchElement, graph){
-	let targetNode = document.getElementById(watchElement).parentElement.parentElement;
-	let observer = new MutationObserver(function(){
-		if(targetNode.style.display !='none' && graph != null){
-			refreshGraph(graph);
-		}
-	});
-	observer.observe(targetNode,  { attributes: true, childList: true });
-}
+// function setRefreshGraphOnElementShow(watchElement, graph){
+// 	let targetNode = document.getElementById(watchElement).parentElement.parentElement;
+// 	let observer = new MutationObserver(function(){
+// 		if(targetNode.style.display !='none' && graph != null){
+// 			refreshGraph(graph);
+// 		}
+// 	});
+// 	observer.observe(targetNode,  { attributes: true, childList: true });
+// }
 
-function openSaveTextualMenu(){
+function openSaveAnnotationMenu(){
 	refreshGraph(reportGenGraph);
 	let title = null;
 	let description = null;
-	$('#textualList').empty();
-	neo4jQueries.getTextualNodes(function(nodes){
+	$('#annotationList').empty();
+	neo4jQueries.getAnnotationNodes(function(nodes){
 		for (let node of nodes) {
 			let meta = graphingAPI.node_metadata(node);
-			let row = document.getElementById('textualList').insertRow(0);
+			let row = document.getElementById('annotationList').insertRow(0);
 			if(rowReportSelected != null && rowReportSelected.id == node.id){
 				rowReportSelected.row = row;
 			}
@@ -1224,7 +1266,7 @@ function openSaveTextualMenu(){
 						description != document.getElementById('reportDescription').value)){
 					vex.dialog.confirm({
 						message: 'Changes have been made. Are you sure you wish to discard them?',
-	    				className: 'vex-theme-wireframe',
+						className: 'vex-theme-wireframe',
 						callback: function (value) {
 							if(!value){return;}
 							rowReportSelected = {'row':row, 'id':node.id};
@@ -1246,47 +1288,53 @@ function openSaveTextualMenu(){
 			row.innerHTML = (`<td><a>${meta.label}</a></td>`);
 		}
 	});
+
 	document.getElementById('saveToNode').onclick = function(){
 		let newTitle = document.getElementById('reportTitle').value;
-		neo4jQueries.setTextualNodeTitleDes(reportGenGraph.inspectee, 
-								newTitle, 
-								document.getElementById('reportDescription').value,
-								function(){
-									rowReportSelected.row.innerHTML = (`<td><a>${newTitle}</a></td>`);
-									inspector.graph.$id(`${reportGenGraph.inspectee}`).data('label', newTitle);
-									reportGenGraph.$id(`${reportGenGraph.inspectee}`).data('label', newTitle);
-									update_nodelist();
-									for(let worksheet of worksheets){
-										worksheet.graph.$id(reportGenGraph.inspectee).data('label', newTitle);
-									}
-								});
+		setAnnotationNode(reportGenGraph.inspectee, newTitle, 
+			document.getElementById('reportDescription').value,
+				function(){
+					rowReportSelected.row.innerHTML = (`<td><a>${newTitle}</a></td>`);
+				});
 	};
+
 	document.getElementById('saveReport').onclick = function(){
-		let report = {'title':document.getElementById('reportTitle').value, 
-					'png': reportGenGraph.png(),
+		let report = {'title':document.getElementById('reportTitle').value,
 					'description':document.getElementById('reportDescription').value};
-		let string = '## Title:\n' + report.title + '\n\n## Description:\n' + report.description;
-		let nodes = reportGenGraph.nodes();
-		nodes.forEach(function(node){
+		let string = '## Title:\n' + report.title + '\n\n## Description:\n' + report.description + `\n\n image:./${report.title}.png\n\n`;
+		reportGenGraph.nodes().forEach(function(node){
 			let data = node.data();
 			let keys = Object.keys(data);
 			let table = `\n\n.${data.label} #${data.id}\n|===\n|property |value\n\n`;
 			keys.forEach(function(key){
 				table += `|${key}\n|${data[key]}\n\n`;
 			})
-			table += `|===`;
+			table += `|===\n\n`;
 			string += table;
 		})
 		let blob = new Blob([ string ]);
 		let a = document.createElement('a');
 
-		a.download = report.title + `.adoc`;
+		let title = report.title;
+		if(title == ''){
+			title = 'report';
+		}
+		a.download = title + `.adoc`;
 		a.href= window.URL.createObjectURL(blob);
 
 		a.click();
+	};
 
-		a.download = report.title + `.png`;
-		a.href= report.png;
+	document.getElementById('savePNG').onclick = function(){
+		let a = document.createElement('a');
+
+		let title = document.getElementById('reportTitle').value;
+		if(title == ''){
+			title = 'report';
+		}
+
+		a.download = title + `.png`;
+		a.href= reportGenGraph.png();
 
 		a.click();
 	};
@@ -1296,11 +1344,11 @@ function updateReportPanel(id, title, description, fn){
 	neo4jQueries.get_neighbours_id(id, function(neighbours){
 		reportGenGraph.remove('node');
 		reportGenGraph.inspectee = id;
-		graphingAPI.add_node_batch(neighbours.nodes.concat(neighbours.focusNode), reportGenGraph);
+		graphingAPI.add_node_batch(neighbours.nodes, [reportGenGraph]);
 		neo4jQueries.get_all_edges_batch(neighbours.nodes.map(a => a.id), function(edges){
-			graphingAPI.add_edge_batch(edges.concat(neighbours.edges), reportGenGraph);
+			graphingAPI.add_edge_batch(edges.concat(neighbours.edges), [reportGenGraph]);
 		});
-		neo4jQueries.getTextualNodeTitleDes(id, function(result){
+		neo4jQueries.getAnnotationNodeTitleDes(id, function(result){
 			document.getElementById('reportTitle').value = result.title;
 			$('#reportDescription').val(result.description);
 			fn(result.title, result.description);
@@ -1309,16 +1357,16 @@ function updateReportPanel(id, title, description, fn){
 }
 
 
-function openTextualMenu(ele){
-	if(document.getElementById(`textualDropdown${ele.data().id}`) != null){
+function openAnnotationMenu(ele){
+	if(document.getElementById(`annotationDropdown${ele.data().id}`) != null){
 		return;
 	}
-	let textualMenu = document.createElement('div');
-	textualMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
-	textualMenu.className = 'absolute';
-	textualMenu.id = `textualDropdown${ele.data().id}`;
+	let annotationMenu = document.createElement('div');
+	annotationMenu.style.cssText = `left:${currMouseX}px;top:${currMouseY}px;`;
+	annotationMenu.className = 'annotationEditMenu';
+	annotationMenu.id = `annotationDropdown${ele.data().id}`;
 	
-	neo4jQueries.getTextualNodeTitleDes(ele.data().id, function(result){
+	neo4jQueries.getAnnotationNodeTitleDes(ele.data().id, function(result){
 		let title = result.title;
 		let description = result.description;
 		if(title == null){title = '';}
@@ -1326,52 +1374,44 @@ function openTextualMenu(ele){
 
 		let subMenuOption = document.createElement('a');
 		subMenuOption.innerHTML = `<label for="editTitle">Title:</label><br>
-								<input id="editTitle" class="darkTextBox leftPadding" value="${title}"></input><br>
+								<input id="editTitle" class="textBox leftPadding" value="${title}"></input><br>
 								<label for="editDescription">Description:</label><br>
-								<textarea  id="editDescription" class="darkTextBox leftPadding" rows="4" cols="50">${description}</textarea><br><br>`
-		textualMenu.appendChild(subMenuOption);
+								<textarea  id="editDescription" class="textBox leftPadding" rows="4" cols="50">${description}</textarea><br><br>`
+		annotationMenu.appendChild(subMenuOption);
 
-		let textualSubmit = document.createElement('button');
-		textualSubmit.className = 'headerButton';
-		textualSubmit.innerHTML = 'Apply';
-		textualSubmit.onclick = (function(){
+		let annotationSubmit = document.createElement('button');
+		annotationSubmit.className = 'headerButton';
+		annotationSubmit.innerHTML = 'Apply';
+		annotationSubmit.onclick = (function(){
 			title = document.getElementById('editTitle').value;
 			description = document.getElementById('editDescription').value;
-			neo4jQueries.setTextualNodeTitleDes(ele.data().id, title, description);
-			for(let worksheet of worksheets){
-				worksheet.graph.$id(ele.data().id).data('label', title);
-			}
-			inspector.graph.$id(ele.data().id).data('label', title);
-
-			textualMenu.remove();
-			if($('#filterNodeType').val() == 'textual'){
-				update_nodelist();
-			}
+			setAnnotationNode(ele.data().id, title, description);
+			annotationMenu.remove();
 		});
-		textualMenu.appendChild(textualSubmit);
+		annotationMenu.appendChild(annotationSubmit);
 
-		let textualCancel = document.createElement('button');
-		textualCancel.className = 'headerButton';
-		textualCancel.innerHTML = 'Close';
-		textualCancel.onclick = (function(){
+		let annotationCancel = document.createElement('button');
+		annotationCancel.className = 'headerButton';
+		annotationCancel.innerHTML = 'Close';
+		annotationCancel.onclick = (function(){
 			if(title != document.getElementById('editTitle').value ||
 				description != document.getElementById('editDescription').value){
 				vex.dialog.confirm({
 					message: 'Changes have been made. Are you sure you wish to discard them?',
-    				className: 'vex-theme-wireframe',
+					className: 'vex-theme-wireframe',
 					callback: function (value) {
 						if(!value){return;}
-						textualMenu.remove();
+						annotationMenu.remove();
 					}
 				});
 			}
 			else{
-				textualMenu.remove();
+				annotationMenu.remove();
 			}
 		});
-		textualMenu.appendChild(textualCancel);
+		annotationMenu.appendChild(annotationCancel);
 
-		document.body.appendChild(textualMenu);
+		document.body.appendChild(annotationMenu);
 	});
 }
 
@@ -1382,11 +1422,12 @@ function openSubMenu(fn, isNewWorksheetOption = true, isAllWorksheetOption=false
 	cxtSubMenu.className = 'dropdown-content';
 	cxtSubMenu.id = 'worksheetDropdown';
 
-	for(let i in worksheets){
+
+	for(let key in worksheets){
 		let SubMenuOption = document.createElement('a');
-		SubMenuOption.text = `Worksheet_${i}`;
+		SubMenuOption.text = `Worksheet_${key}`;
 		SubMenuOption.onclick =(function() {
-			selectedWorksheet = i;
+			selectedWorksheet = key;
 			fn();
 		});
 		cxtSubMenu.appendChild(SubMenuOption);
@@ -1405,8 +1446,8 @@ function openSubMenu(fn, isNewWorksheetOption = true, isAllWorksheetOption=false
 		let SubMenuOption = document.createElement('a');
 		SubMenuOption.text = `All Worksheet`;
 		SubMenuOption.onclick =(function() {
-			for(let i in worksheets){
-				selectedWorksheet = i;
+			for(let key in worksheets){
+				selectedWorksheet = key;
 				fn();
 			}
 		});
@@ -1573,7 +1614,8 @@ function spawnVexList(ele, message, resultID, resultName, func){
 }
 
 function removeNode(ele){
-	let node = worksheets[`${selectedWorksheet}`].graph.$id(ele.data("id"));
+	let node = worksheets[selectedWorksheet].graph.$id(ele.data("id"));
+	worksheets[selectedWorksheet].confidenceHiddenGraph.$id(ele.data("id")).remove();
 	node.remove();
 	removeEmptyParents(node.parents());
 }
@@ -1590,6 +1632,70 @@ function setGraphCxtMenu(graph, cxtMenus){
 	cxtMenus.forEach(function(menu){
 		graph.cxtmenu(menu);
 	});
+}
+
+function setConfidenceSilder(slider, textbox, fn){
+	slider = document.getElementById(slider);
+	textbox = document.getElementById(textbox);
+	slider.oninput = function () {
+		textbox.value = slider.value/100;
+		fn();
+	};
+
+	textbox.onchange = function () {
+		if(isNaN(textbox.value)){
+			textbox.value = 0;
+			slider.value = 0;
+		}
+		else{
+			let value = Math.min(Math.max(textbox.value*100, 0), 100);
+			slider.value = value;
+			textbox.value = value/100;
+		}
+		fn();
+	};
+}
+
+function toggleBlockNone(element, blockFn=null, noneFn=null){
+	if('string' === typeof element){
+		element = document.getElementById(element);
+	}
+	if (element.style.display === "none" || element.style.display == '') {
+		element.style.display = "block";
+		if(blockFn != null){
+			blockFn();
+		}
+	} else {
+		element.style.display = "none";
+		if(noneFn != null){
+			noneFn();
+		}
+	}
+}
+
+function setAnnotationNode(id, label, description, fn=null){
+	neo4jQueries.setAnnotationNodeTitleDes(id, label, description,
+		function(){
+			if(fn != null){
+				fn();
+			}
+			for(let key in worksheets){
+				worksheets[key].graph.$id(id).data('label', label);
+			}
+			inspector.graph.$id(id).data('label', label);
+
+			if($('#filterNodeType').val() == 'annotation'){
+				update_nodelist();
+			}
+		});
+}
+
+function connectNodeListAccordion(className){
+	for (let acc of document.getElementsByClassName(className)) {
+		acc.addEventListener("click", function() {
+			toggleBlockNone(this.nextElementSibling);
+		});
+	}
 }
 
 //Utility Functions end

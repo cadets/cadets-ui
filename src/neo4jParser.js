@@ -26,8 +26,8 @@ export function parseNeo4jNode(o){
 		data.type = "machine";
 		data = concatDictionary( data, o['properties']);
 	} 
-	else if (labels.indexOf('Textual') > -1){
-		data.type = "textual";
+	else if (labels.indexOf('Annotation') > -1){
+		data.type = "annotation";
 		data.connectionOn = false;
 		data = concatDictionary( data, o['properties']);
 	}
@@ -129,7 +129,7 @@ export function parseNeo4jEdge(o){
 		src = o['start']['low'];
 		dst = o['end']['low'];
 	}
-	if (o['type'] == 'COMM'){
+	if (o['type'] == 'COMM' || o['type'] == 'INF'){
 		src = o['start']['low'];
 		dst = o['end']['low'];
 	}

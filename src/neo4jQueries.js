@@ -5,7 +5,6 @@ import moment from './../node_modules/moment/moment.js';
 import './../node_modules/vex-js/dist/css/vex.css';
 import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
 
-var utilFunc = require('./utilFunc.js');
 var neo4jParser = require('./neo4jParser.js');
 var neo4j = require('./../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js').v1;
 var driver = null;
@@ -100,7 +99,7 @@ export function cmd_query(id, fn){
 					RETURN c ORDER BY c.timestamp`;
 			break;
 		case(2):
-			query = `MATCH (n:Process)<-[]-(c:Process) 
+			query = `MATCH (n:Process)-[]->(c:Process) 
 						WHERE id(n) = ${id} 
 					RETURN c`;
 			break;
@@ -124,9 +123,10 @@ export function cmd_query(id, fn){
 }
 
 export function get_neighbours_id(id, fn, files=true, sockets=true, pipes=true, 
-								process_meta=true, isOverFlow=false, limit=-1, startID = 0, countOnly=false){
+								process_meta=true, isOverFlow=false, limit=-1, 
+								startID = 0, countOnly=false, confidence=null){
 	get_neighbours_id_batch([parseInt(id)], fn, files, sockets, pipes, 
-							process_meta, isOverFlow, limit, startID, countOnly);
+							process_meta, isOverFlow, limit, startID, countOnly, confidence);
 }
 
 export function get_neighbours_id_batch(ids,
@@ -138,8 +138,9 @@ export function get_neighbours_id_batch(ids,
 										isOverFlow=false,
 										limit=-1,
 										startID = 0,
-										countOnly=false){
-	let matchers = ["Machine", "Process", "Conn", "Textual"];
+										countOnly=false,
+										confidence=null){
+	let matchers = ["Machine", "Process", "Conn", "Annotation"];
 	if (files){
 		matchers = matchers.concat(['File', 'EditSession']);
 	}
@@ -178,6 +179,12 @@ export function get_neighbours_id_batch(ids,
 		socket_machine_query = `UNION
 								MATCH (s:Socket), (e), (d:Machine)
 								WHERE 
+									d.show is Null
+									OR
+									${confidence} <= d.show
+								WITH d
+								MATCH (s:Socket), (e), (d:Machine)
+								WHERE 
 								id(d) >= ${startID}
 								AND
 								s = e
@@ -191,6 +198,12 @@ export function get_neighbours_id_batch(ids,
 								UNION
 								MATCH (s:Socket), (e), (d:Machine)
 								WHERE 
+									s.show is Null
+									OR
+									${confidence} <= s.show
+								WITH s
+								MATCH (s:Socket), (e), (d:Machine)
+								WHERE 
 								${startQuery}
 								s = e
 								AND
@@ -202,6 +215,12 @@ export function get_neighbours_id_batch(ids,
 								RETURN ${returnQuery}`;
 	}
 	let query = `MATCH (d)-[e]-(s)
+				WHERE 
+					s.show is Null
+					OR
+					${confidence} <= s.show
+				WITH s
+				MATCH (d)-[e]-(s)
 				WHERE 
 				${startQuery}
 				id(d) IN ${JSON.stringify(ids)}
@@ -513,11 +532,12 @@ export function get_nodes(node_type=null,
 				fileNum=1,
 				startDate="", 
 				endDate="",
+				confidence=null,
 				limit='100',
 				startID = 0,
 				countOnly = false,
 				fn){
-	if(!utilFunc.testIfNumber(fileNum)){
+	if(isNaN(fileNum)){
 		fileNum = 0;
 	}
 	let lab;
@@ -530,7 +550,7 @@ export function get_nodes(node_type=null,
 					'file-version': 'File',
 					'global-only': 'Global',
 					'edit-session': 'EditSession',
-					'textual': 'Textual'};
+					'annotation': 'Annotation'};
 	let labelQuery;
 	if  (!(node_type in node_labels)){
 		lab = "Null";
@@ -572,7 +592,7 @@ export function get_nodes(node_type=null,
 						id(n) >= ${startID}
 					WITH n`;
 	}
-	if(fileNameStart != null && fileNameStart != ''){//d.name CONTAINS ${JSON.stringify(fileNameStart)}
+	if(fileNameStart != null && fileNameStart != ''){
 		fileCreatedQuery=`MATCH (n)-[]-(d:File)
 				WHERE
 				any(name in d.name WHERE name CONTAINS ${JSON.stringify(fileNameStart)})
@@ -599,6 +619,11 @@ export function get_nodes(node_type=null,
 				${JSON.stringify(lab)} is Null
 				OR
 				${labelQuery}
+			WITH n
+			WHERE 
+				n.show is Null
+				OR
+				${confidence} <= n.show
 			WITH n
 			WHERE
 				${JSON.stringify(name)} is Null
@@ -729,6 +754,7 @@ export function getTypeLabels(fn){
 	let session = driver.session();
 	session.run(`CALL db.labels()`)
 	.then(result => {
+		session.close();
 		let types = [];
 		result.records.forEach(function(record){
 			types = types.concat(record.get('label'));
@@ -739,87 +765,139 @@ export function getTypeLabels(fn){
 	});
 }
 
-export function createTextualNode(fn){
+export function createAnnotationNode(fn){
 	let session = driver.session();
-	session.run(`CREATE (n:Textual) RETURN n`)
+	session.run(`CREATE (n:Annotation) RETURN n`)
 	.then(result => {
+		session.close();
 		fn(neo4jParser.parseNeo4jNode(result.records[0].get('n')));
 	}, function(error) {
-		neo4jError(error, session, "createTextualNode");
+		neo4jError(error, session, "createAnnotationNode");
 	});
 }
 
-export function getTextualNodes(fn){
+export function getAnnotationNodes(fn){
 	let nodes = [];
 	let session = driver.session();
-	session.run(`Match (n:Textual)
+	session.run(`Match (n:Annotation)
 				RETURN n`)
 	.then(result => {
+		session.close();
 		result.records.forEach(function(record){
 			nodes = nodes.concat(neo4jParser.parseNeo4jNode(record.get('n')));
 		})
 		fn(nodes);
 	}, function(error) {
-		neo4jError(error, session, "getTextualNodes");
+		neo4jError(error, session, "getAnnotationNodes");
 	});
 }
 
-export function getTextualNodeTitleDes(id, fn){
+export function getAnnotationNodeTitleDes(id, fn){
 	let session = driver.session();
-	session.run(`Match (n:Textual)
+	session.run(`Match (n:Annotation)
 				WHERE id(n) = ${id}
 				RETURN n.title AS title, n.description as description`)
 	.then(result => {
+		session.close();
 		fn({'title':result.records[0].get('title'),
 			'description': result.records[0].get('description')});
 	}, function(error) {
-		neo4jError(error, session, "setTextualNodeTitleDes");
+		neo4jError(error, session, "setAnnotationNodeTitleDes");
 	});
 }
 
-export function setTextualNodeTitleDes(id, title, description, fn=null){
+export function setAnnotationNodeTitleDes(id, title, description, fn=null){
 	let session = driver.session();
-	session.run(`Match (n:Textual)
+	session.run(`Match (n:Annotation)
 				WHERE id(n) = ${id}
 				SET n.title = ${JSON.stringify(title)}
 				SET n.description = ${JSON.stringify(description)}`)
 	.then(result => {
+		session.close();
 		if(fn!=null){fn();}
 	}, function(error) {
-		neo4jError(error, session, "setTextualNodeTitleDes");
+		neo4jError(error, session, "setAnnotationNodeTitleDes");
 	});
 }
 
-export function createTextualEdge(sourceID, targetID, fn){
+export function createAnnotationEdgeBatch(sourceID, targetID, fn){
 	let session = driver.session();
-	session.run(`MATCH (s:Textual), (t) 
-				WHERE id(s) = ${sourceID} AND id(t) = ${targetID}
+	session.run(`MATCH (s:Annotation), (t) 
+				WHERE id(s) = ${sourceID} AND id(t) IN ${JSON.stringify(targetID)}
 				CREATE (s)<-[e:Describes]-(t)
 				RETURN e`)
 	.then(result => {
-		fn(neo4jParser.parseNeo4jEdge(result.records[0].get('e')));
+		session.close();
+		let edges = [];
+		result.records.forEach(function(record){
+			edges = edges.concat(neo4jParser.parseNeo4jEdge(record.get('e')));
+		})
+		fn(edges);
 	}, function(error) {
-		neo4jError(error, session, "createTextualEdge");
+		neo4jError(error, session, "createAnnotationEdgeBatch");
 	});
 }
 
-export function deleteTextualEdge(sourceID, targetID){
+export function deleteAnnotationEdge(sourceID, targetID){
 	let session = driver.session();
-	session.run(`MATCH (s:Textual)-[e:Describes]-(t) 
+	session.run(`MATCH (s:Annotation)-[e:Describes]-(t) 
 				WHERE id(s) = ${sourceID} AND id(t) = ${targetID}
 				DELETE (e)`)
 	.then(result => {
+		session.close();
 	}, function(error) {
-		neo4jError(error, session, "deleteTextualEdge");
+		neo4jError(error, session, "deleteAnnotationEdge");
 	});
 }
 
-export function deleteEmptyTextualNodes(){
+export function deleteEmptyAnnotationNodes(){
 	let session = driver.session();
-	session.run(`Match (n:Textual) DETACH DELETE n`)
+	session.run(`Match (n:Annotation) DETACH DELETE n`)
 	.then(result => {
+		session.close();
 	}, function(error) {
-		neo4jError(error, session, "deleteEmptyTextualNodes");
+		neo4jError(error, session, "deleteEmptyAnnotationNodes");
+	});
+}
+
+export function getShortestPath(startID, endID, fn){
+	let query = '';
+	switch(parseInt(pvm_version)){
+		case(1):
+			query = `MATCH (source),(target)
+					WHERE id(source) = ${startID} AND id(target) = ${endID}
+					MATCH p = shortestPath((source)<-[*]-(target))
+					return p;`;
+			break;
+		case(2):
+			query = `MATCH (source),(target)
+					WHERE id(source) = ${startID} AND id(target) = ${endID}
+					MATCH p = shortestPath((source)-[*]->(target))
+					return p;`;
+			break;
+		default:
+			console.log(`neo4jQueries.js - getShortestPath pvm_version:${pvm_version} not implemented`);
+	}
+	let session = driver.session();
+	session.run(query)
+	.then(result => {
+		session.close();
+		if(result.records[0] == null){
+			vex.dialog.alert({message: 'No forward connection from source to target node.',
+							className: 'vex-theme-wireframe'});
+			return;
+		}
+		let nodes = [];
+		let edges = [];
+		result.records[0].get('p').segments.forEach(function(segment){
+			nodes = nodes.concat(neo4jParser.parseNeo4jNode(segment.start));
+			edges = edges.concat(neo4jParser.parseNeo4jEdge(segment.relationship));	
+		});
+		nodes = nodes.concat(neo4jParser.parseNeo4jNode(result.records[0].get('p').end));
+		fn({'nodes': nodes,
+			'edges': edges});
+	}, function(error) {
+		neo4jError(error, session, "setAnnotationNodeTitleDes");
 	});
 }
 
@@ -840,11 +918,12 @@ const neo4jQueries ={
 	get_detail_id,
 	get_nodes,
 	getTypeLabels,
-	getTextualNodes,
-	createTextualNode,
-	setTextualNodeTitleDes,
-	createTextualEdge,
-	deleteEmptyTextualNodes,
+	getAnnotationNodes,
+	createAnnotationNode,
+	setAnnotationNodeTitleDes,
+	createAnnotationEdgeBatch,
+	deleteEmptyAnnotationNodes,
+	getShortestPath,
 }
 
 export default neo4jQueries;

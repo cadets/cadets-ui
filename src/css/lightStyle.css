@@ -1,0 +1,242 @@
+html, body {
+	background-color: #e1e1e1;
+	height: 100%;
+	width: 100%;
+	margin: 0;
+}
+.box {
+	display: flex;
+	flex-flow: column;
+	height: 100%;
+}
+.box .row.header {
+	flex: 0 0 auto;
+}
+.box .row.content {
+	flex: 1 1 auto;
+}
+.fillHeader{
+	color: black;
+	background-color: #e1e1e1;
+	width: 100%;
+	position: relative;
+	top: 0%;
+	left: 0%;
+}
+.headerButtons{
+	height: 100%;
+	position: absolute;
+	top: 25%;
+	left: 20%;
+ }
+ .headerButton{
+	transition-duration: 0.5s;
+	font-size: 20px;
+	background-color: #d6d6d6;
+	color: black;
+	border: black;
+	outline:none;
+ }
+ .headerButton:Hover{
+	font-size: 20px;
+	background-color: #c9c9c9;
+	border: white;
+ }
+.sheet{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+.formBox{
+	background-color: #d6d6d6;
+	color: black;
+	width: 100%;
+	top: 0%;
+	left: 0%;
+	padding: 2%
+}
+.scrollable{
+	overflow: scroll;
+	overflow-x: hidden;
+}
+.notScrollable{
+	overflow: hidden;
+}
+::-moz-scrollbar {
+	width: 15px;
+}
+::-moz-scrollbar-thumb:hover {
+	background: #555; 
+}
+::-webkit-scrollbar {
+	width: 15px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: #555; 
+}
+.table{
+	width: 100%;
+}
+.table, th, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+th,td{
+	padding: 8px;
+}
+.topOptions{
+	position: absolute;
+	top: 0%;
+	left: 0%;
+	padding: 2%
+}
+.bottomOptions{
+	position: absolute;
+	bottom: 0%;
+	left: 0%;
+	padding: 2%
+}
+.textBox{
+	border: 0px;
+	background-color: white;!important
+	color: #c6c6c6;
+	size:2;
+}
+.leftPadding{
+	padding-left: 5px
+}
+.WorksheetTextBox{
+	height: 22px;
+	border: 0px;
+
+	size:2;
+}
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+.annotationEditMenu{
+	padding: 20px;
+	background-color: #d6d6d6;
+	position: absolute;
+	z-index: 500;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	border-radius: 2px;
+}
+.dropdown-content {
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 9999;
+}
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+.dropdown-content a:hover {background-color: #ddd}
+.popoutMenu{
+	min-width: 300px;
+	padding-bottom: 20px;
+	padding-left: 20px;
+	background-color: #d6d6d6;
+	display: none;
+	position: absolute;
+	z-index: 500;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	border-radius: 2px;
+}
+.hide{
+	display: none;
+}
+.formBoxAccordion{
+	width: 100%;
+	background-color: #d6d6d6;
+	color: black;
+	border: black;
+	transition-duration: 0.5s;
+	font-size: 15px;
+	outline:none;
+}
+.formBoxAccordion:Hover{
+	background-color: #c9c9c9;
+ }
+ .reportGenMenu{
+	background-color: #161616;
+	position: absolute;
+	z-index: 500;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	border-radius: 2px;
+ }
+
+ .switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 17px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.sliderCheck {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #727272;
+  -webkit-transition: .4s;
+  -moz-transition: .4s;
+  transition: .4s;
+}
+
+.sliderCheck:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  -moz-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .sliderCheck {
+  background-color: #ccc;
+}
+
+input:focus + .sliderCheck {
+  box-shadow: 0 0 0.5px #ccc;
+}
+
+input:checked + .sliderCheck:before {
+  -webkit-transform: translateX(13px);
+  -moz-transform: translateX(13px);
+  -ms-transform: translateX(13px);
+  transform: translateX(13px);
+}
+.annotationReportList{
+	width:18%;
+	height:100%;
+	position:absolute;
+	background-color:white;
+}
+.annotationReport{
+	width:80%;
+	height:100%;
+	left:20%;
+	position:absolute;
+}
+.annotationReportGraph{
+	width:100%;
+	height:75%;
+	background-color:white;
+	position:relative;
+}
