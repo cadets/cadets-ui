@@ -207,37 +207,6 @@ export function add_edge_batch(edges, graphs){
 	for(let graph of graphs){
 		graph.add(processEdges);
 	}
-
-
-	// let graphAmount = graphs.length;
-	// if(graphAmount == 1){
-	// 	graphs = graphs.concat(graphs[0]);
-	// }
-	// let processEdges = [];
-	// edges.forEach(function(edge){
-	// 	let source = graphs[1].$id( edge.source );
-	// 	let target = graphs[1].$id( edge.target );
-
-	// // console.log(graphs[1]);
-	// // console.log(graphs[1].$id( edge.id ));
-	// // console.log(graphs[1].$id( edge.source ));
-	// // console.log(graphs[1].$id( edge.target ));
-
-	// 	if (!graphs[1].$id( edge.id ).empty() || source.empty() || target.empty()) {return;}
-
-	// 	// If the target is explicitly marked as something we read from
-	// 	// (e.g., the by-convention read-from pipe), reverse the edge's direction.
-	// 	if (source.data().type == 'process' && target.data().end == 'R') {
-	// 		let swap = edge.source;
-	// 		edge.source = edge.target;
-	// 		edge.target = swap;
-	// 	}
-	// 	processEdges = processEdges.concat({classes: edge.type, data: edge,});
-	// });
-	// if(graphAmount == 1){graphs.pop();}
-	// for(let graph of graphs){
-	// 	graph.add(processEdges);
-	// }
 }
 
 //
