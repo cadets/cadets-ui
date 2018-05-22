@@ -7,22 +7,12 @@ import vex from 'vex-js';
 import 'vex-js/dist/css/vex.css';
 import 'vex-js/dist/css/vex-theme-wireframe.css';
 
-import './css/darkStyle.css';
 import './css/lightStyle.css';
 
 var graphingAPI = require('./graphing.js');
 var neo4jQueries = require('./neo4jQueries.js');
 var goldenLayoutHTML = require('./goldenLayoutHTML.js');
 var eventEmitter = new events.EventEmitter();
-
-//Find less hacky way to assign these vars 
-var darkGoldTheme = document.styleSheets[document.styleSheets.length-4];
-var lightGoldTheme = document.styleSheets[document.styleSheets.length-3];
-var darkTheme = document.styleSheets[document.styleSheets.length-2];
-var lightTheme = document.styleSheets[document.styleSheets.length-1];
-lightGoldTheme.disabled= true;
-lightTheme.disabled= true;
-graphingAPI.swapStyle(true);
 
 //Build Html document
 const GUI_VERSION = 'v0.7.0-release';
@@ -1131,13 +1121,7 @@ function attachOptionForm(optionsForm){
 							<label for="newMaxImportLength">Max amount of nodes importable:</label><br>
 							<input id="newMaxImportLength" class="textBox leftPadding" placeholder="${maxImportLength}"></input><br>
 							<label for="newLimitNodesForDagre">Inspector edge limit for Dagre layout:</label><br>
-							<input id="newLimitNodesForDagre" class="textBox leftPadding" placeholder="${limitNodesForDagre}"></input><br>
-							<label>Dark&nbsp;</label>
-							<label class="switch">
-								<input type="checkbox" id="styleSwitch">
-								<span class="sliderCheck"></span>
-							</label>
-							<label>&nbsp;Light</label><br><br>`;
+							<input id="newLimitNodesForDagre" class="textBox leftPadding" placeholder="${limitNodesForDagre}"></input><br>`;
 
 	let optionSubmit = document.createElement('button');
 	optionSubmit.className = 'headerButton';
@@ -1161,12 +1145,6 @@ function attachOptionForm(optionsForm){
 		for(let key in worksheets){
 			graphs = graphs.concat(worksheets[key].graph)
 		}
-		let isLight = $('#styleSwitch').is(':checked');
-		darkTheme.disabled= isLight;
-		lightTheme.disabled= !isLight;
-		darkGoldTheme.disabled= isLight;
-		lightGoldTheme.disabled= !isLight;
-		graphingAPI.swapStyle(!$('#styleSwitch').is(':checked'), graphs);
 
 		refresh_inspect();
 		update_nodelist();

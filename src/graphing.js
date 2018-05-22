@@ -7,36 +7,22 @@ cytoscape.use(require('cytoscape-dagre'));
 
 import moment from 'moment';
 
-import connectionOrig from './img/connection.png';
-import procOrig from './img/proc.png';
-import file_versionOrig from './img/file-version.png';
-import edit_sessionOrig from './img/edit-session.png';
-import cadets_machineOrig from './img/cadets-machine.svg';
-import machine_externalOrig from './img/machine-external.svg';
-import pipeOrig from './img/pipe.png';
-import socketOrig from './img/socket.png';
-import FileNeon from './img/FileNeonNBG.png';
-import editNeon from './img/editNeonNBG.png';
-import procNeon from './img/procNeonNBG.png';
-import pipeNeon from './img/pipeNeonNBG.png';
-import SocketNeon from './img/SocketNeonNBG.png';
-import connNeon from './img/connNeonNBG.png';
-import machineNeon from './img/machineNeonNBG.png';
-import cMachineNeon from './img/cMachineNeonNBG.png';
+import connection from './img/connection.png';
+import proc from './img/proc.png';
+import file_version from './img/file-version.png';
+import edit_session from './img/edit-session.png';
+import cadets_machine from './img/cadets-machine.svg';
+import machine_external from './img/machine-external.svg';
+import pipe from './img/pipe.png';
+import socket from './img/socket.png';
 
-var connection;
-var proc;
-var file_version;
-var edit_session;
-var cadets_machine;
-var machine_external;
-var pipe;
-var socket;
-var fileCompoundColor;
-var pipeCompoundColor;
-var socketCompoundColor;
-var importantColor;
-var textColor;
+var colours = {
+	file: '#dc9',
+	important: 'orange',
+	pipe: '#076928',
+	socket: '#999',
+	text: 'black',
+}
 
 var pvm_version = null;
 var PVMvLexicon = null;
@@ -300,47 +286,6 @@ export function layout(graph, algorithm) {
 	.run();
 };
 
-export function swapStyle(isDark, graphs=null){
-	switch(isDark){
-		case(true):
-			connection = connNeon;
-			proc = procNeon;
-			file_version = FileNeon;
-			edit_session = editNeon;
-			cadets_machine = cMachineNeon;
-			machine_external = machineNeon;
-			pipe = pipeNeon;
-			socket = SocketNeon;
-			fileCompoundColor = "#000";
-			pipeCompoundColor = "#000";
-			socketCompoundColor = "#000";
-			importantColor = "#996b00";
-			textColor = "#e2e2e2";
-		break;
-		case(false):
-			connection = connectionOrig;
-			proc = procOrig;
-			file_version = file_versionOrig;
-			edit_session = edit_sessionOrig;
-			cadets_machine = cadets_machineOrig;
-			machine_external = machine_externalOrig;
-			pipe = pipeOrig;
-			socket = socketOrig;
-			fileCompoundColor = "#dc9";
-			pipeCompoundColor = "#076928";
-			socketCompoundColor = "#999";
-			importantColor = "orange";
-			textColor = "black";
-		break;
-	}
-	if(graphs == null){return;}
-	load_graph_style(graphs);
-}
-""
-
-
-
-
 
 //
 // Load a Cytograph CSS file and apply it to a graph.
@@ -425,7 +370,7 @@ function load_graph_style(graphs) {
 				font-family: Inconsolata, Source Code Pro, Consolas, monospace;
 				border-style: solid;
 				border-width: 2;
-				color: ${textColor};
+				color: ${colours.text};
 				text-outline-color: #eee;
 				text-outline-opacity: 0.9;
 				text-outline-width: 0;
@@ -456,7 +401,7 @@ function load_graph_style(graphs) {
 				background-color: #720d00; }
 
 			node.important {
-				overlay-color: ${importantColor};
+				overlay-color: ${colours.important};
 				overlay-padding: 64;
 				overlay-opacity: 0.50; }
 			
@@ -477,7 +422,7 @@ function load_graph_style(graphs) {
 				height: 135px; }
 
 			node.file {
-				background-color: ${fileCompoundColor};
+				background-color: ${colours.file};
 				background-opacity: 0.25;
 				border-color: #633; }
 
@@ -542,7 +487,7 @@ function load_graph_style(graphs) {
 
 			node.pipe {
 				content: data(label);
-				background-color: ${pipeCompoundColor};
+				background-color: ${colours.pipe};
 				background-opacity: 0.25;
 				border-color: #076928; }
 
@@ -557,7 +502,7 @@ function load_graph_style(graphs) {
 				border-width: 0; }
 
 			node.sock {
-				background-color: ${socketCompoundColor};
+				background-color: ${colours.socket};
 				background-opacity: 0.5;
 				border-color: #999;
 				border-opacity: 1; }
@@ -748,7 +693,6 @@ const graphing ={
 	add_edge,
 	add_edge_batch,
 	setPVMVersion,
-	swapStyle,
 }
 
 export default graphing;

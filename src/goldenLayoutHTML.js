@@ -1,7 +1,6 @@
 import GoldenLayout from 'golden-layout'
 
 import 'golden-layout/src/css/goldenlayout-base.css'
-import 'golden-layout/src/css/goldenlayout-dark-theme.css'
 
 //var typeOptions = '';
 var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
