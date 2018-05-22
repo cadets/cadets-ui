@@ -1,7 +1,7 @@
-import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.js';
+import GoldenLayout from 'golden-layout'
 
-import './../node_modules/golden-layout/src/css/goldenlayout-base.css';
-import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
+import 'golden-layout/src/css/goldenlayout-base.css'
+import 'golden-layout/src/css/goldenlayout-dark-theme.css'
 
 //var typeOptions = '';
 var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">

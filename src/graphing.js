@@ -1,8 +1,11 @@
-// require('cytoscape-autopan-on-drag')(cytoscape);
+import $ from 'jquery';
 
-import $ from './../node_modules/jquery/dist/jquery.js';
-import cytoscape from './../node_modules/cytoscape/dist/cytoscape.min.js';
-import moment from './../node_modules/moment/moment.js';
+import cytoscape from 'cytoscape/dist/cytoscape.min.js';
+cytoscape.use(require('cytoscape-cxtmenu'));
+cytoscape.use(require('cytoscape-cose-bilkent'));
+cytoscape.use(require('cytoscape-dagre'));
+
+import moment from 'moment';
 
 import connectionOrig from './img/connection.png';
 import procOrig from './img/proc.png';

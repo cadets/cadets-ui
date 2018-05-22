@@ -1,20 +1,12 @@
 import _ from 'lodash';
-import $ from './../node_modules/jquery/dist/jquery.js';
-import vex from './../node_modules/vex-js/dist/js/vex.combined.min.js';
-import cytoscape from './../node_modules/cytoscape/dist/cytoscape.min.js';
-import cxtmenu from './../node_modules/cytoscape-cxtmenu/cytoscape-cxtmenu.js';
-import moment from './../node_modules/moment/moment.js';
-import GoldenLayout from './../node_modules/golden-layout/dist/goldenlayout.min.js';
-import events from './../node_modules/events/events.js';
+import $ from 'jquery';
 
-import dagre from './../node_modules/cytoscape-dagre/cytoscape-dagre.js';
-import cose_bilkent from './../node_modules/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js';
+import events from 'events';
+import moment from 'moment';
+import vex from 'vex-js';
+import 'vex-js/dist/css/vex.css';
+import 'vex-js/dist/css/vex-theme-wireframe.css';
 
-import './../node_modules/vex-js/dist/css/vex.css';
-import './../node_modules/vex-js/dist/css/vex-theme-wireframe.css';
-import './../node_modules/golden-layout/src/css/goldenlayout-base.css';
-import './../node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
-import './../node_modules/golden-layout/src/css/goldenlayout-light-theme.css';
 import './css/darkStyle.css';
 import './css/lightStyle.css';
 
@@ -31,10 +23,6 @@ var lightTheme = document.styleSheets[document.styleSheets.length-1];
 lightGoldTheme.disabled= true;
 lightTheme.disabled= true;
 graphingAPI.swapStyle(true);
-
-cytoscape.use( cxtmenu );
-cytoscape.use( dagre );
-cytoscape.use( cose_bilkent );
 
 //Build Html document
 const GUI_VERSION = 'v0.7.0-release';
