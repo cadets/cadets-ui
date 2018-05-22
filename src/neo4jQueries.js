@@ -55,11 +55,6 @@ export function neo4jLogin(eventE, fn){
 								vex.dialog.alert({message: "DataBase does not contain PVM version data.",
 										className: 'vex-theme-wireframe'});
 							}
-							else{
-								vex.dialog.alert({message: 'Neo4j successfully logged in.',
-								className: 'vex-theme-wireframe'});
-								fn();
-							}
 						}
 					},
 					function(error) {
