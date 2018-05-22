@@ -19,6 +19,10 @@ module.exports = {
 	module: {
 		rules: [
 			{
+				test: /\.coffee$/,
+				loader: 'coffee-loader',
+			},
+			{
 				test: /\.css$/,
 				use: [
 					'style-loader',
