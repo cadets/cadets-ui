@@ -18,7 +18,6 @@ import GoldenLayout from 'golden-layout'
 
 import 'golden-layout/src/css/goldenlayout-base.css'
 
-//var typeOptions = '';
 var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 								<div class="row header formBox" id="formBox">
 									<label for="filterNodeType">&nbsp;Type</label>
@@ -81,10 +80,10 @@ var nodeSearchsheetHtml = `<div class="sheet box" id="NodeSearchsheet">
 								</div>
 							</div>`;
 
-var inspectorHtml = `<div class="sheet" id="inspectorGraph"></div>
+var inspectorHtml = `<div class="sheet worksheet" id="inspectorGraph"></div>
 					<div class="topOptions" id="inspectorHeader">
-						<button type="button" class="headerButton" id="inspectLast">🡐</button>
-						<button type="button" class="headerButton" id="inspectForward">🡒</button>
+						<button type="button" class="headerButton" id="inspectLast">&laquo;</button>
+						<button type="button" class="headerButton" id="inspectForward">&raquo;</button>
 						<input type="range" min="0" max="100" value="0" class="slider" id="confidenceSliderInspector">
 						<input type="text" class="WorksheetTextBox leftPadding" id="confidenceValueInspector" value="0">
 					</div>
@@ -146,7 +145,7 @@ var config = {
 
 function getWorksheetHtml(){
 	let index = worksheetCount;//<button type="button" class="headerButton" id="saveAnnotation${index}">Delete db Annotation Notes</button>
-	return `<div class="sheet" id="worksheet${index}">
+	return `<div class="sheet worksheet" id="worksheet${index}">
 				<div class="sheet" id="worksheetGraph${index}"></div>
 				<div class="topOptions">
 					<button class="formBoxAccordion worksheetAccordion${index}">Annotation options</button>
@@ -202,44 +201,12 @@ export function addNodeSearchsheet(goldenlayout, fn){
 	goldenlayout.emit(`NodeSearchsheetContainerCreated`, fn);
 }
 
-// export function setTypeOptions(types){
-// 	types.forEach(function(type){
-// 		switch(type){
-// 			case('Conn'):
-// 				typeOptions = `<option>connection</option>`;
-// 			break;
-// 			case("File"):
-// 				typeOptions = `<option>file-version</option>`;
-// 			break;
-// 			case("Pipe"):
-// 				typeOptions = `<option>pipe-endpoint</option>`;
-// 			break;
-// 			case("Process"):
-// 				typeOptions = `<option>process</option>`;
-// 			break;
-// 			case('Meta'):
-// 				typeOptions = `<option>process-meta</option>`;
-// 			break;
-// 			case("Socket"):
-// 				typeOptions = `<option>socket-version</option>`;
-// 			break;
-// 			case('Machine'):
-// 				typeOptions = `<option>machine</option>`;
-// 			break;
-// 			case('Global'):
-// 				typeOptions = `<option>global-only</option>`;
-// 			break;
-// 		}
-// 	})
-// }
-
 const goldenLayoutHTML = {
 	intiGoldenLayoutHTML,
 	incrementWorksheetCount,
 	getWorksheetCount,
 	addWorksheet,
 	addNodeSearchsheet,
-	//setTypeOptions,
 }
 
 export default goldenLayoutHTML;
