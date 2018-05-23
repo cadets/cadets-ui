@@ -29,7 +29,7 @@ import './worksheet.sass';
 
 var graphingAPI = require('./graphing.js');
 var neo4jQueries = require('./neo4jQueries.js');
-var goldenLayoutHTML = require('./goldenLayoutHTML.js');
+var layout = require('./layout.js');
 var eventEmitter = new events.EventEmitter();
 
 //Build Html document
@@ -58,7 +58,7 @@ if (module.hot) {
 		element = component();
 		document.body.appendChild(element);
 	})
-	module.hot.accept('./goldenLayoutHTML.js', function() {
+	module.hot.accept('./layout.js', function() {
 		console.log('Accepting the updated graphing module!');
 		document.body.removeChild(element);
 		element = component();
@@ -111,7 +111,7 @@ var overFlowVars = {'nodeList':{'DisplayAmount':100, 'func':showNodeListNextPrev
 var limitNodesForDagre = 100;//The max number of nodes the inspector will use the Dagre layout
 var maxImportLength = 500;//The max number of nodes that can be imported into a worksheet in one action
 
-var workSheetLayout = goldenLayoutHTML.intiGoldenLayoutHTML();
+var workSheetLayout = layout.intiGoldenLayoutHTML();
 
 var standardWorksheetCommands = [
 	{
@@ -368,7 +368,7 @@ workSheetLayout.on('initialised', function(){
 		}
 		else{
 			document.getElementById("toggleNodeSearchsheet").innerHTML = "Close NodeSearchsheet";
-			goldenLayoutHTML.addNodeSearchsheet(workSheetLayout);
+			layout.addNodeSearchsheet(workSheetLayout);
 			update_nodelist();
 		}
 	};
@@ -617,11 +617,11 @@ function createWorksheet(){
 	// 		}
 	// 	});
 	// };
-	goldenLayoutHTML.incrementWorksheetCount();
+	layout.incrementWorksheetCount();
 }
 
 function addNewWorksheet(){
-	goldenLayoutHTML.addWorksheet(workSheetLayout, function(){
+	layout.addWorksheet(workSheetLayout, function(){
 		const graph = worksheets[getWorksheetCount() -1].graph;
 		let temp = workSheetLayout.root.contentItems[ 0 ].contentItems;
 		temp[ temp.length-1 ].on('resize', function(){
@@ -631,7 +631,7 @@ function addNewWorksheet(){
 }
 
 function getWorksheetCount(){
-	return goldenLayoutHTML.getWorksheetCount();
+	return layout.getWorksheetCount();
 }
 
 function remove_neighbours_from_worksheet(id) {
