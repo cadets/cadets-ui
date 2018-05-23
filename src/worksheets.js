@@ -25,6 +25,7 @@ import 'vex-js/dist/css/vex.css';
 import 'vex-js/dist/css/vex-theme-wireframe.css';
 
 import './css/lightStyle.css';
+import './worksheet.sass';
 
 var graphingAPI = require('./graphing.js');
 var neo4jQueries = require('./neo4jQueries.js');
