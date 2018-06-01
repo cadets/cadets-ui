@@ -14,19 +14,48 @@
 # limitations under the License.
 
 
+#
+# Construct a new PVM graph node.
+#
+# Every graph node has the following fields:
+#
+# @dbid::
+#   a Neo4j database ID
+#
+# @label::
+#   a longer human-readable string for display in lists and graph
+#   (e.g., a file path or a process' command line)
+#
+# @short_name::
+#   a name that is short and ideally human-meaningful, but which is not
+#   necessarily unique
+#
+# @style_name::
+#   used by graphing code to look up, e.g., icons
+#
+# @properties::
+#   a set of raw named properties from the database — these can be presented
+#   to the user for interpretation but are not necessarily interpreted by the
+#   UI itself
+#
+# In addition to these, subclasses of PvmNode add fields that are relevant to
+# the type. For example, Process objects have a @pid (process ID) field.
+#
 class @PvmNode
-  constructor: (@version) ->
+  constructor: (@style_name, @properties) ->
+    @short_name = '<unknown>'
+    @dbid = @properties.db_id
 
 
 class @Process extends @PvmNode
   constructor: (record, pvm_version) ->
-    super pvm_version
+    super 'process', record.properties
 
     @properties = record.properties
 
-    @dbid = @properties.db_id.low
-    @label = @properties.cmdline
     @pid = @properties.pid.low
     @uuid = @properties.uuid
 
+    @label = @properties.cmdline
+    @short_name = @pid
     @style = 'process'
