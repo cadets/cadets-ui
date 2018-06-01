@@ -1,0 +1,14 @@
+class {
+  onCreate() {
+    this.state = {
+      text: 'CADETS/OPUS UI',
+    }
+  }
+
+  updateStatus(message) {
+    this.state.text = message
+  }
+}
+
+footer.footer
+  span#status-bar.text-muted -- ${state.text}

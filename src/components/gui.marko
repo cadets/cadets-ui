@@ -1,0 +1,76 @@
+//
+// The overall structure of the body is a top navbar, a bottom footer and a
+// <main> element in between with the fancy "Golden Layout" layout in between.
+//
+body
+  navbar on-login('login')
+
+  main key="ui-root"
+
+  footer-bar key="status-bar" text="CADETS/OPUS UI"
+
+
+import vex from 'vex-js'
+import 'vex-js/dist/css/vex.css'
+import 'vex-js/dist/css/vex-theme-flat-attack.css'
+
+import layout from '../layout.coffee'
+import '../ui.sass'
+
+
+class {
+  onCreate() {
+    vex.registerPlugin(require('vex-dialog'))
+    vex.defaultOptions.className = 'vex-theme-flat-attack'
+  }
+
+  onMount() {
+    this.layout = layout(this.getEl('ui-root'), this.input.queries)
+    window.onresize = this.layout.resize
+
+    this.footer = this.getComponent('status-bar')
+  }
+
+  login() {
+    // TODO: can we embed Marko within vex input?
+    vex.dialog.open({
+      message: 'Enter Neo4j credentials',
+      callback: this.input.login,
+      input: '<input name="uri" type="url" class="vex-dialog-prompt-input" placeholder="Bolt URI" value="bolt://localhost:7687" required><input name="username" type="text" class="vex-dialog-prompt-input" placeholder="neo4j" value="" required> <input name="password" type="password" class="vex-dialog-prompt-input" placeholder="neo4j" value="" required>',
+    })
+  }
+
+
+  //
+  // Logging methods that mirror the console.log API:
+  //
+  debug(message) {
+    console.debug(message)
+    this.footer.updateStatus(message)
+  }
+
+  info(message) {
+    console.info(message)
+    this.footer.updateStatus(message)
+  }
+
+  warn(message) {
+    console.warn(message)
+
+    vex.dialog.alert({
+      message: message,
+    })
+
+    this.footer.updateStatus(message)
+  }
+
+  error(message) {
+    console.error(message)
+
+    vex.dialog.alert({
+      message: message,
+    })
+
+    this.footer.updateStatus(message)
+  }
+}

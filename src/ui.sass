@@ -1,0 +1,60 @@
+html
+  position: relative
+  min-height: 100%
+  overflow: hidden
+
+
+body
+  position: fixed
+  display: flex
+  flex-flow: column
+  height: 100%
+  width: 100%
+  margin: 0
+
+  nav.navbar
+    flex: 0 1 3em
+
+  main
+    flex: 1 1 auto
+
+  footer.footer
+    background-color: #f5f5f5
+    flex: 0 1 2em
+    line-height: 2em
+    padding-left: 1em
+
+
+.lm_content
+  display: flex
+
+.form
+  display: flex
+  flex-flow: column
+  padding: 0.5em
+
+  .header
+    flex: 0 0 auto
+
+  .content
+    flex: 1 1 auto
+
+.graph
+  background: white
+  border: 2px solid black
+  flex: 1 1 auto
+
+.scrollable
+  overflow: scroll
+
+.worksheet
+  display: flex
+  flex-flow: column
+
+  .controls
+    flex: 0 0 auto
+    padding: 0.25em
+
+table.nodelist
+  border-top: 1px solid black
+  margin: 0.5em

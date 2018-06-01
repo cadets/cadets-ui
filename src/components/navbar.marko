@@ -1,0 +1,16 @@
+class {
+  login() {
+    this.emit('login')
+  }
+}
+
+nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+  a.navbar-brand href="#" -- PVM viewer
+
+  ul.navbar-nav.mr-auto
+    li.nav-item.dropdown
+      a.nav-link.dropdown-toggle data-toggle="dropdown" aria-haspopup="true"
+        -- Neo4j
+
+      div.dropdown-menu
+        a.dropdown-item on-click('login') -- Login

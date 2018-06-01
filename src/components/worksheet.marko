@@ -1,0 +1,20 @@
+class {
+  onMount() {
+    this.graph = this.getComponent('graph')
+  }
+
+  add(name, event, element) {
+    this.graph.graph.add_node({ name: 'foo' })
+  }
+
+  layoutGraph(algorithm, event, element) {
+    this.graph.graph.layout(algorithm)
+  }
+}
+
+div.container.worksheet
+  graph key="graph"
+  div.row.controls
+    button.btn on-click('add', 'foo') -- Add node
+    button.btn on-click('layoutGraph', 'dagre') -- Dagre
+    button.btn on-click('layoutGraph', 'cose-bilkent') -- Cose

@@ -1,0 +1,18 @@
+class {
+  onCreate() {
+    this.state = {
+      nodes: []
+    }
+  }
+
+  inspect(node) {
+    console.log('need to inspect: ', node)
+  }
+}
+
+div.row.content.scrollable
+  table.table.table-striped.nodelist key="nodelist"
+    tbody key="nodelistbody"
+      tr for(node in state.nodes)
+        td
+          a href="#" on-click('inspect', node) -- ${node.label}

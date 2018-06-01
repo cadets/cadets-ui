@@ -1,0 +1,30 @@
+class {
+  search() {
+    var nodelist = this.getComponent('nodelist')
+    nodelist.state.nodes = []
+
+    var filters = {
+      cmdline: this.getEl('cmdline').nextElementSibling.value,
+      uuid: this.getEl('uuid').nextElementSibling.value,
+    }
+
+    var callback = function (node) {
+      nodelist.state.nodes.push(node)
+      nodelist.setStateDirty('nodes')
+    }
+
+    this.input.search(filters, callback)
+  }
+}
+
+div.container.scrollable
+  form.form
+    div.row
+      label for:scoped="cmdline" -- Command line
+      input.form-control id:scoped="cmdline" key="cmdline" name="cmdline" type="text" on-input('search')
+
+    div.row
+      label for:scoped="uuid" -- UUID
+      input.form-control id:scoped="uuid" key="uuid" name="uuid" type="text" on-input('search')
+
+  node-list key="nodelist"
