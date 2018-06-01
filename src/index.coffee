@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+neo4j = require('./neo4j.coffee')
+
 
 #
 # Build some query functions, which will be replaced with more useful one
@@ -22,19 +24,12 @@ queries =
 
 
 #
-# Connect to neo4j (if possible)
+# Connect to neo4j with some credentials (from GUI login or local storage)
 #
-neo4j = require('./neo4j.coffee')
-
 login = (credentials) ->
   if credentials
     db = neo4j.connect credentials, gui
     queries.processes = db.processes
-
-storedCredentials = localStorage.getItem 'neo4jCredentials'
-if storedCredentials
-  gui.info "Connecting to #{storedCredentials.uri} with stored credentials"
-  login storedCredentials
 
 
 #
@@ -44,3 +39,12 @@ gui = require './components/gui.marko'
   .renderSync { login: login, queries: queries }
   .appendTo document.getRootNode().body
   .getComponent()
+
+
+#
+# If we have viable Neo4j credentials, try to use them
+#
+storedCredentials = localStorage.getItem 'neo4jCredentials'
+if storedCredentials
+  gui.info "Connecting to #{storedCredentials.uri} with stored credentials"
+  login JSON.parse(storedCredentials)

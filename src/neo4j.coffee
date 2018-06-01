@@ -22,8 +22,9 @@ class Connection
   current_promise: null
   pvm_version: null
 
-  constructor: (@driver, @uri, log = console.log) ->
+  constructor: (@driver, credentials, log = console.log) ->
     @log = log
+    @uri = credentials.uri
     self = this
 
     session = @driver.session()
@@ -36,6 +37,8 @@ class Connection
           "
 
         else
+          localStorage.setItem 'neo4jCredentials', JSON.stringify(credentials)
+
           self.pvm_version =
             parseInt result.records[0].get('n').properties.pvm_version
 
@@ -78,4 +81,4 @@ module.exports =
       uri = 'bolt://localhost:7687'
 
     driver = neo4j.driver(uri, neo4j.auth.basic(username, password))
-    new Connection(driver, uri, log)
+    new Connection(driver, credentials, log)
