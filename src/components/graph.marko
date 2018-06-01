@@ -2,7 +2,23 @@ import graphing from '../graphing.coffee'
 
 class {
   onMount() {
-    this.graph = graphing.create(this.getEl('graph'))
+    //
+    // Work around https://github.com/cytoscape/cytoscape.js/issues/2122
+    // by loading the graph with jQuery after everything else is initialized.
+    //
+    // TODO: once we've figured out the issue above, remove this jQuery and
+    // go back to more straightforward JavaScript:
+    //
+    // this.graph = graphing.create(this.getEl('graph'))
+    //
+    var $ = require('jquery')
+
+    var component = this
+    var graphNode = this.getEl('graph')
+
+    $(window).on('load', function() {
+      component.graph = graphing.create(graphNode)
+    })
   }
 }
 
