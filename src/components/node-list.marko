@@ -13,6 +13,30 @@ class {
 div.row.content.scrollable
   table.table.table-striped.nodelist key="nodelist"
     tbody key="nodelistbody"
-      tr for(node in state.nodes)
+      tr.node for(node in state.nodes)
         td
-          a href="#" on-click('inspect', node) -- ${node.label}
+          .short-name -- ${node.short_name}
+          span.label
+            a href="#" on-click('inspect', node) -- ${node.label}
+
+style {
+  table.nodelist tr td {
+    padding: 0.25em;
+  }
+
+  /*
+   * Give "node" cells non-static positioning so that we can use absolute
+   * positioning within them.
+   */
+  tr.node td {
+    position: relative;
+  }
+
+  .short-name {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 50%;
+    opacity: 0.5;
+  }
+}
