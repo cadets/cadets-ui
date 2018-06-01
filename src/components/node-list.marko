@@ -10,14 +10,13 @@ class {
   }
 }
 
-div.row.content.scrollable
-  table.table.table-striped.nodelist key="nodelist"
-    tbody key="nodelistbody"
-      tr.node for(node in state.nodes)
-        td
-          .short-name -- ${node.short_name}
-          span.label
-            a href="#" on-click('inspect', node) -- ${node.label}
+table.table.table-striped.nodelist key="nodelist"
+  tbody key="nodelistbody"
+    tr.node for(node in state.nodes)
+      td
+        .short-name -- ${node.short_name}
+        span.label
+          a href="#" on-click('inspect', node) -- ${node.label}
 
 style {
   table.nodelist tr td {
