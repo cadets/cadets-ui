@@ -20,6 +20,10 @@ class {
       component.graph = graphing.create(graphNode)
     })
   }
+
+  addNode(node) {
+    this.graph.add_node(node)
+  }
 }
 
 div.graph key="graph" on-load('createGraph')
