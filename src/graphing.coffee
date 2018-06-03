@@ -35,6 +35,9 @@ class PvmGraph
       data:
         label: node.name
 
+  clear: () ->
+    @cy.nodes().remove()
+
   layout: (algorithm) ->
     @cy.layout
       name: algorithm
