@@ -21,7 +21,7 @@ class {
       nodelist.setStateDirty('nodes')
     }
 
-    var query = this.input.database().processQuery(filters)
+    var query = this.input.database.processQuery(filters)
     query.execute(this.searchStarted, callback, this.searchComplete)
   }
 

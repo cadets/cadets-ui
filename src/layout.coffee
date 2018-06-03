@@ -38,17 +38,9 @@ class Layout
                     content: [{
                         type: 'component',
                         componentName: 'Processes',
-                        componentState:
-                          database: () -> ui.database
-                          inspect: (node) -> ui.inspect node
-                          registerSearcher: @registerSearcher
                     },{
                         type: 'component',
                         componentName: 'Files',
-                        componentState:
-                          database: () -> ui.database
-                          inspect: (node) -> ui.inspect node
-                          registerSearcher: @registerSearcher
                     }],
                 },{
                     type: 'component',
@@ -58,14 +50,10 @@ class Layout
                     content: [{
                       type: 'component',
                       componentName: 'Neighbours',
-                      componentState:
-                        registerInspector: @registerInspector
                     },
                     {
                       type: 'component',
                       componentName: 'Properties',
-                      componentState:
-                        registerInspector: @registerInspector
                     }]
                 }]
               }
@@ -86,7 +74,7 @@ class Layout
     registerMarko = (componentName, markoComponent) ->
       layout.registerComponent componentName, (container, state) ->
         markoComponent
-          .renderSync state
+          .renderSync ui
           .appendTo container.getElement().get()[0]
 
     registerMarko 'Files', require './components/file-search-pane.marko'
@@ -99,7 +87,7 @@ class Layout
     layout.registerComponent 'Worksheet', (container, state) ->
       worksheets.push(
         require './components/worksheet.marko'
-          .renderSync state
+          .renderSync ui
           .appendTo container.getElement().get()[0]
       )
 
