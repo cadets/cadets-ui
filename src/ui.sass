@@ -23,6 +23,12 @@ body
   main
     flex: 1 1 auto
 
+    table.nodelist tr td, table.node-properties tr td
+      padding: 0.25em
+
+      /* Non-static positioning allows absolute positioning within the cell */
+      position: relative
+
   footer.footer
     background-color: #f5f5f5
     flex: 0 1 2em
