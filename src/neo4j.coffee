@@ -86,6 +86,8 @@ class Connection
       WHERE
         p.cmdline CONTAINS '#{filters.cmdline}'
         AND
+        (#{filters.pid} = -1 OR p.pid = #{filters.pid})
+        AND
         p.uuid CONTAINS '#{filters.uuid}'
       ",
       (record) -> new Process record, pvmver

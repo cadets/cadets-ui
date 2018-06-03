@@ -11,8 +11,15 @@ class {
     var nodelist = this.getComponent('nodelist')
     nodelist.state.nodes = []
 
+    var pid = parseInt(this.getEl('pid').nextElementSibling.value);
+    if (isNaN(pid))
+    {
+      pid = -1
+    }
+
     var filters = {
       cmdline: this.getEl('cmdline').nextElementSibling.value,
+      pid: pid,
       uuid: this.getEl('uuid').nextElementSibling.value,
     }
 
@@ -44,6 +51,10 @@ div.container.scrollable-y
     div.row
       label for:scoped="cmdline" -- Command line
       input.form-control id:scoped="cmdline" key="cmdline" name="cmdline" type="text" on-input('search')
+
+    div.row
+      label for:scoped="pid" -- PID
+      input.form-control id:scoped="pid" key="pid" name="pid" type="number" on-input('search')
 
     div.row
       label for:scoped="uuid" -- UUID
