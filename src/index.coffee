@@ -29,7 +29,7 @@ queries =
 #
 login = (credentials) ->
   if credentials
-    db = neo4j.connect credentials, gui
+    db = neo4j.connect credentials, gui, (db) -> gui.dbConnected db
     queries.files = db.files
     queries.processes = db.processes
 

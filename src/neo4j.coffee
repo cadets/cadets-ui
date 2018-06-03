@@ -22,7 +22,7 @@ class Connection
   current_promise: null
   pvm_version: null
 
-  constructor: (@driver, credentials, log = console.log) ->
+  constructor: (@driver, credentials, log = console.log, notifyConnected) ->
     @log = log
     @uri = credentials.uri
     self = this
@@ -43,6 +43,8 @@ class Connection
             parseInt result.records[0].get('n').properties.pvm_version
 
           log.info "Connected to #{self.uri} using PVM v#{self.pvm_version}"
+
+          notifyConnected(this) if notifyConnected
 
         session.close()
       )
@@ -102,10 +104,10 @@ class Connection
 
 
 module.exports =
-  connect: (credentials, log) ->
+  connect: (credentials, log, notifyConnected) ->
     {username, password, uri} = credentials
     if uri == null
       uri = 'bolt://localhost:7687'
 
     driver = neo4j.driver(uri, neo4j.auth.basic(username, password))
-    new Connection(driver, credentials, log)
+    new Connection(driver, credentials, log, notifyConnected)
