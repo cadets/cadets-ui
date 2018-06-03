@@ -28,9 +28,9 @@ class PvmGraph
       args.container = container
 
     @cy = new cytoscape(args)
-    @load_graph_style()
+    @loadGraphStyle()
 
-  add_node: (node) ->
+  addNode: (node) ->
     @cy.add
       data:
         label: node.name
@@ -47,7 +47,7 @@ class PvmGraph
   #
   # Unfortunately this is hard to do statically.
   #
-  load_graph_style: () =>
+  loadGraphStyle: () =>
     colours =
       file: '#dc9'
       important: 'orange'
