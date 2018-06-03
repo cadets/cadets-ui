@@ -1,4 +1,16 @@
 class {
+  onMount() {
+    this.graph = this.getComponent('graph')
+    this.input.registerInspector(this)
+  }
+
+  inspect(node) {
+    this.graph.clear()
+    this.graph.addNode(node)
+    this.graph.layout('dagre')
+
+    // TODO: get and add neighbours
+  }
 }
 
 graph key="graph"

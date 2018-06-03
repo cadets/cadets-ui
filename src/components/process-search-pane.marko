@@ -18,6 +18,13 @@ class {
 
     this.input.search(filters, callback)
   }
+
+  /*
+   * The user has selected a node for inspection
+   */
+  inspect(node) {
+    this.input.inspect(node)
+  }
 }
 
 div.container.scrollable-y
@@ -30,4 +37,4 @@ div.container.scrollable-y
       label for:scoped="uuid" -- UUID
       input.form-control id:scoped="uuid" key="uuid" name="uuid" type="text" on-input('search')
 
-  node-list key="nodelist"
+  node-list key="nodelist" on-inspect('inspect')

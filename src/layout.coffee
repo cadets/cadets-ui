@@ -22,6 +22,17 @@ require 'golden-layout/src/css/goldenlayout-light-theme.css'
 
 class Layout
   constructor: (@root, queries) ->
+    #
+    # Rendezvous point for node inspection: when various kinds of inspectors
+    # are created (e.g., property list, neighbour graph) they should append
+    # themselves to this array.
+    #
+    inspectors = []
+    registerInspector = (i) -> inspectors.push i
+    inspect = (node) ->
+      for i in inspectors
+        i.inspect node
+
     savedLayout = localStorage.getItem 'savedLayout'
 
     if savedLayout != null and savedLayout != 'null'
@@ -37,6 +48,7 @@ class Layout
                         type: 'component',
                         componentName: 'Processes',
                         componentState:
+                          inspect: (node) -> inspect node
                           search: (filters, cb) -> queries.processes filters, cb
                     },{
                         type: 'component',
@@ -48,6 +60,8 @@ class Layout
                 },{
                     type: 'component',
                     componentName: 'Inspector',
+                    componentState:
+                      registerInspector: registerInspector
                 }]
               }
             ]
