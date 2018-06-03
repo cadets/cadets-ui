@@ -22,6 +22,10 @@
 # @dbid::
 #   a Neo4j database ID
 #
+# @id::
+#   a unique ID that will be the primary ID for the graph node — for now we
+#   assume this is a UUID, but we may adjust that assumption in the future (?)
+#
 # @label::
 #   a longer human-readable string for display in lists and graph
 #   (e.g., a file path or a process' command line)
@@ -42,14 +46,14 @@
 # the type. For example, Process objects have a @pid (process ID) field.
 #
 class @PvmNode
-  constructor: (@style_name, @properties) ->
+  constructor: (@style_name, @id, @properties) ->
     @short_name = '<unknown>'
     @dbid = @properties.db_id
 
 
 class @FileVersion extends @PvmNode
   constructor: (record, pvm_version) ->
-    super 'file-version', record.properties
+    super 'file-version', record.properties.uuid, record.properties
 
     @uuid = @properties.uuid
     @short_name = @uuid.substring(0, @uuid.indexOf('-'))
@@ -62,7 +66,7 @@ class @FileVersion extends @PvmNode
 
 class @Process extends @PvmNode
   constructor: (record, pvm_version) ->
-    super 'process', record.properties
+    super 'process', record.properties.uuid, record.properties
 
     @pid = @properties.pid.low
     @uuid = @properties.uuid
