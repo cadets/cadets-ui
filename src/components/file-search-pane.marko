@@ -1,4 +1,8 @@
 class {
+  onMount() {
+    this.input.registerSearcher(this)
+  }
+
   /*
    * One of our search inputs has changed: start a new node search
    */

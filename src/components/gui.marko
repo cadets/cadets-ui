@@ -31,6 +31,10 @@ class {
     this.footer = this.getComponent('status-bar')
   }
 
+  dbConnected(db) {
+    this.layout.dbConnected(db)
+  }
+
   login() {
     // TODO: can we embed Marko within vex input?
     vex.dialog.open({

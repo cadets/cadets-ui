@@ -50,12 +50,14 @@ class Layout
                         componentState:
                           inspect: (node) -> inspect node
                           search: (filters, cb) -> queries.processes filters, cb
+                          registerSearcher: @registerSearcher
                     },{
                         type: 'component',
                         componentName: 'Files',
                         componentState:
                           inspect: (node) -> inspect node
                           search: (filters, cb) -> queries.files filters, cb
+                          registerSearcher: @registerSearcher
                     }],
                 },{
                     type: 'component',
@@ -111,6 +113,20 @@ class Layout
       )
 
     @layout.init()
+
+  #
+  # All of the components that afford search functionality and that need to be
+  # kicked when we first connect to the database. Registering these components
+  # allows us to kick off an initial search and populate the UI with real data
+  # before the user has to type anything.
+  #
+  searchers: []
+
+  dbConnected: (db) =>
+    for s in @searchers
+      s.search()
+
+  registerSearcher: (s) => @searchers.push s
 
   reset: ->
     localStorage.setItem 'savedLayout', null
