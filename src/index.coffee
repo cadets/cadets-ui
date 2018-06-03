@@ -46,5 +46,6 @@ gui = require './components/gui.marko'
 #
 storedCredentials = localStorage.getItem 'neo4jCredentials'
 if storedCredentials
-  gui.info "Connecting to #{storedCredentials.uri} with stored credentials"
-  login JSON.parse(storedCredentials)
+  credentials = JSON.parse(storedCredentials)
+  gui.info "Connecting to #{credentials.uri} with stored credentials"
+  login credentials
