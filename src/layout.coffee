@@ -58,10 +58,19 @@ class Layout
                     type: 'component',
                     componentName: 'Worksheet',
                 },{
-                    type: 'component',
-                    componentName: 'Inspector',
-                    componentState:
-                      registerInspector: registerInspector
+                    type: 'column',
+                    content: [{
+                      type: 'component',
+                      componentName: 'Neighbours',
+                      componentState:
+                        registerInspector: registerInspector
+                    },
+                    {
+                      type: 'component',
+                      componentName: 'Properties',
+                      componentState:
+                        registerInspector: registerInspector
+                    }]
                 }]
               }
             ]
@@ -86,7 +95,8 @@ class Layout
 
     registerMarko 'Files', require './components/file-search-pane.marko'
     registerMarko 'Processes', require './components/process-search-pane.marko'
-    registerMarko 'Inspector', require './components/inspector.marko'
+    registerMarko 'Neighbours', require './components/inspector.marko'
+    registerMarko 'Properties', require './components/node-properties.marko'
 
     @worksheets = worksheets = []
 
