@@ -22,16 +22,7 @@ require 'golden-layout/src/css/goldenlayout-light-theme.css'
 
 class Layout
   constructor: (@root, queries) ->
-    #
-    # Rendezvous point for node inspection: when various kinds of inspectors
-    # are created (e.g., property list, neighbour graph) they should append
-    # themselves to this array.
-    #
-    inspectors = []
-    registerInspector = (i) -> inspectors.push i
-    inspect = (node) ->
-      for i in inspectors
-        i.inspect node
+    ui = this
 
     savedLayout = localStorage.getItem 'savedLayout'
 
@@ -48,14 +39,14 @@ class Layout
                         type: 'component',
                         componentName: 'Processes',
                         componentState:
-                          inspect: (node) -> inspect node
+                          inspect: (node) -> ui.inspect node
                           search: (filters, cb) -> queries.processes filters, cb
                           registerSearcher: @registerSearcher
                     },{
                         type: 'component',
                         componentName: 'Files',
                         componentState:
-                          inspect: (node) -> inspect node
+                          inspect: (node) -> ui.inspect node
                           search: (filters, cb) -> queries.files filters, cb
                           registerSearcher: @registerSearcher
                     }],
@@ -68,13 +59,13 @@ class Layout
                       type: 'component',
                       componentName: 'Neighbours',
                       componentState:
-                        registerInspector: registerInspector
+                        registerInspector: @registerInspector
                     },
                     {
                       type: 'component',
                       componentName: 'Properties',
                       componentState:
-                        registerInspector: registerInspector
+                        registerInspector: @registerInspector
                     }]
                 }]
               }
@@ -115,6 +106,12 @@ class Layout
     @layout.init()
 
   #
+  # All of the components that can inspect nodes with an `inspect(node)` method,
+  # e.g., the "Neighbours" and "Properties" components.
+  #
+  inspectors: []
+
+  #
   # All of the components that afford search functionality and that need to be
   # kicked when we first connect to the database. Registering these components
   # allows us to kick off an initial search and populate the UI with real data
@@ -126,6 +123,11 @@ class Layout
     for s in @searchers
       s.search()
 
+  inspect: (node) ->
+    for i in @inspectors
+      i.inspect node
+
+  registerInspector: (i) => @inspectors.push i
   registerSearcher: (s) => @searchers.push s
 
   reset: ->
