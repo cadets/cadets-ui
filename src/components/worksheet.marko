@@ -3,10 +3,6 @@ class {
     this.graph = this.getComponent('graph')
   }
 
-  add(name, event, element) {
-    this.graph.addNode({ name: 'foo' })
-  }
-
   layoutGraph(algorithm, event, element) {
     this.graph.graph.layout(algorithm)
   }
@@ -15,7 +11,6 @@ class {
 div.container.worksheet
   graph key="graph"
   div.row.controls
-    button.btn on-click('add', 'foo') -- Add node
     button.btn on-click('layoutGraph', 'dagre')
       i.fa.fa-code-fork.fa-rotate-90
     button.btn on-click('layoutGraph', 'cose-bilkent')
