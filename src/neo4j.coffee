@@ -91,7 +91,7 @@ class Connection
           AND
           p.uuid CONTAINS '#{filters.uuid}'
         RETURN p
-        LIMIT 1000
+        LIMIT 200
       "
       .subscribe
         onNext: (record) ->
