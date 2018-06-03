@@ -64,11 +64,8 @@ class @Process extends @PvmNode
   constructor: (record, pvm_version) ->
     super 'process', record.properties
 
-    @properties = record.properties
-
     @pid = @properties.pid.low
     @uuid = @properties.uuid
 
     @label = @properties.cmdline
     @short_name = @pid
-    @style = 'process'

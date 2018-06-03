@@ -94,7 +94,9 @@ class Connection
         LIMIT 1000
       "
       .subscribe
-        onNext: (record) -> callback new Process(record.get 'p')
+        onNext: (record) ->
+          callback new Process(record.get 'p', @pvm_version)
+
         onCompleted: session.close()
         onError: @log.warn
 
