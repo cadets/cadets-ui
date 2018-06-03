@@ -20,6 +20,7 @@ neo4j = require('./neo4j.coffee')
 # after we've connected to the Neo4j database.
 #
 queries =
+  files: (filters, response) ->
   processes: (filters, response) ->
 
 
@@ -29,6 +30,7 @@ queries =
 login = (credentials) ->
   if credentials
     db = neo4j.connect credentials, gui
+    queries.files = db.files
     queries.processes = db.processes
 
 

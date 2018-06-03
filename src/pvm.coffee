@@ -47,6 +47,19 @@ class @PvmNode
     @dbid = @properties.db_id
 
 
+class @FileVersion extends @PvmNode
+  constructor: (record, pvm_version) ->
+    super 'file-version', record.properties
+
+    @uuid = @properties.uuid
+    @short_name = @uuid.substring(0, @uuid.indexOf('-'))
+
+    if @properties.name
+      @label = @properties.name
+    else
+      @label = @uuid
+
+
 class @Process extends @PvmNode
   constructor: (record, pvm_version) ->
     super 'process', record.properties

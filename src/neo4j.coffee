@@ -15,7 +15,7 @@
 
 neo4j = require('neo4j-driver/lib/browser/neo4j-web.min.js').v1
 
-{Process} = require './pvm.coffee'
+{FileVersion, Process} = require './pvm.coffee'
 
 
 class Connection
@@ -49,6 +49,31 @@ class Connection
       .catch (err) ->
         session.close()
         log.warn err
+
+  #
+  # Look up file versions in the database according to a set of filters:
+  #
+  #   name        name substrings that have been used to refer to this file
+  #   uuid        opaque UUID for the file
+  #
+  files: (filters, callback) =>
+    session = @driver.session()
+    session
+      .run "
+        MATCH (f:File)
+        WHERE
+          f.name CONTAINS '#{filters.name}'
+          AND
+          f.uuid CONTAINS '#{filters.uuid}'
+        RETURN f
+        LIMIT 100
+      "
+      .subscribe
+        onNext: (record) ->
+          callback new FileVersion(record.get 'f', @pvm_version)
+
+        onCompleted: session.close()
+        onError: @log.warn
 
   #
   # Look up processes in the database according to a set of filters:

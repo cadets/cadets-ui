@@ -1,11 +1,40 @@
-div.container
+class {
+  /*
+   * One of our search inputs has changed: start a new node search
+   */
+  search() {
+    var nodelist = this.getComponent('nodelist')
+    nodelist.state.nodes = []
+
+    var filters = {
+      name: this.getEl('name').nextElementSibling.value,
+      uuid: this.getEl('uuid').nextElementSibling.value,
+    }
+
+    var callback = function (node) {
+      nodelist.state.nodes.push(node)
+      nodelist.setStateDirty('nodes')
+    }
+
+    this.input.search(filters, callback)
+  }
+
+  /*
+   * The user has selected a node for inspection
+   */
+  inspect(node) {
+    this.input.inspect(node)
+  }
+}
+
+div.container.scrollable-y
   form.form
     div.row
-      label for:scoped="fileName" -- Name
-      input.form-control id:scoped="fileName" type="text"
+      label for:scoped="name" -- Name
+      input.form-control id:scoped="name" key="name" type="text" on-input('search')
 
     div.row
-      label for:scoped="fileUUID" -- UUID
-      input.form-control id:scoped="fileUUID" type="text"
+      label for:scoped="uuid" -- UUID
+      input.form-control id:scoped="uuid" key="uuid" type="text" on-input('search')
 
-  node-list
+  node-list key="nodelist" on-inspect('inspect')

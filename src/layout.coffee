@@ -53,6 +53,9 @@ class Layout
                     },{
                         type: 'component',
                         componentName: 'Files',
+                        componentState:
+                          inspect: (node) -> inspect node
+                          search: (filters, cb) -> queries.files filters, cb
                     }],
                 },{
                     type: 'component',
