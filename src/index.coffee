@@ -16,29 +16,18 @@ neo4j = require('./neo4j.coffee')
 
 
 #
-# Build some query functions, which will be replaced with more useful one
-# after we've connected to the Neo4j database.
-#
-queries =
-  files: (filters, response) ->
-  processes: (filters, response) ->
-
-
-#
 # Connect to neo4j with some credentials (from GUI login or local storage)
 #
 login = (credentials) ->
   if credentials
-    db = neo4j.connect credentials, gui, (db) -> gui.dbConnected db
-    queries.files = db.files
-    queries.processes = db.processes
+    conn = neo4j.connect credentials, gui, (conn) -> gui.dbConnected conn
 
 
 #
 # Construct the GUI and pass in the available query functions:
 #
 gui = require './components/gui.marko'
-  .renderSync { login: login, queries: queries }
+  .renderSync { login: login }
   .appendTo document.getRootNode().body
   .getComponent()
 

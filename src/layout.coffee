@@ -21,7 +21,7 @@ require 'golden-layout/src/css/goldenlayout-light-theme.css'
 
 
 class Layout
-  constructor: (@root, queries) ->
+  constructor: (@root) ->
     ui = this
 
     savedLayout = localStorage.getItem 'savedLayout'
@@ -39,15 +39,15 @@ class Layout
                         type: 'component',
                         componentName: 'Processes',
                         componentState:
+                          database: () -> ui.database
                           inspect: (node) -> ui.inspect node
-                          search: (filters, cb) -> queries.processes filters, cb
                           registerSearcher: @registerSearcher
                     },{
                         type: 'component',
                         componentName: 'Files',
                         componentState:
+                          database: () -> ui.database
                           inspect: (node) -> ui.inspect node
-                          search: (filters, cb) -> queries.files filters, cb
                           registerSearcher: @registerSearcher
                     }],
                 },{
@@ -120,6 +120,7 @@ class Layout
   searchers: []
 
   dbConnected: (db) =>
+    @database = db
     for s in @searchers
       s.search()
 

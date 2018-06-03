@@ -25,7 +25,7 @@ class {
   }
 
   onMount() {
-    this.layout = layout(this.getEl('ui-root'), this.input.queries)
+    this.layout = layout(this.getEl('ui-root'), this.input.database)
     window.onresize = this.layout.resize
 
     this.footer = this.getComponent('status-bar')

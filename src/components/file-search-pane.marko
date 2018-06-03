@@ -1,5 +1,6 @@
 class {
   onMount() {
+    this.db = this.input.database
     this.input.registerSearcher(this)
   }
 
@@ -20,7 +21,8 @@ class {
       nodelist.setStateDirty('nodes')
     }
 
-    this.input.search(filters, callback)
+    var query = this.input.database().fileQuery(filters)
+    query.execute(this.searchStarted, callback, this.searchComplete)
   }
 
   /*
@@ -28,6 +30,12 @@ class {
    */
   inspect(node) {
     this.input.inspect(node)
+  }
+
+  searchComplete() {
+  }
+
+  searchStarted(count) {
   }
 }
 

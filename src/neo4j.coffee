@@ -44,7 +44,7 @@ class Connection
 
           log.info "Connected to #{self.uri} using PVM v#{self.pvm_version}"
 
-          notifyConnected(this) if notifyConnected
+          notifyConnected(self) if notifyConnected
 
         session.close()
       )
@@ -53,29 +53,25 @@ class Connection
         log.warn err
 
   #
-  # Look up file versions in the database according to a set of filters:
+  # Functions to build queries from user-provided filters:
+  #
+
+  #
+  # Build a query to look up file versions that match a set of filters:
   #
   #   name        name substrings that have been used to refer to this file
   #   uuid        opaque UUID for the file
   #
-  files: (filters, callback) =>
-    session = @driver.session()
-    session
-      .run "
+  fileQuery: (filters, callback) =>
+    pvmver = @pvm_version
+    new Query @driver, @log, 'f', "
         MATCH (f:File)
         WHERE
           f.name CONTAINS '#{filters.name}'
           AND
           f.uuid CONTAINS '#{filters.uuid}'
-        RETURN f
-        LIMIT 100
-      "
-      .subscribe
-        onNext: (record) ->
-          callback new FileVersion(record.get 'f', @pvm_version)
-
-        onCompleted: session.close()
-        onError: @log.warn
+      ",
+      (record) -> new FileVersion record, pvmver
 
   #
   # Look up processes in the database according to a set of filters:
@@ -83,24 +79,58 @@ class Connection
   #   cmdline     substring within the command line that executed the process
   #   uuid        opaque UUID for the process
   #
-  processes: (filters, callback) =>
+  processQuery: (filters, callback) =>
+    pvmver = @pvm_version
+    new Query @driver, @log, 'p', "
+      MATCH (p:Process)
+      WHERE
+        p.cmdline CONTAINS '#{filters.cmdline}'
+        AND
+        p.uuid CONTAINS '#{filters.uuid}'
+      ",
+      (record) -> new Process record, pvmver
+
+
+#
+# A query that can be executed and whose result set size can be reported in
+# O(1) time.
+#
+class Query
+  constructor: (@driver, @log, @varname, @matchExpr, @parse) ->
+
+  #
+  # Execute 
+  #
+  # Three callbacks should be provided:
+  #
+  #   total       called first, with a total number of nodes that match the
+  #               filter query (although only a subset may actually be loaded)
+  #   result      called with each node that arrives (in a stream of nodes)
+  #   complete    called when transfer is complete
+  #
+  execute: (total, result, complete, limit = 200) =>
     session = @driver.session()
+    session.run "#{@matchExpr} RETURN count(*) AS count"
+      .then (result) ->
+        count = result.records[0].get('count').low
+        session.close()
+        total count
+
+    session = @driver.session()
+    self = this
     session
-      .run "
-        MATCH (p:Process)
-        WHERE
-          p.cmdline CONTAINS '#{filters.cmdline}'
-          AND
-          p.uuid CONTAINS '#{filters.uuid}'
-        RETURN p
-        LIMIT 200
-      "
+      .run "#{@matchExpr} RETURN #{self.varname} LIMIT #{limit}"
       .subscribe
         onNext: (record) ->
-          callback new Process(record.get 'p', @pvm_version)
+          result self.parse(record.get self.varname)
 
-        onCompleted: session.close()
-        onError: @log.warn
+        onCompleted: () ->
+          session.close()
+          complete()
+
+        onError: (err) ->
+          session.close()
+          self.log.warn err
 
 
 module.exports =
