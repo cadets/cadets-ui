@@ -141,5 +141,8 @@ module.exports =
     if uri == null
       uri = 'bolt://localhost:7687'
 
-    driver = neo4j.driver(uri, neo4j.auth.basic(username, password))
+    config =
+      encrypted: neo4j.ENCRYPTION_ON
+
+    driver = neo4j.driver(uri, neo4j.auth.basic(username, password), config)
     new Connection(driver, credentials, log, notifyConnected)
