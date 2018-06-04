@@ -40,3 +40,5 @@ if storedCredentials
   credentials = JSON.parse(storedCredentials)
   gui.info "Connecting to #{credentials.uri} with stored credentials"
   login credentials
+else
+  gui.login()
