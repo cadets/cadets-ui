@@ -1,7 +1,38 @@
-import graphing from '../graphing.coffee'
+/*
+ * Copyright 2017-2018 Jonathan Anderson
+ * Copyright 2018 Garrett Kirkland
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 class {
+  onCreate() {
+    var cy = require('cytoscape')
+
+    if (!cy.extended) {
+      cy.use(require('cytoscape-cose-bilkent'))
+      cy.use(require('cytoscape-cxtmenu'))
+      cy.use(require('cytoscape-dagre'))
+
+      cy.extended = true
+    }
+
+    this.cytoscape = cy
+  }
+
   onMount() {
+    var cytoscape = this.cytoscape
+
     //
     // Work around https://github.com/cytoscape/cytoscape.js/issues/2122
     // by loading the graph with jQuery after everything else is initialized.
@@ -16,21 +47,34 @@ class {
     var component = this
     var graphNode = this.getEl('graph')
 
-    $(window).on('load', function() {
-      component.graph = graphing.create(graphNode)
-    })
+    setTimeout(function() {
+      component.graph = new cytoscape({
+        container: graphNode,
+        style: require('../graph-style.coffee'),
+      })
+    }, 100)
   }
 
   addNode(node) {
-    this.graph.addNode(node)
+    this.graph.add({
+      id: node.id,
+      classes: node.style_name,
+      data: {
+        label: node.label,
+      },
+    })
   }
 
   clear() {
-    this.graph.clear()
+    this.graph.nodes().remove()
   }
 
   layout(algorithm) {
-    this.graph.layout(algorithm)
+    this.graph.layout({
+      name: algorithm,
+      rankDir: 'LR',
+      animate: false,
+    }).run()
   }
 }
 
