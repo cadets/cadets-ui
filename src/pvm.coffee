@@ -15,6 +15,31 @@
 
 
 #
+# Every PVM graph edge has the following fields:
+#
+# @id::
+#   Neo4j database ID
+#
+# @source::
+#   Database ID of the originating node
+#
+# @dest::
+#   Databaes ID of the terminating node
+#
+# @style_name::
+#   A CSS-friendly name for the edge type
+#
+class @PvmEdge
+  constructor: (record, pvm_version) ->
+    @properties = record.properties
+
+    @id = record.identity.low
+    @source = record.start
+    @dest = record.end
+    @style_name = @properties.class
+
+
+#
 # Every PVM graph node has the following fields:
 #
 # @id::
