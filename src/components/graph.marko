@@ -86,11 +86,11 @@ class {
     this.graph.nodes().remove()
   }
 
-  layout(algorithm) {
+  layout(algorithm, animate = false) {
     this.graph.layout({
       name: algorithm,
       rankDir: 'LR',
-      animate: false,
+      animate: animate,
     }).run()
   }
 }
