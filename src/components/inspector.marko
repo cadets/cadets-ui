@@ -4,13 +4,50 @@ class {
     this.input.registerInspector(this)
   }
 
-  inspect(node) {
-    this.graph.clear()
-    this.graph.addNode(node)
-    this.graph.layout('dagre')
+  inspect(node, db) {
+    var graph = this.graph
+    var limit = 50
+    var self = this
 
-    // TODO: get and add neighbours
+    graph.clear()
+    graph.addNode(node)
+
+    // Prepare callbacks for execution as neighbour information streams in:
+    var neighbours = [node]
+
+    var neighbourCount = function(count) {
+      limit = (count < limit) ? count : limit
+      self.getEl('counter').innerHTML = limit + '/' + count
+    }
+
+    var nextNeighbour = function(source, dest) {
+      var other = source.dbid == node.dbid ? dest : source
+
+      neighbours.push(other)
+      graph.addNode(other)
+    }
+
+    var neighboursComplete = function() {
+      db.getEdges(node, neighbours).execute(
+        function(count) { /* don't do anything with the edge count */ },
+        graph.addEdge.bind(graph),  // add each edge as it comes in
+        self.layout.bind(self),     // lay everything out when the query's done
+      1000)
+    }
+
+    // Kick off the neighbour queries:
+    db.neighbours(node).execute(
+      neighbourCount,
+      nextNeighbour,
+      neighboursComplete,
+      limit
+    )
+  }
+
+  layout(animate = false) {
+    this.graph.layout('dagre', animate)
   }
 }
 
+div.topright key="counter"
 graph key="graph"
