@@ -124,7 +124,8 @@ class Query
       .run "#{@matchExpr} RETURN #{self.varname} LIMIT #{limit}"
       .subscribe
         onNext: (record) ->
-          result self.parse(record.get self.varname)
+          records = (self.parse(record.get v) for v in self.varname)
+          result(records...)
 
         onCompleted: () ->
           session.close()
