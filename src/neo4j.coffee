@@ -15,7 +15,7 @@
 
 neo4j = require('neo4j-driver/lib/browser/neo4j-web.min.js').v1
 
-{FileVersion, Process} = require './pvm.coffee'
+{EditSession, FileVersion, Process, PvmEdge} = require './pvm.coffee'
 
 
 class Connection
@@ -53,8 +53,37 @@ class Connection
         log.warn err
 
   #
-  # Functions to build queries from user-provided filters:
+  # Parse a PVM edge
   #
+  parseEdge: (record) =>
+    pvmver = @pvm_version
+    new PvmEdge record, pvmver
+
+  #
+  # Parse a Node of unknown type
+  #
+  parseNode: (record) =>
+    pvmver = @pvm_version
+
+    labels = record.labels
+
+    # TODO: are the labels guaranteed to be ['Node', 'TheThingWeWant']?
+    nodeIndex = labels.indexOf 'Node'
+    labels.splice nodeIndex, 1
+    console.assert labels.length == 1
+
+    switch labels[0]
+      when 'EditSession' then new EditSession record, pvmver
+      when 'File' then new FileVersion record, pvmver
+      when 'Process' then new Process record, pvmver
+      else
+        @log.warn 'Unhandled node type ' + labels[0] + ': ' + record
+
+
+  #
+  # Functions to build queries, possibly using user-provided filters:
+  #
+
 
   #
   # Build a query to look up file versions that match a set of filters:
