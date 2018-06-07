@@ -9,7 +9,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({
-      title: 'CADETS/OPUS_GUI'
+      title: 'PVM Viewer'
     })
   ],
   output: {
