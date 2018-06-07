@@ -50,6 +50,16 @@ class @PvmNode
     @short_name = @uuid.substring(0, @uuid.indexOf('-'))
 
 
+class @EditSession extends @PvmNode
+  constructor: (record, pvm_version) ->
+    super 'edit-session', record
+
+    if @properties.name
+      @label = @properties.name
+    else
+      @label = @uuid
+
+
 class @FileVersion extends @PvmNode
   constructor: (record, pvm_version) ->
     super 'file-version', record
