@@ -88,7 +88,6 @@ module.exports = [
     selector: 'node.edit-session'
     style:
       shape: 'rectangle'
-      content: ''
       'text-opacity': 0
       'background-image': require './img/edit-session.png'
       'background-opacity': 0
@@ -106,7 +105,6 @@ module.exports = [
     selector: 'node.file-version'
     style:
       shape: 'rectangle'
-      content: ''
       'background-image': require './img/file-version.png'
       'background-opacity': 0
       'border-width': 0
