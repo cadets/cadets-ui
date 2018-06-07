@@ -36,7 +36,14 @@ class @PvmEdge
     @id = record.identity.low
     @source = record.start
     @dest = record.end
-    @style_name = @properties.class
+
+    switch @properties.class
+      when 'read', 'write'
+        @style_name = 'io'
+        @label = @properties.class
+
+      else
+        @label = @properties.class
 
 
 #
