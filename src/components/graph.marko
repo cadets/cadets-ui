@@ -69,6 +69,19 @@ class {
     })
   }
 
+  addEdge(edge) {
+    this.graph.add({
+      group: 'edges',
+      id: edge.id,
+
+      data: {
+        id: edge.id,
+        source: edge.source,
+        target: edge.dest,
+      },
+    })
+  }
+
   clear() {
     this.graph.nodes().remove()
   }
