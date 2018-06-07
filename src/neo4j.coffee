@@ -62,7 +62,7 @@ class Connection
   #   name        name substrings that have been used to refer to this file
   #   uuid        opaque UUID for the file
   #
-  fileQuery: (filters, callback) =>
+  fileQuery: (filters) =>
     pvmver = @pvm_version
     new Query @driver, @log, 'f', "
         MATCH (f:File)
@@ -79,7 +79,7 @@ class Connection
   #   cmdline     substring within the command line that executed the process
   #   uuid        opaque UUID for the process
   #
-  processQuery: (filters, callback) =>
+  processQuery: (filters) =>
     pvmver = @pvm_version
     new Query @driver, @log, 'p', "
       MATCH (p:Process)
