@@ -92,7 +92,7 @@ class @FileVersion extends @PvmNode
     if @properties.name
       @label = @properties.name
     else
-      @label = @uuid
+      @label = @short_name
 
 
 class @Process extends @PvmNode
