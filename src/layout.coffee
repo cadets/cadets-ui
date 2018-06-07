@@ -114,7 +114,7 @@ class Layout
 
   inspect: (node) ->
     for i in @inspectors
-      i.inspect node
+      i.inspect node, @database
 
   registerInspector: (i) => @inspectors.push i
   registerSearcher: (s) => @searchers.push s
