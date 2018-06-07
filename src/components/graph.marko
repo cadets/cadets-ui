@@ -70,6 +70,7 @@ class {
   addEdge(edge) {
     this.graph.add({
       group: 'edges',
+      classes: edge.style_name,
 
       data: {
         source: edge.source,

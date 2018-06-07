@@ -16,6 +16,7 @@
 colours =
   file: '#dc9'
   important: 'orange'
+  io: '#6c3'
   pipe: '#076928'
   socket: '#999'
   text: 'black'
@@ -195,18 +196,6 @@ module.exports = [
         background-opacity: 0.25
         border-color: #076928; }
 
-      edge {
-        curve-style: bezier
-        font-family: Avenir, Helvetica Neue, Helvetica, sans-serif
-        source-arrow-shape: none
-        mid-target-arrow-shape: triangle
-        arrow-scale: 2
-        width: 8
-        text-halign: center
-        text-valign: center
-        text-outline-width: 2
-        color: blue; }
-
       edge.parent {
         line-style: dotted
         width: 8
@@ -214,19 +203,45 @@ module.exports = [
         mid-target-arrow-color: #366
         line-color: #366
         text-outline-color: #366; }
+    ###
 
+  {
+    selector: 'edge'
+    style:
+      'curve-style': 'bezier'
+      'width': 2
+
+      'arrow-scale': 2
+      'mid-target-arrow-shape': 'triangle'
+      'source-arrow-shape': 'none'
+
+      'content': 'data(label)'
+      'color': 'white'
+      'font-family': 'Avenir, Helvetica Neue, Helvetica, sans-serif'
+      'text-halign': 'center'
+      'text-valign': 'center'
+      'text-outline-width': 1
+  },
+
+  {
+    selector: 'edge.io'
+    style:
+      'mid-target-arrow-shape': 'none'
+      'target-arrow-shape': 'triangle'
+      'target-arrow-color': colours.io
+      'line-color': colours.io
+      'line-style': 'dotted'
+      'target-arrow-color': colours.io
+      'text-outline-color': colours.io
+  },
+
+    ###
       edge.file-change {
         line-style: dotted
         target-arrow-color: #633
         mid-target-arrow-color: #633
         line-color: #633
         text-outline-color: #633; }
-
-      edge.io {
-         target-arrow-color: #633
-         mid-target-arrow-color: #633
-         line-color: #633
-         text-outline-color: #633; }
 
       edge.comm {
         line-style: dashed
