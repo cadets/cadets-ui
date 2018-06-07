@@ -37,13 +37,15 @@ class @PvmEdge
     @source = record.start
     @dest = record.end
 
-    switch @properties.class
-      when 'read', 'write'
-        @style_name = 'io'
-        @label = @properties.class
+    c = @properties.class
+    @label = c
 
-      else
-        @label = @properties.class
+    switch c
+      when 'read', 'write'
+        @style_name = 'io ' + c
+
+      when 'child'
+        @style_name = 'child'    # TODO: fork? exec?
 
 
 #

@@ -17,6 +17,7 @@ colours =
   file: '#dc9'
   important: 'orange'
   io: '#6c3'
+  parent: '#366'
   pipe: '#076928'
   socket: '#999'
   text: 'black'
@@ -195,14 +196,6 @@ module.exports = [
         background-color: #{colours.pipe}
         background-opacity: 0.25
         border-color: #076928; }
-
-      edge.parent {
-        line-style: dotted
-        width: 8
-        target-arrow-color: #366
-        mid-target-arrow-color: #366
-        line-color: #366
-        text-outline-color: #366; }
     ###
 
   {
@@ -233,6 +226,17 @@ module.exports = [
       'line-style': 'dotted'
       'target-arrow-color': colours.io
       'text-outline-color': colours.io
+  },
+
+  {
+    selector: 'edge.child'
+    style:
+      'line-style': 'dotted'
+      'width': 8
+      'target-arrow-color': colours.parent
+      'mid-target-arrow-color': colours.parent
+      'line-color': colours.parent
+      'text-outline-color': colours.parent
   },
 
     ###
