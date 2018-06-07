@@ -46,16 +46,13 @@ class @PvmNode
   constructor: (@style_name, record) ->
     @id = record.identity.low
     @properties = record.properties
-    @short_name = '<unknown>'
     @uuid = @properties.uuid
+    @short_name = @uuid.substring(0, @uuid.indexOf('-'))
 
 
 class @FileVersion extends @PvmNode
   constructor: (record, pvm_version) ->
     super 'file-version', record
-
-    @uuid = @properties.uuid
-    @short_name = @uuid.substring(0, @uuid.indexOf('-'))
 
     if @properties.name
       @label = @properties.name
@@ -68,7 +65,6 @@ class @Process extends @PvmNode
     super 'process', record
 
     @pid = @properties.pid.low
-    @uuid = @properties.uuid
 
     @label = @properties.cmdline
     @short_name = @pid
