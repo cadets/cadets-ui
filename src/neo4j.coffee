@@ -172,11 +172,11 @@ class Query
   #   complete    called when transfer is complete
   #
   execute: (total, result, complete, limit = 200) =>
-    session = @driver.session()
-    session.run "#{@matchExpr} RETURN count(*) AS count"
+    countSession = @driver.session()
+    countSession.run "#{@matchExpr} RETURN count(*) AS count"
       .then (result) ->
         count = result.records[0].get('count').low
-        session.close()
+        countSession.close()
         total count
 
     session = @driver.session()
