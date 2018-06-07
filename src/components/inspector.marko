@@ -19,10 +19,8 @@ class {
       counter.innerHTML = limit + '/' + count
     }
 
-    var nextNeighbour = function(source, edge, dest) {
-      var other = source.id == node.id ? dest : source
-
-      graph.addNode(other)
+    var nextNeighbour = function(neighbour, edge) {
+      graph.addNode(neighbour)
       graph.addEdge(edge)
     }
 

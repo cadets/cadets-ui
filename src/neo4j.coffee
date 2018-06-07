@@ -93,23 +93,6 @@ class Connection
   #
 
   #
-  # Look up edges (forwards or backwards) between a node and a set of nodes
-  #
-  getEdges: (node, nodes) =>
-    nodesStr = JSON.stringify (n.id for n in nodes)
-    new Query @driver, @log, 'e',
-      "
-        MATCH (src:Node)-[e]-(dst:Node)
-        WHERE
-          (
-            id(src) = #{node.id} AND id(dst) IN #{nodesStr}
-            OR
-            id(dst) = #{node.id} AND id(src) IN #{nodesStr}
-          )
-      ",
-      @parseEdge
-
-  #
   # Build a query to look up file versions that match a set of filters:
   #
   #   name        name substrings that have been used to refer to this file
@@ -130,15 +113,10 @@ class Connection
   # Look up a node's immediate neighbours
   #
   neighbours: (node, filters) =>
-    new Query @driver, @log, ['src', 'e', 'dst'],
+    new Query @driver, @log, ['neighbour', 'edge'],
       "
-        MATCH (src:Node)-[e]-(dst:Node)
-        WHERE
-          (
-            id(src) = #{node.id}
-            OR
-            id(dst) = #{node.id}
-          )
+        MATCH (n:Node)-[edge]-(neighbour:Node)
+        WHERE id(n) = #{node.id}
       ",
       @parseNodeOrEdge
 
