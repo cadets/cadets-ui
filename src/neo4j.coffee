@@ -15,7 +15,7 @@
 
 neo4j = require('neo4j-driver/lib/browser/neo4j-web.min.js').v1
 
-{EditSession, FileVersion, Process, PvmEdge} = require './pvm.coffee'
+{EditSession, FileVersion, Process, PvmEdge, Socket} = require './pvm.coffee'
 
 
 class Connection
@@ -76,6 +76,7 @@ class Connection
       when 'EditSession' then new EditSession record, pvmver
       when 'File' then new FileVersion record, pvmver
       when 'Process' then new Process record, pvmver
+      when 'Socket' then new Socket record, pvmver
       else
         @log.warn 'Unhandled node type ' + labels[0] + ': ' + record
 

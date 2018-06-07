@@ -103,3 +103,10 @@ class @Process extends @PvmNode
 
     @label = @properties.cmdline
     @short_name = @pid
+
+
+class @Socket extends @PvmNode
+  constructor: (record, pvm_version) ->
+    super 'socket-version', record
+
+    @label = @properties.uuid
