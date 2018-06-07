@@ -58,8 +58,6 @@ class {
   addNode(node) {
     this.graph.add({
       group: 'nodes',
-      id: node.id,
-
       classes: node.style_name,
 
       data: {
@@ -72,10 +70,8 @@ class {
   addEdge(edge) {
     this.graph.add({
       group: 'edges',
-      id: edge.id,
 
       data: {
-        id: edge.id,
         source: edge.source,
         target: edge.dest,
       },
