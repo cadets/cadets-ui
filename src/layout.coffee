@@ -43,9 +43,6 @@ class Layout
                         componentName: 'Files',
                     }],
                 },{
-                    type: 'component',
-                    componentName: 'Worksheet',
-                },{
                     type: 'column',
                     content: [{
                       type: 'component',
