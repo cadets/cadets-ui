@@ -84,6 +84,22 @@ class Connection
   # Functions to build queries, possibly using user-provided filters:
   #
 
+  #
+  # Look up edges (forwards or backwards) between a node and a set of nodes
+  #
+  getEdges: (node, nodes) =>
+    nodesStr = JSON.stringify (n.id for n in nodes)
+    new Query @driver, @log, 'e',
+      "
+        MATCH (src:Node)-[e]-(dst:Node)
+        WHERE
+          (
+            id(src) = #{node.id} AND id(dst) IN #{nodesStr}
+            OR
+            id(dst) = #{node.id} AND id(src) IN #{nodesStr}
+          )
+      ",
+      @parseEdge
 
   #
   # Build a query to look up file versions that match a set of filters:
@@ -101,6 +117,22 @@ class Connection
           f.uuid CONTAINS '#{filters.uuid}'
       ",
       (record) -> new FileVersion record, pvmver
+
+  #
+  # Look up a node's immediate neighbours
+  #
+  neighbours: (node, filters) =>
+    new Query @driver, @log, ['src','dst'],
+      "
+        MATCH (src:Node)-[]-(dst:Node)
+        WHERE
+          (
+            id(src) = #{node.id}
+            OR
+            id(dst) = #{node.id}
+          )
+      ",
+      @parseNode
 
   #
   # Look up processes in the database according to a set of filters:
