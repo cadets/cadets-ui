@@ -5,41 +5,31 @@ class {
   }
 
   inspect(node, db) {
+    var counter = this.getEl('counter')
     var graph = this.graph
     var limit = 50
     var self = this
 
+    counter.innerHTML = ''
     graph.clear()
     graph.addNode(node)
 
-    // Prepare callbacks for execution as neighbour information streams in:
-    var neighbours = [node]
-
     var neighbourCount = function(count) {
       limit = (count < limit) ? count : limit
-      self.getEl('counter').innerHTML = limit + '/' + count
+      counter.innerHTML = limit + '/' + count
     }
 
-    var nextNeighbour = function(source, dest) {
-      var other = source.dbid == node.dbid ? dest : source
+    var nextNeighbour = function(source, edge, dest) {
+      var other = source.id == node.id ? dest : source
 
-      neighbours.push(other)
       graph.addNode(other)
+      graph.addEdge(edge)
     }
 
-    var neighboursComplete = function() {
-      db.getEdges(node, neighbours).execute(
-        function(count) { /* don't do anything with the edge count */ },
-        graph.addEdge.bind(graph),  // add each edge as it comes in
-        self.layout.bind(self),     // lay everything out when the query's done
-      1000)
-    }
-
-    // Kick off the neighbour queries:
     db.neighbours(node).execute(
       neighbourCount,
       nextNeighbour,
-      neighboursComplete,
+      self.layout.bind(self),    // run layout on query completion
       limit
     )
   }

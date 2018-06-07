@@ -79,6 +79,14 @@ class Connection
       else
         @log.warn 'Unhandled node type ' + labels[0] + ': ' + record
 
+  #
+  # Parse a record that may be a node or an edge
+  #
+  parseNodeOrEdge: (record) =>
+    if record.start?
+      @parseEdge record
+    else
+      @parseNode record
 
   #
   # Functions to build queries, possibly using user-provided filters:
@@ -122,9 +130,9 @@ class Connection
   # Look up a node's immediate neighbours
   #
   neighbours: (node, filters) =>
-    new Query @driver, @log, ['src','dst'],
+    new Query @driver, @log, ['src', 'e', 'dst'],
       "
-        MATCH (src:Node)-[]-(dst:Node)
+        MATCH (src:Node)-[e]-(dst:Node)
         WHERE
           (
             id(src) = #{node.id}
@@ -132,7 +140,7 @@ class Connection
             id(dst) = #{node.id}
           )
       ",
-      @parseNode
+      @parseNodeOrEdge
 
   #
   # Look up processes in the database according to a set of filters:
