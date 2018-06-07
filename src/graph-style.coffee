@@ -111,6 +111,18 @@ module.exports = [
   },
 
   {
+    selector: 'node.pipe-endpoint'
+    style:
+      shape: 'rectangle'
+      'font-size': 0
+      'text-opacity': 0
+      'background-image': require './img/pipe.png'
+      'background-color': 'white'
+      'background-opacity': 0
+      'border-width': 0
+  },
+
+  {
     selector: 'node.process',
     style:
       shape: 'ellipse'
@@ -118,6 +130,27 @@ module.exports = [
       'background-image': require './img/proc.png'
       'background-opacity': 0
       'border-opacity': 0
+  },
+
+  {
+    selector: 'node.socket'
+    style:
+      'background-color': colours.socket
+      'background-opacity': 0.5
+      'border-color': '#999'
+      'border-opacity': 1
+  },
+
+  {
+    selector: 'node.socket-version'
+    style:
+      shape: 'rectangle'
+      'background-image': require './img/socket.png'
+      'background-fit': 'contain'
+      'background-opacity': 0
+      'border-opacity': 0
+      'font-size': 0
+      'text-opacity': 0
   },
 
       ###
@@ -162,33 +195,6 @@ module.exports = [
         background-opacity: 0.25
         border-color: #076928; }
 
-      node.pipe-endpoint {
-        content: ''
-        font-size: 0
-        text-opacity: 0
-        shape: rectangle
-        background-image: require './img/pipe.png'
-        background-color: white
-        background-opacity: 0
-        border-width: 0; }
-
-      node.sock {
-        background-color: #{colours.socket}
-        background-opacity: 0.5
-        border-color: #999
-        border-opacity: 1; }
-
-      node.socket-version {
-        shape: rectangle
-        background-image: require './img/socket.png'
-        background-fit: contain
-        background-opacity: 0
-        border-opacity: 0
-        font-size: 0
-        text-opacity: 0; }"
-  ###
-
-   ### 
       edge {
         curve-style: bezier
         font-family: Avenir, Helvetica Neue, Helvetica, sans-serif
