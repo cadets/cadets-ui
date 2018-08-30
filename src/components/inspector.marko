@@ -20,8 +20,10 @@ class {
     }
 
     var nextNeighbour = function(neighbour, edge) {
-      graph.addNode(neighbour)
-      graph.addEdge(edge)
+      if (neighbour) {
+        graph.addNode(neighbour)
+        graph.addEdge(edge)
+      }
     }
 
     db.neighbours(node).execute(
