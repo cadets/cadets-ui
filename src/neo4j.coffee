@@ -72,13 +72,21 @@ class Connection
     labels.splice nodeIndex, 1
     console.assert labels.length == 1
 
-    switch labels[0]
-      when 'EditSession' then new EditSession record, pvmver
-      when 'File' then new FileVersion record, pvmver
-      when 'Process' then new Process record, pvmver
-      when 'Socket' then new Socket record, pvmver
-      else
-        @log.warn 'Unhandled node type ' + labels[0] + ': ' + record
+    ty = record.properties.ty
+
+    if ty == 'process'
+      return new Process record, pvmver
+
+    else if ty == 'socket'
+      return new Socket record, pvmver
+
+    else if labels[0] == 'EditSession'
+      return new EditSession record, pvmver
+
+    else if ty == 'file'
+      return new FileVersion record, pvmver
+
+    @log.info 'Unhandled node type ' + labels[0] + ': ' + record
 
   #
   # Parse a record that may be a node or an edge
@@ -130,8 +138,10 @@ class Connection
   processQuery: (filters) =>
     pvmver = @pvm_version
     new Query @driver, @log, 'p', "
-      MATCH (p:Process)
+      MATCH (p:Actor)
       WHERE
+        p.ty = 'process'
+        AND
         p.cmdline CONTAINS '#{filters.cmdline}'
         AND
         (#{filters.pid} = -1 OR p.pid = #{filters.pid})
