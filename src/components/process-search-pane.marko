@@ -11,16 +11,16 @@ class {
     var nodelist = this.getComponent('nodelist')
     nodelist.state.nodes = []
 
-    var pid = parseInt(this.getEl('pid').nextElementSibling.value);
+    var pid = parseInt(this.getEl('pid').value)
     if (isNaN(pid))
     {
       pid = -1
     }
 
     var filters = {
-      cmdline: this.getEl('cmdline').nextElementSibling.value,
+      cmdline: this.getEl('cmdline').value,
       pid: pid,
-      uuid: this.getEl('uuid').nextElementSibling.value,
+      uuid: this.getEl('uuid').value,
     }
 
     var callback = function (node) {
