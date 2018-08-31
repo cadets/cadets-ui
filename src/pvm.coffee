@@ -52,9 +52,6 @@ class PvmEdge
 # Every PVM graph node has the following fields:
 #
 # @id::
-#   a Neo4j database ID
-#
-# @id::
 #   a unique ID that will be the primary ID for the graph node
 #
 # @label::
