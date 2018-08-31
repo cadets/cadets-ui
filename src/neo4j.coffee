@@ -121,6 +121,8 @@ class Query
   #   complete    called when transfer is complete
   #
   execute: (total, result, complete, limit = 200) =>
+    @log.debug "Cypher: #{@matchExpr}"
+
     countSession = @driver.session()
     countSession.run "#{@matchExpr} RETURN count(*) AS count"
       .then (result) ->
