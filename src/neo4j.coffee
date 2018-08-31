@@ -15,12 +15,11 @@
 
 neo4j = require('neo4j-driver/lib/browser/neo4j-web.min.js').v1
 
-{EditSession, FileVersion, Process, PvmEdge, Socket} = require './pvm.coffee'
+{Parser} = require './pvm.coffee'
 
 
 class Connection
   current_promise: null
-  pvm_version: null
 
   constructor: (@driver, credentials, log = console.log, notifyConnected) ->
     @log = log
@@ -39,10 +38,10 @@ class Connection
         else
           localStorage.setItem 'neo4jCredentials', JSON.stringify(credentials)
 
-          self.pvm_version =
-            parseInt result.records[0].get('n').properties.pvm_version
+          pvmver = parseInt result.records[0].get('n').properties.pvm_version
+          log.info "Connected to #{self.uri} using PVM v#{pvmver}"
 
-          log.info "Connected to #{self.uri} using PVM v#{self.pvm_version}"
+          self.pvm = new Parser log, pvmver
 
           notifyConnected(self) if notifyConnected
 
@@ -51,51 +50,6 @@ class Connection
       .catch (err) ->
         session.close()
         log.warn err
-
-  #
-  # Parse a PVM edge
-  #
-  parseEdge: (record) =>
-    pvmver = @pvm_version
-    new PvmEdge record, pvmver
-
-  #
-  # Parse a Node of unknown type
-  #
-  parseNode: (record) =>
-    pvmver = @pvm_version
-
-    labels = record.labels
-
-    # TODO: are the labels guaranteed to be ['Node', 'TheThingWeWant']?
-    nodeIndex = labels.indexOf 'Node'
-    labels.splice nodeIndex, 1
-    console.assert labels.length == 1
-
-    ty = record.properties.ty
-
-    if ty == 'process'
-      return new Process record, pvmver
-
-    else if ty == 'socket'
-      return new Socket record, pvmver
-
-    else if labels[0] == 'EditSession'
-      return new EditSession record, pvmver
-
-    else if ty == 'file'
-      return new FileVersion record, pvmver
-
-    @log.info 'Unhandled node type ' + labels[0] + ': ' + record
-
-  #
-  # Parse a record that may be a node or an edge
-  #
-  parseNodeOrEdge: (record) =>
-    if record.start?
-      @parseEdge record
-    else
-      @parseNode record
 
   #
   # Functions to build queries, possibly using user-provided filters:
@@ -108,7 +62,6 @@ class Connection
   #   uuid        opaque UUID for the file
   #
   fileQuery: (filters) =>
-    pvmver = @pvm_version
     new Query @driver, @log, 'f', "
         MATCH (f:File)
         WHERE
@@ -116,7 +69,7 @@ class Connection
           AND
           f.uuid CONTAINS '#{filters.uuid}'
       ",
-      (record) -> new FileVersion record, pvmver
+      @pvm.fileVersion
 
   #
   # Look up a node's immediate neighbours
@@ -127,7 +80,7 @@ class Connection
         MATCH (n:Node)-[edge]-(neighbour:Node)
         WHERE id(n) = #{node.id}
       ",
-      @parseNodeOrEdge
+      @pvm.parseNodeOrEdge
 
   #
   # Look up processes in the database according to a set of filters:
@@ -136,7 +89,6 @@ class Connection
   #   uuid        opaque UUID for the process
   #
   processQuery: (filters) =>
-    pvmver = @pvm_version
     new Query @driver, @log, 'p', "
       MATCH (p:Actor)
       WHERE
@@ -148,7 +100,7 @@ class Connection
         AND
         p.uuid CONTAINS '#{filters.uuid}'
       ",
-      (record) -> new Process record, pvmver
+      @pvm.process
 
 
 #
