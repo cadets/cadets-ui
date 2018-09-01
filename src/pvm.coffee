@@ -39,7 +39,7 @@ class GraphEntity
 #   A CSS-friendly name for the edge type
 #
 class PvmEdge extends GraphEntity
-  constructor: (record, pvm_version) ->
+  constructor: (record) ->
     super record
 
     @source = record.start
@@ -90,7 +90,7 @@ class PvmNode extends GraphEntity
 
 
 class EditSession extends PvmNode
-  constructor: (record, pvm_version) ->
+  constructor: (record) ->
     super 'edit-session', record
 
     if @properties.name
@@ -100,7 +100,7 @@ class EditSession extends PvmNode
 
 
 class FileVersion extends PvmNode
-  constructor: (record, pvm_version) ->
+  constructor: (record) ->
     super 'file-version', record
 
     if @properties.name
@@ -110,7 +110,7 @@ class FileVersion extends PvmNode
 
 
 class Process extends PvmNode
-  constructor: (record, pvm_version) ->
+  constructor: (record) ->
     super 'process', record
 
     @pid = @properties.pid.low
@@ -120,7 +120,7 @@ class Process extends PvmNode
 
 
 class Socket extends PvmNode
-  constructor: (record, pvm_version) ->
+  constructor: (record) ->
     super 'socket-version', record
 
     @label = @properties.uuid
@@ -131,7 +131,7 @@ class Socket extends PvmNode
 # A Path node can be referenced by `NAMED` edges.
 #
 class Path extends GraphEntity
-  constructor: (record, pvm_version) ->
+  constructor: (record) ->
     super record
 
     @path = @properties.path
@@ -156,15 +156,12 @@ class @Parser
   # Parse a PVM edge
   #
   parseEdge: (record) =>
-    pvmver = @pvm_version
-    new PvmEdge record, pvmver
+    new PvmEdge record
 
   #
   # Parse a Node of unknown type
   #
   parseNode: (record) =>
-    pvmver = @pvm_version
-
     labels = record.labels
 
     # TODO: are the labels guaranteed to be ['Node', 'TheThingWeWant']?
@@ -174,19 +171,19 @@ class @Parser
     ty = record.properties.ty
 
     if labels[0] == 'Path' or labels[0] == 'Name'
-      return new Path record, pvmver
+      return new Path record
 
     else if ty == 'process'
-      return new Process record, pvmver
+      return new Process record
 
     else if ty == 'socket'
-      return new Socket record, pvmver
+      return new Socket record
 
     else if labels[0] == 'EditSession'
-      return new EditSession record, pvmver
+      return new EditSession record
 
     else if ty == 'file'
-      return new FileVersion record, pvmver
+      return new FileVersion record
 
     @log.info 'Unhandled node type ' + labels[0] + ': ' + record
 
@@ -194,10 +191,10 @@ class @Parser
   # Parse a (known) FileVersion
   #
   fileVersion: (record) =>
-    return new FileVersion record, @pvm_version
+    return new FileVersion record
 
   #
   # Parse a (known) Process
   #
   process: (record) =>
-    return new Process record, @pvm_version
+    return new Process record
