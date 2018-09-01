@@ -126,6 +126,17 @@ class Socket extends PvmNode
     @label = @properties.uuid
 
 
+
+#
+# A Path node can be referenced by `NAMED` edges.
+#
+class Path extends GraphEntity
+  constructor: (record, pvm_version) ->
+    super record
+
+    @path = @properties.path
+
+
 #
 # A parser for PVM nodes and edges
 #
@@ -162,7 +173,10 @@ class @Parser
 
     ty = record.properties.ty
 
-    if ty == 'process'
+    if labels[0] == 'Path' or labels[0] == 'Name'
+      return new Path record, pvmver
+
+    else if ty == 'process'
       return new Process record, pvmver
 
     else if ty == 'socket'
