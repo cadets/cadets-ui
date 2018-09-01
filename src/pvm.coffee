@@ -159,7 +159,6 @@ class @Parser
     # TODO: are the labels guaranteed to be ['Node', 'TheThingWeWant']?
     nodeIndex = labels.indexOf 'Node'
     labels.splice nodeIndex, 1
-    console.assert labels.length == 1
 
     ty = record.properties.ty
 
