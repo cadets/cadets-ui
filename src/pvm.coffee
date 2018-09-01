@@ -15,6 +15,15 @@
 
 
 #
+# A Neo4j node or edge
+#
+class GraphEntity
+  constructor: (record) ->
+    @id = record.identity.low
+    @properties = record.properties
+
+
+#
 # Every PVM graph edge has the following fields:
 #
 # @id::
@@ -29,11 +38,10 @@
 # @style_name::
 #   A CSS-friendly name for the edge type
 #
-class PvmEdge
+class PvmEdge extends GraphEntity
   constructor: (record, pvm_version) ->
-    @properties = record.properties
+    super record
 
-    @id = record.identity.low
     @source = record.start
     @dest = record.end
 
@@ -73,10 +81,10 @@ class PvmEdge
 # In addition to these, subclasses of PvmNode add fields that are relevant to
 # the type. For example, Process objects have a @pid (process ID) field.
 #
-class PvmNode
+class PvmNode extends GraphEntity
   constructor: (@style_name, record) ->
-    @id = record.identity.low
-    @properties = record.properties
+    super record
+
     @uuid = @properties.uuid
     @short_name = @uuid.substring(0, @uuid.indexOf('-'))
 
