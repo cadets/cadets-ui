@@ -121,8 +121,6 @@ class Query
   #   complete    called when transfer is complete
   #
   execute: (total, result, complete, limit = 200) =>
-    @log.debug "Cypher: #{@matchExpr}"
-
     countSession = @driver.session()
     countSession.run "#{@matchExpr} RETURN count(*) AS count"
       .then (result) ->
@@ -130,10 +128,13 @@ class Query
         countSession.close()
         total count
 
+    fullQuery = "#{@matchExpr} RETURN #{@varname} LIMIT #{limit}"
+    @log.debug "Cypher: #{fullQuery}"
+
     session = @driver.session()
     self = this
     session
-      .run "#{@matchExpr} RETURN #{self.varname} LIMIT #{limit}"
+      .run fullQuery
       .subscribe
         onNext: (record) ->
           records = (self.parse(record.get v) for v in self.varname)
