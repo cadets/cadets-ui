@@ -1,0 +1,27 @@
+#!/bin/sh
+
+destdir=$1
+if [ "$destdir" = "" ]
+then
+	echo "Usage:  $0 <destination directory>"
+	exit 1
+fi
+
+if ! [ -d $destdir ]
+then
+	echo "Target '$destdir' is not a directory"
+	exit 1
+fi
+
+echo "----------------------------------------------------------------------"
+echo "Building production configuration..."
+echo "----------------------------------------------------------------------"
+
+npm run build || exit 1
+
+echo "----------------------------------------------------------------------"
+echo "Installing to $destdir"
+echo "(this will DELETE all existing content)"
+echo "----------------------------------------------------------------------"
+
+sudo rsync -av --delete --chown=root:wheel dist/ ${destdir}/
