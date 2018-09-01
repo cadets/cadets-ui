@@ -15,7 +15,7 @@
 
 neo4j = require('neo4j-driver/lib/browser/neo4j-web.min.js').v1
 
-{Parser} = require './pvm.coffee'
+{pvm_parser} = require './pvm.coffee'
 
 
 class Connection
@@ -41,9 +41,10 @@ class Connection
           pvmver = parseInt result.records[0].get('n').properties.pvm_version
           log.info "Connected to #{self.uri} using PVM v#{pvmver}"
 
-          self.pvm = new Parser log, pvmver
-
-          notifyConnected(self) if notifyConnected
+          if self.pvm = pvm_parser log, pvmver
+            notifyConnected(self) if notifyConnected
+          else
+            log.error "Failed to build parser for PVM v#{pvmver}"
 
         session.close()
       )

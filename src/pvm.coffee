@@ -138,10 +138,10 @@ class Path extends GraphEntity
 
 
 #
-# A parser for PVM nodes and edges
+# A parser for PVMv2 nodes and edges
 #
-class @Parser
-  constructor: (@log, @pvm_version) ->
+class PVMv2Parser
+  constructor: (@log) ->
 
   #
   # Parse a record that may be a node or an edge
@@ -198,3 +198,14 @@ class @Parser
   #
   process: (record) =>
     return new Process record
+
+
+#
+# Choose a PVM parser
+#
+exports.pvm_parser = (log, pvm_version) ->
+  # We currently only support v2
+  if pvm_version == 2
+    return new PVMv2Parser log
+
+  log.warn "Unsupported PVM version: #{pvm_version}"
