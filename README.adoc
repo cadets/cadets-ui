@@ -39,6 +39,19 @@ added 594 packages in 5.621s
 
 In order to visualize OPUS provenance data, you will need a running Neo4j
 instance containing a graph database. Describing this process is out of scope
+** 
+1. Authorize the Desktop App
+Login with Google or social media account, or create a new login
+2. Create and Start a Database 
+click the "New Graph" button 
+This will cause 2 blue buttons to appear, click "Create local graph"
+3. Enter a Password in the "set password" field 
+Then click "Create" 
+4. Once the "start" button appears in place of "Create", Click it.
+5. Once database has started, Click the manage button
+6. Click on the “Open Browser” button that will appear in the Database Management area. 
+The browser will open in a new window
+**
 for the UI, but we hope to have some public instructions to link to soon.
 Once you have a graph database in an appropriate place
 (e.g., `/var/db/neo4j/databases/graph.db`),
