@@ -38,24 +38,194 @@ added 594 packages in 5.621s
 ### Get OPUS data and start Neo4j
 
 In order to visualize OPUS provenance data, you will need a running Neo4j
-instance containing a graph database. Describing this process is out of scope
-// 
-1. Authorize the Desktop App
-Login with Google or social media account, or create a new login
-2. Create and Start a Database 
-click the "New Graph" button 
-This will cause 2 blue buttons to appear, click "Create local graph"
-3. Enter a Password in the "set password" field 
-Then click "Create" 
-4. Once the "start" button appears in place of "Create", Click it.
-5. Once database has started, Click the manage button
-6. Click on the “Open Browser” button that will appear in the Database Management area. 
-The browser will open in a new window
-//
-For Installing Neo4j on Ubuntu here is a step by step guide: 
-https://medium.com/@Jessicawlm/installing-neo4j-on-ubuntu-14-04-step-by-step-guide-ed943ec16c56
+instance containing a graph database.
+{nbsp} +
+For Mac OS X:
+{nbsp} +
+using homebrew; 
 
+1.
+```terminal
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
+```
+2.
+```terminal 
+brew link neo4j
+```
+3. 
+Once you have the most up to date database in dehydrated format, you need to extract the archive, and then run the
+hydrate.sh script and follow its instructions.
+```terminal
+$ ./hydrate.sh
+Preparing to hydrate database
+Ensure neo4j is stopped and that any database files have been removed. Then press enter.
+Importing data
+Neo4j version: 3.5.0
+Importing the contents of these files into /usr/local/Cellar/neo4j/3.5.0/libexec/data/databases/graph.db:
+Nodes:
+  /Users/Nadia/Documents/db/n_dbinfo.csv
+
+  /Users/Nadia/Documents/db/n_paths.csv
+
+  /Users/Nadia/Documents/db/n_net.csv
+
+  /Users/Nadia/Documents/db/n_schema.csv
+
+  /Users/Nadia/Documents/db/n_actor_process.csv
+
+  /Users/Nadia/Documents/db/n_es_file.csv
+
+  /Users/Nadia/Documents/db/n_store_file.csv
+
+  /Users/Nadia/Documents/db/n_conduit_ptty.csv
+
+  /Users/Nadia/Documents/db/n_conduit_pipe.csv
+
+  /Users/Nadia/Documents/db/n_ctx_cadets_context.csv
+
+  /Users/Nadia/Documents/db/n_conduit_socket.csv
+Relationships:
+  /Users/Nadia/Documents/db/r_named.csv
+
+  /Users/Nadia/Documents/db/r_inf.csv
+
+Available resources:
+  Total machine memory: 4.00 GB
+  Free machine memory: 32.11 MB
+  Max heap memory : 910.50 MB
+  Processors: 4
+  Configured max memory: 2.80 GB
+  High-IO: true
+
+WARNING: 36.95 MB memory may not be sufficient to complete this import. Suggested memory distribution is:
+heap size: 1.00 GB
+minimum free and available memory excluding heap size: 1.04 GBImport starting 2019-01-09 12:32:51.496-0330
+  Estimated number of nodes: 3.45 M
+  Estimated number of node properties: 16.94 M
+  Estimated number of relationships: 2.83 M
+  Estimated number of relationship properties: 10.27 M
+  Estimated disk space usage: 1.06 GB
+  Estimated required memory usage: 1.04 GB
+
+InteractiveReporterInteractions command list (end with ENTER):
+  c: Print more detailed information about current stage
+  i: Print more detailed information
+
+(1/4) Node import 2019-01-09 12:32:51.527-0330
+  Estimated number of nodes: 3.45 M
+  Estimated disk space usage: 810.04 MB
+  Estimated required memory usage: 1.04 GB
+.......... .......... .......... .......... ..........   5% ∆8s 166ms
+.......... .......... .......... .......... ..........  10% ∆3s 669ms
+.......... .......... .......... .......... ..........  15% ∆3s 823ms
+.......... .......... .......... .......... ..........  20% ∆3s 21ms
+.......... .......... .......... .......... ..........  25% ∆3s 228ms
+.......... .......... .......... .......... ..........  30% ∆3s 429ms
+.......... .......... .......... ..-....... ..........  35% ∆489ms
+.......... .......... .......... .......... ..........  40% ∆6ms
+.......... .......... .......... .......... ..........  45% ∆1s 676ms
+.......... .......... .......... .......... ..........  50% ∆402ms
+.......... .......... .......... .......... ..........  55% ∆806ms
+.......... .......... .......... .......... ..........  60% ∆404ms
+.......... .......... .......... .......... ..........  65% ∆402ms
+.......... .......... .......... .......... ..........  70% ∆406ms
+.......... .......... .......... .......... ..........  75% ∆1ms
+.......... .......... .......... .......... ..........  80% ∆0ms
+.......... .......... .......... .......... ..........  85% ∆24ms
+.......... .......... .......... .......... ..........  90% ∆0ms
+.......... .......... .......... .......... ..........  95% ∆1ms
+.......... .......... .......... .......... .......... 100% ∆0ms
+
+(2/4) Relationship import 2019-01-09 12:33:24.940-0330
+  Estimated number of relationships: 2.83 M
+  Estimated disk space usage: 270.53 MB
+  Estimated required memory usage: 1.04 GB
+.......... .......... .......... .......... ..........   5% ∆2s 214ms
+.......... .......... .......... .......... ..........  10% ∆1s 17ms
+.......... .......... .......... .......... ..........  15% ∆808ms
+.......... .......... .......... .......... ..........  20% ∆605ms
+.......... .......... .......... .......... ..........  25% ∆604ms
+.......... .......... .......... .......... ..........  30% ∆607ms
+.......... .......... .......... .......... ..........  35% ∆808ms
+.......... .......... .......... .......... ..........  40% ∆1s 281ms
+.......... .......... .......... .......... ..........  45% ∆1s 11ms
+.......... .......... .......... .......... ..........  50% ∆1s 220ms
+.......... .......... .......... .......... ..........  55% ∆1s 12ms
+.......... .......... .......... .......... ..........  60% ∆809ms
+.......... .......... .......... .......... ..........  65% ∆802ms
+.......... .......... .......... .......... ..........  70% ∆816ms
+.......... .......... .......... .......... ..........  75% ∆1s 209ms
+.......... .......... .......... .......... ..........  80% ∆1s 3ms
+.......... .......... .......... .......... ..........  85% ∆1s 4ms
+.......... .......... .......... .......... ..........  90% ∆809ms
+.......... .......... .......... .......... ..........  95% ∆1s 16ms
+.......... .......... .......... .......... .......... 100% ∆1s 161ms
+
+(3/4) Relationship linking 2019-01-09 12:33:44.760-0330
+  Estimated required memory usage: 1.03 GB
+.......... .......... .......... .......... ..........   5% ∆400ms
+.......... .......... .......... .......... ..........  10% ∆201ms
+.......... .......... .......... .......... ..........  15% ∆202ms
+.......... .-........ .......... .......... ..........  20% ∆801ms
+.......... .......... .......... .......... ..........  25% ∆201ms
+.......... .......... .......... .......... ..........  30% ∆202ms
+.......... .......... .......... .......... ..........  35% ∆402ms
+.......... .......... .......... .......... ..........  40% ∆1ms
+.......... .......... .......... .......... ..........  45% ∆202ms
+.......... .......... .......... .......... ..........  50% ∆414ms
+.......... .......... .......... .......... ..........  55% ∆0ms
+-......... .......... .......... .......... ..........  60% ∆504ms
+.......... .......... .......... .......... ..........  65% ∆202ms
+.......... .......... .......... .......... ..........  70% ∆200ms
+.......... .......... .......... .......... ..........  75% ∆1ms
+.......... .......... .......... .......... ..........  80% ∆202ms
+.......... .......... .......... .......... ..........  85% ∆201ms
+.......... .......... .......... .......... ..........  90% ∆0ms
+.......... .......... .......... .......... ..........  95% ∆219ms
+.......... .......... .......... .......... .......... 100% ∆3ms
+
+(4/4) Post processing 2019-01-09 12:33:50.228-0330
+  Estimated required memory usage: 1020.01 MB
+-......... .......... .......... .......... ..........   5% ∆402ms
+.......... .......... .......... .......... ..........  10% ∆402ms
+.......... .......... .......... .......... ..........  15% ∆0ms
+.......... .......... .......... .......... ..........  20% ∆202ms
+.......... .......... .......... .......... ..........  25% ∆202ms
+.......... .......... .......... .......... ..........  30% ∆0ms
+.......... .......... .......... .......... ..........  35% ∆1ms
+.......... .......... .......... .......... ..........  40% ∆201ms
+.......... .......... .......... .......... ..........  45% ∆0ms
+.......... .......... .......... .......... ..........  50% ∆1ms
+.......... .......... -......... .......... ..........  55% ∆135ms
+.......... .......... .......... .......... ..........  60% ∆202ms
+.......... .......... .......... .......... ..........  65% ∆0ms
+.......... .......... .......... .......... ..........  70% ∆201ms
+.......... .......... .......... .......... ..........  75% ∆0ms
+.......... .......... .......... .......... ..........  80% ∆201ms
+.......... .......... .......... .......... ..........  85% ∆1ms
+.......... .......... .......... .......... ..........  90% ∆0ms
+.......... .......... .......... .......... ..........  95% ∆138ms
+.......... .......... .......... .......... .......... 100% ∆1ms
+
+
+IMPORT DONE in 1m 3s 719ms. 
+Imported:
+  3445597 nodes
+  2827010 relationships
+  16936668 properties
+Peak memory usage: 1.06 GB
+Data import complete
+Now start neo4j, wait for it to come up, then press enter.
+Building indexes...Done
+Database hydrated
+```
+
+
+
+Describing this process is out of scope
 for the UI, but we hope to have some public instructions to link to soon.
+
+
 Once you have a graph database in an appropriate place
 (e.g., `/var/db/neo4j/databases/graph.db`),
 start running Neo4j:
@@ -117,7 +287,7 @@ Child html-webpack-plugin for "index.html":
         + 2 hidden modules
 ```
 
-The compiles our JavaScript files together with their dependencies into an
+This compiles our JavaScript files together with their dependencies into an
 optimized and "minified" file called `bundle.js` and transforms images into
 cache-friendly (but human-unfriendly) names like `1531d[…]2af.svg`.
 This content is optimized for serving quickly via the Web rather than debugging.
@@ -126,7 +296,7 @@ which compiles unoptimized versions of JavaScript and recompiles them whenever
 the source files change and serves them from http://localhost:8080:
 
 ```terminal
-$ npm run start
+$ npm run dev-server
 
 > CADETS_UI_JS@1.0.0 start /usr/home/jon/CADETS/ui
 > webpack-dev-server --open --config webpack.dev.js
