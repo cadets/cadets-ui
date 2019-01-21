@@ -1,0 +1,44 @@
+@startuml
+Connection -- Query
+
+
+
+class Connection
+{
+	{field} +log
+	{field} +uri
+	{field} +driver
+
+	{method} +fileQuery
+	{method} +neighbours
+	{method} +processQuery
+	
+}
+note left: Functions to build queries,\npossibly using user-provided filters:
+
+note "fileQuery:\nname:\nname substrings that have been used to refer to this file\nuuid:\nopaque UUID for the file" as N1
+
+note "neighbours:\nLook up a node's immediate neighbours" as N2
+
+note "processQuery:\nLook up processes in the database according\nto a set of filters:\ncmdline:\nsubstring within the command line that executed the process\nuuid:\nopaque UUID for the process" as N3
+Connection .. N1
+Connection .. N2
+Connection .. N3
+
+class Query
+{
+	{field} +driver
+	{field} +log
+	{field} +varname
+	{field} +matchExpr
+	{field} +parse
+
+	{method} +execute: (total, result, complete, limit = 200)
+	
+}
+note right: A query that can be executed and\nwhose result set size can be\nreported in O(1) time.
+
+note "execute:\nThree callbacks should be provided:\ntotal:\ncalled first, with a total number of nodes that match the\nresult:\ncalled with each node that arrives (in a stream of nodes)\ncomplete:\ncalled when transfer is complete" as N4
+Query .. N4
+
+@enduml
