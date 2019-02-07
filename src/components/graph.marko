@@ -56,7 +56,8 @@ class {
   }
 
   addNode(node) {
-    this.graph.add({
+  console.log("adding node", node)
+  var graphNode = {
       group: 'nodes',
       classes: node.style_name,
 
@@ -64,10 +65,14 @@ class {
         id: node.id,
         label: node.label,
       },
-    })
+    }
+     this.graph.add (graphNode)
+     console.log ("added", graphNode)
   }
 
+
   addEdge(edge) {
+  console.log("adding edge", edge)
     this.graph.add({
       group: 'edges',
       classes: edge.style_name,

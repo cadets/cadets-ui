@@ -42,8 +42,8 @@ class PvmEdge extends GraphEntity
   constructor: (record) ->
     super record
 
-    @source = record.start
-    @dest = record.end
+    @source = record.start.low
+    @dest = record.end.low
 
     c = @properties.class
     @label = c
@@ -54,6 +54,7 @@ class PvmEdge extends GraphEntity
 
       when 'child'
         @style_name = 'child'    # TODO: fork? exec?
+
 
 
 #
