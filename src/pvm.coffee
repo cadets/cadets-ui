@@ -14,6 +14,8 @@
 # limitations under the License.
 
 
+
+
 #
 # A Neo4j node or edge
 #
@@ -126,6 +128,24 @@ class Socket extends PvmNode
 
     @label = @properties.uuid
 
+class Conduit extends PvmNode
+  constructor: (record) ->
+    super 'pipe', record
+
+    if @properties.name
+      @label = @properties.name
+    else
+      @label = @uuid
+
+class Context extends PvmNode
+  constructor: (record) ->
+    super 'cadets_context', record
+
+    if @properties.name
+      @label = @properties.name
+    else
+      @label = @uuid
+
 
 
 #
@@ -186,6 +206,16 @@ class PVMv2Parser
     else if ty == 'file'
       return new FileVersion record
 
+    else if ty == 'pipe'
+      return new Conduit record
+
+    else if ty == 'ptty'
+      return new Conduit record 
+
+    else if ty == 'cadets_context'
+      return new Context record
+
+
     @log.info 'Unhandled node type ' + labels[0] + ': ' + record
 
   #
@@ -200,6 +230,17 @@ class PVMv2Parser
   process: (record) =>
     return new Process record
 
+  #
+  # Parse a (known) Conduit
+  #
+  #Conduit: (record) =>
+   # return new Conduit record
+
+  #
+  # Parse a (known) Context
+  #
+  #Context: (record) =>
+    #return new Context record
 
 #
 # Choose a PVM parser

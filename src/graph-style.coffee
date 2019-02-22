@@ -79,6 +79,16 @@ module.exports = [
   #
   # Various types of PVM nodes:
   #
+
+  {
+    selector: 'node.ptty'
+    style:
+      shape: 'rectangle'
+      'text-opacity': 0
+      'background-image': require './img/ptty.png'
+      'background-opacity': 0
+      'border-width': 0
+  },
   {
     selector: 'node.connection'
     style:
@@ -114,7 +124,7 @@ module.exports = [
   },
 
   {
-    selector: 'node.pipe-endpoint'
+    selector: 'node.pipe'
     style:
       shape: 'rectangle'
       'font-size': 0
