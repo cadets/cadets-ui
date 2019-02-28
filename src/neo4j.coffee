@@ -64,10 +64,8 @@ class Connection
   #
   fileQuery: (filters) =>
     new Query @driver, @log, 'f', "
-        MATCH (f:File)
+        MATCH (f:Store)
         WHERE
-          f.name CONTAINS '#{filters.name}'
-          AND
           f.uuid CONTAINS '#{filters.uuid}'
       ",
       @pvm.fileVersion

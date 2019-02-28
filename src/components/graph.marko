@@ -64,6 +64,8 @@ class {
       data: {
         id: node.id,
         label: node.label,
+	souce: node.source,
+	target: node.dest,
       },
     }
      this.graph.add (graphNode)
@@ -73,16 +75,19 @@ class {
 
   addEdge(edge) {
   console.log("adding edge", edge)
-    this.graph.add({
-      group: 'edges',
-      classes: edge.style_name,
+  var graphEdge = {
+	group: 'edges',
+	classes: edge.style_name,
 
-      data: {
-        source: edge.source,
-        target: edge.dest,
-        label: edge.label,
-      },
-    })
+	data: {
+        	source: edge.source,
+        	target: edge.dest,
+        	label: edge.label,
+		id: edge.id,
+	},
+	}
+    this.graph.add (graphEdge)
+    console.log ("added", graphEdge)   
   }
 
   clear() {

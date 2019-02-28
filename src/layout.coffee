@@ -58,8 +58,9 @@ class Layout
             @root
 
     @layout.on 'stateChanged', () ->
-      state = JSON.stringify ui.layout.toConfig()
-      localStorage.setItem 'savedLayout', state
+      if ui.layout.isInitialized
+        state = JSON.stringify ui.layout.toConfig()
+        localStorage.setItem 'savedLayout', state
 
     @layout.on 'tabCreated', (tab) ->
       tab.closeElement

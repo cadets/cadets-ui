@@ -1,6 +1,6 @@
 # Copyright 2018 Jonathan Anderson
 # Copyright 2018 Garrett Kirkland
-#
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -229,18 +229,23 @@ class PVMv2Parser
   #
   process: (record) =>
     return new Process record
+ #
+  # Parse a (known) Actor
+  #
+  #process: (Actor) =>
+   # return new Actor record
 
   #
   # Parse a (known) Conduit
   #
-  #Conduit: (record) =>
-   # return new Conduit record
+  Conduit: (record) =>
+   return new Conduit record
 
   #
   # Parse a (known) Context
   #
   #Context: (record) =>
-    #return new Context record
+   # return new Context record
 
 #
 # Choose a PVM parser

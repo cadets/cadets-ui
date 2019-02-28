@@ -16,14 +16,13 @@
 
 cytoscape = require 'cytoscape'
 cxtmenu = require 'cytoscape-cxtmenu'
-#cytoscape.use require 'cytoscape-cxtmenu'
+#cytoscape.use require 'cytoscape-cxtmenu'# is this code the same as other require? 
 cytoscape.use( cxtmenu ) //register extention
 cytoscape.use require 'cytoscape-cose-bilkent'
 cytoscape.use require 'cytoscape-dagre'
 
 
-
-
+###
 exports.cytoscape = cytoscape
 
 cy = cytoscape({
@@ -62,8 +61,8 @@ defaults = {
   zIndex: 9999, # the z-index of the ui div
   atMouse: false # draw menu at mouse position
 };
-menu = cy.cxtmenu( someOptions )
+menu = cy.cxtmenu( someOptions2 )
 
 menu = cy.cxtmenu( defaults )
 
-menu.destroy()
+###
