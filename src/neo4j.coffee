@@ -159,3 +159,18 @@ module.exports =
 
     driver = neo4j.driver(uri, neo4j.auth.basic(username, password), config)
     new Connection(driver, credentials, log, notifyConnected)
+
+
+
+ pathQuery: (filters) =>
+    new Query @driver, @log, 'p', "
+      MATCH (p:path)
+      WHERE
+        p.ty = 'path'
+        AND
+        p.db_id CONTAINS '#{filters.db_id}'
+        AND
+        p.path CONTAINS '#{filters.path}'
+      ",
+      @pvm.path
+

@@ -3,38 +3,31 @@ class {
     this.db = this.input.database
     this.input.registerSearcher(this)
   }
-
   /*
    * One of our search inputs has changed: start a new node search
    */
   search() {
     var nodelist = this.getComponent('nodelist')
     nodelist.state.nodes = []
-
     var filters = {
       name: this.getEl('name').value,
       uuid: this.getEl('uuid').value,
     }
-
     var callback = function (node) {
       nodelist.state.nodes.push(node)
       nodelist.setStateDirty('nodes')
     }
-
     var query = this.input.database.fileQuery(filters)
     query.execute(this.searchStarted, callback, this.searchComplete)
   }
-
   /*
    * The user has selected a node for inspection
    */
   inspect(node) {
     this.input.inspect(node)
   }
-
   searchComplete() {
   }
-
   searchStarted(count) {
   }
 }

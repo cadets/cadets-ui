@@ -165,6 +165,20 @@ module.exports = [
       'font-size': 0
       'text-opacity': 0
   },
+  {
+ 
+    selector: 'node.path'
+    style:
+      shape: 'rectangle'
+      'background-color': colours.path
+      'background-image': require './img/path.png'
+      'background-opacity': 0
+      'border-opacity': 0
+      'font-size': 0
+      'text-opacity': 0
+      content: 'data(label)'
+   },
+
 
       ###
       node.machine {
@@ -184,7 +198,6 @@ module.exports = [
         text-background-opacity: 0
         text-outline-color: white
         text-outline-width: 3; }
-
       node.machine:parent {
         background-image-opacity: 0
         background-fit: none
@@ -194,14 +207,12 @@ module.exports = [
         border-width: 2
         min-height: 128px
         min-width: 128px; }
-
       node.machine.external {
         text-margin-y: 0.25em
         padding: 1em
         background-image: require './img/machine-external.svg'
         width: 135px
         height: 135px; }
-
       node.pipe {
         content: data(label)
         background-color: #{colours.pipe}
@@ -257,35 +268,30 @@ module.exports = [
         mid-target-arrow-color: #633
         line-color: #633
         text-outline-color: #633; }
-
       edge.comm {
         line-style: dashed
         target-arrow-color: #633
         mid-target-arrow-color: #633
         line-color: #633
          text-outline-color: #633; }
-
       edge.proc-change {
         line-style: dashed
         target-arrow-color: #366
         mid-target-arrow-color: #366
         line-color: #366
         text-outline-color: #366; }
-
       edge.proc-metadata {
         line-style: dotted
         target-arrow-color: #366
         mid-target-arrow-color: #366
         line-color: #366
         text-outline-color: #366; }
-
       edge.inf {
         line-style: dotted
         target-arrow-color: #633
         mid-target-arrow-color: #633
         line-color: #633
         text-outline-color: #633; }
-
       edge.describes {
         target-arrow-color: #8c4a00
         mid-target-arrow-color: #8c4a00
@@ -294,3 +300,6 @@ module.exports = [
      ).update()
     ###
 ]
+
+
+

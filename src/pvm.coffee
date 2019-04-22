@@ -19,6 +19,13 @@
 #
 # A Neo4j node or edge
 #
+#@type: string
+#@uuid: Uuid
+#ctx: ID
+#meta: TimeSeriesMap
+#
+
+
 class GraphEntity
   constructor: (record) ->
     @id = record.identity.low
@@ -56,6 +63,11 @@ class PvmEdge extends GraphEntity
 
       when 'child'
         @style_name = 'child'    # TODO: fork? exec?
+
+###class INF extends PvmEdge 
+   constructor: (record) ->
+     super 'INF' record
+	if INF ###
 
 
 
@@ -117,7 +129,7 @@ class Process extends PvmNode
     super 'process', record
 
     @pid = @properties.pid.low
-
+    
     @label = @properties.cmdline
     @short_name = @pid
 
@@ -156,6 +168,10 @@ class Path extends GraphEntity
     super record
 
     @path = @properties.path
+    @style_name = 'path'
+    @short_name = @path.substring(0, 20)
+    @label = @short_name       
+
 
 
 #

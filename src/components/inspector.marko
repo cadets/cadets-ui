@@ -3,29 +3,24 @@ class {
     this.graph = this.getComponent('graph')
     this.input.registerInspector(this)
   }
-
   inspect(node, db) {
     var counter = this.getEl('counter')
     var graph = this.graph
     var limit = 50
     var self = this
-
     counter.innerHTML = ''
     graph.clear()
     graph.addNode(node)
-
     var neighbourCount = function(count) {
       limit = (count < limit) ? count : limit
       counter.innerHTML = limit + '/' + count
     }
-
     var nextNeighbour = function(neighbour, edge) {
       if (neighbour) {
         graph.addNode(neighbour)
         graph.addEdge(edge)
       }
     }
-
     db.neighbours(node).execute(
       neighbourCount,
       nextNeighbour,
@@ -33,7 +28,6 @@ class {
       limit
     )
   }
-
   layout(animate = false) {
     this.graph.layout('dagre', animate)
   }

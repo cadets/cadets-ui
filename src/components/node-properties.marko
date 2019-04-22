@@ -4,11 +4,9 @@ class {
       properties: {}
     }
   }
-
   onMount() {
     this.input.registerInspector(this)
   }
-
   inspect(node) {
     this.state.properties = node.properties//Object.entries(node.properties)
   }
