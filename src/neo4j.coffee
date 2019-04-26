@@ -1,5 +1,6 @@
 # Copyright 2018 Jonathan Anderson
 # Copyright 2018 Garrett Kirkland
+# Copyright 2019 Nadia Shalaby
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -173,4 +174,3 @@ module.exports =
         p.path CONTAINS '#{filters.path}'
       ",
       @pvm.path
-

@@ -1,5 +1,6 @@
 # Copyright 2017-2018 Jonathan Anderson
 # Copyright 2018 Garrett Kirkland
+# Copyright 2019 Naia Shalaby
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 # you may not use this file except in compliance with the License.
@@ -111,6 +112,7 @@ module.exports = [
     style:
       'background-color': colours.file
       'background-opacity': 0.25
+      'background-image': require  './img/file-version.png'
       'border-color': '#633'
   },
 
@@ -149,6 +151,7 @@ module.exports = [
     selector: 'node.socket'
     style:
       'background-color': colours.socket
+      'background-image': require './img/socket.png'
       'background-opacity': 0.5
       'border-color': '#999'
       'border-opacity': 1

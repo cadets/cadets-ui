@@ -1,6 +1,7 @@
 # Copyright 2018 Jonathan Anderson
 # Copyright 2018 Garrett Kirkland
-# 
+# Copyright 2019 Nadia Shalaby
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -64,7 +65,7 @@ class PvmEdge extends GraphEntity
       when 'child'
         @style_name = 'child'    # TODO: fork? exec?
 
-###class INF extends PvmEdge 
+###class INF extends PvmEdge
    constructor: (record) ->
      super 'INF' record
 	if INF ###
@@ -118,7 +119,9 @@ class FileVersion extends PvmNode
   constructor: (record) ->
     super 'file-version', record
 
-    if @properties.name
+    if @properties.path
+      @label = @properties.path
+    else if @properties.name
       @label = @properties.name
     else
       @label = @short_name
@@ -129,7 +132,7 @@ class Process extends PvmNode
     super 'process', record
 
     @pid = @properties.pid.low
-    
+
     @label = @properties.cmdline
     @short_name = @pid
 
@@ -170,7 +173,7 @@ class Path extends GraphEntity
     @path = @properties.path
     @style_name = 'path'
     @short_name = @path.substring(0, 20)
-    @label = @short_name       
+    @label = @short_name
 
 
 
@@ -226,7 +229,7 @@ class PVMv2Parser
       return new Conduit record
 
     else if ty == 'ptty'
-      return new Conduit record 
+      return new Conduit record
 
     else if ty == 'cadets_context'
       return new Context record

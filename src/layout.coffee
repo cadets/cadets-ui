@@ -1,4 +1,5 @@
 # Copyright 2018 Jonathan Anderson
+# Copyright 2019 Nadia Shalaby
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +15,8 @@
 
 require 'bootstrap'
 require 'bootstrap/dist/css/bootstrap.min.css'
+cytoscape = require 'cytoscape'
+
 
 GoldenLayout = require 'golden-layout'
 require 'golden-layout/src/css/goldenlayout-base.css'
@@ -42,6 +45,9 @@ class Layout
                         type: 'component',
                         componentName: 'Files',
                     }],
+                },{
+                    type: 'component',
+                    componentName: 'Worksheet',
                 },{
                     type: 'column',
                     content: [{
@@ -79,6 +85,7 @@ class Layout
     registerMarko 'Processes', require './components/process-search-pane.marko'
     registerMarko 'Neighbours', require './components/inspector.marko'
     registerMarko 'Properties', require './components/node-properties.marko'
+   
 
     @worksheets = worksheets = []
 
