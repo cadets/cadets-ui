@@ -33,10 +33,8 @@ class {
     this.input.inspect(node)
   }*/
   onMount() {
-  
     var cytoscape = this.cytoscape
-   
-        
+
     //
     // Work around https://github.com/cytoscape/cytoscape.js/issues/2122
     // by loading the graph with jQuery after everything else is initialized.
@@ -49,58 +47,53 @@ class {
     var $ = require('jquery')
     var component = this
     var graphNode = this.getEl('graph')
-    
+
     setTimeout(function() {
       component.graph = new cytoscape({
         container: graphNode,
         style: require('../graph-style.coffee'),
-
-
       })
 
-//  the default values of each option are outlined below:
-    var defaults =  {
-      menuRadius: 50, // the radius of the circular menu in pixels
-      selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
-      commands: [ // an array of commands to list in the menu or a function that returns the array
+      var defaults = {
+        menuRadius: 50,  // the radius of the circular menu in pixels
+        selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
+        commands: [ // an array of commands to list in the menu or a function that returns the array
+          { // example command
+            fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
+            content: 'inspect', // html/text content to be displayed in the menu
+            //  contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+            select: function(node){ // a function to execute when the command is selected
+            // `ele` holds the reference to the active element
+            console.log(this)
+            // this.input.registerInspector(this)
 
-       { // example command
-        fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-        content: 'inspect', // html/text content to be displayed in the menu
-      //  contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-        select: function(node){ // a function to execute when the command is selected
-          // `ele` holds the reference to the active element
-          console.log(this)
-         // this.input.registerInspector(this)
-
-
-        component.emit.inspector('inspect', node)             
- },
-        enabled: true // whether the command is selectable
+            component.emit.inspector('inspect', node)
+          },
+          enabled: true // whether the command is selectable
+        }
+        ], // function( ele ){ return [ /*...*/ ] }, // example function for commands
+        fillColor: 'rgba(0, 0, 0, 0.75)', // the background colour of the menu
+        activeFillColor: 'rgba(1, 105, 217, 0.75)', // the colour used to indicate the selected command
+        activePadding: 20, // additional size in pixels for the active command
+        indicatorSize: 24, // the size in pixels of the pointer to the active command
+        separatorWidth: 3, // the empty spacing in pixels between successive commands
+        spotlightPadding: 4, // extra spacing in pixels between the element and the spotlight
+        minSpotlightRadius: 24, // the minimum radius in pixels of the spotlight
+        maxSpotlightRadius: 38, // the maximum radius in pixels of the spotlight
+        openMenuEvents: 'cxttapstart taphold', // space-separated cytoscape events that will open the menu; only `cxttapstart` and/or `taphold` work here
+        itemColor: 'white', // the colour of text in the command's content
+        temTextShadowColor: 'transparent', // the text shadow colour of the command's content
+        Index: 9999, // the z-index of the ui div
+        atMouse: false // draw menu at mouse position
       }
 
-       ], // function( ele ){ return [ /*...*/ ] }, // example function for commands
-       fillColor: 'rgba(0, 0, 0, 0.75)', // the background colour of the menu
-       activeFillColor: 'rgba(1, 105, 217, 0.75)', // the colour used to indicate the selected command
-       activePadding: 20, // additional size in pixels for the active command
-       indicatorSize: 24, // the size in pixels of the pointer to the active command
-       separatorWidth: 3, // the empty spacing in pixels between successive commands
-       spotlightPadding: 4, // extra spacing in pixels between the element and the spotlight
-       minSpotlightRadius: 24, // the minimum radius in pixels of the spotlight
-       maxSpotlightRadius: 38, // the maximum radius in pixels of the spotlight
-       openMenuEvents: 'cxttapstart taphold', // space-separated cytoscape events that will open the menu; only `cxttapstart` and/or `taphold` work here
-       itemColor: 'white', // the colour of text in the command's content
-       temTextShadowColor: 'transparent', // the text shadow colour of the command's content
-       Index: 9999, // the z-index of the ui div
-       atMouse: false // draw menu at mouse position
-   }
-
-   let menu = component.graph.cxtmenu( defaults );
+      let menu = component.graph.cxtmenu( defaults );
     }, 100)
   }
+
   addNode(node) {
-  console.log("adding node", node)
-  var graphNode = {
+    console.log("adding node", node)
+    var graphNode = {
       group: 'nodes',
       classes: node.style_name,
       data: {
@@ -108,27 +101,31 @@ class {
         label: node.label,
       },
     }
-     this.graph.add (graphNode)
-     console.log ("added", graphNode)
+    this.graph.add (graphNode)
+    console.log ("added", graphNode)
   }
+
   addEdge(edge) {
-  console.log("adding edge", edge)
-  var graphEdge = {
-	group: 'edges',
-	classes: edge.style_name,
-	data: {
-        	source: edge.source,
-        	target: edge.dest,
-        	label: edge.label,
-		id: edge.id,
-	},
-	}
-    this.graph.add (graphEdge)
-    console.log ("added", graphEdge)
+    console.log("adding edge", edge)
+    var graphEdge = {
+      group: 'edges',
+      classes: edge.style_name,
+      data: {
+        source: edge.source,
+        target: edge.dest,
+        label: edge.label,
+        id: edge.id,
+      },
+    }
+
+    this.graph.add(graphEdge)
+    console.log("added", graphEdge)
   }
+
   clear() {
     this.graph.nodes().remove()
   }
+
   layout(algorithm, animate = false) {
     this.graph.layout({
       name: algorithm,
